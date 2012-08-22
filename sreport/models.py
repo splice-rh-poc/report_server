@@ -17,7 +17,7 @@ class SpliceServer(Document):
     hostname = StringField(required=True)
     
     def __unicode__(self):
-        return u'%s %s %s' % (self.uuid, self.description, self.hostname)
+        return u'%s %s' % (self.description, self.hostname)
 
 class SpliceServerRelationships(Document):
     self = ReferenceField(SpliceServer, required=True)
@@ -44,7 +44,7 @@ class ConsumerIdentity(Document):
     subscriptions = ListField(EmbeddedDocumentField(MarketingProductSubscription))
     
     def __unicode__(self):
-        return u'%s %s' % (self.uuid, self.subscriptions)
+        return u'%s' % (self.uuid)
 
 class ReportingItem(EmbeddedDocument):
     product = ReferenceField(MarketingProduct, required=True)
@@ -68,6 +68,7 @@ class ProductUsageForm(DocumentForm):
     #works
     class Meta:
         document = ProductUsage
+        fields = ['splice_server', 'consumer']
     #works
         #consumers = forms.ModelChoiceField(queryset=ConsumerIdentity.objects.all())
         #fields = ['splice_server']
