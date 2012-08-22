@@ -15,6 +15,9 @@ class SpliceServer(Document):
     uuid = StringField(required=True, unique=True)
     description = StringField() # Example what datacenter is this deployed to, i.e. us-east-1
     hostname = StringField(required=True)
+    
+    def __unicode__(self):
+        return u'%s %s %s' % (self.uuid, self.description, self.hostname)
 
 class SpliceServerRelationships(Document):
     self = ReferenceField(SpliceServer, required=True)
@@ -25,31 +28,50 @@ class MarketingProduct(Document):
     uuid = StringField(required=True, unique=True)
     name = StringField(required=True)
     description = StringField()
+    
+    def __unicode__(self):
+        return u'%s %s %s' % (self.uuid, self.name, self.description)
 
 class MarketingProductSubscription(EmbeddedDocument):
     expires = DateTimeField(required=True)
     product = ReferenceField(MarketingProduct, required=True)
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.expires, self.product)
 
 class ConsumerIdentity(Document):
     uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
     subscriptions = ListField(EmbeddedDocumentField(MarketingProductSubscription))
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.uuid, self.subscriptions)
 
 class ReportingItem(EmbeddedDocument):
     product = ReferenceField(MarketingProduct, required=True)
     date = DateTimeField(required=True)
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.product, self.date)
 
 class ProductUsage(Document):
     consumer = ReferenceField(ConsumerIdentity)
     splice_server = ReferenceField(SpliceServer, required=True)
     instance_identifier = StringField(required=True, unique_with=["splice_server", "consumer"]) # example: MAC Address
     product_info = ListField(EmbeddedDocumentField(ReportingItem))
+    
+    def __unicode__(self):
+        return u'%s %s %s %s' % (self.consumer, self.splice_server,
+                                  self.instance_identifier, self.product_info)
 
 
 class ProductUsageForm(DocumentForm):
+    #works
     class Meta:
         document = ProductUsage
+    #works
         #consumers = forms.ModelChoiceField(queryset=ConsumerIdentity.objects.all())
         #fields = ['splice_server']
+    #uuid = forms.ChoiceField(initial=ConsumerIdentity.objects.all())
         
 class ConsumerIdentityForm(DocumentForm):
     class Meta:

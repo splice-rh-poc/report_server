@@ -9,6 +9,7 @@ from django.contrib.auth import (login as auth_login,
     logout as auth_logout, authenticate)
 from django.template import RequestContext
 from sreport.models import ConsumerIdentityForm, ProductUsageForm
+from sreport.models import ProductUsage
 
 def template_response(request, template_name):
     return render_to_response(template_name, {},
@@ -70,12 +71,13 @@ def index(request):
     return template_response(request, 'base.html')
 
 def create(request):
-    ReportFormSet = formset_factory( ProductUsageForm)
+    #ReportFormSet = formset_factory( ProductUsageForm)
     if request.method == 'POST':
-        formset = ReportFormSet(request.POST)
-        if formset.is_valid():
+        form = ProductUsageForm(request.POST)
+        if form.is_valid():
             # do something with the formset.cleaned_data
             pass
     else:
-        formset = ReportFormSet()
-    return render_to_response('create_report/create.html', {'formset': formset})
+        form = ProductUsageForm
+
+    return render_to_response('create_report/create.html', {'form': form})
