@@ -1,0 +1,30 @@
+
+<br><br>
+{% for pu in list %}
+    {# Each "marketing product" is a MarketingProduct model object. #}
+        <b>MAC: </b>{{ pu.mac }}
+        <b>Splice Server: </b> {{ pu.hostname }}
+        <b>Consumer UUID: </b> {{ pu.uuid }}
+        {% for product in pu.products %}
+             <br>
+             <b>Product: </b>{{ product.product.name }}: <b>Check In: </b> {{ product.date }}
+        {% endfor %}
+    <br><br />
+{% endfor %}
+
+<br>
+<div class="pagination">
+    <span class="step-links">
+        {% if list.has_previous %}
+            <a href="?page={{ list.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ list.number }} of {{ list.paginator.num_pages }}.
+        </span>
+
+        {% if list.has_next %}
+            <a href="?page={{ list.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>

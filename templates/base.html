@@ -1,0 +1,140 @@
+{% comment %}
+#
+# Copyright © 2012 Red Hat, Inc.
+#
+# This software is licensed to you under the GNU General Public
+# License as published by the Free Software Foundation; either version
+# 2 of the License (GPLv2) or (at your option) any later version.
+# There is NO WARRANTY for this software, express or implied,
+# including the implied warranties of MERCHANTABILITY,
+# NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+# have received a copy of GPLv2 along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+{% endcomment %}
+
+<html>
+
+<head>
+    <link type="text/css" href="http://code.jquery.com/ui/1.8.23/themes/sunny/jquery-ui.css" rel="Stylesheet" />    
+    <script src="{{ STATIC_URL }}jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
+    <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
+    <script>
+        $(function() {
+                var username = $( "#username" ),
+                    password = $( "#password" ),
+                    allFields = $( [] ).add( username ).add( password );
+
+                $( "#login-form" ).dialog({
+                    autoOpen: false,
+                    height: 300,
+                    width: 350,
+                    modal: true,
+                    buttons: {
+                        "Login": function() {
+
+                            var data = {
+                                // XXX TESTING
+                                "username": "shadowman",
+                                "password": "shadowman",
+                                // "username": username.val(),
+                                // "password": password.val()
+                            };
+
+                            var jqxhr = $.ajax({
+                                url: "/ui/login",
+                                type: "POST",
+                                contentType: "application/json",
+                                data: data,
+                                dataType: "json",
+                            })
+
+                            $(this).dialog("close");
+
+                            jqxhr.complete(function(){  
+                                window.location="create"
+                            });
+                       },
+                        Cancel: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    },
+                    close: function() {
+                        allFields.val( "" ).removeClass( "ui-state-error" );
+                    }
+                });
+
+                // Login button click action.
+                $( "#login-button" )
+                    .button()
+                    .click(function() {
+                        $( "#login-form" ).dialog( "open" );
+                });
+
+                // Logout button click action.
+                $( "#logout-button" )
+                    .button()
+                    .click(function() {
+                        var jqxhr = $.ajax({
+                            url: "/ui/logout",
+                            type: "POST",
+                            contentType: "application/json",
+                        })
+
+                        $("#logout-button").attr("disabled", true)
+
+                        jqxhr.complete(function(){  
+                            window.location = "logout"
+                        });
+                });
+
+                // Disable Logout button if the user is not logged in.
+                {% if user.is_authenticated %}
+                    $("#logout-button").removeAttr("disabled")
+                {% else %}
+                    $("#logout-button").attr("disabled", true)
+                    $("#logout-button").css("opacity", "0.35")
+                {% endif %}
+
+                {% block scripts %}
+                {% endblock %}
+
+            });
+    </script>
+</head>
+
+{% if user.is_authenticated %}
+    <p>
+    Welcome {{ user.username }}!
+    </p>
+{% else %}
+    <p>
+    You are not logged in.
+    </p>
+{% endif %}
+
+<!-- Login Button -->
+<button id="login-button">Login</button>
+<!-- Logout Button -->
+<button id="logout-button">Logout</button>
+
+<!-- Login Form -->
+<div id="login-form" title="Login">
+    <form>
+    <fieldset>
+        <label for="username">Username</label><br>
+        <input type="text" name="username" id="username" class="text ui-widget-content ui-corner-all" /><br>
+        <label for="password">Password</label><br>
+        <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
+    </fieldset>
+    </form>
+</div>
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <script>window.location = 'create';</script>
+    {% endif %}
+{% endblock %}
+
+</html>
