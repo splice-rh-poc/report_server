@@ -1,12 +1,41 @@
 
-<!DOCTYPE html>
+{% include "style.html" %}
 
 <head>
   <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
   
-
+<style type="text/css">
+body
+  { font-family: Arial, Verdana, Helvetica, sans-serif; }
+form
+  { border: solid #FFFFFF 1px;
+    width: 28em;
+    margin: 5px;
+    padding: 5px;
+    }
+label
+  { width: 6em;
+    float: left;
+    text-align: right;
+    margin: .5em 1em;
+    clear: both;
+    }
+input, textarea
+  { font-family: Arial, Verdana, Helvetica, sans-serif;
+    font-size: small;
+    margin: .5em 0;
+    width: 17em;
+    }
+input[type="submit"]
+  { float: none;
+    clear: both;
+    width: auto;
+    margin-bottom: 1em;
+    margin-left: 25em;
+    }
+</style>
 </head>
 <body>
 <div class="demo">

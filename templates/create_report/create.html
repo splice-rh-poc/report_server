@@ -1,4 +1,4 @@
-
+{% include "style.html" %}
 <!DOCTYPE html>
 
 <head>
@@ -25,8 +25,8 @@
   </script>
   
   
-  <form action="/" id="thisForm">
-        {{ form.as_p }}
+  <form action="/ui/results" id="thisForm">
+        {{ form.consumer }} 
    <input type="submit" value="Submit" />
   </form>
   

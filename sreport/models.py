@@ -43,8 +43,10 @@ class ConsumerIdentity(Document):
     uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
     subscriptions = ListField(EmbeddedDocumentField(MarketingProductSubscription))
     
+    #def __unicode__(self):
+    #    return u'%s' % (self.uuid)
     def __unicode__(self):
-        return u'%s' % (self.uuid)
+        return '%s' % (self.uuid)
 
 class ReportingItem(EmbeddedDocument):
     product = ReferenceField(MarketingProduct, required=True)
@@ -60,7 +62,7 @@ class ProductUsage(Document):
     product_info = ListField(EmbeddedDocumentField(ReportingItem))
     
     def __unicode__(self):
-        return u'%s %s %s %s' % (self.consumer, self.splice_server,
+        return u'%s %s %s %s' % (self.consumer, self.splice_server.hostname,
                                   self.instance_identifier, self.product_info)
 
 
@@ -68,7 +70,9 @@ class ProductUsageForm(DocumentForm):
     #works
     class Meta:
         document = ProductUsage
-        fields = ['splice_server', 'consumer']
+        #consumer = document.consumer.choices
+        #fields = ['splice_server', 'consumer']
+        fields = ['consumer']
     #works
         #consumers = forms.ModelChoiceField(queryset=ConsumerIdentity.objects.all())
         #fields = ['splice_server']

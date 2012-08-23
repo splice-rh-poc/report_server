@@ -21,4 +21,5 @@ urlpatterns = patterns('',
     (r'^report/$', pulisting),
     (r'^ui/$', 'sreport.views.index'),
     (r'^ui/create/$', 'sreport.views.create'),
+    (r'^ui/results/$', 'sreport.views.results'),
 )
