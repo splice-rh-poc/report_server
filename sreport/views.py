@@ -13,7 +13,7 @@ from sreport.models import ConsumerIdentityForm, ProductUsageForm
 from sreport.models import ProductUsage, ConsumerIdentity
 from django.template.response import TemplateResponse
 from django.forms.models import model_to_dict
-from sreport.dataInForm import build_pretty_data_view
+
 
 
 def template_response(request, template_name):
