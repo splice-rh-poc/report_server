@@ -1,0 +1,32 @@
+{% include "liststyle.html" %}
+<title> Results </title>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.jquery4u.com/demos/jquery-quick-pagination/js/jquery.quick.pagination.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $("ul.data").quickPagination({pagerLocation:"both",pageSize:"3"});
+});
+</script>
+
+<ul class="data">
+{% for pu in list %}
+
+    <li>
+        <b>Product: </b> {{ pu.name }}
+        
+        <b>SLA:</b> {{ pu.sla }}
+        <b>Support:</b> {{ pu.support }}
+        <b>Facts:</b> {{ pu.facts }}
+        <b>Contracted Use:</b> {{ pu.contract_use }}
+        <b>NAU to Date: </b> {{ pu.checkins }}
+    </li>
+{% endfor %}
+
+</ul>
+<br>
+</head>
+
+
+
+
