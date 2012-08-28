@@ -7,12 +7,42 @@
 
 
   <script>
+ window.onload=function() {
+   document.forms[0].elements["startDate"].disabled=true;
+   document.forms[0].elements["endDate"].disabled=true;
+   
+   // next, attach the click event handler to the radio buttons
+  var radios = document.forms[0].elements["group1"];
+  for (var i = [0]; i < radios.length; i++)
+    radios[i].onclick=radioClicked;
+}
+
+function radioClicked() {
+
+  // find out which radio button was clicked and
+  // disable/enable appropriate input elements
+  switch(this.value) {
+    case "one" :
+       document.forms[0].elements["byMonth"].disabled=false;
+       document.forms[0].elements["monthTXT"].disabled=false;
+       document.forms[0].elements["startDate"].disabled=true;
+       document.forms[0].elements["endDate"].disabled=true;
+       break;
+    case "two" :
+       document.forms[0].elements["byMonth"].disabled=true;
+       document.forms[0].elements["monthTXT"].disabled=true;
+       document.forms[0].elements["startDate"].disabled=false;
+       document.forms[0].elements["endDate"].disabled=false;
+       break;
+  }
+ 
+ }
   $(function() {
     $("#startDate").datepicker();
     $("#endDate").datepicker();
-    $("#byMonth").datepicker({ dateFormat: "mm/yy" });
+
     
-    $('#monthCMB').change( function(){
+    $('#byMonth').change( function(){
          $('#monthTXT').val( $(this).val() );
     }).click( function(){
          $('#monthTXT').val( $(this).val() );
@@ -27,39 +57,47 @@
 
 
 
-<body>
 
+<style type="text/css">
+p.padding {padding-left:2%;}
+</style>
+
+<body>
 
 <br>
 <fieldset>
 <form action="/ui/report/" id="myform">
-        <p>
-        <select id="monthCMB">
+        
+       <p class="padding">
+       <b>Date:</b> <input type="radio" name="group1" value="one" />
+
+        <select id="byMonth" disabled="true">
          <option value="">Select Month</option>
-         <option value="January">January</option>
-         <option value="February">February</option>
-         <option value="March">March</option>
-         <option value="April">April</option>
-         <option value="May">May</option>
-         <option value="June">June</option>
-         <option value="July">July</option>
-         <option value="August">August</option>
-         <option value="September">September</option>
-         <option value="October">October</option>
-         <option value="November">November</option>
-         <option value="December">December</option>
+         <option value="1">January</option>
+         <option value="2">February</option>
+         <option value="3">March</option>
+         <option value="4">April</option>
+         <option value="5">May</option>
+         <option value="6">June</option>
+         <option value="7">July</option>
+         <option value="8">August</option>
+         <option value="9">September</option>
+         <option value="10">October</option>
+         <option value="11">November</option>
+         <option value="12">December</option>
         </select>
-        <input id="monthTXT" type="text" disabled="true"/>
+        <input id="monthTXT" name=viaMonth type="text" disabled="true"/>
         </p>
-
-
-        <b>Custom Range: </b>
+        <p class="padding">
+        &nbsp &nbsp &nbsp &nbsp&nbsp
+        <input type="radio" name="group1" value="two" />
+        <b>Custom Range: </b> 
         Start Date: <input type="text" id="startDate" name="startDate">
-        End Date: <input type="text" id="endDate" name="endDate"> 
-        <p><b> Consumer: </b> {{ form.consumer }} </p> 
-        <p><b> Cloud: </b> {{ form.splice_server}} </p> 
+        End Date: <input type="text" id="endDate" name="endDate"> </p>
+        <p class="padding"><b> Consumer: </b> {{ form.consumer }} </p> 
+        <p class="padding"><b> Cloud: </b> {{ form.splice_server}} </p> 
   
-   <input type="submit" value="Run Report" />
+   <p class="padding"> <input type="submit" value="Run Report" /> </p>
   </form>
 </fieldset>
 

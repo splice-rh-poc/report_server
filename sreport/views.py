@@ -10,7 +10,8 @@ from sreport.models import ProductUsage, ProductUsageForm, ConsumerIdentity, Mon
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 import pycurl, cStringIO, json
-from datetime import  date, datetime
+import datetime
+
 
 
 
@@ -118,10 +119,17 @@ def machine_results(request):
 def report(request):
     #format the data
     consumer_id = request.GET['consumer']
-    startDate = request.GET['startDate'].encode('ascii').split("/")
-    endDate = request.GET['endDate'].encode('ascii').split("/")
-    start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
-    end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    if 'viaMonth' in request.GET:
+        month = int(request.GET['viaMonth'].encode('ascii'))
+        year = datetime.datetime.today().year
+        start = datetime.datetime(year, month, 1)
+        end =  datetime.datetime(year, month + 1, 1) - datetime.timedelta (days = 1)
+    else:
+        
+        startDate = request.GET['startDate'].encode('ascii').split("/")
+        endDate = request.GET['endDate'].encode('ascii').split("/")
+        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
     consumer = ConsumerIdentity.objects.get(id = consumer_id)
     uuid = str(consumer)
     
