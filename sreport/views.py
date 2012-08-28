@@ -6,7 +6,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import ProductUsage, ProductUsageForm, ConsumerIdentity
+from sreport.models import ProductUsage, ProductUsageForm, ConsumerIdentity, MonthForm
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 import pycurl, cStringIO, json
@@ -172,6 +172,7 @@ def hours_per_consumer(my_consumer_uuid, my_consumer_id, start, end):
                     details['contract_use'] = product['quantity']
                     
                     
+                    
                     usage_all = ProductUsage.objects.filter(consumer=my_consumer_id)
                     #product_usage = defaultdict(int)
                     counter = 0
@@ -189,6 +190,7 @@ def hours_per_consumer(my_consumer_uuid, my_consumer_id, start, end):
                     details['checkins'] = counter
                         #still need facts from check in service:
                     details['facts'] = 'RAM < 8GB'
+                    details['contract_id'] = contract['contract_id']
                     results.append(details)
                     
     return results

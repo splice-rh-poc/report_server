@@ -1,10 +1,7 @@
 {% include "liststyle.html" %}
 <title> Results </title>
+
 <head>
-
-    
-
-
 <script type="text/javascript">
 $(document).ready(function() {
       $('#data').dataTable( {
@@ -20,18 +17,53 @@ $(document).ready(function() {
 });
 </script>
 
-<table cellpadding="0" cellspacing="0" border="0" class="display" id="data" width="100%">
+
+<style>
+    .dataTables_wrapper {
+        clear: left;
+        min-height: 100px;
+        position: relative;
+    }
+</style>
+
+
+</head>
+    
+<div id="main-wrap" class="wrapu">
+    <div class="wrapi">
+        <div id="container" class="clearWrap">
+            <div id="content" class="c-mF">
+                <div id="main">
+                    <div id="appsTabBox">
+                        <div class="clearBoxXtraWide">
+                            <div class="clearBoxInnerXtraWide">
+                                <div class="clearBoxBody">
+                                    <h1>Red Hat Usage Reporting</h1>
+                                        <div class="contentIndent">
+                                            <div id="tabs" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
+                                                <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+                                                    <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
+                                                        <span style="padding: 6 16;">Report</span>
+                                                    </li>
+                                                </ul>
+
+
+
+<div>
+<table id="data" class="display" style="display: table" width="100%">
     <thead>
         <tr>
             <th>Product:</th>
             <th>SLA:</th>
             <th>Support:</th>
             <th>Facts:</th>
+             <th>Contract:</th>
             <th>Contracted Use:</th>
             <th>NAU to Date:</th>
         </tr>
     </thead>
      <tbody>
+</div>
 {% for pu in list %}
   
     <tr>
@@ -40,15 +72,32 @@ $(document).ready(function() {
         <td> {{ pu.sla }} </td> 
         <td> {{ pu.support }} </td> 
         <td> {{ pu.facts }} </td> 
+        <td> {{ pu.contract_id }} </td>
         <td> {{ pu.contract_use }}</td> 
         <td> {{ pu.checkins }} </td> 
     </tr>
 {% endfor %}
    </tbody>
+</table>
+</div>
 
-</ul>
-<br>
-</head>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 

@@ -11,6 +11,23 @@ from mongodbforms.fieldgenerator import MongoFormFieldGenerator
 from django.forms.models import ModelChoiceField
 from django.forms.models import modelformset_factory
 
+
+
+class MonthForm(forms.Form):
+        months = [('January','January'),
+                  ('February','February'),
+                  ('March','March'),
+                  ('April','April'),
+                  ('May','May'),
+                  ('June','June'),
+                  ('July','July'),
+                  ('August','August'),
+                  ('September','September'),
+                  ('October','October'),
+                  ('November','November'),
+                  ('December','December'),]
+        month = forms.ChoiceField(months)
+
 class SpliceServer(Document):
     uuid = StringField(required=True, unique=True)
     description = StringField() # Example what datacenter is this deployed to, i.e. us-east-1
@@ -72,7 +89,7 @@ class ProductUsageForm(DocumentForm):
         document = ProductUsage
         #consumer = document.consumer.choices
         #fields = ['splice_server', 'consumer']
-        fields = ['consumer']
+        fields = ['consumer', 'splice_server']
     #works
         #consumers = forms.ModelChoiceField(queryset=ConsumerIdentity.objects.all())
         #fields = ['splice_server']

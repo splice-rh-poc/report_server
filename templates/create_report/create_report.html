@@ -2,28 +2,67 @@
 <!DOCTYPE html>
 
 <head>
+
+
+
+
   <script>
   $(function() {
     $("#startDate").datepicker();
     $("#endDate").datepicker();
+    $("#byMonth").datepicker({ dateFormat: "mm/yy" });
+    
+    $('#monthCMB').change( function(){
+         $('#monthTXT').val( $(this).val() );
+    }).click( function(){
+         $('#monthTXT').val( $(this).val() );
+    });
+    
   });
+  
+
   
   </script>
 </head>
 
+
+
 <body>
 
-<div class="demo">
 
+<br>
+<fieldset>
 <form action="/ui/report/" id="myform">
-        <p>Start Date: <input type="text" id="startDate" name="startDate"> </p>
-        <p>End Date: <input type="text" id="endDate" name="endDate"></p>
-        {{ form.consumer }} 
-  
-   <input type="submit" value="Submit" />
-  </form>
+        <p>
+        <select id="monthCMB">
+         <option value="">Select Month</option>
+         <option value="January">January</option>
+         <option value="February">February</option>
+         <option value="March">March</option>
+         <option value="April">April</option>
+         <option value="May">May</option>
+         <option value="June">June</option>
+         <option value="July">July</option>
+         <option value="August">August</option>
+         <option value="September">September</option>
+         <option value="October">October</option>
+         <option value="November">November</option>
+         <option value="December">December</option>
+        </select>
+        <input id="monthTXT" type="text" disabled="true"/>
+        </p>
 
-</div>
+
+        <b>Custom Range: </b>
+        Start Date: <input type="text" id="startDate" name="startDate">
+        End Date: <input type="text" id="endDate" name="endDate"> 
+        <p><b> Consumer: </b> {{ form.consumer }} </p> 
+        <p><b> Cloud: </b> {{ form.splice_server}} </p> 
+  
+   <input type="submit" value="Run Report" />
+  </form>
+</fieldset>
+
 
 
 
