@@ -1,19 +1,16 @@
 # Create your views here.
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect
-from django.http import HttpResponse
-from django.forms.formsets import formset_factory
-from django.shortcuts import render
-from django import forms
+from django.core.context_processors import csrf
+
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import ConsumerIdentityForm, ProductUsageForm
-from sreport.models import ProductUsage, ConsumerIdentity, ReportingItem, MarketingProduct
+from sreport.models import ProductUsage, ProductUsageForm, ConsumerIdentity
 from django.template.response import TemplateResponse
-from django.forms.models import model_to_dict
 from kitchen.pycompat25.collections._defaultdict import defaultdict
+import pycurl, cStringIO, json
+from datetime import  date, datetime
 
 
 
@@ -119,8 +116,16 @@ def machine_results(request):
     return response
 
 def report(request):
-    consumer = request.GET['consumer']
-    results = hours_per_consumer(consumer)
+    #format the data
+    consumer_id = request.GET['consumer']
+    startDate = request.GET['startDate'].encode('ascii').split("/")
+    endDate = request.GET['endDate'].encode('ascii').split("/")
+    start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+    end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    consumer = ConsumerIdentity.objects.get(id = consumer_id)
+    uuid = str(consumer)
+    
+    results = hours_per_consumer(uuid, consumer_id, start, end)
     response = TemplateResponse(request, 'create_report/report.html', {'list': results})
     return response
 
@@ -140,38 +145,52 @@ def filtered_results(consumer):
             filtered.append({'mac': mac, 'hostname': hostname, 'uuid': uuid, "products": product_list, 'consumer_id': consumer_id})
     return filtered
 
-def hours_per_consumer(consumer):
+def hours_per_consumer(my_consumer_uuid, my_consumer_id, start, end):
     results = []
-    all =  ProductUsage.objects.all()
-    product_usage = defaultdict(int)
-    for i in all:
-        
-        if str(i.consumer.id) == consumer:
-            #product_usage = {}
-            
-            for p in i.product_info:
-                date = p._data['date']
-                product_name = p.product.name
-                
-                product_name_str = str(product_name.encode('ascii'))
-                
-                product_usage[product_name_str] += 1
-        
+    my_consumer = str(my_consumer_uuid).strip()
+    buf = cStringIO.StringIO()
+    URL = 'http://ec2-184-72-159-16.compute-1.amazonaws.com:8000/api/account/'+ my_consumer + '/'
+    USER = 'shadowman@redhat.com'
+    PASS = 'shadowman@redhat.com'
+    conn = pycurl.Curl()
+    conn.setopt(pycurl.USERPWD, "%s:%s" % (USER, PASS))
+    conn.setopt(pycurl.URL, URL)
+    conn.setopt(pycurl.WRITEFUNCTION, buf.write)
+    conn.perform()
+    
+    
+    data = json.loads(buf.getvalue())
+    for  contract in data['contracts']:
+        for key, value in contract.items():
+            if key == 'products':
+                for product in value:
+                    details = {}
+                    details['name'] = product['name']
+                    details['engineering_id'] = product['engineering_id']
+                    details['sla'] = product['sla']
+                    details['support'] = product['support_level']
+                    details['contract_use'] = product['quantity']
                     
-                
-    for key, value in product_usage.items():
-        details = {}
-        details['name'] = key
-        details['checkins'] = value
-        details['sla'] = 'Premium'
-        details['support'] = 'L1-L3'
-        details['facts'] = 'RAM < 8GB'
-        details['contract_use'] = '100'
-        results.append(details)
-    return results
-            
-        
-        
+                    
+                    usage_all = ProductUsage.objects.filter(consumer=my_consumer_id)
+                    #product_usage = defaultdict(int)
+                    counter = 0
+                    for i in usage_all:
+                        for p in i.product_info:
+                            date = p._data['date']
+                            product_name = p.product.name
+                            product_name_str = str(product_name.encode('ascii'))
+                            if product_name_str == details['name']:
+                                if start < date < end:
+                                    counter += 1
+                                else:
+                                    print("does not match datetime")
+                                
+                    details['checkins'] = counter
+                        #still need facts from check in service:
+                    details['facts'] = 'RAM < 8GB'
+                    results.append(details)
+                    
     return results
 
 

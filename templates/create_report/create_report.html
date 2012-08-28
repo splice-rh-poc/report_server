@@ -1,33 +1,33 @@
-{% include "style.html" %}
+{% include "liststyle.html" %}
 <!DOCTYPE html>
 
 <head>
-  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+  <script>
+  $(function() {
+    $("#startDate").datepicker();
+    $("#endDate").datepicker();
+  });
   
-
+  </script>
 </head>
+
 <body>
+
 <div class="demo">
 
-<p>Start Date: <input type="text" id="startDate"></p>
-<p>End Date: <input type="text" id="endDate"></p>
+<form action="/ui/report/" id="myform">
+        <p>Start Date: <input type="text" id="startDate" name="startDate"> </p>
+        <p>End Date: <input type="text" id="endDate" name="endDate"></p>
+        {{ form.consumer }} 
+  
+   <input type="submit" value="Submit" />
+  </form>
 
 </div>
 
 
-  <script>
-  $(document).ready(function() {
-    $("#startDate").datepicker();
-    $("#endDate").datepicker();
-  });
-  </script>
+
   
   
-  <form action="/ui/report" id="thisForm">
-        {{ form.consumer }} 
-   <input type="submit" value="Submit" />
-  </form>
   
 </body>

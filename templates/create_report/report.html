@@ -1,27 +1,50 @@
 {% include "liststyle.html" %}
 <title> Results </title>
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-<script type="text/javascript" src="http://www.jquery4u.com/demos/jquery-quick-pagination/js/jquery.quick.pagination.min.js"></script>
+
+    
+
+
 <script type="text/javascript">
 $(document).ready(function() {
-    $("ul.data").quickPagination({pagerLocation:"both",pageSize:"3"});
+      $('#data').dataTable( {
+                    "bPaginate": true,
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bSort": true,
+                    "bVisible": false,
+                    "bInfo": false,
+                    "bSearchable": false,
+                    "bAutoWidth": false,
+                    "bJQueryUI":true } );
 });
 </script>
 
-<ul class="data">
+<table cellpadding="0" cellspacing="0" border="0" class="display" id="data" width="100%">
+    <thead>
+        <tr>
+            <th>Product:</th>
+            <th>SLA:</th>
+            <th>Support:</th>
+            <th>Facts:</th>
+            <th>Contracted Use:</th>
+            <th>NAU to Date:</th>
+        </tr>
+    </thead>
+     <tbody>
 {% for pu in list %}
-
-    <li>
-        <b>Product: </b> {{ pu.name }}
+  
+    <tr>
+        <td> {{ pu.name }}  </td>
         
-        <b>SLA:</b> {{ pu.sla }}
-        <b>Support:</b> {{ pu.support }}
-        <b>Facts:</b> {{ pu.facts }}
-        <b>Contracted Use:</b> {{ pu.contract_use }}
-        <b>NAU to Date: </b> {{ pu.checkins }}
-    </li>
+        <td> {{ pu.sla }} </td> 
+        <td> {{ pu.support }} </td> 
+        <td> {{ pu.facts }} </td> 
+        <td> {{ pu.contract_use }}</td> 
+        <td> {{ pu.checkins }} </td> 
+    </tr>
 {% endfor %}
+   </tbody>
 
 </ul>
 <br>
