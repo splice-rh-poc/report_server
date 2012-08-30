@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
-from sreport.views import pulisting
+
 
 
 # Uncomment the next two lines to enable the admin:
@@ -18,7 +18,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     #url(r'^admin/', include(admin.site.urls)),
-    (r'^report/$', pulisting),
     (r'^ui/$', 'sreport.views.index'),
     (r'^ui/create/$', 'sreport.views.create_filter'),
     (r'^ui/results/$', 'sreport.views.machine_results'),

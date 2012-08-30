@@ -1,6 +1,6 @@
 from django.db import models
 from mongoengine import DateTimeField, Document, EmbeddedDocument,\
- EmbeddedDocumentField, ListField, ReferenceField, StringField
+ EmbeddedDocumentField, ListField, ReferenceField, StringField, DictField
 from django.db import models
 from django import forms
 from django.forms import ModelForm
@@ -12,21 +12,6 @@ from django.forms.models import ModelChoiceField
 from django.forms.models import modelformset_factory
 
 
-
-class MonthForm(forms.Form):
-        months = [('January','January'),
-                  ('February','February'),
-                  ('March','March'),
-                  ('April','April'),
-                  ('May','May'),
-                  ('June','June'),
-                  ('July','July'),
-                  ('August','August'),
-                  ('September','September'),
-                  ('October','October'),
-                  ('November','November'),
-                  ('December','December'),]
-        month = forms.ChoiceField(months)
 
 class SpliceServer(Document):
     uuid = StringField(required=True, unique=True)
@@ -56,6 +41,7 @@ class MarketingProductSubscription(EmbeddedDocument):
     def __unicode__(self):
         return u'%s %s' % (self.expires, self.product)
 
+'''
 class ConsumerIdentity(Document):
     uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
     subscriptions = ListField(EmbeddedDocumentField(MarketingProductSubscription))
@@ -64,6 +50,14 @@ class ConsumerIdentity(Document):
     #    return u'%s' % (self.uuid)
     def __unicode__(self):
         return '%s' % (self.uuid)
+'''
+     
+class ConsumerIdentity(Document):
+    uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
+    products = ListField(StringField())
+
+    def __str__(self):
+        return  '%s' % (self.uuid)
 
 class ReportingItem(EmbeddedDocument):
     product = ReferenceField(MarketingProduct, required=True)
@@ -72,6 +66,7 @@ class ReportingItem(EmbeddedDocument):
     def __unicode__(self):
         return u'%s %s' % (self.product, self.date)
 
+'''
 class ProductUsage(Document):
     consumer = ReferenceField(ConsumerIdentity)
     splice_server = ReferenceField(SpliceServer, required=True)
@@ -81,6 +76,18 @@ class ProductUsage(Document):
     def __unicode__(self):
         return u'%s %s %s %s' % (self.consumer, self.splice_server.hostname,
                                   self.instance_identifier, self.product_info)
+'''
+class ProductUsage(Document):
+    consumer = ReferenceField(ConsumerIdentity)
+    splice_server = ReferenceField(SpliceServer, required=True)
+    instance_identifier = StringField(required=True) # example: MAC Address
+    product_info = ListField(StringField())
+    facts = DictField()
+    date = DateTimeField(required=True)
+
+    def __str__(self):
+        return "Consumer '%s' on Splice Server '%s' from instance '%s' using products '%s' at '%s'" % \
+               (self.consumer, self.splice_server, self.instance_identifier, self.product_info, self.date)
 
 
 class ProductUsageForm(DocumentForm):
