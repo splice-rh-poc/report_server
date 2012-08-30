@@ -33,7 +33,35 @@ class ApiClient:
         #if status == 200:
         #    return data
         #raise Exception(status, data)
+        
+    @staticmethod
+    def get_contract():
+        c = config.get_rhic_serve_config_info()
+        api = '/api/account/'
+        #status, data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        return data
     
+    @staticmethod
+    def getRHIC_in_account():
+        c = config.get_rhic_serve_config_info()
+        api = '/api/account/'
+        #status, data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        account_doc = json.loads(data[0])
+        print(account_doc)
+        account_id = account_doc[0]['account_id'] 
+        
+        api = '/api/rhic/'
+        data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        all_rhics = json.loads(data[0])
+        
+        my_rhics = []
+        for rhic in all_rhics:
+            if rhic['account_id'] == account_id:
+                my_rhics.append(rhic['uuid'])
+        return my_rhics
+            
     
 def request(host, port, url, debug=False):
     connection = httplib.HTTPSConnection(host, port)
@@ -107,6 +135,8 @@ def requestPyCurl(host, port, url, username, password, debug=False):
 
 def requestCurl(host, port, url, username, password, debug=False):
     options = 'curl -u ' + username + ':' + password + ' https://' + host + url + ' -k'
+    print(options)
     out = os.popen(options)
-    return out
+    return out.readlines()
+    
      

@@ -73,7 +73,8 @@ def create_report(request):
 
 def report(request):
     #format the data
-    consumer_id = request.GET['consumer']
+    
+        
     if 'viaMonth' in request.GET:
         month = int(request.GET['viaMonth'].encode('ascii'))
         year = datetime.datetime.today().year
@@ -85,10 +86,18 @@ def report(request):
         endDate = request.GET['endDate'].encode('ascii').split("/")
         start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
         end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-    consumer = ConsumerIdentity.objects.get(id = consumer_id)
-    uuid = str(consumer)
+        
+    if 'consumer' in request.GET:
+        consumer_id = request.GET['consumer']
+        consumer = ConsumerIdentity.objects.get(id = consumer_id)
+        uuid = str(consumer)
+        results = hours_per_consumer(start, end, uuid, consumer_id)
+    else:
+        consumer_id = None
+        results = hours_per_consumer(start, end)
     
-    results = hours_per_consumer(uuid, consumer_id, start, end)
+    
+    
     response = TemplateResponse(request, 'create_report/report.html', {'list': results})
     return response
 
@@ -102,44 +111,33 @@ def get_rhic_uuid(rhic_id):
             return rhic.uuid
 
 
-def hours_per_consumer(my_consumer_uuid, my_consumer_id, start, end):
+def hours_per_consumer(start, end, my_consumer_uuid=None, my_consumer_id=None):
     results = []
-   
-    
-    
-    data = json.loads(ApiClient.get_rhic(my_consumer_id))
-    for  contract in data['contracts']:
-        for key, value in contract.items():
-            if key == 'products':
-                for product in value:
-                    details = {}
-                    details['name'] = product['name']
-                    details['engineering_id'] = product['engineering_id']
-                    details['sla'] = product['sla']
-                    details['support'] = product['support_level']
-                    details['contract_use'] = product['quantity']
+    if my_consumer_id is not None:
+        d = ApiClient.get_rhic(my_consumer_id)[0]
+        data = json.loads(d)
+    else:
+        d = ApiClient.get_contract()[0]
+        data = json.loads(d)
+        
+        list_of_RHICS = ApiClient.getRHIC_in_account()
+        
+        #unable to get filter to work properly here
+        usage_all = ProductUsage.objects.all()
+        
+        matching_checkins = []
+        total_usage = defaultdict(int)
+        for checkin in usage_all:
+            myDict = checkin._data
+            if checkin.consumer in list_of_RHICS:
+                for product in checkin.product_info:
+                    usage = {}
+                    usage[product] = [checkin.date, checkin.instance_identifier, checkin.splice_server]
+                    matching_checkins.append(usage)
+        
+        for checkin in matching_checkins:
+            total_usage = checkin
                     
-                    
-                    
-                    usage_all = ProductUsage.objects.filter(consumer=my_consumer_id)
-                    #product_usage = defaultdict(int)
-                    counter = 0
-                    for i in usage_all:
-                        for p in i.product_info:
-                            date = p._data['date']
-                            product_name = p.product.name
-                            product_name_str = str(product_name.encode('ascii'))
-                            if product_name_str == details['name']:
-                                if start < date < end:
-                                    counter += 1
-                                else:
-                                    print("does not match datetime")
-                                
-                    details['checkins'] = counter
-                        #still need facts from check in service:
-                    details['facts'] = 'RAM < 8GB'
-                    details['contract_id'] = contract['contract_id']
-                    results.append(details)
                     
     return results
 

@@ -3,18 +3,21 @@
 
 <head>
 
-
-
-
   <script>
  window.onload=function() {
    document.forms[0].elements["startDate"].disabled=true;
    document.forms[0].elements["endDate"].disabled=true;
+   document.forms[0].elements["id_consumer"].disabled=true;
    
    // next, attach the click event handler to the radio buttons
   var radios = document.forms[0].elements["group1"];
   for (var i = [0]; i < radios.length; i++)
     radios[i].onclick=radioClicked;
+    
+    // next, attach the click event handler to the radio buttons
+  var accountRadios = document.forms[0].elements["group2"];
+  for (var i = [0]; i < accountRadios.length; i++)
+    accountRadios[i].onclick=radioClicked;
 }
 
 function radioClicked() {
@@ -22,17 +25,23 @@ function radioClicked() {
   // find out which radio button was clicked and
   // disable/enable appropriate input elements
   switch(this.value) {
-    case "one" :
+    case "month" :
        document.forms[0].elements["byMonth"].disabled=false;
        document.forms[0].elements["monthTXT"].disabled=false;
        document.forms[0].elements["startDate"].disabled=true;
        document.forms[0].elements["endDate"].disabled=true;
        break;
-    case "two" :
+    case "range" :
        document.forms[0].elements["byMonth"].disabled=true;
        document.forms[0].elements["monthTXT"].disabled=true;
        document.forms[0].elements["startDate"].disabled=false;
        document.forms[0].elements["endDate"].disabled=false;
+       break;
+    case "account" :
+       document.forms[0].elements["id_consumer"].disabled=true;
+       break;
+    case "rhic" :
+       document.forms[0].elements["id_consumer"].disabled=false;
        break;
   }
  
@@ -58,8 +67,13 @@ function radioClicked() {
 
 
 
+
+
 <style type="text/css">
 p.padding {padding-left:2%;}
+</style>
+<style type="text/css">
+p.indent {padding-left:4%;}
 </style>
 
 <body>
@@ -69,7 +83,9 @@ p.padding {padding-left:2%;}
 <form action="/ui/report/" id="myform">
         
        <p class="padding">
-       <b>Date:</b> <input type="radio" name="group1" value="one" />
+       <b>Date:</b></p>
+       <p class="indent"> 
+       <input type="radio" name="group1" value="month" />
 
         <select id="byMonth" disabled="true">
          <option value="">Select Month</option>
@@ -88,14 +104,18 @@ p.padding {padding-left:2%;}
         </select>
         <input id="monthTXT" name=viaMonth type="text" disabled="true"/>
         </p>
-        <p class="padding">
-        &nbsp &nbsp &nbsp &nbsp&nbsp
-        <input type="radio" name="group1" value="two" />
+        
+        <p class="indent">
+        <input type="radio" name="group1" value="range"/>
         <b>Custom Range: </b> 
         Start Date: <input type="text" id="startDate" name="startDate">
         End Date: <input type="text" id="endDate" name="endDate"> </p>
-        <p class="padding"><b> RHIC: </b> {{ form.consumer }} </p> 
-        <p class="padding"><b> Cloud: </b> {{ form.splice_server}} </p> 
+        
+        <p class="padding"><b>Report by:</b></p> 
+        <p class="indent"><input type="radio" name="group2" value="account" />&nbsp &nbsp<b>Account Number: </b></p>
+        
+        <p class="indent"><input type="radio" name="group2" value="rhic" />&nbsp &nbsp<b>RHIC: </b> {{ form.consumer }} </p> 
+        <p class="padding"><b> Cloud: </b>&nbsp &nbsp{{ form.splice_server}} </p> 
   
    <p class="padding"> <input type="submit" value="Run Report" /> </p>
   </form>
