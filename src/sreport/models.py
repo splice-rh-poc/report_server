@@ -78,7 +78,7 @@ class ProductUsage(Document):
                                   self.instance_identifier, self.product_info)
 '''
 class ProductUsage(Document):
-    consumer = ReferenceField(ConsumerIdentity)
+    consumer = StringField(required=True)
     splice_server = ReferenceField(SpliceServer, required=True)
     instance_identifier = StringField(required=True) # example: MAC Address
     product_info = ListField(StringField())

@@ -123,8 +123,15 @@ def hours_per_consumer(start, end, my_consumer_uuid=None, my_consumer_id=None):
         list_of_RHICS = ApiClient.getRHIC_in_account()
         
         #unable to get filter to work properly here
-        usage_all = ProductUsage.objects.all()
-        
+        usage_all = []
+        for rhic in list_of_RHICS:
+            pu = ProductUsage.objects.filter(consumer=rhic)
+            if pu:
+                usage_all.append(pu)
+            
+        for pu in usage_all[0]:
+            consumer = pu.consumer
+        '''
         matching_checkins = []
         total_usage = defaultdict(int)
         for checkin in usage_all:
@@ -138,7 +145,7 @@ def hours_per_consumer(start, end, my_consumer_uuid=None, my_consumer_id=None):
         for checkin in matching_checkins:
             total_usage = checkin
                     
-                    
+        '''
     return results
 
 
