@@ -26,20 +26,6 @@ class SpliceServerRelationships(Document):
     parent = ReferenceField(SpliceServer)
     children = ListField(ReferenceField(SpliceServer))
 
-class MarketingProduct(Document):
-    uuid = StringField(required=True, unique=True)
-    name = StringField(required=True)
-    description = StringField()
-    
-    def __unicode__(self):
-        return u'%s %s %s' % (self.uuid, self.name, self.description)
-
-class MarketingProductSubscription(EmbeddedDocument):
-    expires = DateTimeField(required=True)
-    product = ReferenceField(MarketingProduct, required=True)
-    
-    def __unicode__(self):
-        return u'%s %s' % (self.expires, self.product)
 
 '''
 class ConsumerIdentity(Document):
@@ -59,12 +45,6 @@ class ConsumerIdentity(Document):
     def __str__(self):
         return  '%s' % (self.uuid)
 
-class ReportingItem(EmbeddedDocument):
-    product = ReferenceField(MarketingProduct, required=True)
-    date = DateTimeField(required=True)
-    
-    def __unicode__(self):
-        return u'%s %s' % (self.product, self.date)
 
 '''
 class ProductUsage(Document):
@@ -94,14 +74,21 @@ class ProductUsageForm(DocumentForm):
     #works
     class Meta:
         document = ProductUsage
-        #consumer = document.consumer.choices
-        #fields = ['splice_server', 'consumer']
-        fields = ['consumer', 'splice_server']
+        #consumer = document.consumer.choicesI
+        fields = ['splice_server', 'consumer']
+        #fields = ['consumer', 'splice_server']
     #works
         #consumers = forms.ModelChoiceField(queryset=ConsumerIdentity.objects.all())
         #fields = ['splice_server']
     #uuid = forms.ChoiceField(initial=ConsumerIdentity.objects.all())
-        
+
+    # choices is a list of tuples in the form ("value", "label")
+    # We are asking mongo to give us the distinct consumer uuids used by ProductUsage
+    consumer_choices = [(rhic_id, rhic_id ) for rhic_id in ProductUsage.objects().distinct("consumer")]
+    consumer = forms.ChoiceField(required=True, choices=consumer_choices)
+    splice_server_choices = [(server_id, server_id) for server_id in ProductUsage.objects().distinct("splice_server")]
+    splice_server = forms.ChoiceField(choices=splice_server_choices)
+
 class ConsumerIdentityForm(DocumentForm):
     class Meta:
         document = ConsumerIdentity

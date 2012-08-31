@@ -1,4 +1,6 @@
-    # Create your views here.
+# Create your views here.
+import logging
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
@@ -14,8 +16,7 @@ from common.client import ApiClient
 import datetime
 
 
-
-
+_LOG = logging.getLogger(__name__)
 
 def template_response(request, template_name):
     return render_to_response(template_name, {},
@@ -52,8 +53,8 @@ def index(request):
     return template_response(request, 'base.html')
 
 
-
 def create_report(request):
+    _LOG.info("create_report called by method: %s" % (request.method))
     #ReportFormSet = formset_factory( ProductUsageForm)
     if request.method == 'POST':
         form = ProductUsageForm(request.POST)
@@ -66,9 +67,11 @@ def create_report(request):
             results = hours_per_consumer(consumer)
             return template_response(request, 'create_report/report.html')
     else:
-        form = ProductUsageForm()
-        return render_to_response('create_report/create_report.html', {'form': form})
-
+        try:
+            form = ProductUsageForm()
+            return render_to_response('create_report/create_report.html', {'form': form})
+        except Exception, e:
+            _LOG.exception(e)
 
 
 def report(request):
