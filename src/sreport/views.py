@@ -117,7 +117,7 @@ def hours_per_consumer(start, end, uuid=None):
     d = ApiClient.get_contract()[0]
     contract_data = json.loads(d)
         
-    list_of_RHICS = ApiClient.getRHIC_in_account()
+    rhic_data = json.loads(ApiClient.get_rhic_details(uuid)[0])
     
     #unable to get filter to work properly here
     usage_all = []
@@ -135,10 +135,10 @@ def hours_per_consumer(start, end, uuid=None):
         result_dict = {}
         result_dict['name'] = key
         result_dict['checkins'] = value
-        result_dict['sla'] = 'na'
-        result_dict['support'] = 'na'
+        result_dict['sla'] = rhic_data['sla']
+        result_dict['support'] = rhic_data['support_level']
         result_dict['facts'] = 'na'
-        result_dict['contract_id'] = 'na'
+        result_dict['contract_id'] = rhic_data['contract']
         results.append(result_dict)
 
     return results

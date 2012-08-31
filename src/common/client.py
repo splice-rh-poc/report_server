@@ -42,6 +42,16 @@ class ApiClient:
         data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
         return data
     
+    
+    @staticmethod
+    def get_rhic_details(RHIC):
+        id = getRHICdata(RHIC)
+        c = config.get_rhic_serve_config_info()
+        api = '/api/rhic/' + id + '/'
+        #status, data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        return data
+    
     @staticmethod
     def getRHIC_in_account():
         c = config.get_rhic_serve_config_info()
@@ -61,6 +71,21 @@ class ApiClient:
             if rhic['account_id'] == account_id:
                 my_rhics.append(rhic['uuid'])
         return my_rhics
+    
+    
+def getRHICdata(RHIC):
+    c = config.get_rhic_serve_config_info()
+           
+    api = '/api/rhic/'
+    data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+    all_rhics = json.loads(data[0])
+    
+    my_rhics = []
+    for rhic in all_rhics:
+        if rhic['uuid'] == RHIC:
+            return rhic['id']
+    
+    
             
     
 def request(host, port, url, debug=False):
