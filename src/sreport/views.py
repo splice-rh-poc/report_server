@@ -91,10 +91,8 @@ def report(request):
         end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
         
     if 'consumer' in request.GET:
-        consumer_id = request.GET['consumer']
-        consumer = ConsumerIdentity.objects.get(id = consumer_id)
-        uuid = str(consumer)
-        results = hours_per_consumer(start, end, uuid, consumer_id)
+        uuid = request.GET['consumer']
+        results = hours_per_consumer(start, end, uuid)
     else:
         consumer_id = None
         results = hours_per_consumer(start, end)
@@ -114,41 +112,35 @@ def get_rhic_uuid(rhic_id):
             return rhic.uuid
 
 
-def hours_per_consumer(start, end, my_consumer_uuid=None, my_consumer_id=None):
+def hours_per_consumer(start, end, uuid=None):
     results = []
-    if my_consumer_id is not None:
-        d = ApiClient.get_rhic(my_consumer_id)[0]
-        data = json.loads(d)
-    else:
-        d = ApiClient.get_contract()[0]
-        data = json.loads(d)
+    d = ApiClient.get_contract()[0]
+    contract_data = json.loads(d)
         
-        list_of_RHICS = ApiClient.getRHIC_in_account()
-        
-        #unable to get filter to work properly here
-        usage_all = []
-        for rhic in list_of_RHICS:
-            pu = ProductUsage.objects.filter(consumer=rhic)
-            if pu:
-                usage_all.append(pu)
-            
-        for pu in usage_all[0]:
-            consumer = pu.consumer
-        '''
-        matching_checkins = []
-        total_usage = defaultdict(int)
-        for checkin in usage_all:
-            myDict = checkin._data
-            if checkin.consumer in list_of_RHICS:
-                for product in checkin.product_info:
-                    usage = {}
-                    usage[product] = [checkin.date, checkin.instance_identifier, checkin.splice_server]
-                    matching_checkins.append(usage)
-        
-        for checkin in matching_checkins:
-            total_usage = checkin
-                    
-        '''
+    list_of_RHICS = ApiClient.getRHIC_in_account()
+    
+    #unable to get filter to work properly here
+    usage_all = []
+    
+    pu = ProductUsage.objects.filter(consumer=uuid)
+    if pu:
+        usage_all.append(pu)
+    
+    total_usage = defaultdict(int)
+    for pu in usage_all[0]:
+            for product in pu._data['product_info']:
+                total_usage[product] += 1
+   
+    for key, value in total_usage.items():
+        result_dict = {}
+        result_dict['name'] = key
+        result_dict['checkins'] = value
+        result_dict['sla'] = 'na'
+        result_dict['support'] = 'na'
+        result_dict['facts'] = 'na'
+        result_dict['contract_id'] = 'na'
+        results.append(result_dict)
+
     return results
 
 
