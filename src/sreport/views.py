@@ -114,30 +114,53 @@ def get_rhic_uuid(rhic_id):
 
 def hours_per_consumer(start, end, uuid=None):
     results = []
-    d = ApiClient.get_contract()[0]
-    contract_data = json.loads(d)
+    account_data = ApiClient.get_account()
+    
         
-    rhic_data = json.loads(ApiClient.get_rhic_details(uuid)[0])
     
     #unable to get filter to work properly here
     usage_all = []
+    
+    # PER RHIC UUID
+    rhic_data = ApiClient.get_rhic_details(uuid)
+    #rhic_data = ApiClient.get_rhic_details(uuid))
+    contract_number = rhic_data['contract']
+    contract_api = ""
+    for i in account_data:
+        print(i)
+        for contracts in i['contracts']:
+            if contracts['contract_id'] == contract_number:
+                contract_uri = contracts['resource_uri'].encode('ascii')
+                contract_uri = contract_uri.split('/')[3:]
+                for i in contract_uri:
+                    contract_api += "/" + i
+    # Contract Data is currently broken due to tasty pie
+    #contract_data = ApiClient.get_contract(contract_api)
+    #contract_data = json.loads(contract_data)
+    #print(contract_data)
     
     pu = ProductUsage.objects.filter(consumer=uuid)
     if pu:
         usage_all.append(pu)
     
+    
     total_usage = defaultdict(int)
     for pu in usage_all[0]:
-            for product in pu._data['product_info']:
-                total_usage[product] += 1
-   
+        for product in pu._data['product_info']:
+            total_usage[product] += 1
+
     for key, value in total_usage.items():
         result_dict = {}
+        #for products in contract_data:
+        #for products in total_usage:
+        #if products['engineering_id'] == key:
+         #  result_dict['name'] = products['name']
         result_dict['name'] = key
         result_dict['checkins'] = value
+        result_dict['contract_use'] = 0 #products['quantity']
         result_dict['sla'] = rhic_data['sla']
         result_dict['support'] = rhic_data['support_level']
-        result_dict['facts'] = 'na'
+        result_dict['facts'] = 0 #pu._data['facts']
         result_dict['contract_id'] = rhic_data['contract']
         results.append(result_dict)
 

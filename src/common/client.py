@@ -35,9 +35,16 @@ class ApiClient:
         #raise Exception(status, data)
         
     @staticmethod
-    def get_contract():
+    def get_account():
         c = config.get_rhic_serve_config_info()
         api = '/api/account/'
+        #status, data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
+        return data
+    
+    @staticmethod
+    def get_contract(api):
+        c = config.get_rhic_serve_config_info()
         #status, data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
         data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
         return data
@@ -58,13 +65,14 @@ class ApiClient:
         api = '/api/account/'
         #status, data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
         data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
-        account_doc = json.loads(data[0])
+        account_doc = data[0]
         print(account_doc)
         account_id = account_doc[0]['account_id'] 
         
         api = '/api/rhic/'
         data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
-        all_rhics = json.loads(data[0])
+        #all_rhics = json.loads(data[0])
+        all_rhics = data
         
         my_rhics = []
         for rhic in all_rhics:
@@ -78,7 +86,8 @@ def getRHICdata(RHIC):
            
     api = '/api/rhic/'
     data = requestCurl(c['host'], c['port'], api, c['user'], c['passwd'], False)
-    all_rhics = json.loads(data[0])
+    all_rhics = data
+    #all_rhics = json.loads(data)
     
     my_rhics = []
     for rhic in all_rhics:
@@ -158,10 +167,46 @@ def requestPyCurl(host, port, url, username, password, debug=False):
     conn.perform()
     return buf
 
+'''
 def requestCurl(host, port, url, username, password, debug=False):
     options = 'curl -u ' + username + ':' + password + ' https://' + host + url + ' -k'
     print(options)
     out = os.popen(options)
     return out.readlines()
+'''
+
+def requestCurl(host, port, url, username, password, debug=False):
+    connection = httplib.HTTPSConnection(host, port)
+    if debug:
+        connection.set_debuglevel(100)
+    method = 'GET'
+    headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+    raw = ':'.join((username, password))
+    encoded = base64.encodestring(raw)[:-1]
+    headers['Authorization'] = 'Basic ' + encoded
+
+    query_params = {
+    }
+    data = urllib.urlencode(query_params, True)
+    url = url +"?" + data
+    _LOG.info("Sending HTTP request to: %s:%s%s with headers:%s" % (host, port, url, headers))
+    connection.request(method, url, body=None, headers=headers)
+
+    response = connection.getresponse()
+    response_body = response.read()
+    if response.status != 200:
+        _LOG.info("Response status '%s', '%s', '%s'" % (response.status, response.reason, response_body))
+    if response.status == 200:
+        response_body_raw = response_body
+        response_body = json.loads(response_body_raw)
+        if debug:
+            print "Response: %s %s" % (response.status, response.reason)
+            print "JSON: %s" % (json.dumps(response_body))
+    return  response_body
+
+    
     
      
