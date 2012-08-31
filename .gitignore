@@ -6,3 +6,6 @@ src/config
 config
 etc/splice/report.conf
 src/debug/*
+*debug_logs
+
+
