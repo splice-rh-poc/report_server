@@ -11,6 +11,112 @@
     <script src="/static/jquery-csrf.js"></script>
     <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
     
+    <script>
+        $(function() {
+                var username = $( "#username" ),
+                    password = $( "#password" ),
+                    allFields = $( [] ).add( username ).add( password );
+
+                $( "#login-form" ).dialog({
+                    autoOpen: false,
+                    height: 300,
+                    width: 350,
+                    modal: true,
+                    buttons: {
+                        "Login": function() {
+
+                            var data = {
+                                 "username": username.val(),
+                                 "password": password.val()
+                            };
+
+                            var jqxhr = $.ajax({
+                                url: "/ui/login",
+                                type: "POST",
+                                contentType: "application/json",
+                                data: data,
+                                dataType: "html",
+                            })
+
+                            jqxhr.error(function(jqxhr, textStatus, errorThrown) {
+                                $("#relogin").addClass("ui-helper-hidden");
+                                if ( jqxhr.status == "403" ) {
+                                    $("#login-error").removeClass("ui-helper-hidden");
+                                }
+                            });
+
+                            jqxhr.complete(function(jqxhr, textStatus){  
+                                if ( textStatus == "success" ) {
+                                    $(this).dialog("close");
+                                    window.location="rhic"
+                                }
+                            });
+                       },
+                        Cancel: function() {
+                            $( this ).dialog( "close" );
+                            $("#login-error").addClass("ui-helper-hidden");
+                            $("#relogin").addClass("ui-helper-hidden");
+                        }
+                    },
+                    close: function() {
+                        allFields.val( "" ).removeClass( "ui-state-error" );
+                    }
+                });
+
+                function login(relogin) {
+                    $("#login-form").dialog( "open" );
+
+                    if ( relogin ) {
+                        $("#relogin").removeClass("ui-helper-hidden");
+                    }
+                }
+
+                $.ajaxSetup({
+                    "error": function() {
+                        login(true);
+                    },
+                });
+
+                // Login button click action.
+                $( "#login-button" )
+                    .button()
+                    .click(function() {
+                        login();
+                });
+
+                // Logout button click action.
+                $( "#logout-button" )
+                    .button()
+                    .click(function() {
+                        var jqxhr = $.ajax({
+                            url: "/ui/logout",
+                            type: "POST",
+                            contentType: "application/json",
+                        })
+
+                        $("#logout-button").attr("disabled", true)
+
+                        jqxhr.complete(function(){  
+                            window.location = "logout"
+                        });
+                });
+
+                // Disable Logout button if the user is not logged in.
+                {% if user.is_authenticated %}
+                    $("#logout-button").removeAttr("disabled")
+                {% else %}
+                    $("#logout-button").attr("disabled", true)
+                    $("#logout-button").css("opacity", "0.35")
+                {% endif %}
+
+                {% block scripts %}
+                {% endblock %}
+
+            });
+    </script>
+    
+    
+    
     <title>{% block title %}{% endblock %}</title>
 
 </head>

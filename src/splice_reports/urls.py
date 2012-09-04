@@ -19,8 +19,6 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     #url(r'^admin/', include(admin.site.urls)),
     (r'^ui/$', 'sreport.views.index'),
-    (r'^ui/create/$', 'sreport.views.create_filter'),
-    (r'^ui/results/$', 'sreport.views.machine_results'),
     (r'^ui/create_report/$', 'sreport.views.create_report'),
     (r'^ui/report/$', 'sreport.views.report'),
 )

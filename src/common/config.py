@@ -1,7 +1,9 @@
 import ConfigParser
 from common import constants
+import logging
 
 CONFIG = None
+_LOG = logging.getLogger(__name__)
 
 def init(config_file=None):
     global CONFIG
@@ -9,6 +11,7 @@ def init(config_file=None):
         return CONFIG
     if not config_file:
         config_file = constants.REPORT_CONFIG_FILE
+        _LOG.info('LOG FILE = ' + constants.REPORT_CONFIG_FILE)
     CONFIG = ConfigParser.SafeConfigParser()
     CONFIG.read(config_file)
     return CONFIG
