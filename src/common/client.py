@@ -54,10 +54,11 @@ class ApiClient:
     def get_rhic_details(RHIC):
         id = getRHICdata(RHIC)
         c = config.get_rhic_serve_config_info()
-        api = '/api/rhic/' + id + '/'
-        #status, data = request(c['host'], c['port'], api, c['user'], c['passwd'], False)
-        data = request(c['host'], c['port'], api, c['user'], c['passwd'], False)
-        return data
+        if id:
+            api = '/api/rhic/' + id + '/'
+            #status, data = request(c['host'], c['port'], api, c['user'], c['passwd'], False)
+            data = request(c['host'], c['port'], api, c['user'], c['passwd'], False)
+            return data
     
     @staticmethod
     def getRHIC_in_account():

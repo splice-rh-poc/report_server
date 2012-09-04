@@ -104,7 +104,9 @@ def hours_per_consumer(start, end, uuid=None):
     
     # PER RHIC UUID
     rhic_data = ApiClient.get_rhic_details(uuid)
-    #rhic_data = ApiClient.get_rhic_details(uuid))
+    if not rhic_data:
+        return results
+    
     contract_number = rhic_data['contract']
     contract_api = ""
     for i in account_data:
