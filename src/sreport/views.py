@@ -50,7 +50,7 @@ def logout(request):
     return template_response(request, 'logout.html')
 
 def index(request):
-    return template_response(request, 'base.html')
+    return template_response(request, 'create_report/base.html')
 
 
 def create_report(request):
