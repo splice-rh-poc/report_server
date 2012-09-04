@@ -1,15 +1,8 @@
-from django.db import models
-from mongoengine import DateTimeField, Document, EmbeddedDocument,\
- EmbeddedDocumentField, ListField, ReferenceField, StringField, DictField
-from django.db import models
+from mongoengine import DateTimeField, Document, \
+  ListField, ReferenceField, StringField, DictField
 from django import forms
-from django.forms import ModelForm
-from django.forms.extras.widgets import SelectDateWidget
-from mongodbforms import EmbeddedDocumentForm
 from mongodbforms import DocumentForm
-from mongodbforms.fieldgenerator import MongoFormFieldGenerator
-from django.forms.models import ModelChoiceField
-from django.forms.models import modelformset_factory
+
 
 
 
@@ -27,17 +20,6 @@ class SpliceServerRelationships(Document):
     children = ListField(ReferenceField(SpliceServer))
 
 
-'''
-class ConsumerIdentity(Document):
-    uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
-    subscriptions = ListField(EmbeddedDocumentField(MarketingProductSubscription))
-    
-    #def __unicode__(self):
-    #    return u'%s' % (self.uuid)
-    def __unicode__(self):
-        return '%s' % (self.uuid)
-'''
-     
 class ConsumerIdentity(Document):
     uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
     products = ListField(StringField())
@@ -45,18 +27,6 @@ class ConsumerIdentity(Document):
     def __str__(self):
         return  '%s' % (self.uuid)
 
-
-'''
-class ProductUsage(Document):
-    consumer = ReferenceField(ConsumerIdentity)
-    splice_server = ReferenceField(SpliceServer, required=True)
-    instance_identifier = StringField(required=True, unique_with=["splice_server", "consumer"]) # example: MAC Address
-    product_info = ListField(EmbeddedDocumentField(ReportingItem))
-    
-    def __unicode__(self):
-        return u'%s %s %s %s' % (self.consumer, self.splice_server.hostname,
-                                  self.instance_identifier, self.product_info)
-'''
 class ProductUsage(Document):
     consumer = StringField(required=True)
     splice_server = ReferenceField(SpliceServer, required=True)

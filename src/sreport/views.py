@@ -1,17 +1,14 @@
 # Create your views here.
 import logging
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger 
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import ProductUsage, ProductUsageForm, ConsumerIdentity
+from sreport.models import ProductUsage, ProductUsageForm
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
-import pycurl, cStringIO, json
 from common.client import ApiClient
 import datetime
 
@@ -21,14 +18,6 @@ _LOG = logging.getLogger(__name__)
 def template_response(request, template_name):
     return render_to_response(template_name, {},
         context_instance=RequestContext(request))
-
-'''
-consumer = ReferenceField(ConsumerIdentity)
-    splice_server = ReferenceField(SpliceServer, required=True)
-    instance_identifier = StringField(required=True, unique_with=["splice_server", "consumer"]) # example: MAC Address
-    product_info = ListField(EmbeddedDocumentField(ReportingItem))
-'''
-
 
 def login(request):
     username = request.POST['username']
@@ -87,8 +76,8 @@ def report(request):
         
         startDate = request.GET['startDate'].encode('ascii').split("/")
         endDate = request.GET['endDate'].encode('ascii').split("/")
-        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+        start = datetime.datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+        end = datetime.datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
         
     if 'consumer' in request.GET:
         uuid = request.GET['consumer']
@@ -102,14 +91,6 @@ def report(request):
     response = TemplateResponse(request, 'create_report/report.html', {'list': results})
     return response
 
-
-
-def get_rhic_uuid(rhic_id):
-    
-    data = ApiClient.get_all_rhics()
-    for rhic in data:
-        if rhic.id == rhic_id:
-            return rhic.uuid
 
 
 def hours_per_consumer(start, end, uuid=None):
