@@ -128,7 +128,8 @@ def hours_per_consumer(start, end, uuid=None):
     total_usage = defaultdict(int)
     for pu in usage_all[0]:
         for product in pu._data['product_info']:
-            total_usage[product] += 1
+            if start < pu._data['date'] < end: 
+                total_usage[product] += 1
 
     for key, value in total_usage.items():
         result_dict = {}
