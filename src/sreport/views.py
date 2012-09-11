@@ -6,7 +6,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import ProductUsage, ProductUsageForm
+from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Account
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 from common.client import ApiClient
@@ -80,8 +80,8 @@ def report(request):
         end = datetime.datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
         
     if 'consumer' in request.GET:
-        uuid = request.GET['consumer']
-        results = hours_per_consumer(start, end, uuid)
+        my_uuid = request.GET['consumer']
+        results = hours_per_consumer(start, end, my_uuid)
     else:
         consumer_id = None
         results = hours_per_consumer(start, end)
@@ -92,63 +92,98 @@ def report(request):
     return response
 
 
-
-def hours_per_consumer(start, end, uuid=None):
+def hours_per_consumer(start, end, my_uuid=None):
     results = []
-    account_data = ApiClient.get_account()
-    
-        
-    
-    #unable to get filter to work properly here
-    usage_all = []
-    
-    # PER RHIC UUID
-    rhic_data = ApiClient.get_rhic_details(uuid)
-    if not rhic_data:
-        return results
-    
-    contract_number = rhic_data['contract']
-    contract_api = ""
-    for i in account_data:
-        print(i)
-        for contracts in i['contracts']:
-            if contracts['contract_id'] == contract_number:
-                contract_uri = contracts['resource_uri'].encode('ascii')
-                contract_uri = contract_uri.split('/')[3:]
-                for i in contract_uri:
-                    contract_api += "/" + i
-    # Contract Data is currently broken due to tasty pie
-    #contract_data = ApiClient.get_contract(contract_api)
-    #contract_data = json.loads(contract_data)
-    #print(contract_data)
-    
-    pu = ProductUsage.objects.filter(consumer=uuid)
-    if pu:
-        usage_all.append(pu)
-    
-    
+    pu_all = list(ReportData.objects.filter(consumer=my_uuid))
     total_usage = defaultdict(int)
-    for pu in usage_all[0]:
-        for product in pu._data['product_info']:
-            if start < pu._data['date'] < end: 
+    '''
+    for pu in pu_all:
+        for product in pu.product_info:
+            if start < pu.date < end: 
                 total_usage[product] += 1
-
-    for key, value in total_usage.items():
+    '''
+    list_of_products = ReportData.objects.distinct('product')
+    for prod in list_of_products:
+        pu_product = list(ReportData.objects.filter(consumer=my_uuid, product=prod, date__gt=start, date__lt=end))
+        
+                
         result_dict = {}
-        #for products in contract_data:
-        #for products in total_usage:
-        #if products['engineering_id'] == key:
-         #  result_dict['name'] = products['name']
-        result_dict['name'] = key
-        result_dict['checkins'] = value
-        result_dict['contract_use'] = 0 #products['quantity']
-        result_dict['sla'] = rhic_data['sla']
-        result_dict['support'] = rhic_data['support_level']
-        result_dict['facts'] = 0 #pu._data['facts']
-        result_dict['contract_id'] = rhic_data['contract']
-        results.append(result_dict)
-
+        if pu_product:
+            product = pu_product[0]
+    
+            result_dict['product_name'] = product.product_name
+            result_dict['checkins'] = len(pu_product)
+            result_dict['contract_use'] = product.contract_use
+            result_dict['sla'] = product.sla
+            result_dict['support'] = product.support
+            result_dict['facts'] = 'total memory: ' + str(product.memtotal)
+            result_dict['contract_id'] = product.contract_id
+            results.append(result_dict)
     return results
 
-
+def import_checkin_data(request):
+    results = []
+    #debug
+    format = "%a %b %d %H:%M:%S %Y"
+    start = datetime.datetime.now()
+    time = {}
+    time['start'] = start.strftime(format)
+    #debug
     
+    hr_fmt = "%m%d%Y:%H"
+    pu_all = list(ProductUsage.objects.all())
+    for pu in pu_all:
+        #my_uuid = pu._data['consumer']
+        my_uuid = str(pu.consumer)
+        try:
+            this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
+        except IndexError:
+            #print(pu)
+            pass
+        this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
+        
+        my_products = []
+        for c in  this_account.contracts:
+            if c.contract_id == this_rhic.contract:
+                        my_products = c.products
+                        
+                            
+        
+        
+        total_usage = defaultdict(int)
+            #for product_pem in pu._data['product_info']:
+        for product_pem in pu.product_info:
+            for p in my_products:
+                if int(product_pem) == int(p.engineering_id):
+                    this_product = p
+                    print(str(pu.instance_identifier + ' ' + str(pu.date)))
+                    try:
+                        mem = pu.facts['memory_dot_memtotal']
+                    except:
+                        mem = 0
+                    rd = ReportData(instance_identifier=str(pu.instance_identifier), 
+                                    consumer = str(pu.consumer),
+                                    product = str(this_product.engineering_id),
+                                    product_name = this_product.name,
+                                    date = pu.date,
+                                    hour = pu.date.strftime(hr_fmt),
+                                    sla = this_product.sla,
+                                    support = this_product.support_level,
+                                    contract_id = str(this_rhic.contract),
+                                    contract_use = str(this_product.quantity),
+                                    memtotal = int(mem)
+                                    
+                                    )
+                    dupe = ReportData.objects.filter(instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product=str(this_product.engineering_id))
+                    if dupe:
+                        print("found dupe:" + str(pu))
+                    else:
+                        rd.save()
+    
+    #debug
+    end = datetime.datetime.now()
+    time['end'] = end.strftime(format)
+    results.append(time)
+    #debug
+    response = TemplateResponse(request, 'test/import.html', {'list': results})
+    return response

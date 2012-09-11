@@ -11,9 +11,14 @@ ADMINS = (
 
 
 
-MONGO_DATABASE_NAME = 'checkin_service'
+MONGO_DATABASE_NAME_CHECKIN = 'checkin_service'
+MONGO_DATABASE_NAME_RHICSERVE = 'rhic_serve'
+MONGO_DATABASE_NAME_RESULTS = 'results'
+
 # Connect to the mongo db
-connect(MONGO_DATABASE_NAME)
+connect(MONGO_DATABASE_NAME_CHECKIN, alias='default')
+connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic')
+connect(MONGO_DATABASE_NAME_RESULTS, alias='results')
 
 MANAGERS = ADMINS
 
