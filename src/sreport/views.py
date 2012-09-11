@@ -11,6 +11,9 @@ from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 from common.client import ApiClient
 import datetime
+from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 _LOG = logging.getLogger(__name__)
@@ -26,22 +29,22 @@ def login(request):
     if user is not None:
         if user.is_active:
             auth_login(request, user)
-            return template_response(request, 'create_report/create_report.html')
+            return template_response(request, 'create_report/base.html')
         else:
-            pass
-            # Return a 'disabled account' error message
+            return HttpResponseForbidden()
     else:
-        pass
-        # Return an 'invalid login' error message.    
+        return HttpResponseForbidden()
 
+@ensure_csrf_cookie
 def logout(request):
     auth_logout(request)
-    return template_response(request, 'logout.html')
+    return template_response(request, 'create_report/logout.html')
 
+@ensure_csrf_cookie
 def index(request):
     return template_response(request, 'create_report/base.html')
 
-
+@login_required
 def create_report(request):
     _LOG.info("create_report called by method: %s" % (request.method))
     #ReportFormSet = formset_factory( ProductUsageForm)
@@ -83,6 +86,8 @@ def report(request):
         my_uuid = request.GET['consumer']
         results = hours_per_consumer(start, end, my_uuid)
     else:
+        user = str(request.user)
+        account = list(Account.objects.filter(login=user))
         consumer_id = None
         results = hours_per_consumer(start, end)
     

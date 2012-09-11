@@ -45,12 +45,11 @@
                             };
 
                             var jqxhr = $.ajax({
-                                url: "/ui/create_report",
-                                type: "GET",
+                                url: "/ui/login/",
+                                type: "POST",
                                 contentType: "application/json",
                                 data: data,
                                 dataType: "html",
-                                csrfmiddlewaretoken: '{{ csrf_token }}'
                             })
 
                             jqxhr.error(function(jqxhr, textStatus, errorThrown) {
@@ -87,7 +86,6 @@
                 }
 
                 $.ajaxSetup({
-        
                     "error": function() {
                         login(true);
                     },
@@ -201,7 +199,7 @@
 
 {% block content %}
     {% if user.is_authenticated %}
-        <script>window.location = '';</script>
+        <script>window.location = 'create_report';</script>
     {% endif %}
 {% endblock %}
 

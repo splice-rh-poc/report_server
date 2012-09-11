@@ -16,11 +16,18 @@ MONGO_DATABASE_NAME_RHICSERVE = 'rhic_serve'
 MONGO_DATABASE_NAME_RESULTS = 'results'
 
 # Connect to the mongo db
-connect(MONGO_DATABASE_NAME_CHECKIN, alias='default')
-connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic')
+connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin')
+connect(MONGO_DATABASE_NAME_RHICSERVE, alias='default')
 connect(MONGO_DATABASE_NAME_RESULTS, alias='results')
 
 MANAGERS = ADMINS
+
+AUTHENTICATION_BACKENDS = (
+    'mongoengine.django.auth.MongoEngineBackend',
+)
+LOGIN_URL = '/ui/'
+
+SESSION_ENGINE = 'mongoengine.django.sessions'
 
 DATABASES = {
     'default': {

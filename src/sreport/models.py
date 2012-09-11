@@ -12,7 +12,7 @@ class SpliceServer(Document):
     description = StringField() # Example what datacenter is this deployed to, i.e. us-east-1
     hostname = StringField(required=True)
     
-    meta = {'db_alias': 'default'}
+    meta = {'db_alias': 'checkin'}
     
     def __unicode__(self):
         return u'%s %s' % (self.description, self.hostname)
@@ -22,14 +22,14 @@ class SpliceServerRelationships(Document):
     parent = ReferenceField(SpliceServer)
     children = ListField(ReferenceField(SpliceServer))
     
-    meta = {'db_alias': 'default'}
+    meta = {'db_alias': 'checkin'}
 
 
 class ConsumerIdentity(Document):
     uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
     products = ListField(StringField())
     
-    meta = {'db_alias': 'default'}
+    meta = {'db_alias': 'checkin'}
 
     def __str__(self):
         return  '%s' % (self.uuid)
@@ -42,7 +42,7 @@ class ProductUsage(Document):
     facts = DictField()
     date = DateTimeField(required=True)
     
-    meta = {'db_alias': 'default'}
+    meta = {'db_alias': 'checkin'}
 
     def __str__(self):
         return "Consumer '%s' on Splice Server '%s' from instance '%s' using products '%s' at '%s'" % \
@@ -67,7 +67,7 @@ class ProductUsageForm(DocumentForm):
     splice_server_choices = [(server_id, server_id) for server_id in ProductUsage.objects().distinct("splice_server")]
     splice_server = forms.ChoiceField(choices=splice_server_choices)
     
-    meta = {'db_alias': 'default'}
+    meta = {'db_alias': 'checkin'}
 
 class ConsumerIdentityForm(DocumentForm):
     class Meta:
@@ -124,7 +124,7 @@ class RHIC(Document):
     meta = {
         # Override collection name, otherwise we get r_h_i_c.
         'collection': 'rhic',
-        'db_alias': 'rhic'
+        'db_alias': 'default'
     }
 
     # Human readable name
@@ -175,7 +175,7 @@ class Product(EmbeddedDocument):
     # Product sla
     sla = StringField(required=True, choices=sla_choices.keys())
     
-    meta = {'db_alias': 'rhic'}
+    meta = {'db_alias': 'default'}
     
 class Contract(EmbeddedDocument):
     # Unique Contract identifier
@@ -183,12 +183,13 @@ class Contract(EmbeddedDocument):
     # List of products associated with this contract
     products = ListField(EmbeddedDocumentField(Product))
     
-    meta = {'db_alias': 'rhic'}
+    meta = {'db_alias': 'default'}
 
 class Account(Document):
 
     meta = {
         'queryset_class': BaseQuerySet,
+        'db_alias': 'default'
     }
 
     # Unique account identifier
@@ -198,7 +199,6 @@ class Account(Document):
     # List of contracts associated with the account.
     contracts = ListField(EmbeddedDocumentField(Contract)) 
     
-    meta = {'db_alias': 'rhic'}  
    
 
 
