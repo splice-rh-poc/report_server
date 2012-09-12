@@ -1,4 +1,4 @@
-{% include "style.html" %}
+{% include "liststyle.html" %}
 <title> Results </title>
 
 <head>
@@ -37,6 +37,7 @@ $(document).ready(function() {
 <table id="data" class="display" style="display: table" width="100%">
     <thead>
         <tr>
+            <th>RHIC:</th>
             <th>Product:</th>
             <th>SLA:</th>
             <th>Support:</th>
@@ -51,6 +52,7 @@ $(document).ready(function() {
 {% for pu in list %}
   
     <tr>
+        <td> {{ pu.rhic }}  </td>
         <td> {{ pu.product_name }}  </td>
         <td> {{ pu.sla }} </td> 
         <td> {{ pu.support }} </td> 

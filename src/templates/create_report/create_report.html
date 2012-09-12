@@ -1,4 +1,4 @@
-{% include "liststyle.html" %}
+{% include "style.html" %}
 <!DOCTYPE html>
 
 <head>
@@ -8,6 +8,7 @@
    document.forms[0].elements["startDate"].disabled=true;
    document.forms[0].elements["endDate"].disabled=true;
    document.forms[0].elements["id_consumer"].disabled=true;
+   document.forms[0].elements["contract"].disabled=true;
    
    // next, attach the click event handler to the radio buttons
   var radios = document.forms[0].elements["group1"];
@@ -37,11 +38,19 @@ function radioClicked() {
        document.forms[0].elements["startDate"].disabled=false;
        document.forms[0].elements["endDate"].disabled=false;
        break;
-    case "account" :
+    case "account_radio" :
+       document.forms[0].elements["account"].disabled=false;
+       document.forms[0].elements["contract"].disabled=true;
        document.forms[0].elements["id_consumer"].disabled=true;
        break;
-    case "rhic" :
+    case "contract_radio" :
+       document.forms[0].elements["contract"].disabled=false;
+       document.forms[0].elements["id_consumer"].disabled=true;
+       document.forms[0].elements["account"].disabled=true;
+       break;
+    case "rhic_radio" :
        document.forms[0].elements["id_consumer"].disabled=false;
+       document.forms[0].elements["contract"].disabled=true;
        break;
   }
  
@@ -112,9 +121,17 @@ p.indent {padding-left:4%;}
         End Date: <input type="text" id="endDate" name="endDate"> </p>
         
         <p class="padding"><b>Report by:</b></p> 
-        <p class="indent"><input type="radio" name="group2" value="account" />&nbsp &nbsp<b>Account Number: </b></p>
+        <p class="indent"><input type="radio" name="group2" value="account_radio" />&nbsp &nbsp<b>Account Number: </b></p>
         
-        <p class="indent"><input type="radio" name="group2" value="rhic" />&nbsp &nbsp<b>RHIC: </b> {{ form.consumer }} </p> 
+        <p class="indent"><input type="radio" name="group2" value="contract_radio" />&nbsp &nbsp<b>Contract: </b> 
+        <select id="contract" name=contract_number disabled="true">  </p>
+            {% for c in contracts %}
+            <option value= {{ c }}> {{ c }} </option>
+            {% endfor %}
+        </select>
+        
+        <p class="indent"><input type="radio" name="group2" value="rhic_radio" />&nbsp &nbsp<b>RHIC: </b> {{ form.consumer }} </p>
+         
         <p class="padding"><b> Cloud: </b>&nbsp &nbsp{{ form.splice_server}} </p> 
   
    <p class="padding"> <input type="submit" value="Run Report" /> </p>

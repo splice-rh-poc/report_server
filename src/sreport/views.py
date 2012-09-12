@@ -1,4 +1,5 @@
 # Create your views here.
+from __future__ import division
 import logging
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
@@ -14,6 +15,7 @@ import datetime
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
+
 
 
 _LOG = logging.getLogger(__name__)
@@ -60,8 +62,15 @@ def create_report(request):
             return template_response(request, 'create_report/report.html')
     else:
         try:
+            contracts = []
+            user = str(request.user)
+            account = Account.objects.filter(login=user)[0].account_id
+            list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
+            for c in list_of_contracts:
+                contracts.append(c.contract_id)
+            
             form = ProductUsageForm()
-            return render_to_response('create_report/create_report.html', {'form': form})
+            return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts})
         except Exception, e:
             _LOG.exception(e)
 
@@ -82,14 +91,22 @@ def report(request):
         start = datetime.datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
         end = datetime.datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
         
+    list_of_rhics = []
     if 'consumer' in request.GET:
         my_uuid = request.GET['consumer']
-        results = hours_per_consumer(start, end, my_uuid)
+        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start, end, list_of_rhics)
+        
+    elif 'contract_number' in request.GET:
+        contract = request.GET['contract_number']
+        results = hours_per_consumer(start, end, contract_number=contract)
+    
     else:
         user = str(request.user)
-        account = list(Account.objects.filter(login=user))
+        account = Account.objects.filter(login=user)[0].account_id
+        rhics = list(RHIC.objects.filter(account_id=account))
         consumer_id = None
-        results = hours_per_consumer(start, end)
+        results = hours_per_consumer(start, end, list_of_rhics=rhics)
     
     
     
@@ -97,33 +114,57 @@ def report(request):
     return response
 
 
-def hours_per_consumer(start, end, my_uuid=None):
+def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
     results = []
-    pu_all = list(ReportData.objects.filter(consumer=my_uuid))
-    total_usage = defaultdict(int)
-    '''
-    for pu in pu_all:
-        for product in pu.product_info:
-            if start < pu.date < end: 
-                total_usage[product] += 1
-    '''
-    list_of_products = ReportData.objects.distinct('product')
-    for prod in list_of_products:
-        pu_product = list(ReportData.objects.filter(consumer=my_uuid, product=prod, date__gt=start, date__lt=end))
-        
-                
-        result_dict = {}
-        if pu_product:
-            product = pu_product[0]
     
-            result_dict['product_name'] = product.product_name
-            result_dict['checkins'] = len(pu_product)
-            result_dict['contract_use'] = product.contract_use
-            result_dict['sla'] = product.sla
-            result_dict['support'] = product.support
-            result_dict['facts'] = 'total memory: ' + str(product.memtotal)
-            result_dict['contract_id'] = product.contract_id
-            results.append(result_dict)
+    if contract_number:
+        list_of_rhics = list(RHIC.objects.filter(contract=contract_number))
+        
+    for rhic in list_of_rhics:
+        account_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].account_id)
+        contract_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].contract)
+        #list_of_products = Account.objects.filter(account_id=account_num)[0]#.contracts[contract_num].products
+        list_of_products = []
+            
+        contract_list = Account.objects.filter(account_id=account_num)[0].contracts
+        for contract in contract_list:
+            if contract.contract_id == contract_num:
+                list_of_products = contract.products
+        
+        #list of products in the RHIC's Contract
+        for p in list_of_products:     
+            print(str(rhic.uuid), p.engineering_id, str(start), str(end), p.sla, p.support_level )  
+            high = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
+                        product=str(p.engineering_id), date__gt=start, \
+                        date__lt=end, memtotal__gte=8388608, sla=p.sla, support=p.support_level))
+            
+            low = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
+                        product=str(p.engineering_id), date__gt=start, \
+                        date__lt=end, memtotal__lt=8388608, sla=p.sla, support=p.support_level))
+
+            if high:
+                result_dict = {}
+                result_dict['facts'] = ' > 8GB  '
+                result_dict['rhic'] = str(rhic.uuid)
+                result_dict['product_name'] = p.name
+                result_dict['checkins'] = "{0:.2f}".format(len(high) / 720)
+                result_dict['contract_use'] = p.quantity
+                result_dict['sla'] = p.sla
+                result_dict['support'] = p.support_level
+                result_dict['contract_id'] = contract_num
+                results.append(result_dict)
+            if low:
+                result_dict = {}
+                result_dict['facts'] = ' < 8GB '
+                result_dict['rhic'] = str(rhic.uuid)
+                result_dict['product_name'] = p.name
+                result_dict['checkins'] = "{0:.2f}".format(len(low) / 720)
+                result_dict['contract_use'] = p.quantity
+                result_dict['sla'] = p.sla
+                result_dict['support'] = p.support_level
+                result_dict['contract_id'] = contract_num
+                results.append(result_dict)
+
     return results
 
 def import_checkin_data(request):

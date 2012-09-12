@@ -66,7 +66,7 @@ class ProductUsageForm(DocumentForm):
     consumer = forms.ChoiceField(required=True, choices=consumer_choices)
     splice_server_choices = [(server_id, server_id) for server_id in ProductUsage.objects().distinct("splice_server")]
     splice_server = forms.ChoiceField(choices=splice_server_choices)
-    
+        
     meta = {'db_alias': 'checkin'}
 
 class ConsumerIdentityForm(DocumentForm):
