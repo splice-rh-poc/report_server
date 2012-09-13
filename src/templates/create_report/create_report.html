@@ -9,6 +9,8 @@
    document.forms[0].elements["endDate"].disabled=true;
    document.forms[0].elements["id_consumer"].disabled=true;
    document.forms[0].elements["contract"].disabled=true;
+   document.forms[0].elements["submit"].disabled=true;
+   document.forms[0].elements["account_number"].disabled=false;
    
    // next, attach the click event handler to the radio buttons
   var radios = document.forms[0].elements["group1"];
@@ -28,20 +30,18 @@ function radioClicked() {
   switch(this.value) {
     case "month" :
        document.forms[0].elements["byMonth"].disabled=false;
-       document.forms[0].elements["monthTXT"].disabled=false;
        document.forms[0].elements["startDate"].disabled=true;
        document.forms[0].elements["endDate"].disabled=true;
        break;
     case "range" :
        document.forms[0].elements["byMonth"].disabled=true;
-       document.forms[0].elements["monthTXT"].disabled=true;
        document.forms[0].elements["startDate"].disabled=false;
        document.forms[0].elements["endDate"].disabled=false;
        break;
     case "account_radio" :
-       document.forms[0].elements["account"].disabled=false;
        document.forms[0].elements["contract"].disabled=true;
        document.forms[0].elements["id_consumer"].disabled=true;
+       document.forms[0].elements["account"].disabled=false;
        break;
     case "contract_radio" :
        document.forms[0].elements["contract"].disabled=false;
@@ -51,9 +51,19 @@ function radioClicked() {
     case "rhic_radio" :
        document.forms[0].elements["id_consumer"].disabled=false;
        document.forms[0].elements["contract"].disabled=true;
+       document.forms[0].elements["account"].disabled=true;
        break;
   }
- 
+    if (document.forms[0].elements["byMonth"].disabled == false || document.forms[0].elements["endDate"].disabled == false) {
+       date = 'pass'
+       
+       if ( document.forms[0].elements["contract"].disabled == false ||
+              document.forms[0].elements["account"].disabled == false ||
+               document.forms[0].elements["id_consumer"].disabled == false) {
+                    document.forms[0].elements["submit"].disabled=false;
+                    
+               }
+    }
  }
   $(function() {
     $("#startDate").datepicker();
@@ -89,14 +99,13 @@ p.indent {padding-left:4%;}
 
 <br>
 <fieldset>
+<table>
 <form action="/ui/report/" id="myform">
         
-       <p class="padding">
-       <b>Date:</b></p>
-       <p class="indent"> 
-       <input type="radio" name="group1" value="month" />
-
-        <select id="byMonth" disabled="true">
+       <p><b>Filter by Date:</b></p>
+       <tr>
+       <td width="10%"><input type="radio" name="group1" value="month" /><b> Month:</b>
+        <select name=byMonth id="byMonth" disabled="true">
          <option value="">Select Month</option>
          <option value="1">January</option>
          <option value="2">February</option>
@@ -110,32 +119,51 @@ p.indent {padding-left:4%;}
          <option value="10">October</option>
          <option value="11">November</option>
          <option value="12">December</option>
-        </select>
-        <input id="monthTXT" name=viaMonth type="text" disabled="true"/>
-        </p>
+        </select> </td>
+        </tr>
         
-        <p class="indent">
-        <input type="radio" name="group1" value="range"/>
-        <b>Custom Range: </b> 
+        <tr>
+        <td width="50%"> <input type="radio" name="group1" value="range"/> <b>Custom Range:</b> 
         Start Date: <input type="text" id="startDate" name="startDate">
         End Date: <input type="text" id="endDate" name="endDate"> </p>
+        </td>
+        </tr>
+        </table>
         
-        <p class="padding"><b>Report by:</b></p> 
-        <p class="indent"><input type="radio" name="group2" value="account_radio" />&nbsp &nbsp<b>Account Number: </b></p>
+        <p><b>Filter by Customer Data:</b></p> 
+        <table>
         
-        <p class="indent"><input type="radio" name="group2" value="contract_radio" />&nbsp &nbsp<b>Contract: </b> 
-        <select id="contract" name=contract_number disabled="true">  </p>
-            {% for c in contracts %}
-            <option value= {{ c }}> {{ c }} </option>
-            {% endfor %}
-        </select>
-        
-        <p class="indent"><input type="radio" name="group2" value="rhic_radio" />&nbsp &nbsp<b>RHIC: </b> {{ form.consumer }} </p>
+         <tr>
+          <td width="5%"> <input type="radio" name="group2" value="account_radio" checked="checked"/><b> Account: </b> </td>
+          <td width="30%"> <select id="account" name=account_number disabled="false"> 
+            <option value= {{ account }}> {{ account }} </option>
+            </select> </td>
+         </tr>
+         <tr>
+         <td width="5%"> <input type="radio" name="group2" value="contract_radio" /><b> Contract: </b> </td> 
+         <td width="40%"><select id="contract" name=contract_number disabled="true"> 
+              {% for c in contracts %}
+               <option value= {{ c }}> {{ c }} </option>
+              {% endfor %}
+            </select> </td>
+         </tr>
+         <tr>
+         <td width="5%"> <input type="radio" name="group2" value="rhic_radio" /><b> RHIC: </b></td>
+         <td width="40%">{{ form.consumer }}</td>
+         </tr>
+         </table>
+         <p><b>Filter by Cloud:</b></p> 
+         <table>
+         <tr> 
+         <td width="5%"><input type="radio" name="group3" value="cloud" /><b> Cloud: </b></td>
+         <td width="40%">{{ form.splice_server}}</td>
+         </tr>
          
-        <p class="padding"><b> Cloud: </b>&nbsp &nbsp{{ form.splice_server}} </p> 
-  
-   <p class="padding"> <input type="submit" value="Run Report" /> </p>
-  </form>
+         
+         <tr>
+         <td width="5%"><input type="submit" name="submit" value="Run Report" />
+         </form>
+         </td>
 </fieldset>
 
 

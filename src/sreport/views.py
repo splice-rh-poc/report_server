@@ -59,7 +59,7 @@ def create_report(request):
             consumer = request.POST['consumer.value']
             
             results = hours_per_consumer(consumer)
-            return template_response(request, 'create_report/report.html')
+            return template_response(request, 'create_report/report.html', {'account': account})
     else:
         try:
             contracts = []
@@ -70,17 +70,19 @@ def create_report(request):
                 contracts.append(c.contract_id)
             
             form = ProductUsageForm()
-            return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts})
+            return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
+                                                                            'account': account, 'user': user})
         except Exception, e:
             _LOG.exception(e)
 
 
 def report(request):
     #format the data
-    
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
         
-    if 'viaMonth' in request.GET:
-        month = int(request.GET['viaMonth'].encode('ascii'))
+    if 'byMonth' in request.GET:
+        month = int(request.GET['byMonth'].encode('ascii'))
         year = datetime.datetime.today().year
         start = datetime.datetime(year, month, 1)
         end =  datetime.datetime(year, month + 1, 1) - datetime.timedelta (days = 1)
@@ -102,15 +104,13 @@ def report(request):
         results = hours_per_consumer(start, end, contract_number=contract)
     
     else:
-        user = str(request.user)
-        account = Account.objects.filter(login=user)[0].account_id
         rhics = list(RHIC.objects.filter(account_id=account))
         consumer_id = None
         results = hours_per_consumer(start, end, list_of_rhics=rhics)
     
     
     
-    response = TemplateResponse(request, 'create_report/report.html', {'list': results})
+    response = TemplateResponse(request, 'create_report/report.html', {'list': results}, {'account': account})
     return response
 
 
@@ -166,6 +166,14 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                 results.append(result_dict)
 
     return results
+
+def scrub_checkin_count(start, end, num_checkins):
+    th = start - end
+    total_hours = th.hours
+    print("total number of hours:" + str(total_hours))
+    
+    nau = num_checkins / total_hours
+    
 
 def import_checkin_data(request):
     results = []
