@@ -177,42 +177,31 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
 
 
 def datespan(startDate, endDate):
-    delta=timedelta(days=1)
-    syear = str(startDate.year)
-    smonth = str(startDate.month)
-    startDate = datetime.strptime(syear + ' ' + smonth, "%Y %m")
+    delta=timedelta(hours=1)
     currentDate = startDate
     count = 0
     last_month_days = 0
     hours_for_sub = {}
     while currentDate < endDate:
+        hours_for_sub[currentDate.month] = {}
+        hours_for_sub[currentDate.month]['start'] = startDate
         if (currentDate + delta).month > currentDate.month :
-            sub = count * 24
-            hours_for_sub[currentDate.month] = {}
-            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            sub = count 
+            
+            hours_for_sub[currentDate.month]['sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
-            start_year = str(currentDate.year)
-            start_month = str(currentDate.month)
-            start = datetime.strptime(start_year + ' ' + start_month + ' 1', "%Y %m %d")
-            hours_for_sub[currentDate.month]['start'] = start
             count = 0
+            startDate = currentDate + delta
         
         if currentDate.month == endDate.month:
             last_month_days += 1
-            sub = last_month_days * 24
-            hours_for_sub[currentDate.month] = {}
-            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            sub = last_month_days 
+            hours_for_sub[currentDate.month]['sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
-            start_year = str(currentDate.year)
-            start_month = str(currentDate.month)
-            start = datetime.strptime(start_year + ' ' + start_month + ' 1', "%Y %m %d")
-            hours_for_sub[currentDate.month]['start'] = start
             
         count += 1
         currentDate += delta
-    #for key, value in hours_for_sub.items():
-    #    print(key, value['start'], value['end'], value['sub'])
-    #    print(key, str(value['start']), str(value['end']), str(value['sub']))
+        
     return hours_for_sub
 
 def import_checkin_data(request):
