@@ -11,7 +11,7 @@ from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Acc
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 from common.client import ApiClient
-import datetime
+from datetime import date, datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -83,15 +83,15 @@ def report(request):
         
     if 'byMonth' in request.GET:
         month = int(request.GET['byMonth'].encode('ascii'))
-        year = datetime.datetime.today().year
-        start = datetime.datetime(year, month, 1)
-        end =  datetime.datetime(year, month + 1, 1) - datetime.timedelta (days = 1)
+        year = datetime.today().year
+        start = datetime(year, month, 1)
+        end =  datetime(year, month + 1, 1) - timedelta (days = 1)
     else:
         
         startDate = request.GET['startDate'].encode('ascii').split("/")
         endDate = request.GET['endDate'].encode('ascii').split("/")
-        start = datetime.datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime.datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
         
     list_of_rhics = []
     if 'consumer' in request.GET:
@@ -132,33 +132,49 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                 list_of_products = contract.products
         
         #list of products in the RHIC's Contract
-        for p in list_of_products:     
-            print(str(rhic.uuid), p.engineering_id, str(start), str(end), p.sla, p.support_level )  
-            high = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
-                        product=str(p.engineering_id), date__gt=start, \
-                        date__lt=end, memtotal__gte=8388608, sla=p.sla, support=p.support_level))
+        for p in list_of_products:
+            sub_hours_per_month = datespan(start, end)
+            nau_high = 0
+            nau_low = 0
             
-            low = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
-                        product=str(p.engineering_id), date__gt=start, \
-                        date__lt=end, memtotal__lt=8388608, sla=p.sla, support=p.support_level))
-
-            if high:
+            for key, value in sub_hours_per_month.items():
+                print(key, str(rhic.uuid), p.engineering_id, str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
+                high = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
+                            product=str(p.engineering_id), date__gt=value['start'], \
+                            date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level))
+                
+                low = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
+                            product=str(p.engineering_id), date__gt=value['start'], \
+                            date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level))
+                if high:
+                    nau_high += len(high) / int(value['hours_for_sub'])
+                if low:
+                    nau_low += len(low) / int(value['hours_for_sub'])
+                
+            if nau_high:
+                if 1 > nau_high > 0:
+                    nau_high = 1
+                
                 result_dict = {}
                 result_dict['facts'] = ' > 8GB  '
                 result_dict['rhic'] = str(rhic.uuid)
                 result_dict['product_name'] = p.name
-                result_dict['checkins'] = "{0:.2f}".format(len(high) / 720)
+                result_dict['checkins'] = "{0:.2f}".format(nau_high)
                 result_dict['contract_use'] = p.quantity
                 result_dict['sla'] = p.sla
                 result_dict['support'] = p.support_level
                 result_dict['contract_id'] = contract_num
                 results.append(result_dict)
-            if low:
+                
+            if nau_low:
+                if 1 > nau_low > 0:
+                    nau_low = 1
+                    
                 result_dict = {}
                 result_dict['facts'] = ' < 8GB '
                 result_dict['rhic'] = str(rhic.uuid)
                 result_dict['product_name'] = p.name
-                result_dict['checkins'] = "{0:.2f}".format(len(low) / 720)
+                result_dict['checkins'] = "{0:.2f}".format(nau_low)
                 result_dict['contract_use'] = p.quantity
                 result_dict['sla'] = p.sla
                 result_dict['support'] = p.support_level
@@ -167,19 +183,50 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
 
     return results
 
-def scrub_checkin_count(start, end, num_checkins):
-    th = start - end
-    total_hours = th.hours
-    print("total number of hours:" + str(total_hours))
-    
-    nau = num_checkins / total_hours
-    
+
+def datespan(startDate, endDate, delta=timedelta(days=1)):
+    syear = str(startDate.year)
+    smonth = str(startDate.month)
+    startDate = datetime.strptime(syear + ' ' + smonth, "%Y %m")
+    currentDate = startDate
+    count = 0
+    last_month_days = 0
+    hours_for_sub = {}
+    while currentDate < endDate:
+        if (currentDate + delta).month > currentDate.month :
+            sub = count * 24
+            hours_for_sub[currentDate.month] = {}
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            hours_for_sub[currentDate.month]['end'] = currentDate
+            start_year = str(currentDate.year)
+            start_month = str(currentDate.month)
+            start = datetime.strptime(start_year + ' ' + start_month + ' 1', "%Y %m %d")
+            hours_for_sub[currentDate.month]['start'] = start
+            count = 0
+        
+        if currentDate.month == endDate.month:
+            last_month_days += 1
+            sub = last_month_days * 24
+            hours_for_sub[currentDate.month] = {}
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            hours_for_sub[currentDate.month]['end'] = currentDate
+            start_year = str(currentDate.year)
+            start_month = str(currentDate.month)
+            start = datetime.strptime(start_year + ' ' + start_month + ' 1', "%Y %m %d")
+            hours_for_sub[currentDate.month]['start'] = start
+            
+        count += 1
+        currentDate += delta
+    #for key, value in hours_for_sub.items():
+    #    print(key, value['start'], value['end'], value['sub'])
+    #    print(key, str(value['start']), str(value['end']), str(value['sub']))
+    return hours_for_sub
 
 def import_checkin_data(request):
     results = []
     #debug
     format = "%a %b %d %H:%M:%S %Y"
-    start = datetime.datetime.now()
+    start = datetime.now()
     time = {}
     time['start'] = start.strftime(format)
     #debug
@@ -235,7 +282,7 @@ def import_checkin_data(request):
                         rd.save()
     
     #debug
-    end = datetime.datetime.now()
+    end = datetime.now()
     time['end'] = end.strftime(format)
     results.append(time)
     #debug
