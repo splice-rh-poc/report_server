@@ -139,52 +139,45 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             
             for key, value in sub_hours_per_month.items():
                 print(key, str(rhic.uuid), p.engineering_id, str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
-                high = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
+                high = ReportData.objects.filter(consumer=str(rhic.uuid), \
                             product=str(p.engineering_id), date__gt=value['start'], \
-                            date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level))
+                            date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
                 
-                low = list(ReportData.objects.filter(consumer=str(rhic.uuid), \
+                low = ReportData.objects.filter(consumer=str(rhic.uuid), \
                             product=str(p.engineering_id), date__gt=value['start'], \
-                            date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level))
+                            date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level).count()
                 if high:
-                    nau_high += len(high) / int(value['hours_for_sub'])
+                    nau_high += high / int(value['hours_for_sub'])
                 if low:
-                    nau_low += len(low) / int(value['hours_for_sub'])
-                
-            if nau_high:
-                if 1 > nau_high > 0:
-                    nau_high = 1
-                
-                result_dict = {}
-                result_dict['facts'] = ' > 8GB  '
-                result_dict['rhic'] = str(rhic.uuid)
-                result_dict['product_name'] = p.name
-                result_dict['checkins'] = "{0:.2f}".format(nau_high)
-                result_dict['contract_use'] = p.quantity
-                result_dict['sla'] = p.sla
-                result_dict['support'] = p.support_level
-                result_dict['contract_id'] = contract_num
-                results.append(result_dict)
-                
-            if nau_low:
-                if 1 > nau_low > 0:
-                    nau_low = 1
+                    nau_low += low / int(value['hours_for_sub'])
+            nau_list =  [nau_high, nau_low]     
+            for nau in nau_list:
+                if nau:
+                    if 1 > nau > 0:
+                        nau = 1
                     
-                result_dict = {}
-                result_dict['facts'] = ' < 8GB '
-                result_dict['rhic'] = str(rhic.uuid)
-                result_dict['product_name'] = p.name
-                result_dict['checkins'] = "{0:.2f}".format(nau_low)
-                result_dict['contract_use'] = p.quantity
-                result_dict['sla'] = p.sla
-                result_dict['support'] = p.support_level
-                result_dict['contract_id'] = contract_num
-                results.append(result_dict)
+                    result_dict = {}
+                    
+                    result_dict['checkins'] = "{0:.2f}".format(nau)
+                    result_dict['rhic'] = str(rhic.uuid)
+                    result_dict['product_name'] = p.name
+                    result_dict['contract_use'] = p.quantity
+                    result_dict['sla'] = p.sla
+                    result_dict['support'] = p.support_level
+                    result_dict['contract_id'] = contract_num
+                    
+                    
+                    if nau_list[0]:  
+                        result_dict['facts'] = ' > 8GB  '
+                    else:
+                        result_dict['facts'] = ' < 8GB  '
+                    results.append(result_dict)
 
     return results
 
 
-def datespan(startDate, endDate, delta=timedelta(days=1)):
+def datespan(startDate, endDate):
+    delta=timedelta(days=1)
     syear = str(startDate.year)
     smonth = str(startDate.month)
     startDate = datetime.strptime(syear + ' ' + smonth, "%Y %m")

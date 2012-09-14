@@ -10,7 +10,8 @@ end_date = input("Enter an end date as.. yyyy mm dd hh \n")
 print('you entered ', end_date)
 '''
 
-def datespan(startDate, endDate, delta=timedelta(days=1)):
+def datespan(startDate, endDate):
+    delta=timedelta(days=1)
     syear = str(startDate.year)
     smonth = str(startDate.month)
     startDate = datetime.datetime.strptime(syear + ' ' + smonth, "%Y %m")
@@ -20,7 +21,6 @@ def datespan(startDate, endDate, delta=timedelta(days=1)):
     hours_for_sub = {}
     while currentDate < endDate:
         if (currentDate + delta).month > currentDate.month :
-            yield count
             sub = count * 24
             hours_for_sub[currentDate.month] = {}
             hours_for_sub[currentDate.month]['sub'] = sub
@@ -69,4 +69,4 @@ ed = datetime.datetime.now()
 for day in datespan(sd, ed):
     print(day)
     
-print(datespan_count(sd, ed))
+#print(datespan_count(sd, ed))
