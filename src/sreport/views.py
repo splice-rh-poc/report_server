@@ -160,10 +160,13 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                     result_dict['checkins'] = "{0:.0f}".format(nau)
                     result_dict['rhic'] = str(rhic.uuid)
                     result_dict['product_name'] = p.name
+                    result_dict['engineering_id'] = p.engineering_id
                     result_dict['contract_use'] = p.quantity
                     result_dict['sla'] = p.sla
                     result_dict['support'] = p.support_level
                     result_dict['contract_id'] = contract_num
+                    result_dict['start'] = start.toordinal
+                    result_dict['end'] = end.toordinal
                     
                     
                     if nau_list[0]:  
@@ -207,7 +210,7 @@ def import_checkin_data(request):
     results = []
     #debug
     format = "%a %b %d %H:%M:%S %Y"
-    start = datetime.now()
+    start = datetime.utcnow()
     time = {}
     time['start'] = start.strftime(format)
     #debug
@@ -263,7 +266,7 @@ def import_checkin_data(request):
                         rd.save()
     
     #debug
-    end = datetime.now()
+    end = datetime.utcnow()
     time['end'] = end.strftime(format)
     results.append(time)
     #debug
@@ -272,13 +275,16 @@ def import_checkin_data(request):
 
 
 def detailed_report(request):
-    rhic = request.GET['rhic']
+    rhic = request.GET['consumer']
     product = request.GET['product']
-    start = request.GET['start']
-    end = request.GET['end']
-    memory = request.GET['memory']
-    sla = request.GET['sla']
-    support = request.GET['support']
-    ReportData.objects.filter(consumer=rhic, \
-                            product=product, date__gt=start, \
-                            date__lt=end, memtotal__gte=memory, sla=sla, support=support)
+    start = datetime.fromordinal(int(request.GET['start']))
+    end = datetime.fromordinal(int(request.GET['end']))
+    #memory = request.GET['memory']
+    #sla = request.GET['sla']
+    #support = request.GET['support']
+    #ReportData.objects.filter(consumer=rhic, \
+    #                        product=product, date__gt=start, \
+    #                        date__lt=end, memtotal__gte=memory, sla=sla, support=support)
+    results = ReportData.objects.filter(consumer=rhic, product=product, date__gt=start, date__lt=end)
+    response = TemplateResponse(request, 'create_report/details.html', {'list': results})
+    return response
