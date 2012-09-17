@@ -81,7 +81,6 @@ def report(request):
     #format the data
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-        
     if 'byMonth' in request.GET:
         month = int(request.GET['byMonth'].encode('ascii'))
         year = datetime.today().year
@@ -111,7 +110,7 @@ def report(request):
     
     
     
-    response = TemplateResponse(request, 'create_report/report.html', {'list': results}, {'account': account})
+    response = TemplateResponse(request, 'create_report/report.html', {'list': results, 'account': account, 'start': start, 'end': end})
     return response
 
 
@@ -270,3 +269,16 @@ def import_checkin_data(request):
     #debug
     response = TemplateResponse(request, 'test/import.html', {'list': results})
     return response
+
+
+def detailed_report(request):
+    rhic = request.GET['rhic']
+    product = request.GET['product']
+    start = request.GET['start']
+    end = request.GET['end']
+    memory = request.GET['memory']
+    sla = request.GET['sla']
+    support = request.GET['support']
+    ReportData.objects.filter(consumer=rhic, \
+                            product=product, date__gt=start, \
+                            date__lt=end, memtotal__gte=memory, sla=sla, support=support)
