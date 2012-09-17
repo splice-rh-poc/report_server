@@ -2,8 +2,10 @@
 <!DOCTYPE html>
 
 <head>
+<script>
 
-  <script>
+// On load disable all radio buttons, text and combo boxes 
+// by default enable and check "account"
  window.onload=function() {
    document.forms[0].elements["startDate"].disabled=true;
    document.forms[0].elements["endDate"].disabled=true;
@@ -23,6 +25,7 @@
     accountRadios[i].onclick=radioClicked;
 }
 
+// If radio button for type is clicked enable text or combo box
 function radioClicked() {
 
   // find out which radio button was clicked and
@@ -54,6 +57,7 @@ function radioClicked() {
        document.forms[0].elements["account"].disabled=true;
        break;
   }
+   // Disable the submit button until everything required is selected
     if (document.forms[0].elements["byMonth"].disabled == false || document.forms[0].elements["endDate"].disabled == false) {
        date = 'pass'
        
@@ -65,7 +69,9 @@ function radioClicked() {
                }
     }
  }
-  $(function() {
+ 
+// JQUERY: add pop date to txt box
+$(function() {
     $("#startDate").datepicker();
     $("#endDate").datepicker();
 
@@ -76,24 +82,26 @@ function radioClicked() {
          $('#monthTXT').val( $(this).val() );
     });
     
-  });
+});
   
-
+// validate the form for Month or date range, I get calculation errors if the date is not filled out
+function validateForm(){
+  var date_month=(myform.byMonth.value);
+  if (date_month=="-1" && document.forms[0].elements["byMonth"].disabled==false){
+      alert("Please Select Month");
+      return false; 
+      }
+  var datepicker_start=(myform.startDate.value);
+  if (datepicker_start == "" && document.forms[0].elements["startDate"].disabled==false){
+      alert("Please select a Custom Date Range");
+      return false; 
+      }
+  return true;
+  }
   
   </script>
 </head>
 
-
-
-
-
-
-<style type="text/css">
-p.padding {padding-left:2%;}
-</style>
-<style type="text/css">
-p.indent {padding-left:4%;}
-</style>
 
 <body>
 
@@ -106,7 +114,7 @@ p.indent {padding-left:4%;}
        <tr>
        <td width="10%"><input type="radio" name="group1" value="month" /><b> Month:</b>
         <select name=byMonth id="byMonth" disabled="true">
-         <option value="">Select Month</option>
+         <option value="-1">Select Month</option>
          <option value="1">January</option>
          <option value="2">February</option>
          <option value="3">March</option>
@@ -161,7 +169,7 @@ p.indent {padding-left:4%;}
          
          
          <tr>
-         <td width="5%"><input type="submit" name="submit" value="Run Report" />
+         <td width="5%"><input type="submit" name="submit" value="Run Report" onclick="return validateForm();" />
          </form>
          </td>
 </fieldset>

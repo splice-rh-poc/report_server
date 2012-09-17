@@ -30,39 +30,38 @@ $(document).ready(function() {
 
 </head>
 
-<div>
+
+{% for pu in list %}
+
 <table id="data" class="display" style="display: table" width="100%">
-    <thead>
+    <b>RHIC: {{ pu.rhic }},  Contract: {{ pu.contract_id }} </b>
         <tr>
-            <th>RHIC:</th>
+        
             <th>Product:</th>
             <th>SLA:</th>
             <th>Support:</th>
             <th>Facts:</th>
-             <th>Contract:</th>
             <th>Contracted Use:</th>
             <th>NAU to Date:</th>
         </tr>
-    </thead>
+    
      <tbody>
-</div>
-{% for pu in list %}
+
+
   
     <tr>
-        <td> {{ pu.rhic }}  </td>
         <td> {{ pu.product_name }}  </td>
         <td> {{ pu.sla }} </td> 
         <td> {{ pu.support }} </td> 
         <td> {{ pu.facts }} </td> 
-        <td> {{ pu.contract_id }} </td>
         <td> {{ pu.contract_use }}</td> 
         <td> {{ pu.checkins }} </td> 
     </tr>
-{% endfor %}
    </tbody>
 </table>
-</div>
+<br><br>
 
+{% endfor %}
 
 
 
