@@ -15,6 +15,7 @@ from datetime import date, datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
+import math
 
 
 
@@ -153,12 +154,11 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             nau_list =  [nau_high, nau_low]     
             for nau in nau_list:
                 if nau:
-                    if 1 > nau > 0:
-                        nau = 1
+                    nau = math.ceil(nau)
                     
                     result_dict = {}
                     
-                    result_dict['checkins'] = "{0:.2f}".format(nau)
+                    result_dict['checkins'] = "{0:.0f}".format(nau)
                     result_dict['rhic'] = str(rhic.uuid)
                     result_dict['product_name'] = p.name
                     result_dict['contract_use'] = p.quantity

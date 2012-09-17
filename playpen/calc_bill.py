@@ -22,7 +22,7 @@ def datespan(startDate, endDate):
         if (currentDate + delta).month > currentDate.month :
             sub = count 
             
-            hours_for_sub[currentDate.month]['sub'] = sub
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
             count = 0
             startDate = currentDate + delta
@@ -30,13 +30,13 @@ def datespan(startDate, endDate):
         if currentDate.month == endDate.month:
             last_month_days += 1
             sub = last_month_days 
-            hours_for_sub[currentDate.month]['sub'] = sub
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
             
         count += 1
         currentDate += delta
     for key, value in hours_for_sub.items():
-        print(key, value['start'], value['end'], value['sub'])
+        print(key, value['start'], value['end'], value['hours_for_sub'])
         #print(key, str(value['start']), str(value['end']), str(value['sub']))
     return hours_for_sub
 
