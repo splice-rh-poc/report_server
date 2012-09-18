@@ -279,6 +279,7 @@ def detailed_report(request):
     product = request.GET['product']
     start = datetime.fromordinal(int(request.GET['start']))
     end = datetime.fromordinal(int(request.GET['end']))
+    account = request.GET['account']
     #memory = request.GET['memory']
     #sla = request.GET['sla']
     #support = request.GET['support']
@@ -286,5 +287,5 @@ def detailed_report(request):
     #                        product=product, date__gt=start, \
     #                        date__lt=end, memtotal__gte=memory, sla=sla, support=support)
     results = ReportData.objects.filter(consumer=rhic, product=product, date__gt=start, date__lt=end)
-    response = TemplateResponse(request, 'create_report/details.html', {'list': results})
+    response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account})
     return response
