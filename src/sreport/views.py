@@ -248,25 +248,25 @@ def import_checkin_data(request):
                     this_product = p
         
 
-        rd = ReportData(instance_identifier=str(pu.instance_identifier), 
-                        consumer = str(pu.consumer),
-                        product = str(this_product.engineering_ids),
-                        product_name = this_product.name,
-                        date = pu.date,
-                        hour = pu.date.strftime(hr_fmt),
-                        sla = this_product.sla,
-                        support = this_product.support_level,
-                        contract_id = str(this_rhic.contract),
-                        contract_use = str(this_product.quantity),
-                        memtotal = int(pu.facts['memory_dot_memtotal'])
-                        
-                        )
-        dupe = ReportData.objects.filter(instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product= str(this_product.engineering_ids))
-        if dupe:
-            print("found dupe:" + str(pu))
-        else:
-            print(this_product.name, pu.date, pu.instance_identifier)
-            rd.save()
+            rd = ReportData(instance_identifier=str(pu.instance_identifier), 
+                            consumer = str(pu.consumer),
+                            product = str(this_product.engineering_ids),
+                            product_name = this_product.name,
+                            date = pu.date,
+                            hour = pu.date.strftime(hr_fmt),
+                            sla = this_product.sla,
+                            support = this_product.support_level,
+                            contract_id = str(this_rhic.contract),
+                            contract_use = str(this_product.quantity),
+                            memtotal = int(pu.facts['memory_dot_memtotal'])
+                            
+                            )
+            dupe = ReportData.objects.filter(instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product= str(this_product.engineering_ids))
+            if dupe:
+                print("found dupe:" + str(pu))
+            else:
+                print("insert", str(pu))
+                rd.save()
         
         
     
