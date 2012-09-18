@@ -7,7 +7,7 @@ from django.core.context_processors import csrf
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Account
+from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Account, Product, Contract
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 from common.client import ApiClient
@@ -138,13 +138,13 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             nau_low = 0
             
             for key, value in sub_hours_per_month.items():
-                print(key, str(rhic.uuid), p.engineering_id, str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
+                print(key, str(rhic.uuid), p.engineering_ids[0], str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
                 high = ReportData.objects.filter(consumer=str(rhic.uuid), \
-                            product=str(p.engineering_id), date__gt=value['start'], \
+                            product=str(p.engineering_ids[0]), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
                 
                 low = ReportData.objects.filter(consumer=str(rhic.uuid), \
-                            product=str(p.engineering_id), date__gt=value['start'], \
+                            product=str(p.engineering_ids[0]), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level).count()
                 if high:
                     nau_high += high / int(value['hours_for_sub'])
@@ -160,7 +160,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                     result_dict['checkins'] = "{0:.0f}".format(nau)
                     result_dict['rhic'] = str(rhic.uuid)
                     result_dict['product_name'] = p.name
-                    result_dict['engineering_id'] = p.engineering_id
+                    result_dict['engineering_id'] = p.engineering_ids[0]
                     result_dict['contract_use'] = p.quantity
                     result_dict['sla'] = p.sla
                     result_dict['support'] = p.support_level
@@ -206,6 +206,12 @@ def datespan(startDate, endDate):
         
     return hours_for_sub
 
+def find(f, seq):
+  """Return first item in sequence where f(item) == True."""
+  for item in seq:
+    if f(item): 
+      return item
+
 def import_checkin_data(request):
     results = []
     #debug
@@ -216,54 +222,53 @@ def import_checkin_data(request):
     #debug
     
     hr_fmt = "%m%d%Y:%H"
-    pu_all = list(ProductUsage.objects.all())
+    pu_all = ProductUsage.objects.all()
     for pu in pu_all:
         #my_uuid = pu._data['consumer']
         my_uuid = str(pu.consumer)
         try:
             this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
         except IndexError:
-            #print(pu)
-            pass
+            print('rhic not found')
+            return
+            
         this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
+        contract_number = this_rhic.contract
+        contracts =  Account.objects.filter(account_id=this_rhic.account_id)[0].contracts
+        this_contract = find(lambda contract: contract.contract_id == contract_number, contracts)
+        contract_products = this_contract.products
         
-        my_products = []
-        for c in  this_account.contracts:
-            if c.contract_id == this_rhic.contract:
-                        my_products = c.products
-                        
-                            
-        
-        
-        total_usage = defaultdict(int)
-            #for product_pem in pu._data['product_info']:
-        for product_pem in pu.product_info:
-            for p in my_products:
-                if int(product_pem) == int(p.engineering_id):
+        this_product = ""
+        for product_checkin in pu.product_info:
+            for p in contract_products:
+                #add additional matching logic here
+                if len(p.engineering_ids) > 1:
+                    print('have new products')
+                elif str(p.engineering_ids[0]) == str(product_checkin):
                     this_product = p
-                    print(str(pu.instance_identifier + ' ' + str(pu.date)))
-                    try:
-                        mem = pu.facts['memory_dot_memtotal']
-                    except:
-                        mem = 0
-                    rd = ReportData(instance_identifier=str(pu.instance_identifier), 
-                                    consumer = str(pu.consumer),
-                                    product = str(this_product.engineering_id),
-                                    product_name = this_product.name,
-                                    date = pu.date,
-                                    hour = pu.date.strftime(hr_fmt),
-                                    sla = this_product.sla,
-                                    support = this_product.support_level,
-                                    contract_id = str(this_rhic.contract),
-                                    contract_use = str(this_product.quantity),
-                                    memtotal = int(mem)
-                                    
-                                    )
-                    dupe = ReportData.objects.filter(instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product=str(this_product.engineering_id))
-                    if dupe:
-                        print("found dupe:" + str(pu))
-                    else:
-                        rd.save()
+        
+
+        rd = ReportData(instance_identifier=str(pu.instance_identifier), 
+                        consumer = str(pu.consumer),
+                        product = str(this_product.engineering_ids),
+                        product_name = this_product.name,
+                        date = pu.date,
+                        hour = pu.date.strftime(hr_fmt),
+                        sla = this_product.sla,
+                        support = this_product.support_level,
+                        contract_id = str(this_rhic.contract),
+                        contract_use = str(this_product.quantity),
+                        memtotal = int(pu.facts['memory_dot_memtotal'])
+                        
+                        )
+        dupe = ReportData.objects.filter(instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product= str(this_product.engineering_ids))
+        if dupe:
+            print("found dupe:" + str(pu))
+        else:
+            print(this_product.name, pu.date, pu.instance_identifier)
+            rd.save()
+        
+        
     
     #debug
     end = datetime.utcnow()
