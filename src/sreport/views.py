@@ -16,6 +16,7 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 import math
+from sets import Set
 
 
 
@@ -243,7 +244,11 @@ def import_checkin_data(request):
             for p in contract_products:
                 #add additional matching logic here
                 if len(p.engineering_ids) > 1:
-                    print('have new products')
+                    print('found multipem product')
+                    product_set = Set(p.engineering_ids)
+                    checkin_set = Set(pu.product_info)
+                    if product_set in checkin_set:
+                        this_product = p
                 elif str(p.engineering_ids[0]) == str(product_checkin):
                     this_product = p
         
