@@ -138,13 +138,13 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             nau_low = 0
             
             for key, value in sub_hours_per_month.items():
-                print(key, str(rhic.uuid), p.engineering_ids[0], str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
+                print(key, str(rhic.uuid), str(p.engineering_ids), str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
                 high = ReportData.objects.filter(consumer=str(rhic.uuid), \
-                            product=str(p.engineering_ids[0]), date__gt=value['start'], \
+                            product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
                 
                 low = ReportData.objects.filter(consumer=str(rhic.uuid), \
-                            product=str(p.engineering_ids[0]), date__gt=value['start'], \
+                            product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level).count()
                 if high:
                     nau_high += high / int(value['hours_for_sub'])
@@ -160,7 +160,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                     result_dict['checkins'] = "{0:.0f}".format(nau)
                     result_dict['rhic'] = str(rhic.uuid)
                     result_dict['product_name'] = p.name
-                    result_dict['engineering_id'] = p.engineering_ids[0]
+                    result_dict['engineering_id'] = str(p.engineering_ids)
                     result_dict['contract_use'] = p.quantity
                     result_dict['sla'] = p.sla
                     result_dict['support'] = p.support_level
@@ -265,7 +265,9 @@ def import_checkin_data(request):
             if dupe:
                 print("found dupe:" + str(pu))
             else:
-                print("insert", str(pu))
+                print(str(this_product.engineering_ids))
+                #print("insert", str(pu))
+                
                 rd.save()
         
         
