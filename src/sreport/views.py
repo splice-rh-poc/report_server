@@ -11,7 +11,6 @@ from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Acc
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 from common.client import ApiClient
-from common.ddict import Ddict
 from datetime import date, datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
@@ -32,10 +31,13 @@ def login(request):
     if user is not None:
         if user.is_active:
             auth_login(request, user)
+            _LOG.info('successfully authenticated')
             return template_response(request, 'create_report/base.html')
         else:
+            _LOG.error('authentication failed')
             return HttpResponseForbidden()
     else:
+        _LOG.error('authentication failed, user does not exist')
         return HttpResponseForbidden()
 
 @ensure_csrf_cookie
@@ -138,24 +140,25 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
         #list of products in the RHIC's Contract
         for p in list_of_products:
             sub_hours_per_month = datespan(start, end)
-            nau_high = 0
-            nau_low = 0
+            nau_mem_high = 0
+            nau_mem_low = 0
             
             for key, value in sub_hours_per_month.items():
-                #print(key, str(rhic.uuid), str(p.engineering_ids), str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
-                high = ReportData.objects.filter(consumer=str(rhic.uuid), \
+                mem_high = ReportData.objects.filter(consumer=str(rhic.uuid), \
                             product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
-                
-                low = ReportData.objects.filter(consumer=str(rhic.uuid), \
+
+                mem_low = ReportData.objects.filter(consumer=str(rhic.uuid), \
                             product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level).count()
-                if high:
-                    nau_high += high / int(value['hours_for_sub'])
-                if low:
-                    nau_low += low / int(value['hours_for_sub'])
-            nau_list =  [nau_high, nau_low]     
-            for nau in nau_list:
+                if mem_high:
+                    _LOG.debug(key, str(rhic.uuid), str(p.engineering_ids), 'mem high', p.sla, p.support_level, str(value['hours_for_sub']))
+                    nau_mem_high += mem_high / int(value['hours_for_sub'])
+                if mem_low:
+                    _LOG.debug(key, str(rhic.uuid), str(p.engineering_ids), 'mem low', p.sla, p.support_level, str(value['hours_for_sub']))
+                    nau_mem_low += mem_low / int(value['hours_for_sub'])
+            nau_list =  [nau_mem_high, nau_mem_low]     
+            for i, nau in enumerate(nau_list):
                 if nau:
                     nau = math.ceil(nau)
                     result_dict = {}
@@ -172,12 +175,14 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                     result_dict['start'] = start.toordinal
                     result_dict['end'] = end.toordinal
                     
+                            
                     
-                    if nau_list[0]:  
+                    if i == 0:  
                         result_dict['facts'] = ' > 8GB  '
-                    else:
+                        rhic_list.append(result_dict)
+                    if i == 1:
                         result_dict['facts'] = ' < 8GB  '
-                    rhic_list.append(result_dict)
+                        rhic_list.append(result_dict)
         if rhic_list:
             results.append(rhic_list)
     return results
@@ -234,7 +239,7 @@ def import_checkin_data(request):
         try:
             this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
         except IndexError:
-            print('rhic not found')
+            _LOG.critical('rhic not found @ import')
             raise Exception('rhic not found')
             
         this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
@@ -248,7 +253,7 @@ def import_checkin_data(request):
             for p in contract_products:
                 #add additional matching logic here
                 if len(p.engineering_ids) > 1:
-                    print('found multipem product')
+                    _LOG.debug('found multipem product @ import')
                     product_set = Set(p.engineering_ids)
                     checkin_set = Set(pu.product_info)
                     if product_set in checkin_set:
@@ -267,16 +272,19 @@ def import_checkin_data(request):
                             support = this_product.support_level,
                             contract_id = str(this_rhic.contract),
                             contract_use = str(this_product.quantity),
-                            memtotal = int(pu.facts['memory_dot_memtotal'])
-                            
+                            memtotal = int(pu.facts['memory_dot_memtotal']),
+                            cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                            environment = str(pu.splice_server)
                             )
-            dupe = ReportData.objects.filter(consumer=str(pu.consumer), instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product= str(this_product.engineering_ids))
+            # need to fix this so customers can 
+            dupe = ReportData.objects.filter(consumer=str(pu.consumer),
+                                              instance_identifier=str(pu.instance_identifier),
+                                               hour=pu.date.strftime(hr_fmt),
+                                                product= str(this_product.engineering_ids))
             if dupe:
-                print("found dupe:" + str(pu))
+                _LOG.info("found dupe:" + str(pu))
             else:
-                print(str(this_product.engineering_ids))
-                #print("insert", str(pu))
-                
+                _LOG.debug(str(this_product.engineering_ids))
                 rd.save()
         
         

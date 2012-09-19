@@ -87,6 +87,8 @@ class ReportData(Document):
     contract_use = StringField(required=True)
     hour = StringField(required=True)
     memtotal = IntField(required=True)
+    cpu_sockets = IntField(required=True)
+    environment = StringField(required=True)
     
     
     meta = {'db_alias': 'results'}
