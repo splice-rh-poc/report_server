@@ -11,14 +11,13 @@ from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Acc
 from django.template.response import TemplateResponse
 from kitchen.pycompat25.collections._defaultdict import defaultdict
 from common.client import ApiClient
+from common.ddict import Ddict
 from datetime import date, datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 import math
 from sets import Set
-
-
 
 _LOG = logging.getLogger(__name__)
 
@@ -105,14 +104,17 @@ def report(request):
         results = hours_per_consumer(start, end, contract_number=contract)
     
     else:
-        rhics = list(RHIC.objects.filter(account_id=account))
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
         consumer_id = None
-        results = hours_per_consumer(start, end, list_of_rhics=rhics)
+        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics)
     
     
     
-    response = TemplateResponse(request, 'create_report/report.html', {'list': results, 'account': account, 'start': start, 'end': end})
+    response = TemplateResponse(request, 'create_report/report.html',
+                                 {'list': results, 'account': account,
+                                   'start': start, 'end': end})
     return response
+
 
 
 def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
@@ -122,6 +124,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
         list_of_rhics = list(RHIC.objects.filter(contract=contract_number))
         
     for rhic in list_of_rhics:
+        rhic_list = []
         account_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].account_id)
         contract_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].contract)
         #list_of_products = Account.objects.filter(account_id=account_num)[0]#.contracts[contract_num].products
@@ -139,7 +142,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             nau_low = 0
             
             for key, value in sub_hours_per_month.items():
-                print(key, str(rhic.uuid), str(p.engineering_ids), str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
+                #print(key, str(rhic.uuid), str(p.engineering_ids), str(value['start']), str(value['end']), p.sla, p.support_level, str(value['hours_for_sub']))  
                 high = ReportData.objects.filter(consumer=str(rhic.uuid), \
                             product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
@@ -155,8 +158,8 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             for nau in nau_list:
                 if nau:
                     nau = math.ceil(nau)
-                    
                     result_dict = {}
+                    
                     
                     result_dict['checkins'] = "{0:.0f}".format(nau)
                     result_dict['rhic'] = str(rhic.uuid)
@@ -174,8 +177,9 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                         result_dict['facts'] = ' > 8GB  '
                     else:
                         result_dict['facts'] = ' < 8GB  '
-                    results.append(result_dict)
-
+                    rhic_list.append(result_dict)
+        if rhic_list:
+            results.append(rhic_list)
     return results
 
 
@@ -231,7 +235,7 @@ def import_checkin_data(request):
             this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
         except IndexError:
             print('rhic not found')
-            return
+            raise Exception('rhic not found')
             
         this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
         contract_number = this_rhic.contract
@@ -266,7 +270,7 @@ def import_checkin_data(request):
                             memtotal = int(pu.facts['memory_dot_memtotal'])
                             
                             )
-            dupe = ReportData.objects.filter(instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product= str(this_product.engineering_ids))
+            dupe = ReportData.objects.filter(consumer=str(pu.consumer), instance_identifier=str(pu.instance_identifier), hour=pu.date.strftime(hr_fmt), product= str(this_product.engineering_ids))
             if dupe:
                 print("found dupe:" + str(pu))
             else:

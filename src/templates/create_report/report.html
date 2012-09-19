@@ -31,10 +31,14 @@ $(document).ready(function() {
 </head>
 
 
-{% for pu in list %}
-
-<table id="data" class="display" style="display: table" width="100%">
-    <b>RHIC: {{ pu.rhic }},  Contract: {{ pu.contract_id }} </b>
+{% for rhic in list %}
+   {% for pu in rhic %}
+     {% if forloop.first %}
+        
+        <b>RHIC: {{ pu.rhic }},  Contract: {{ pu.contract_id }} </b>
+     {% endif %}
+   {% endfor %}
+      <table id="data" class="display" style="display: table" width="100%">
         <tr>
         
             <th>Product:</th>
@@ -44,11 +48,8 @@ $(document).ready(function() {
             <th>Contracted Use:</th>
             <th>NAU to Date:</th>
         </tr>
-    
+    {% for pu in rhic %}
      <tbody>
-
-
-  
     <tr>
         <td> {{ pu.product_name }}  </td>
         <td> {{ pu.sla }} </td> 
@@ -57,6 +58,7 @@ $(document).ready(function() {
         <td> {{ pu.contract_use }}</td> 
         <td> <a href='details?consumer={{ pu.rhic }}&product={{ pu.engineering_id }}&start={{ pu.start}}&end={{ pu.end }}&account={{ account }}'>{{ pu.checkins }}</a>  </td>
     </tr>
+    {% endfor %}
    </tbody>
 </table>
 <br><br>
