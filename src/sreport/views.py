@@ -2,21 +2,17 @@
 from __future__ import division
 import logging
 from django.shortcuts import render_to_response
-from django.core.context_processors import csrf
-
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import ProductUsage, ProductUsageForm, ReportData, RHIC, Account, Product, Contract
+from sreport.models import  ProductUsageForm, ReportData, RHIC, Account
 from django.template.response import TemplateResponse
-from kitchen.pycompat25.collections._defaultdict import defaultdict
-from common.client import ApiClient
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-import math
-from sets import Set
+from common.report import hours_per_consumer
+from common.import_util import checkin_data
 
 _LOG = logging.getLogger(__name__)
 
@@ -25,6 +21,9 @@ def template_response(request, template_name):
         context_instance=RequestContext(request))
 
 def login(request):
+    '''
+    login, available at host:port/ui
+    '''
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
@@ -42,6 +41,9 @@ def login(request):
 
 @ensure_csrf_cookie
 def logout(request):
+    '''
+    logout avail at host:port/ui/logout
+    '''
     auth_logout(request)
     return template_response(request, 'create_report/logout.html')
 
@@ -51,36 +53,35 @@ def index(request):
 
 @login_required
 def create_report(request):
+    '''
+    @param request: http
+    '''
     _LOG.info("create_report called by method: %s" % (request.method))
     #ReportFormSet = formset_factory( ProductUsageForm)
-    if request.method == 'POST':
-        form = ProductUsageForm(request.POST)
-        if form.is_valid():
-            #start_date = request.POST['startDate']
-            #end_date = request.POST['endDate']
-            #splice_server = request.POST['splice_server']
-            consumer = request.POST['consumer.value']
-            
-            results = hours_per_consumer(consumer)
-            return template_response(request, 'create_report/report.html', {'account': account})
-    else:
-        try:
-            contracts = []
-            user = str(request.user)
-            account = Account.objects.filter(login=user)[0].account_id
-            list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
-            for c in list_of_contracts:
-                contracts.append(c.contract_id)
-            
-            form = ProductUsageForm()
-            return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
-                                                                            'account': account, 'user': user})
-        except Exception, e:
-            _LOG.exception(e)
+    
+    contracts = []
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
+    for c in list_of_contracts:
+        contracts.append(c.contract_id)
+    
+    form = ProductUsageForm()
+    return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
+                                                                    'account': account, 'user': user})
+
 
 
 def report(request):
-    #format the data
+    '''
+    @param request: http
+    
+    generate the data for the report.
+    data is generated from hours_per_consumer
+    
+    '''
+    _LOG.info("report called by method: %s" % (request.method))
+    
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     if 'byMonth' in request.GET:
@@ -107,7 +108,6 @@ def report(request):
     
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        consumer_id = None
         results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics)
     
     
@@ -119,181 +119,10 @@ def report(request):
 
 
 
-def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
-    results = []
-    
-    if contract_number:
-        list_of_rhics = list(RHIC.objects.filter(contract=contract_number))
-        
-    for rhic in list_of_rhics:
-        rhic_list = []
-        account_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].account_id)
-        contract_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].contract)
-        #list_of_products = Account.objects.filter(account_id=account_num)[0]#.contracts[contract_num].products
-        list_of_products = []
-            
-        contract_list = Account.objects.filter(account_id=account_num)[0].contracts
-        for contract in contract_list:
-            if contract.contract_id == contract_num:
-                list_of_products = contract.products
-        
-        #list of products in the RHIC's Contract
-        for p in list_of_products:
-            sub_hours_per_month = datespan(start, end)
-            nau_mem_high = 0
-            nau_mem_low = 0
-            
-            for key, value in sub_hours_per_month.items():
-                mem_high = ReportData.objects.filter(consumer=str(rhic.uuid), \
-                            product=str(p.engineering_ids), date__gt=value['start'], \
-                            date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
-
-                mem_low = ReportData.objects.filter(consumer=str(rhic.uuid), \
-                            product=str(p.engineering_ids), date__gt=value['start'], \
-                            date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level).count()
-                if mem_high:
-                    _LOG.debug(key, str(rhic.uuid), str(p.engineering_ids), 'mem high', p.sla, p.support_level, str(value['hours_for_sub']))
-                    nau_mem_high += mem_high / int(value['hours_for_sub'])
-                if mem_low:
-                    _LOG.debug(key, str(rhic.uuid), str(p.engineering_ids), 'mem low', p.sla, p.support_level, str(value['hours_for_sub']))
-                    nau_mem_low += mem_low / int(value['hours_for_sub'])
-            nau_list =  [nau_mem_high, nau_mem_low]     
-            for i, nau in enumerate(nau_list):
-                if nau:
-                    nau = math.ceil(nau)
-                    result_dict = {}
-                    
-                    
-                    result_dict['checkins'] = "{0:.0f}".format(nau)
-                    result_dict['rhic'] = str(rhic.uuid)
-                    result_dict['product_name'] = p.name
-                    result_dict['engineering_id'] = str(p.engineering_ids)
-                    result_dict['contract_use'] = p.quantity
-                    result_dict['sla'] = p.sla
-                    result_dict['support'] = p.support_level
-                    result_dict['contract_id'] = contract_num
-                    result_dict['start'] = start.toordinal
-                    result_dict['end'] = end.toordinal
-                    
-                            
-                    
-                    if i == 0:  
-                        result_dict['facts'] = ' > 8GB  '
-                        rhic_list.append(result_dict)
-                    if i == 1:
-                        result_dict['facts'] = ' < 8GB  '
-                        rhic_list.append(result_dict)
-        if rhic_list:
-            results.append(rhic_list)
-    return results
-
-
-def datespan(startDate, endDate):
-    delta=timedelta(hours=1)
-    currentDate = startDate
-    count = 0
-    last_month_days = 0
-    hours_for_sub = {}
-    while currentDate < endDate:
-        hours_for_sub[currentDate.month] = {}
-        hours_for_sub[currentDate.month]['start'] = startDate
-        if (currentDate + delta).month > currentDate.month :
-            sub = count 
-            
-            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
-            hours_for_sub[currentDate.month]['end'] = currentDate
-            count = 0
-            startDate = currentDate + delta
-        
-        if currentDate.month == endDate.month:
-            last_month_days += 1
-            sub = last_month_days 
-            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
-            hours_for_sub[currentDate.month]['end'] = currentDate
-            
-        count += 1
-        currentDate += delta
-        
-    return hours_for_sub
-
-def find(f, seq):
-  """Return first item in sequence where f(item) == True."""
-  for item in seq:
-    if f(item): 
-      return item
 
 def import_checkin_data(request):
-    results = []
-    #debug
-    format = "%a %b %d %H:%M:%S %Y"
-    start = datetime.utcnow()
-    time = {}
-    time['start'] = start.strftime(format)
-    #debug
     
-    hr_fmt = "%m%d%Y:%H"
-    pu_all = ProductUsage.objects.all()
-    for pu in pu_all:
-        #my_uuid = pu._data['consumer']
-        my_uuid = str(pu.consumer)
-        try:
-            this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
-        except IndexError:
-            _LOG.critical('rhic not found @ import')
-            raise Exception('rhic not found')
-            
-        this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
-        contract_number = this_rhic.contract
-        contracts =  Account.objects.filter(account_id=this_rhic.account_id)[0].contracts
-        this_contract = find(lambda contract: contract.contract_id == contract_number, contracts)
-        contract_products = this_contract.products
-        
-        this_product = ""
-        for product_checkin in pu.product_info:
-            for p in contract_products:
-                #add additional matching logic here
-                if len(p.engineering_ids) > 1:
-                    _LOG.debug('found multipem product @ import')
-                    product_set = Set(p.engineering_ids)
-                    checkin_set = Set(pu.product_info)
-                    if product_set in checkin_set:
-                        this_product = p
-                elif str(p.engineering_ids[0]) == str(product_checkin):
-                    this_product = p
-        
-
-            rd = ReportData(instance_identifier=str(pu.instance_identifier), 
-                            consumer = str(pu.consumer),
-                            product = str(this_product.engineering_ids),
-                            product_name = this_product.name,
-                            date = pu.date,
-                            hour = pu.date.strftime(hr_fmt),
-                            sla = this_product.sla,
-                            support = this_product.support_level,
-                            contract_id = str(this_rhic.contract),
-                            contract_use = str(this_product.quantity),
-                            memtotal = int(pu.facts['memory_dot_memtotal']),
-                            cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                            environment = str(pu.splice_server)
-                            )
-            # need to fix this so customers can 
-            dupe = ReportData.objects.filter(consumer=str(pu.consumer),
-                                              instance_identifier=str(pu.instance_identifier),
-                                               hour=pu.date.strftime(hr_fmt),
-                                                product= str(this_product.engineering_ids))
-            if dupe:
-                _LOG.info("found dupe:" + str(pu))
-            else:
-                _LOG.debug(str(this_product.engineering_ids))
-                rd.save()
-        
-        
-    
-    #debug
-    end = datetime.utcnow()
-    time['end'] = end.strftime(format)
-    results.append(time)
-    #debug
+    results = checkin_data()
     response = TemplateResponse(request, 'test/import.html', {'list': results})
     return response
 
@@ -304,12 +133,6 @@ def detailed_report(request):
     start = datetime.fromordinal(int(request.GET['start']))
     end = datetime.fromordinal(int(request.GET['end']))
     account = request.GET['account']
-    #memory = request.GET['memory']
-    #sla = request.GET['sla']
-    #support = request.GET['support']
-    #ReportData.objects.filter(consumer=rhic, \
-    #                        product=product, date__gt=start, \
-    #                        date__lt=end, memtotal__gte=memory, sla=sla, support=support)
     results = ReportData.objects.filter(consumer=rhic, product=product, date__gt=start, date__lt=end)
     response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account})
     return response
