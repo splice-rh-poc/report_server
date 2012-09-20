@@ -19,7 +19,7 @@ from datetime import datetime
 from common.utils import find_item
 from sets import Set
 
-_LOG = logging.getLogger(__name__)
+_LOG = logging.getLogger("sreport.import_util")
 
 def checkin_data():
     results = []
@@ -83,7 +83,7 @@ def checkin_data():
             if dupe:
                 _LOG.info("found dupe:" + str(pu))
             else:
-                _LOG.debug(str(this_product.engineering_ids))
+                _LOG.info(str(this_product.engineering_ids))
                 rd.save()
 
     end = datetime.utcnow()
