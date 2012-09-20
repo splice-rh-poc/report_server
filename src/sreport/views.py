@@ -134,7 +134,7 @@ def report(request):
 def import_checkin_data(request):
     
     results = checkin_data()
-    response = TemplateResponse(request, 'test/import.html', {'list': results})
+    response = TemplateResponse(request, 'import.html', {'list': results})
     return response
 
 

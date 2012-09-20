@@ -12,7 +12,9 @@
 
 from __future__ import division
 import logging
-from sreport.models import ProductUsage, ReportData, RHIC, Account
+from sreport.models import ProductUsage, ReportData
+from rhic_serve.rhic_rcs.models import RHIC
+from rhic_serve.rhic_rest.models import Account
 from datetime import datetime
 from common.utils import find_item
 from sets import Set
