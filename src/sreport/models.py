@@ -1,4 +1,4 @@
-# Copyright © 2012 Red Hat, Inc.
+# Copyright  2012 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public
 # License as published by the Free Software Foundation; either version
@@ -14,6 +14,7 @@ from mongoengine import DateTimeField, Document, EmbeddedDocument, EmbeddedDocum
 from django import forms
 from mongodbforms import DocumentForm, EmbeddedDocumentForm
 from mongoengine.queryset import QuerySet
+from rhic_serve.rhic_rcs.models import RHIC
 
 
 
@@ -22,6 +23,7 @@ class SpliceServer(Document):
     uuid = StringField(required=True, unique=True)
     description = StringField() # Example what datacenter is this deployed to, i.e. us-east-1
     hostname = StringField(required=True)
+    environment = StringField(required=True)
     
     meta = {'db_alias': 'checkin'}
     
@@ -36,14 +38,22 @@ class SpliceServerRelationships(Document):
     meta = {'db_alias': 'checkin'}
 
 
-class ConsumerIdentity(Document):
-    uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
-    products = ListField(StringField())
+class ConsumerIdentity(RHIC):
     
     meta = {'db_alias': 'checkin'}
-
+    
     def __str__(self):
-        return  '%s' % (self.uuid)
+        return "Consumer Identity '%s' with products '%s'" % (self.uuid, self.engineering_ids)
+
+
+#class ConsumerIdentity(Document):
+#    uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
+#    products = ListField(StringField())
+#    
+#    meta = {'db_alias': 'checkin'}
+
+#    def __str__(self):
+#        return  '%s' % (self.uuid)
 
 class ProductUsage(Document):
     consumer = StringField(required=True)
@@ -80,10 +90,6 @@ class ProductUsageForm(DocumentForm):
         
     meta = {'db_alias': 'checkin'}
 
-class ConsumerIdentityForm(DocumentForm):
-    class Meta:
-        document = ConsumerIdentity
-        #fields = ['uuid']
 
 
 class ReportData(Document):
