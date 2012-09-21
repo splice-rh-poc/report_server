@@ -12,7 +12,8 @@
 
 from __future__ import division
 import logging
-from sreport.models import ProductUsage, ReportData
+from sreport.models import ReportData
+from splice.entitlement.models import ProductUsage
 #from rhic_serve.rhic_rcs.models import RHIC
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
