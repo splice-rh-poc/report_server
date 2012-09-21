@@ -16,7 +16,9 @@ from django.shortcuts import render_to_response
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import  ProductUsageForm, ReportData, RHIC, Account
+from sreport.models import  ProductUsageForm, ReportData
+from rhic_serve.rhic_rest.models import RHIC
+from rhic_serve.rhic_rest.models import Account
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden

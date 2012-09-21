@@ -1,4 +1,4 @@
-# Copyright © 2012 Red Hat, Inc.
+# Copyright  2012 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public
 # License as published by the Free Software Foundation; either version
@@ -30,6 +30,7 @@ MONGO_DATABASE_NAME_RESULTS = 'results'
 # Connect to the mongo db
 connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin')
 connect(MONGO_DATABASE_NAME_RHICSERVE, alias='default')
+connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic_serve')
 connect(MONGO_DATABASE_NAME_RESULTS, alias='results')
 
 MANAGERS = ADMINS
@@ -138,7 +139,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.path.abspath(os.path.dirname(__name__)), "splice_reports/src/templates"),
+    os.path.join(os.path.abspath(os.path.dirname(__name__)), "templates"),
 )
 print TEMPLATE_DIRS
 
@@ -160,7 +161,7 @@ INSTALLED_APPS = (
 
 LOG_DIR = "/var/log/report_server/"
 if DEBUG:
-    LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "splice_reports/debug_logs")
+    LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
     print LOG_DIR

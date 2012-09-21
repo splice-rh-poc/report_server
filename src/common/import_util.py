@@ -13,8 +13,10 @@
 from __future__ import division
 import logging
 from sreport.models import ProductUsage, ReportData
-from rhic_serve.rhic_rcs.models import RHIC
+#from rhic_serve.rhic_rcs.models import RHIC
+from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
+
 from datetime import datetime
 from common.utils import find_item
 from sets import Set
@@ -32,10 +34,15 @@ def checkin_data():
     
     hr_fmt = "%m%d%Y:%H"
     pu_all = ProductUsage.objects.all()
+    
+    
+    for rhic in RHIC.objects.all():
+        _LOG.info(rhic.uuid)
     for pu in pu_all:
         #my_uuid = pu._data['consumer']
         my_uuid = str(pu.consumer)
         try:
+            _LOG.info('using RHIC: ' + my_uuid)
             this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
         except IndexError:
             _LOG.critical('rhic not found @ import')

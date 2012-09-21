@@ -13,7 +13,9 @@ from __future__ import division
 import logging
 
 
-from sreport.models import  ReportData, RHIC, Account
+from sreport.models import  ReportData
+from rhic_serve.rhic_rest.models import RHIC
+from rhic_serve.rhic_rest.models import Account
 from datetime import datetime, timedelta
 import math
 from sets import Set
