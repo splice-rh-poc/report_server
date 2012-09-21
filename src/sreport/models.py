@@ -12,12 +12,36 @@
 from mongoengine import DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, \
   ListField, ReferenceField, StringField, DictField, UUIDField, FileField, IntField
 from django import forms
-from splice.entitlement.models import ProductUsage, SpliceServer, SpliceServerRelationships, ConsumerIdentity
+from splice.entitlement.models import ProductUsage, SpliceServer
 from mongodbforms import DocumentForm, EmbeddedDocumentForm
 from mongoengine.queryset import QuerySet
 from rhic_serve.rhic_rcs.models import RHIC
 
+class ProductUsage(ProductUsage):
+    meta = {'db_alias': 'checkin'}
+        
+    
+'''
+class ProductUsage(Document):
+    consumer = StringField(required=True)
+    splice_server = ReferenceField(SpliceServer, required=True)
+    instance_identifier = StringField(required=True) # example: MAC Address
+    allowed_product_info = ListField(StringField())
+    unallowed_product_info = ListField(StringField())
+    facts = DictField()
+    date = DateTimeField(required=True)
 
+    def __str__(self):
+        return "Consumer '%s' on Splice Server '%s' from instance '%s' "" \
+            ""with allowed_products '%s', "" \
+            ""unallowed_products %s at '%s'" % \
+            (self.consumer, self.splice_server,
+            self.instance_identifier, self.allowed_product_info,
+            self.unallowed_product_info,
+            self.date)
+    
+    meta = {'db_alias': 'checkin'}
+'''
 
 class ProductUsageForm(DocumentForm):
     #works
