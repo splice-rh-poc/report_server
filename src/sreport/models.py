@@ -12,62 +12,12 @@
 from mongoengine import DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, \
   ListField, ReferenceField, StringField, DictField, UUIDField, FileField, IntField
 from django import forms
+from splice.entitlement.models import ProductUsage, SpliceServer, SpliceServerRelationships, ConsumerIdentity
 from mongodbforms import DocumentForm, EmbeddedDocumentForm
 from mongoengine.queryset import QuerySet
 from rhic_serve.rhic_rcs.models import RHIC
 
 
-
-
-class SpliceServer(Document):
-    uuid = StringField(required=True, unique=True)
-    description = StringField() # Example what datacenter is this deployed to, i.e. us-east-1
-    hostname = StringField(required=True)
-    environment = StringField(required=True)
-    
-    meta = {'db_alias': 'checkin'}
-    
-    def __unicode__(self):
-        return u'%s %s' % (self.description, self.hostname)
-
-class SpliceServerRelationships(Document):
-    self = ReferenceField(SpliceServer, required=True)
-    parent = ReferenceField(SpliceServer)
-    children = ListField(ReferenceField(SpliceServer))
-    
-    meta = {'db_alias': 'checkin'}
-
-
-class ConsumerIdentity(RHIC):
-    
-    meta = {'db_alias': 'checkin'}
-    
-    def __str__(self):
-        return "Consumer Identity '%s' with products '%s'" % (self.uuid, self.engineering_ids)
-
-
-#class ConsumerIdentity(Document):
-#    uuid = StringField(required=True, unique=True)  # matches the identifier from the identity certificate
-#    products = ListField(StringField())
-#    
-#    meta = {'db_alias': 'checkin'}
-
-#    def __str__(self):
-#        return  '%s' % (self.uuid)
-
-class ProductUsage(Document):
-    consumer = StringField(required=True)
-    splice_server = ReferenceField(SpliceServer, required=True)
-    instance_identifier = StringField(required=True) # example: MAC Address
-    product_info = ListField(StringField())
-    facts = DictField()
-    date = DateTimeField(required=True)
-    
-    meta = {'db_alias': 'checkin'}
-
-    def __str__(self):
-        return "Consumer '%s' on Splice Server '%s' from instance '%s' using products '%s' at '%s'" % \
-               (self.consumer, self.splice_server, self.instance_identifier, self.product_info, self.date)
 
 class ProductUsageForm(DocumentForm):
     #works

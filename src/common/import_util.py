@@ -55,7 +55,7 @@ def checkin_data():
         contract_products = this_contract.products
         
         this_product = ""
-        for product_checkin in pu.product_info:
+        for product_checkin in pu.allowed_product_info:
             for p in contract_products:
                 #add additional matching logic here
                 if len(p.engineering_ids) > 1:
@@ -66,6 +66,7 @@ def checkin_data():
                         this_product = p
                 elif str(p.engineering_ids[0]) == str(product_checkin):
                     this_product = p
+                    _LOG.debug('product:' + str(p))
         
 
             rd = ReportData(instance_identifier=str(pu.instance_identifier), 
