@@ -13,7 +13,9 @@
 from __future__ import division
 import logging
 from sreport.models import ReportData
-from splice.entitlement.models import ProductUsage
+#from splice.entitlement.models import ProductUsage
+from splice.entitlement.models import SpliceServer
+from sreport.models import ProductUsage
 #from rhic_serve.rhic_rcs.models import RHIC
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
@@ -62,38 +64,41 @@ def checkin_data():
                 if len(p.engineering_ids) > 1:
                     _LOG.debug('found multipem product @ import')
                     product_set = Set(p.engineering_ids)
-                    checkin_set = Set(pu.product_info)
-                    if product_set in checkin_set:
+                    checkin_set = Set(pu.allowed_product_info)
+                    if product_set == checkin_set:
                         this_product = p
                 elif str(p.engineering_ids[0]) == str(product_checkin):
                     this_product = p
                     _LOG.debug('product:' + str(p))
         
 
-            rd = ReportData(instance_identifier=str(pu.instance_identifier), 
-                            consumer = str(pu.consumer),
-                            product = str(this_product.engineering_ids),
-                            product_name = this_product.name,
-                            date = pu.date,
-                            hour = pu.date.strftime(hr_fmt),
-                            sla = this_product.sla,
-                            support = this_product.support_level,
-                            contract_id = str(this_rhic.contract),
-                            contract_use = str(this_product.quantity),
-                            memtotal = int(pu.facts['memory_dot_memtotal']),
-                            cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                            environment = str(pu.splice_server)
-                            )
-            # need to fix this so customers can 
-            dupe = ReportData.objects.filter(consumer=str(pu.consumer),
-                                              instance_identifier=str(pu.instance_identifier),
-                                               hour=pu.date.strftime(hr_fmt),
-                                                product= str(this_product.engineering_ids))
-            if dupe:
-                _LOG.info("found dupe:" + str(pu))
-            else:
-                _LOG.info(str(this_product.engineering_ids))
-                rd.save()
+                rd = ReportData(
+                                instance_identifier = str(pu.instance_identifier),
+                                consumer = this_rhic.name, 
+                                consumer_uuid = str(pu.consumer),
+                                product = str(this_product.engineering_ids),
+                                product_name = this_product.name,
+                                date = pu.date,
+                                hour = pu.date.strftime(hr_fmt),
+                                sla = this_product.sla,
+                                support = this_product.support_level,
+                                contract_id = str(this_rhic.contract),
+                                contract_use = str(this_product.quantity),
+                                memtotal = int(pu.facts['memory_dot_memtotal']),
+                                cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                                #environment = str(pu.splice_server.environment),
+                                splice_server = str(pu.splice_server)
+                                )
+                # need to fix this so customers can 
+                dupe = ReportData.objects.filter(consumer=str(pu.consumer),
+                                                  instance_identifier=str(pu.instance_identifier),
+                                                   hour=pu.date.strftime(hr_fmt),
+                                                    product= str(this_product.engineering_ids))
+                if dupe:
+                    _LOG.info("found dupe:" + str(pu))
+                else:
+                    _LOG.info('recording: ' + str(this_product.engineering_ids))
+                    rd.save()
 
     end = datetime.utcnow()
     time['end'] = end.strftime(format)

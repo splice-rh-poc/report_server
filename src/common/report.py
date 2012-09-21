@@ -47,11 +47,11 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             nau_mem_low = 0
             
             for key, value in sub_hours_per_month.items():
-                mem_high = ReportData.objects.filter(consumer=str(rhic.uuid), \
+                mem_high = ReportData.objects.filter(consumer_uuid=str(rhic.uuid), \
                             product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__gte=8388608, sla=p.sla, support=p.support_level).count()
 
-                mem_low = ReportData.objects.filter(consumer=str(rhic.uuid), \
+                mem_low = ReportData.objects.filter(consumer_uuid=str(rhic.uuid), \
                             product=str(p.engineering_ids), date__gt=value['start'], \
                             date__lt=value['end'], memtotal__lt=8388608, sla=p.sla, support=p.support_level).count()
                 if mem_high:
@@ -75,7 +75,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
                     
                     
                     result_dict['checkins'] = "{0:.0f}".format(nau)
-                    result_dict['rhic'] = str(rhic.uuid)
+                    result_dict['rhic'] = str(rhic.name)
                     result_dict['product_name'] = p.name
                     result_dict['engineering_id'] = str(p.engineering_ids)
                     result_dict['contract_use'] = p.quantity

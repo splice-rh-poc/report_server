@@ -158,9 +158,7 @@ function validateForm(){
         
          <tr>
           <td width="5%"> <input type="radio" name="group2" value="account_radio" checked="checked"/><b> Account: </b> </td>
-          <td width="30%"> <select id="account" name=account_number disabled="false"> 
-            <option value= {{ account }}> {{ account }} </option>
-            </select> </td>
+          <td width="30%"><input type="text" id=account name=account_number value={{ account }} readonly="readonly"/></td>
          </tr>
          <tr>
          <td width="5%"> <input type="radio" name="group2" value="contract_radio" /><b> Contract: </b> </td> 

@@ -17,9 +17,18 @@ from mongodbforms import DocumentForm, EmbeddedDocumentForm
 from mongoengine.queryset import QuerySet
 from rhic_serve.rhic_rcs.models import RHIC
 
+
+
+class MyQuerySet(QuerySet):
+
+    def __init__(self, *args, **kwargs):
+        super(MyQuerySet, self).__init__(*args, **kwargs)
+        self._initial_query = {}
+
 class ProductUsage(ProductUsage):
-    meta = {'db_alias': 'checkin'}
-        
+    meta = {'db_alias': 'checkin',
+            'queryset_class': MyQuerySet}
+       
     
 '''
 class ProductUsage(Document):
@@ -68,6 +77,7 @@ class ProductUsageForm(DocumentForm):
 
 class ReportData(Document):
     instance_identifier = StringField(required=True)
+    consumer_uuid = StringField(required=True)
     consumer = StringField(required=True)
     product = StringField(required=True)
     product_name =  StringField(required=True)
@@ -79,7 +89,8 @@ class ReportData(Document):
     hour = StringField(required=True)
     memtotal = IntField(required=True)
     cpu_sockets = IntField(required=True)
-    environment = StringField(required=True)
+    #environment = StringField(required=True)
+    splice_server = StringField(required=True)
     
     
     meta = {'db_alias': 'results'}

@@ -17,8 +17,8 @@ from django.contrib.auth import (login as auth_login,
     logout as auth_logout, authenticate)
 from django.template import RequestContext
 from sreport.models import  ProductUsageForm, ReportData
-from rhic_serve.rhic_rest.models import RHIC
-from rhic_serve.rhic_rest.models import Account
+from rhic_serve.rhic_rest.models import RHIC, Account
+from splice.entitlement.models import SpliceServer
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
@@ -76,12 +76,15 @@ def create_report(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
+    list_of_rhics = list(RHIC.objects.filter(account_id=account))
+    environments = [(env, env ) for env in SpliceServer.objects().distinct("environment")]
     for c in list_of_contracts:
         contracts.append(c.contract_id)
     
     form = ProductUsageForm()
     return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
-                                                                    'account': account, 'user': user})
+                                                                    'account': account, 'user': user, 
+                                                                    'list_of_rhics': list_of_rhics})
 
 
 
@@ -110,8 +113,8 @@ def report(request):
         end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
         
     list_of_rhics = []
-    if 'consumer' in request.GET:
-        my_uuid = request.GET['consumer']
+    if 'rhic' in request.GET:
+        my_uuid = request.GET['rhic']
         list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
         results = hours_per_consumer(start, end, list_of_rhics)
         
