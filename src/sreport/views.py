@@ -77,7 +77,8 @@ def create_report(request):
     account = Account.objects.filter(login=user)[0].account_id
     list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
-    environments = [(env, env ) for env in SpliceServer.objects().distinct("environment")]
+    #environments = [(env, env ) for env in SpliceServer.objects().distinct("environment")]
+    #environments = SpliceServer.objects.all()
     for c in list_of_contracts:
         contracts.append(c.contract_id)
     

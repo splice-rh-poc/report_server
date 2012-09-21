@@ -24,7 +24,7 @@
  window.onload=function() {
    document.forms[0].elements["startDate"].disabled=true;
    document.forms[0].elements["endDate"].disabled=true;
-   document.forms[0].elements["id_consumer"].disabled=true;
+   document.forms[0].elements["rhic"].disabled=true;
    document.forms[0].elements["contract"].disabled=true;
    document.forms[0].elements["submit"].disabled=true;
    document.forms[0].elements["account_number"].disabled=false;
@@ -58,16 +58,16 @@ function radioClicked() {
        break;
     case "account_radio" :
        document.forms[0].elements["contract"].disabled=true;
-       document.forms[0].elements["id_consumer"].disabled=true;
+       document.forms[0].elements["rhic"].disabled=true;
        document.forms[0].elements["account"].disabled=false;
        break;
     case "contract_radio" :
        document.forms[0].elements["contract"].disabled=false;
-       document.forms[0].elements["id_consumer"].disabled=true;
+       document.forms[0].elements["rhic"].disabled=true;
        document.forms[0].elements["account"].disabled=true;
        break;
     case "rhic_radio" :
-       document.forms[0].elements["id_consumer"].disabled=false;
+       document.forms[0].elements["rhic"].disabled=false;
        document.forms[0].elements["contract"].disabled=true;
        document.forms[0].elements["account"].disabled=true;
        break;
@@ -78,7 +78,7 @@ function radioClicked() {
        
        if ( document.forms[0].elements["contract"].disabled == false ||
               document.forms[0].elements["account"].disabled == false ||
-               document.forms[0].elements["id_consumer"].disabled == false) {
+               document.forms[0].elements["rhic"].disabled == false) {
                     document.forms[0].elements["submit"].disabled=false;
                     
                }
@@ -170,7 +170,11 @@ function validateForm(){
          </tr>
          <tr>
          <td width="5%"> <input type="radio" name="group2" value="rhic_radio" /><b> RHIC: </b></td>
-         <td width="40%">{{ form.consumer }}</td>
+         <td width="40%"><select name="rhic" disabled="true">
+          {% for r in  list_of_rhics %}
+             <option value={{ r.uuid }}> {{ r.name }}</option>
+          {% endfor %}
+          </select></td>
          </tr>
          </table>
          <p><b>Filter by Environment:</b></p> 
