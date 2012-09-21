@@ -6,5 +6,6 @@ src/config
 config
 src/debug/*
 *debug_logs
+*.swp
 
 
