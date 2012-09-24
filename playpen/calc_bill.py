@@ -16,6 +16,7 @@ def datespan(startDate, endDate):
     count = 0
     last_month_days = 0
     hours_for_sub = {}
+    total_hours = 0
     while currentDate < endDate:
         hours_for_sub[currentDate.month] = {}
         hours_for_sub[currentDate.month]['start'] = startDate
@@ -37,8 +38,9 @@ def datespan(startDate, endDate):
         currentDate += delta
     for key, value in hours_for_sub.items():
         print(key, value['start'], value['end'], value['hours_for_sub'])
-        #print(key, str(value['start']), str(value['end']), str(value['sub']))
-    return hours_for_sub
+        total_hours += value['hours_for_sub']
+    print(total_hours)
+    return total_hours
 
 def datespan_count(startDate, endDate, delta=timedelta(hours=1)):
     currentDate = startDate
@@ -57,7 +59,6 @@ ed = datetime.datetime.now()
 
 
 
-for day in datespan(sd, ed):
-    print(day)
+print datespan(sd, ed)
     
 #print(datespan_count(sd, ed))

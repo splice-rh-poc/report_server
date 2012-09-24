@@ -9,8 +9,45 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+from datetime import datetime, timedelta
+import logging
+
+_LOG = logging.getLogger(__name__)
+
 def find_item(f, seq):
     """Return first item in sequence where f(item) == True."""
     for item in seq:
         if f(item): 
             return item
+        
+def datespan(startDate, endDate):
+    delta=timedelta(hours=1)
+    currentDate = startDate
+    count = 0
+    last_month_days = 0
+    hours_for_sub = {}
+    total_hours = 0
+    while currentDate < endDate:
+        hours_for_sub[currentDate.month] = {}
+        hours_for_sub[currentDate.month]['start'] = startDate
+        if (currentDate + delta).month > currentDate.month :
+            sub = count 
+            
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            hours_for_sub[currentDate.month]['end'] = currentDate
+            count = 0
+            startDate = currentDate + delta
+        
+        if currentDate.month == endDate.month:
+            last_month_days += 1
+            sub = last_month_days 
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            hours_for_sub[currentDate.month]['end'] = currentDate
+            
+        count += 1
+        currentDate += delta
+    for key, value in hours_for_sub.items():
+        _LOG.debug(key, value['start'], value['end'], value['hours_for_sub'])
+        total_hours += value['hours_for_sub']
+    _LOG.debug('total hours:', total_hours)
+    return total_hours
