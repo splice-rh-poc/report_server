@@ -36,13 +36,11 @@ def checkin_data():
     #debug
     
     hr_fmt = "%m%d%Y:%H"
-    pu_all = ProductUsage.objects.all()
+    
     
     seen_rhics = {}
     
-    for rhic in RHIC.objects.all():
-        _LOG.info(rhic.uuid)
-    for pu in pu_all:
+    for pu in ProductUsage.objects.all():
         my_uuid = str(pu.consumer)
 
         if my_uuid in seen_rhics:
@@ -102,10 +100,11 @@ def checkin_data():
                                     splice_server = str(pu.splice_server)
                                     )
                     # need to fix this so customers can 
-                    dupe = ReportData.objects.filter(consumer=str(pu.consumer),
-                                                      instance_identifier=str(pu.instance_identifier),
-                                                       hour=pu.date.strftime(hr_fmt),
-                                                        product= str(product_match.engineering_ids))
+                    dupe = ReportData.objects.filter(
+                        consumer=this_rhic.name,
+                        instance_identifier=str(pu.instance_identifier),
+                        hour=pu.date.strftime(hr_fmt),
+                        product= str(product_match.engineering_ids))
                     if dupe:
                         _LOG.info("found dupe:" + str(pu))
                     else:
