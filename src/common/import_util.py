@@ -38,18 +38,23 @@ def checkin_data():
     hr_fmt = "%m%d%Y:%H"
     pu_all = ProductUsage.objects.all()
     
+    seen_rhics = {}
     
     for rhic in RHIC.objects.all():
         _LOG.info(rhic.uuid)
     for pu in pu_all:
-        #my_uuid = pu._data['consumer']
         my_uuid = str(pu.consumer)
-        try:
-            _LOG.info('using RHIC: ' + my_uuid)
-            this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
-        except IndexError:
-            _LOG.critical('rhic not found @ import')
-            raise Exception('rhic not found')
+
+        if my_uuid in seen_rhics:
+            this_rhic = seen_rhics[my_uuid]
+        else:
+            try:
+                _LOG.info('using RHIC: ' + my_uuid)
+                this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
+                # seen_rhics[my_uuid] = this_rhic
+            except IndexError:
+                _LOG.critical('rhic not found @ import')
+                raise Exception('rhic not found')
             
         this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
         contract_number = this_rhic.contract
@@ -57,48 +62,55 @@ def checkin_data():
         this_contract = find_item(lambda contract: contract.contract_id == contract_number, contracts)
         contract_products = this_contract.products
         
-        this_product = ""
         for product_checkin in pu.allowed_product_info:
             for p in contract_products:
+                product_candidate = None
+                product_match = None
                 #add additional matching logic here
                 if len(p.engineering_ids) > 1:
                     _LOG.debug('found multipem product @ import')
                     product_set = Set(p.engineering_ids)
                     checkin_set = Set(pu.allowed_product_info)
                     if product_set == checkin_set:
-                        this_product = p
+                        product_candidate = p
                 elif str(p.engineering_ids[0]) == str(product_checkin):
-                    this_product = p
+                    product_candidate = p
                     _LOG.debug('product:' + str(p))
-        
-
-                rd = ReportData(
-                                instance_identifier = str(pu.instance_identifier),
-                                consumer = this_rhic.name, 
-                                consumer_uuid = str(pu.consumer),
-                                product = str(this_product.engineering_ids),
-                                product_name = this_product.name,
-                                date = pu.date,
-                                hour = pu.date.strftime(hr_fmt),
-                                sla = this_product.sla,
-                                support = this_product.support_level,
-                                contract_id = str(this_rhic.contract),
-                                contract_use = str(this_product.quantity),
-                                memtotal = int(pu.facts['memory_dot_memtotal']),
-                                cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                                #environment = str(pu.splice_server.environment),
-                                splice_server = str(pu.splice_server)
-                                )
-                # need to fix this so customers can 
-                dupe = ReportData.objects.filter(consumer=str(pu.consumer),
-                                                  instance_identifier=str(pu.instance_identifier),
-                                                   hour=pu.date.strftime(hr_fmt),
-                                                    product= str(this_product.engineering_ids))
-                if dupe:
-                    _LOG.info("found dupe:" + str(pu))
                 else:
-                    _LOG.info('recording: ' + str(this_product.engineering_ids))
-                    rd.save()
+                    continue
+
+                if (product_candidate.sla == this_rhic.sla and
+                   product_candidate.support_level == this_rhic.support_level):
+                    product_match = product_candidate
+
+                if product_match:
+                    rd = ReportData(
+                                    instance_identifier = str(pu.instance_identifier),
+                                    consumer = this_rhic.name, 
+                                    consumer_uuid = str(pu.consumer),
+                                    product = str(product_match.engineering_ids),
+                                    product_name = product_match.name,
+                                    date = pu.date,
+                                    hour = pu.date.strftime(hr_fmt),
+                                    sla = product_match.sla,
+                                    support = product_match.support_level,
+                                    contract_id = str(this_rhic.contract),
+                                    contract_use = str(product_match.quantity),
+                                    memtotal = int(pu.facts['memory_dot_memtotal']),
+                                    cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                                    #environment = str(pu.splice_server.environment),
+                                    splice_server = str(pu.splice_server)
+                                    )
+                    # need to fix this so customers can 
+                    dupe = ReportData.objects.filter(consumer=str(pu.consumer),
+                                                      instance_identifier=str(pu.instance_identifier),
+                                                       hour=pu.date.strftime(hr_fmt),
+                                                        product= str(product_match.engineering_ids))
+                    if dupe:
+                        _LOG.info("found dupe:" + str(pu))
+                    else:
+                        _LOG.info('recording: ' + str(product_match.engineering_ids))
+                        rd.save()
 
     end = datetime.utcnow()
     time['end'] = end.strftime(format)
