@@ -37,79 +37,100 @@ def checkin_data():
     
     hr_fmt = "%m%d%Y:%H"
     
-    
-    seen_rhics = {}
+    # committing every 100 records instead of every 1 record saves about 5
+    # seconds.
+    commit_count = 100
+    cached_rhics = {}
+    cached_contracts = {}
+    rds = []
     
     for pu in ProductUsage.objects.all():
-        my_uuid = str(pu.consumer)
+        uuid = pu.consumer
 
-        if my_uuid in seen_rhics:
-            this_rhic = seen_rhics[my_uuid]
+        if uuid in cached_rhics:
+            rhic = cached_rhics[uuid]
         else:
             try:
-                _LOG.info('using RHIC: ' + my_uuid)
-                this_rhic = RHIC.objects.filter(uuid=my_uuid)[0]
-                # seen_rhics[my_uuid] = this_rhic
+                _LOG.info('using RHIC: ' + uuid)
+                rhic = RHIC.objects.filter(uuid=uuid)[0]
+                cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import')
                 raise Exception('rhic not found')
             
-        this_account = Account.objects.filter(account_id=this_rhic.account_id)[0]
-        contract_number = this_rhic.contract
-        contracts =  Account.objects.filter(account_id=this_rhic.account_id)[0].contracts
-        this_contract = find_item(lambda contract: contract.contract_id == contract_number, contracts)
-        contract_products = this_contract.products
-        
-        for product_checkin in pu.allowed_product_info:
-            for p in contract_products:
-                product_candidate = None
-                product_match = None
-                #add additional matching logic here
-                if len(p.engineering_ids) > 1:
-                    _LOG.debug('found multipem product @ import')
-                    product_set = Set(p.engineering_ids)
-                    checkin_set = Set(pu.allowed_product_info)
-                    if product_set == checkin_set:
-                        product_candidate = p
-                elif str(p.engineering_ids[0]) == str(product_checkin):
-                    product_candidate = p
-                    _LOG.debug('product:' + str(p))
+        account = Account.objects(
+            account_id=rhic.account_id).only('contracts').first()
+
+        contract = None
+        if rhic.contract in cached_contracts:
+            contract = cached_contracts['rhic.contract']
+        else:
+            for c in account.contracts:
+                if c.contract_id == rhic.contract:
+                    cached_contracts['rhic.contract'] = c
+                    contract = c
+                    break
+
+        # Set of used engineering ids for this checkin
+        product_set = Set(pu.allowed_product_info)
+
+        # Iterate over each product in the contract, see if it matches sla and
+        # support level, and consumed engineering ids.  If so, save an instance
+        # of ReportData
+        for product in contract.products:
+            # Match on sla and support level
+            if not (product.sla == rhic.sla and 
+               product.support_level == rhic.support_level):
+                continue
+
+            # Set of engineering ids for this product.
+            product_eng_id_set = set(product.engineering_ids)
+
+            # If the set of engineering ids for the product is a subset of the
+            # used engineering ids for this checkin, create an instance of
+            # ReportData, check for dupes, and save the instance.
+            if product_eng_id_set.issubset(product_set):
+                # This line isn't technically necessary, but it improves
+                # performance by making the set we need to search smaller each
+                # time.
+                product_set.difference_update(product_eng_id_set)
+
+                rd = ReportData(instance_identifier = str(pu.instance_identifier),
+                                consumer = rhic.name, 
+                                consumer_uuid = uuid,
+                                product = str(product.engineering_ids),
+                                product_name = product.name,
+                                date = pu.date,
+                                hour = pu.date.strftime(hr_fmt),
+                                sla = product.sla,
+                                support = product.support_level,
+                                contract_id = rhic.contract,
+                                contract_use = str(product.quantity),
+                                memtotal = int(pu.facts['memory_dot_memtotal']),
+                                cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                                #environment = str(pu.splice_server.environment),
+                                splice_server = str(pu.splice_server)
+                                )
+
+                # If there's a dupe, log it instead of saving a new record.
+                dupe = ReportData.objects.filter(
+                    consumer_uuid=rhic.uuid,
+                    instance_identifier=str(pu.instance_identifier),
+                    hour=pu.date.strftime(hr_fmt),
+                    product= str(product.engineering_ids))
+                if dupe:
+                    _LOG.info("found dupe:" + str(pu))
                 else:
-                    continue
+                    _LOG.info('recording: ' + str(product.engineering_ids))
+                    # rd.save()
+                    rds.append(rd)
 
-                if (product_candidate.sla == this_rhic.sla and
-                   product_candidate.support_level == this_rhic.support_level):
-                    product_match = product_candidate
+        if rds and len(rds) % commit_count == 0:
+            ReportData.objects.insert(rds)
+            rds = []
 
-                if product_match:
-                    rd = ReportData(
-                                    instance_identifier = str(pu.instance_identifier),
-                                    consumer = this_rhic.name, 
-                                    consumer_uuid = str(pu.consumer),
-                                    product = str(product_match.engineering_ids),
-                                    product_name = product_match.name,
-                                    date = pu.date,
-                                    hour = pu.date.strftime(hr_fmt),
-                                    sla = product_match.sla,
-                                    support = product_match.support_level,
-                                    contract_id = str(this_rhic.contract),
-                                    contract_use = str(product_match.quantity),
-                                    memtotal = int(pu.facts['memory_dot_memtotal']),
-                                    cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                                    #environment = str(pu.splice_server.environment),
-                                    splice_server = str(pu.splice_server)
-                                    )
-                    # need to fix this so customers can 
-                    dupe = ReportData.objects.filter(
-                        consumer=this_rhic.name,
-                        instance_identifier=str(pu.instance_identifier),
-                        hour=pu.date.strftime(hr_fmt),
-                        product= str(product_match.engineering_ids))
-                    if dupe:
-                        _LOG.info("found dupe:" + str(pu))
-                    else:
-                        _LOG.info('recording: ' + str(product_match.engineering_ids))
-                        rd.save()
+    if rds:
+        ReportData.objects.insert(rds)
 
     end = datetime.utcnow()
     time['end'] = end.strftime(format)

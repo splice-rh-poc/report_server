@@ -76,6 +76,15 @@ class ProductUsageForm(DocumentForm):
 
 
 class ReportData(Document):
+
+    meta = {
+        'db_alias': 'results',
+        'indexes': [ 
+            {'fields': ['consumer_uuid', 'instance_identifier', 'hour',
+                        'product']},
+        ],
+    }
+
     instance_identifier = StringField(required=True)
     consumer_uuid = StringField(required=True)
     consumer = StringField(required=True)
@@ -93,7 +102,6 @@ class ReportData(Document):
     splice_server = StringField(required=True)
     
     
-    meta = {'db_alias': 'results'}
     
     
     
