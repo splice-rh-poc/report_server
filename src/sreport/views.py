@@ -26,6 +26,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from common.report import hours_per_consumer
 from common.import_util import checkin_data
+from common.utils import map_from_str
+import json
 
 _LOG = logging.getLogger(__name__)
 
@@ -145,11 +147,32 @@ def import_checkin_data(request):
 
 
 def detailed_report(request):
-    rhic = request.GET['consumer']
-    product = request.GET['product']
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    filter_args_dict = json.loads(request.GET['filter_args_dict'])
     start = datetime.fromordinal(int(request.GET['start']))
     end = datetime.fromordinal(int(request.GET['end']))
-    account = request.GET['account']
-    results = ReportData.objects.filter(consumer=rhic, product=product, date__gt=start, date__lt=end)
-    response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account})
+    
+    results = []
+    instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
+    for i in instances:
+        count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
+        results.append({'instance': i, 'count': count})
+    
+    this_filter = json.dumps(filter_args_dict)
+    response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account,
+                                                                        'start': request.GET['start'], 'end': request.GET['end'],
+                                                                        'this_filter': this_filter})
+    return response
+
+def instance_report(request):
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    instance = request.GET['instance']
+    filter_args_dict = json.loads(request.GET['filter_args_dict'])
+    start = datetime.fromordinal(int(request.GET['start']))
+    end = datetime.fromordinal(int(request.GET['end']))
+    
+    results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
+    response = TemplateResponse(request, 'create_report/instance_details.html', {'list': results, 'account': account})
     return response

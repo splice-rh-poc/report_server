@@ -70,7 +70,7 @@ $(document).ready(function() {
         <td> {{ pu.support }} </td> 
         <td> {{ pu.facts }} </td> 
         <td> {{ pu.contract_use }}</td> 
-        <td> <a href='details?consumer={{ pu.rhic }}&product={{ pu.engineering_id }}&start={{ pu.start}}&end={{ pu.end }}&account={{ account }}'>{{ pu.checkins }}</a>  </td>
+        <td> <a href='details?filter_args_dict={{ pu.filter_args_dict }}&start={{ pu.start }}&end={{ pu.end }}'>{{ pu.checkins }}</a>  </td>
     </tr>
     {% endfor %}
    </tbody>

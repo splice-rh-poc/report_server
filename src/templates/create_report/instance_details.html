@@ -26,10 +26,15 @@
 
 
 <ol id="checkins">
-{% for i in list %}
+{% for pu in list %}
 <li>
- {{ i.instance }} :::
- <a href='instance_details?filter_args_dict={{ this_filter }}&instance={{ i.instance}}&start={{ start }}&end={{ end }}'>{{ i.count }}</a>
+ {{ pu.instance_identifier }} :::
+ {{ pu.product_name }} :::
+ {{ pu.hour }} :::
+ {{ pu.product }} :::
+ {{ pu.memtotal }} :::
+ {{ pu.cpu_sockets }} :::
+ {{ pu.environment }} 
  
 </li>
 {% endfor %}

@@ -51,3 +51,16 @@ def datespan(startDate, endDate):
         total_hours += value['hours_for_sub']
     _LOG.debug('total hours:', total_hours)
     return total_hours
+
+def map_from_str(s):
+    s = s[1:]
+    s = s[:-1]
+    s = s.split(',')
+    
+    mymap  = {}
+    for i in s:
+        n = i.split(': ')
+        print(n)
+        mymap[n[0].strip()]=n[1].strip()
+        
+    return mymap
