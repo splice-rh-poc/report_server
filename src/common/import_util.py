@@ -98,7 +98,7 @@ def checkin_data():
                 rd = ReportData(instance_identifier = str(pu.instance_identifier),
                                 consumer = rhic.name, 
                                 consumer_uuid = uuid,
-                                product = str(product.engineering_ids),
+                                product = product.engineering_ids,
                                 product_name = product.name,
                                 date = pu.date,
                                 hour = pu.date.strftime(hr_fmt),
@@ -117,7 +117,7 @@ def checkin_data():
                     consumer_uuid=rhic.uuid,
                     instance_identifier=str(pu.instance_identifier),
                     hour=pu.date.strftime(hr_fmt),
-                    product= str(product.engineering_ids))
+                    product= product.engineering_ids)
                 if dupe:
                     _LOG.info("found dupe:" + str(pu))
                 else:

@@ -88,7 +88,7 @@ class ReportData(Document):
     instance_identifier = StringField(required=True)
     consumer_uuid = StringField(required=True)
     consumer = StringField(required=True)
-    product = StringField(required=True)
+    product = ListField(required=True)
     product_name =  StringField(required=True)
     date = DateTimeField(required=True)
     sla = StringField(required=True)
