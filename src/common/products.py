@@ -110,7 +110,7 @@ def build_result(product, rhic, start, end, contract_number, count):
     
 def RHEL_Server_High(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': str(product.engineering_ids), 'memtotal__gte': 8388608, \
+                      'product': product.engineering_ids, 'memtotal__gte': 8388608, \
                       'sla': product.sla, 'support': product.support_level}
         
     mem_high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
@@ -120,7 +120,7 @@ def RHEL_Server_High(product, rhic, start, end):
     
 def RHEL_Server_Low(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': str(product.engineering_ids), 'memtotal__lte': 8388608, \
+                      'product': product.engineering_ids, 'memtotal__lte': 8388608, \
                       'sla': product.sla, 'support': product.support_level}
     
     mem_low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
@@ -130,7 +130,7 @@ def RHEL_Server_Low(product, rhic, start, end):
     
 def JBoss_EAP_VCPU_gt4(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': str(product.engineering_ids), 'cpu_sockets__gte': 4, \
+                      'product': product.engineering_ids, 'cpu_sockets__gte': 4, \
                       'sla': product.sla, 'support': product.support_level}
     
     jboss_high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
@@ -139,7 +139,7 @@ def JBoss_EAP_VCPU_gt4(product, rhic, start, end):
 
 def JBoss_EAP_VCPU_lt4(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': str(product.engineering_ids), 'cpu_sockets__lt': 4, \
+                      'product': product.engineering_ids, 'cpu_sockets__lt': 4, \
                       'sla': product.sla, 'support': product.support_level}
     
     jboss_high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
@@ -148,7 +148,7 @@ def JBoss_EAP_VCPU_lt4(product, rhic, start, end):
     
 def OpenShift_Gear_high(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': str(product.engineering_ids),  \
+                      'product': product.engineering_ids,  \
                       'cpu_sockets__gte': 4, 'memtotal_gte': 8388608, \
                       'sla': product.sla, 'support': product.support_level}
     
@@ -158,7 +158,7 @@ def OpenShift_Gear_high(product, rhic, start, end):
     
 def OpenShift_Gear_low(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': str(product.engineering_ids),  \
+                      'product': product.engineering_ids,  \
                        'cpu_sockets__lt': 4, 'memtotal_lt': 8388608, \
                        'sla': product.sla, 'support': product.support_level}
     

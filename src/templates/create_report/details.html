@@ -18,9 +18,16 @@
 </div>
 <head>
 
+<table>
+<tr>
 <script>
-    document.write('<a href="' + document.referrer + '">Go Back</a>');
+    var server = window.location.hostname;
+    document.write('<td><b><a href="' + document.referrer + '">Go Back  </a></b></td>');
+    document.write('<td><b><a href=http://' + server + ':8000/ui/create_report>   Run another Report </a></b></td>');
 </script>
+</tr>
+</table>
+
 
 </head>
 
@@ -36,6 +43,12 @@
 </ol>
 </tbody>
 </div>
+<table>
+<tr>
 <script>
-    document.write('<a href="' + document.referrer + '">Go Back</a>');
+    var server = window.location.hostname;
+    document.write('<td><b><a href="' + document.referrer + '">Go Back  </a></b></td>');
+    document.write('<td><b><a href=http://' + server + ':8000/ui/create_report>   Run another Report </a></b></td>');
 </script>
+</tr>
+</table>
