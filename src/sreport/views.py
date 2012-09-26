@@ -79,14 +79,15 @@ def create_report(request):
     list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
     #environments = [(env, env ) for env in SpliceServer.objects().distinct("environment")]
-    #environments = SpliceServer.objects.all()
+    environments = SpliceServer.objects.distinct("environment")
     for c in list_of_contracts:
         contracts.append(c.contract_id)
     
     form = ProductUsageForm()
     return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
                                                                     'account': account, 'user': user, 
-                                                                    'list_of_rhics': list_of_rhics })
+                                                                    'list_of_rhics': list_of_rhics,
+                                                                    'environments': environments })
 
 
 

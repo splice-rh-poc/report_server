@@ -156,13 +156,11 @@ function validateForm(){
         <p><b>Filter by Customer Data:</b></p> 
         <table>
         
-         <tr>
-          <td width="5%"> <input type="radio" name="group2" value="account_radio" checked="checked"/><b> Account: </b> </td>
-          <td width="30%"><input type="text" id=account name=account_number value={{ account }} readonly="readonly"/></td>
-         </tr>
+         
          <tr>
          <td width="5%"> <input type="radio" name="group2" value="contract_radio" /><b> Contract: </b> </td> 
          <td width="40%"><select id="contract" name=contract_number disabled="true"> 
+              <option value=All>All</option>
               {% for c in contracts %}
                <option value= {{ c }}> {{ c }} </option>
               {% endfor %}
@@ -180,9 +178,15 @@ function validateForm(){
          <p><b>Filter by Environment:</b></p> 
          <table>
          <tr> 
-         <td width="5%"><input type="radio" name="group3" value="cloud" /><b> Environment: </b></td>
-         <td width="40%">{{ form.splice_server}}</td>
+         <td width="5%"><input type="radio" name="group3" value="env" /><b> Environment: </b></td>
+         <td width="40%"><select name="env">
+           <option value=All>All</option>
+          {% for env in  environments %}
+             <option value={{ env }}> {{ env }}</option>
+          {% endfor %}
+          </select></td></td>
          </tr>
+         </table>
          
          
          <tr>
