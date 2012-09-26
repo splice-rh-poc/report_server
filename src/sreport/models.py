@@ -24,6 +24,8 @@ class MyQuerySet(QuerySet):
     def __init__(self, *args, **kwargs):
         super(MyQuerySet, self).__init__(*args, **kwargs)
         self._initial_query = {}
+        self._document._collection = None
+        self._collection_obj = self._document._get_collection()
 
 class ProductUsage(ProductUsage):
     meta = {'db_alias': 'checkin',
