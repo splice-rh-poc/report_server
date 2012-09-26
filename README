@@ -1,5 +1,5 @@
 RHEL 6, Install:
-
+v.01
 1. yum install mongodb-server
 2. from the splice-repo install  django, mongoengine, kitchen, django-tastypie, django-tastypie-mongoengine
 3. git clone git://github.com/jschrewe/django-mongodbforms.git
