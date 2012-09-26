@@ -16,9 +16,8 @@ from django.shortcuts import render_to_response
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import  ProductUsageForm, ReportData
+from sreport.models import  ProductUsageForm, ReportData, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
-from splice.entitlement.models import SpliceServer
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
@@ -87,7 +86,7 @@ def create_report(request):
     form = ProductUsageForm()
     return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
                                                                     'account': account, 'user': user, 
-                                                                    'list_of_rhics': list_of_rhics})
+                                                                    'list_of_rhics': list_of_rhics })
 
 
 

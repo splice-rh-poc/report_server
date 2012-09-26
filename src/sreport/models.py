@@ -28,29 +28,12 @@ class MyQuerySet(QuerySet):
 class ProductUsage(ProductUsage):
     meta = {'db_alias': 'checkin',
             'queryset_class': MyQuerySet}
-       
-    
-'''
-class ProductUsage(Document):
-    consumer = StringField(required=True)
-    splice_server = ReferenceField(SpliceServer, required=True)
-    instance_identifier = StringField(required=True) # example: MAC Address
-    allowed_product_info = ListField(StringField())
-    unallowed_product_info = ListField(StringField())
-    facts = DictField()
-    date = DateTimeField(required=True)
 
+class SpliceServer(SpliceServer):
+    meta = {'db_alias': 'checkin',
+            'queryset_class': MyQuerySet}
     def __str__(self):
-        return "Consumer '%s' on Splice Server '%s' from instance '%s' "" \
-            ""with allowed_products '%s', "" \
-            ""unallowed_products %s at '%s'" % \
-            (self.consumer, self.splice_server,
-            self.instance_identifier, self.allowed_product_info,
-            self.unallowed_product_info,
-            self.date)
-    
-    meta = {'db_alias': 'checkin'}
-'''
+        return "%s" % (self.environment)
 
 class ProductUsageForm(DocumentForm):
     #works

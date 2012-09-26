@@ -104,6 +104,7 @@ def build_result(product, rhic, start, end, contract_number, count):
     result_dict['contract_id'] = contract_number
     result_dict['start'] = start.toordinal
     result_dict['end'] = end.toordinal
+    result_dict['sub_hours'] = hours_for_sub
     
     return result_dict
     
