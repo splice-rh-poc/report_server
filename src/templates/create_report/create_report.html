@@ -59,17 +59,17 @@ function radioClicked() {
     case "account_radio" :
        document.forms[0].elements["contract"].disabled=true;
        document.forms[0].elements["rhic"].disabled=true;
-       document.forms[0].elements["account"].disabled=false;
+       
        break;
     case "contract_radio" :
        document.forms[0].elements["contract"].disabled=false;
        document.forms[0].elements["rhic"].disabled=true;
-       document.forms[0].elements["account"].disabled=true;
+       
        break;
     case "rhic_radio" :
        document.forms[0].elements["rhic"].disabled=false;
        document.forms[0].elements["contract"].disabled=true;
-       document.forms[0].elements["account"].disabled=true;
+       
        break;
   }
    // Disable the submit button until everything required is selected
