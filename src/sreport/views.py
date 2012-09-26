@@ -123,7 +123,11 @@ def report(request):
         
     elif 'contract_number' in request.GET:
         contract = request.GET['contract_number']
-        results = hours_per_consumer(start, end, contract_number=contract)
+        if contract == "All":
+            list_of_rhics = list(RHIC.objects.filter(account_id=account))
+            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics)
+        else:
+            results = hours_per_consumer(start, end, contract_number=contract)
     
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
