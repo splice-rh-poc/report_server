@@ -114,26 +114,33 @@ def report(request):
         endDate = request.GET['endDate'].encode('ascii').split("/")
         start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
         end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    
+    if 'env' in request.GET:
+        environment = request.GET['env']
+    else:
+        environment = "All"
         
     list_of_rhics = []
     if 'rhic' in request.GET:
         my_uuid = request.GET['rhic']
         list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(start, end, list_of_rhics)
+        results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
         
     elif 'contract_number' in request.GET:
         contract = request.GET['contract_number']
         if contract == "All":
             list_of_rhics = list(RHIC.objects.filter(account_id=account))
-            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics)
+            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
         else:
-            results = hours_per_consumer(start, end, contract_number=contract)
+            results = hours_per_consumer(start, end, contract_number=contract, environment=environment)
     
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics)
+        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
     
     
+    
+        
     
     response = TemplateResponse(request, 'create_report/report.html',
                                  {'list': results, 'account': account,

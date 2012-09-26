@@ -93,8 +93,9 @@ def checkin_data():
                 # This line isn't technically necessary, but it improves
                 # performance by making the set we need to search smaller each
                 # time.
-                product_set.difference_update(product_eng_id_set)
-
+                product_set.difference_update(product_eng_id_set) 
+                splice_server = SpliceServer.objects.get(id=pu.splice_server.id)
+                
                 rd = ReportData(instance_identifier = str(pu.instance_identifier),
                                 consumer = rhic.name, 
                                 consumer_uuid = uuid,
@@ -108,8 +109,8 @@ def checkin_data():
                                 contract_use = str(product.quantity),
                                 memtotal = int(pu.facts['memory_dot_memtotal']),
                                 cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                                #environment = str(pu.splice_server.environment),
-                                splice_server = str(pu.splice_server)
+                                environment = str(splice_server.environment),
+                                splice_server = str(splice_server.hostname)
                                 )
 
                 # If there's a dupe, log it instead of saving a new record.

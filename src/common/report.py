@@ -25,7 +25,7 @@ from products import Product_Def
 _LOG = logging.getLogger(__name__)
 
 
-def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
+def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, environment="All"):
     results = []
     
     if contract_number:
@@ -52,8 +52,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None):
             _LOG.debug(p.name)
             print(p.name)
             results_dicts = []
-            results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num)
-            
+            results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
             if results_dicts:
                 for result in results_dicts:
                     rhic_list.append(result)
