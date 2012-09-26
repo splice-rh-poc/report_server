@@ -149,7 +149,7 @@ def JBoss_EAP_VCPU_lt4(product, rhic, start, end):
 def OpenShift_Gear_high(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids,  \
-                      'cpu_sockets__gte': 4, 'memtotal_gte': 8388608, \
+                      'cpu_sockets__gte': 4, 'memtotal__gte': 8388608, \
                       'sla': product.sla, 'support': product.support_level}
     
     high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
@@ -159,7 +159,7 @@ def OpenShift_Gear_high(product, rhic, start, end):
 def OpenShift_Gear_low(product, rhic, start, end):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids,  \
-                       'cpu_sockets__lt': 4, 'memtotal_lt': 8388608, \
+                       'cpu_sockets__lt': 4, 'memtotal__lt': 8388608, \
                        'sla': product.sla, 'support': product.support_level}
     
     low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
