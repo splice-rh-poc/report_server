@@ -74,14 +74,14 @@ class Product_Def:
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count)
                 result_dict['facts'] = ' > 1 vCPU, > 2GB  '
-                result_dict['filter_args_dict']=filter_args_dict
+                result_dict['filter_args_dict']=json.dumps(filter_args_dict)
                 count_list.append(result_dict)
             
             count, filter_args_dict = OpenShift_Gear_low(product, rhic, start, end)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count)
                 result_dict['facts'] = '  1 vCPU, <= 2GB  '
-                result_dict['filter_args_dict']=filter_args_dict
+                result_dict['filter_args_dict']=json.dumps(filter_args_dict)
                 count_list.append(result_dict)
             return count_list
         
