@@ -166,7 +166,7 @@ def detailed_report(request):
     
     results = []
     instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
-    for i in instances:
+    for  i in instances:
         count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
         results.append({'instance': i, 'count': count})
     

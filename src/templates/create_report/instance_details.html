@@ -29,22 +29,25 @@
 </table>
 
 </head>
+<table>
+<th width=2%>MAC</th><th width=2%>Product</th><th width=2%>Time</th>
+<th width=2%>Products</th><th width=2%>Memory</th><th width=2%>CPU Sockets</th><th width=2%>Environment</th>
 
 
-<ol id="checkins">
+<b>Number of checkins: </b>{{ list|length  }}
 {% for pu in list %}
-<li>
- {{ pu.instance_identifier }} :::
- {{ pu.product_name }} :::
- {{ pu.hour }} :::
- {{ pu.product }} :::
- {{ pu.memtotal }} :::
- {{ pu.cpu_sockets }} :::
- {{ pu.environment }} 
+<tr>
+<td> {{ pu.instance_identifier }} </td>
+<td> {{ pu.product_name }} </td>
+<td> {{ pu.hour }} </td>
+<td> {{ pu.product }} </td>
+<td> {{ pu.memtotal }} </td>
+<td> {{ pu.cpu_sockets }} </td>
+<td> {{ pu.environment }} </td>
  
-</li>
+</tr>
 {% endfor %}
-</ol>
+</table>
 </tbody>
 </div>
 <table>

@@ -32,15 +32,18 @@
 </head>
 
 
-<ol id="checkins">
+
+<table>
+<th width=2%>MAC</th><th width=20%>Number of Checkins</th>
+
+<b>Number of unique MAC addresses: </b>{{ list|length  }}
 {% for i in list %}
-<li>
- {{ i.instance }} :::
- <a href='instance_details?filter_args_dict={{ this_filter }}&instance={{ i.instance}}&start={{ start }}&end={{ end }}'>{{ i.count }}</a>
- 
-</li>
+<tr>
+<td> {{ i.instance }} </td>
+<td> <a href='instance_details?filter_args_dict={{ this_filter }}&instance={{ i.instance}}&start={{ start }}&end={{ end }}'>{{ i.count }}</a></td>
+</tr>
 {% endfor %}
-</ol>
+</table>
 </tbody>
 </div>
 <table>
