@@ -177,8 +177,8 @@ function validateForm(){
          <p><b>Filter by Environment:</b></p> 
          <table>
          <tr> 
-         <td width="5%"><input type="radio" name="group3" value="env" /><b> Environment: </b></td>
-         <td width="40%"><select name="env">
+         <td width="1%"><b>Environment: </b></td>
+         <td width="51%"><select name="env">
            <option value=All>All</option>
           {% for env in  environments %}
              <option value={{ env }}> {{ env }}</option>
