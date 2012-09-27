@@ -30,13 +30,14 @@
 
 </head>
 <table>
-<th width=2%>MAC</th><th width=2%>Product</th><th width=2%>Time</th>
+<th width=1%>Count</th><th width=2%>MAC</th><th width=2%>Product</th><th width=2%>Time</th>
 <th width=2%>Products</th><th width=2%>Memory</th><th width=2%>CPU Sockets</th><th width=2%>Environment</th>
 
 
 <b>Number of checkins: </b>{{ list|length  }}
 {% for pu in list %}
 <tr>
+<td> {{ forloop.counter }}. </td>
 <td> {{ pu.instance_identifier }} </td>
 <td> {{ pu.product_name }} </td>
 <td> {{ pu.hour }} </td>

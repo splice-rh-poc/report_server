@@ -34,11 +34,12 @@
 
 
 <table>
-<th width=2%>MAC</th><th width=20%>Number of Checkins</th>
+<th width=1%>Count</th><th width=2%>MAC</th><th width=20%>Number of Checkins</th>
 
 <b>Number of unique MAC addresses: </b>{{ list|length  }}
 {% for i in list %}
 <tr>
+<td> {{ forloop.counter }}. </td>
 <td> {{ i.instance }} </td>
 <td> <a href='instance_details?filter_args_dict={{ this_filter }}&instance={{ i.instance}}&start={{ start }}&end={{ end }}'>{{ i.count }}</a></td>
 </tr>
