@@ -30,6 +30,7 @@ from common.products import Product_Def
 
 
 LOG = getLogger(__name__)
+hr_fmt = "%m%d%Y:%H"
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -128,17 +129,10 @@ class MongoTestsTestCase(MongoTestCase):
             
     
 class TestData():
-    def create_rhel_entry(self):
+    @staticmethod
+    def create_rhel_entry():
         this_date = datetime.now()
-        
-        rhel01_product = Product(
-                                 name = "RHEL Server",
-                                 engineering_ids = ["69"],
-                                 quantity = "20",
-                                 support_level = "l1-l3",
-                                 sla = "prem"
-                                 )
-        rhel01_product.save()
+        this_hour = this_date.strftime(hr_fmt)
         
         rhel01 = ReportData(
                             instance_identifier = "12:31:3D:08:49:00",
@@ -151,24 +145,39 @@ class TestData():
                             support = "l1-l3",
                             contract_id = "3116649",
                             contract_use = "20", 
-                            hour = "07012012:00",
+                            hour = this_hour,
                             memtotal = 16048360,
                             cpu_sockets = 4,
                             environment = "us-east-1",
                             splice_server = "splice-server-1.spliceproject.org"
                             )
-        rhel01.save()
+        return rhel01
+    
+    @staticmethod    
+    def create_rhel_product():
+        rhel01_product = Product(
+                                 name = "RHEL Server",
+                                 engineering_ids = ["69"],
+                                 quantity = "20",
+                                 support_level = "l1-l3",
+                                 sla = "prem"
+                                 )
+        return rhel01_product
     
 class ReportTestCase(TestCase):
     def setUp(self):
         db_name = settings.MONGO_DATABASE_NAME_RESULTS
         self.db = connect(db_name)
         ReportData.drop_collection()
-        TestData().create_rhel_entry()
-        
+        rhel_product = TestData.create_rhel_product()
+        rhel_product.save()
+        rhel_entry = TestData.create_rhel_entry()
+        rhel_entry.save()        
          
     def test_report_data(self):
-        lookup = ReportData.objects()
+        
+        
+        lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 1)
      
     def test_rhel_basic_results(self):
@@ -216,4 +225,28 @@ class ReportTestCase(TestCase):
         self.assertFalse(results_dicts, 'no results returned')
         
         
+    def test_rhel_data_range_results(self):
+        contract_num = "3116649"
+        environment = "us-east-1"
+        search_date_start = datetime.now() - timedelta(days=11)
+        search_date_end = datetime.now()
+                                                     
+        
+        rhel02 = TestData.create_rhel_entry()
+        delta = timedelta(days=10)
+        rhel02.date = datetime.now() - delta
+        rhel02.hour = rhel02.date.strftime(hr_fmt)
+        rhel02.save()
+        
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 2)
+        
+        #test that there are now two objects in the database
+        p = Product.objects.filter(name="RHEL Server")[0]
+        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        results_dicts = Product_Def.get_product_match(p, rhic, search_date_start, search_date_end, contract_num, environment)
+        #lenth of list should be one per product
+        self.assertEqual(len(results_dicts), 1)
+        #dictionary should contain the count of checkins
+        self.assertEqual(results_dicts[0]['count'], 2)
     

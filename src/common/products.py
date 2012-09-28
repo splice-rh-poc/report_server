@@ -93,7 +93,7 @@ def build_result(product, rhic, start, end, contract_number, count, environment)
     nau = count / int(hours_for_sub)
     nau = math.ceil(nau)
     
-    
+    result_dict['count'] = count
     result_dict['checkins'] = "{0:.0f}".format(nau)
     result_dict['rhic'] = str(rhic.name)
     result_dict['product_name'] = product.name
