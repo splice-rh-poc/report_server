@@ -63,7 +63,8 @@ class ProductUsageForm(DocumentForm):
 class ReportData(Document):
 
     meta = {
-        'db_alias': 'results',
+        'db_alias': 'results', 
+        'allow_inheritance': True, 
         'indexes': [ 
             {'fields': ['consumer_uuid', 'instance_identifier', 'hour',
                         'product']},
@@ -86,13 +87,6 @@ class ReportData(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     
-    
-    
-    
-    
-
-
-
 
 
 

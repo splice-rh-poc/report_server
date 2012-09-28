@@ -33,7 +33,7 @@ class Product_Def:
                  (product.name ==  "RHEL Server for Education") or \
                    (product.name ==  "RHEL LB"):
             #print(RHEL_Server_High(product, rhic, start, end))
-            count, filter_args_dict = RHEL_Server_High(product, rhic, start, end, environment)
+            count, filter_args_dict = RHEL_Server_High(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
                 result_dict['facts'] = ' > 8GB  '
@@ -41,7 +41,7 @@ class Product_Def:
                 count_list.append(result_dict)
             
             #print(RHEL_Server_Low(product, rhic, start, end))
-            count, filter_args_dict = RHEL_Server_Low(product, rhic, start, end, environment)
+            count, filter_args_dict = RHEL_Server_Low(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
                 result_dict['facts'] = ' < 8GB  '
@@ -50,14 +50,14 @@ class Product_Def:
             
             return count_list
         elif product.name == "JBoss EAP":
-            count, filter_args_dict = JBoss_EAP_VCPU_gt4(product, rhic, start, end, environment)
+            count, filter_args_dict = JBoss_EAP_VCPU_gt4(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
                 result_dict['facts'] = ' > 4 vCPU  '
                 result_dict['filter_args_dict']=json.dumps(filter_args_dict)
                 count_list.append(result_dict)
                 
-            count, filter_args_dict = JBoss_EAP_VCPU_lt4(product, rhic, start, end, environment)
+            count, filter_args_dict = JBoss_EAP_VCPU_lt4(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
                 result_dict['facts'] = ' < 4 vCPU  '
@@ -70,14 +70,14 @@ class Product_Def:
             _LOG.error('not supported') # need more info
             
         elif product.name == "OpenShift Gear":
-            count, filter_args_dict = OpenShift_Gear_high(product, rhic, start, end, environment)
+            count, filter_args_dict = OpenShift_Gear_high(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
                 result_dict['facts'] = ' > 1 vCPU, > 2GB  '
                 result_dict['filter_args_dict']=json.dumps(filter_args_dict)
                 count_list.append(result_dict)
             
-            count, filter_args_dict = OpenShift_Gear_low(product, rhic, start, end, environment)
+            count, filter_args_dict = OpenShift_Gear_low(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
                 result_dict['facts'] = '  1 vCPU, <= 2GB  '
@@ -109,10 +109,10 @@ def build_result(product, rhic, start, end, contract_number, count, environment)
     return result_dict
     
     
-def RHEL_Server_High(product, rhic, start, end, environment):
+def RHEL_Server_High(product, rhic, start, end, contract_number,  environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids, 'memtotal__gte': 8388608, \
-                      'sla': product.sla, 'support': product.support_level}
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
         
@@ -121,10 +121,10 @@ def RHEL_Server_High(product, rhic, start, end, environment):
     return mem_high, filter_args_dict
     
     
-def RHEL_Server_Low(product, rhic, start, end, environment):
+def RHEL_Server_Low(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids, 'memtotal__lte': 8388608, \
-                      'sla': product.sla, 'support': product.support_level}
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
@@ -133,10 +133,10 @@ def RHEL_Server_Low(product, rhic, start, end, environment):
     return mem_low, filter_args_dict
     
     
-def JBoss_EAP_VCPU_gt4(product, rhic, start, end, environment):
+def JBoss_EAP_VCPU_gt4(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids, 'cpu_sockets__gte': 4, \
-                      'sla': product.sla, 'support': product.support_level}
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
@@ -144,10 +144,10 @@ def JBoss_EAP_VCPU_gt4(product, rhic, start, end, environment):
                             
     return jboss_high, filter_args_dict
 
-def JBoss_EAP_VCPU_lt4(product, rhic, start, end, environment):
+def JBoss_EAP_VCPU_lt4(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids, 'cpu_sockets__lt': 4, \
-                      'sla': product.sla, 'support': product.support_level}
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
@@ -155,11 +155,11 @@ def JBoss_EAP_VCPU_lt4(product, rhic, start, end, environment):
                             
     return jboss_high, filter_args_dict
     
-def OpenShift_Gear_high(product, rhic, start, end, environment):
+def OpenShift_Gear_high(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids,  \
                       'cpu_sockets__gte': 4, 'memtotal__gte': 8388608, \
-                      'sla': product.sla, 'support': product.support_level}
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
@@ -167,11 +167,11 @@ def OpenShift_Gear_high(product, rhic, start, end, environment):
                             
     return high, filter_args_dict
     
-def OpenShift_Gear_low(product, rhic, start, end, environment):
+def OpenShift_Gear_low(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids,  \
                        'cpu_sockets__lt': 4, 'memtotal__lt': 8388608, \
-                       'sla': product.sla, 'support': product.support_level}
+                       'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
