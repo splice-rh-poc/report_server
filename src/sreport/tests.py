@@ -131,28 +131,36 @@ class MongoTestsTestCase(MongoTestCase):
     
 class TestData():
     @staticmethod
-    def create_rhel_entry():
-        this_date = datetime.now()
-        this_hour = this_date.strftime(hr_fmt)
-        
+    def create_rhel_entry(memhigh=True, date=None):
+        if not date:
+            date = datetime.now()
+        this_hour = date.strftime(hr_fmt)
         rhel01 = ReportData(
-                            instance_identifier = "12:31:3D:08:49:00",
-                            consumer_uuid = "8d401b5e-2fa5-4cb6-be64-5f57386fda86",
-                            consumer = "rhel-server-1190457-3116649-prem-l1-l3",
-                            product=["69"],
-                            product_name = "RHEL Server",
-                            date =  this_date,
-                            sla = "prem",
-                            support = "l1-l3",
-                            contract_id = "3116649",
-                            contract_use = "20", 
-                            hour = this_hour,
-                            memtotal = int(16048360),
-                            cpu_sockets = 4,
-                            environment = "us-east-1",
-                            splice_server = "splice-server-1.spliceproject.org"
-                            )
-        return rhel01
+                                instance_identifier = "12:31:3D:08:49:00",
+                                consumer_uuid = "8d401b5e-2fa5-4cb6-be64-5f57386fda86",
+                                consumer = "rhel-server-1190457-3116649-prem-l1-l3",
+                                product=["69"],
+                                product_name = "RHEL Server",
+                                date =  date,
+                                sla = "prem",
+                                support = "l1-l3",
+                                contract_id = "3116649",
+                                contract_use = "20", 
+                                hour = this_hour,
+                                memtotal = 16048360,
+                                cpu_sockets = 4,
+                                environment = "us-east-1",
+                                splice_server = "splice-server-1.spliceproject.org"
+                                )
+        
+        if memhigh:
+            rhel01['memtotal'] = 16048360
+            return rhel01
+        else:
+            rhel01['memtotal'] = 640
+            return rhel01
+       
+        
     
     @staticmethod    
     def create_rhel_product():
@@ -172,7 +180,7 @@ class ReportTestCase(TestCase):
         ReportData.drop_collection()
         rhel_product = TestData.create_rhel_product()
         rhel_product.save()
-        rhel_entry = TestData.create_rhel_entry()
+        rhel_entry = TestData.create_rhel_entry(memhigh=True)
         rhel_entry.save()        
          
     def test_report_data(self):
@@ -231,12 +239,9 @@ class ReportTestCase(TestCase):
         search_date_start = datetime.now() - timedelta(days=11)
         search_date_end = datetime.now()
                                                      
-        
-        rhel02 = TestData.create_rhel_entry()
         delta = timedelta(days=10)
-        rhel02.date = datetime.now() - delta
-        rhel02.hour = rhel02.date.strftime(hr_fmt)
-        rhel02.save()
+        rhel = TestData.create_rhel_entry(memhigh=True, date=(datetime.now() - delta))
+        rhel.save()
         
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 2)
@@ -262,9 +267,9 @@ class ReportTestCase(TestCase):
         results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
         self.assertTrue('> ' in results_dicts[0]['facts'], ' > 8GB found')
         
-        rhel02 = TestData.create_rhel_entry()
-        rhel02.memtotal = int(1)
+        rhel02 = TestData.create_rhel_entry(memhigh=False)
         rhel02.save()
+        end = datetime.now()
         
         #verify two items in db
         lookup = ReportData.objects.all()
