@@ -27,6 +27,7 @@ from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField, IntField
 from datetime import datetime, timedelta
 from common.products import Product_Def
+from common.utils import datespan
 
 
 LOG = getLogger(__name__)
@@ -146,7 +147,7 @@ class TestData():
                             contract_id = "3116649",
                             contract_use = "20", 
                             hour = this_hour,
-                            memtotal = 16048360,
+                            memtotal = int(16048360),
                             cpu_sockets = 4,
                             environment = "us-east-1",
                             splice_server = "splice-server-1.spliceproject.org"
@@ -175,8 +176,7 @@ class ReportTestCase(TestCase):
         rhel_entry.save()        
          
     def test_report_data(self):
-        
-        
+        self.setUp()
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 1)
      
@@ -249,4 +249,33 @@ class ReportTestCase(TestCase):
         self.assertEqual(len(results_dicts), 1)
         #dictionary should contain the count of checkins
         self.assertEqual(results_dicts[0]['count'], 2)
+        
+    def test_rhel_memory_results(self):
+        contract_num = "3116649"
+        environment = "us-east-1"
+        end = datetime.now()
+        delta=timedelta(days=1)
+        start = datetime.now() - delta
+        
+        p = Product.objects.filter(name="RHEL Server")[0]
+        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
+        self.assertTrue('> ' in results_dicts[0]['facts'], ' > 8GB found')
+        
+        rhel02 = TestData.create_rhel_entry()
+        rhel02.memtotal = int(1)
+        rhel02.save()
+        
+        #verify two items in db
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 2)
+        #RHEL w/ > 8GB and < 8GB memory are considered two different products
+        #The result dict should have two items in the list (2 products, 1 count each)
+        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
+        self.assertEqual(len(results_dicts), 2)
+        
+    
+    
+    
+    
     
