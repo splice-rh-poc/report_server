@@ -31,27 +31,27 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
     if contract_number:
         list_of_rhics = list(RHIC.objects.filter(contract=contract_number))
     
+    if list_of_rhics:
+        account_num = RHIC.objects.get(uuid=list_of_rhics[0].uuid).account_id
     
     for rhic in list_of_rhics:
         rhic_list = []
-        account_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].account_id)
         contract_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].contract)
         #list_of_products = Account.objects.filter(account_id=account_num)[0]#.contracts[contract_num].products
         list_of_products = []
             
-        contract_list = Account.objects.filter(account_id=account_num)[0].contracts
-        for contract in contract_list:
-            if contract.contract_id == contract_num:
-                list_of_products = contract.products
+        contract = Account.objects.get(account_id=account_num, 
+                                       contracts__contract_id=contract_num).contracts[0]
+        list_of_products = contract.products
         
         #list of products in the RHIC's Contract
         
         for p in list_of_products:
-            nau_mem_high = 0
-            nau_mem_low = 0
+            if p.name not in rhic.products:
+                print('skipping %s' % p.name)
+                continue
             _LOG.debug(p.name)
             print(p.name)
-            results_dicts = []
             results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
             if results_dicts:
                 for result in results_dicts:

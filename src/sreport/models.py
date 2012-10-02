@@ -65,10 +65,9 @@ class ReportData(Document):
     meta = {
         'db_alias': 'results', 
         'allow_inheritance': True, 
-        'indexes': [ 
-            {'fields': ['consumer_uuid', 'instance_identifier', 'hour',
-                        'product']},
-        ],
+        'indexes': [ ('consumer_uuid', 'instance_identifier', 'hour',
+                      'product'), 
+                     'date'],
     }
 
     instance_identifier = StringField(required=True)
