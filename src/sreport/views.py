@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from common.report import hours_per_consumer
 from common.import_util import checkin_data
-from common.utils import map_from_str
+
 import json
 
 _LOG = logging.getLogger(__name__)
