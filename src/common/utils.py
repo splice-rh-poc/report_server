@@ -11,6 +11,7 @@
 
 from datetime import datetime, timedelta
 import logging
+import math
 
 _LOG = logging.getLogger(__name__)
 
@@ -52,15 +53,8 @@ def datespan(startDate, endDate):
     _LOG.debug('total hours:', total_hours)
     return total_hours
 
-def map_from_str(s):
-    s = s[1:]
-    s = s[:-1]
-    s = s.split(',')
-    
-    mymap  = {}
-    for i in s:
-        n = i.split(': ')
-        print(n)
-        mymap[n[0].strip()]=n[1].strip()
-        
-    return mymap
+def subscription_calc(count, start, end):
+    hours_for_sub = datespan(start, end) 
+    nau = count / int(hours_for_sub)
+    nau = math.ceil(nau)
+    return nau

@@ -22,7 +22,7 @@ from mongoengine.connection import connect, disconnect
 from django.conf import settings
 from logging import getLogger
 from sreport.models import ReportData, MyQuerySet
-from rhic_serve.rhic_rest.models import RHIC
+from rhic_serve.rhic_rest.models import RHIC, Account
 from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField, IntField
 from datetime import datetime, timedelta
@@ -128,24 +128,39 @@ class MongoTestsTestCase(MongoTestCase):
         
 
             
-    
+RHEL = "RHEL Server"
+HA = "RHEL HA"
+EUS = "RHEL EUS"
+LB = "RHEL LB"
+JBoss = "JBoss EAP"
+EDU = "RHEL Server for Education"
+UNLIMITED = "RHEL Server 2-socket Unlimited Guest"
+GEAR = "OpenShift Gear"
+
+products_dict={
+                 RHEL: (["69"], '8d401b5e-2fa5-4cb6-be64-5f57386fda86', "rhel-server-1190457-3116649-prem-l1-l3"), 
+                 HA: (["83"], 'fbbd06c6-ebed-4892-87a3-2bf17c864444', 'rhel-ha-1190457-3874444-na-standard'),
+                 EUS: (["70"],'fbbd06c6-ebed-4892-87a3-2bf17c865555', 'rhel-eus-1190457-3874444-prem-l1-l3'),
+                 LB: (["85"], 'fbbd06c6-ebed-4892-87a3-2bf17c866666', 'rhel-lb-1190457-3874444-prem-l1-l3'),
+                 JBoss: (["183"],'ee5c9aaa-a40c-1111-80a6-ef731076bbe8', 'jboss-1111730-4582732-prem-l1-l3'),
+                 EDU: (["69"], 'fbbd06c6-ebed-4892-87a3-2bf17c86e610', 'rhel-server-education-1190457-3879847-na-ss'),
+                 UNLIMITED: (["69"], 'fbbd06c6-ebed-4892-87a3-2bf17c867777', 'rhel-2socket_unlimited-1190457-3874444-prem-l1-l3'),
+                 GEAR: (["69", "183"], 'b0e7bd8a-0b23-4b35-86d7-52a87311a5c2', 'openshift-gear-3485301-4582732-prem-l1-l3')
+                }
+ 
 class TestData():
+    
     @staticmethod
-    def create_rhel_entry(memhigh=True, date=None):
+    def create_entry(product, memhigh=True, date=None):
         if not date:
             date = datetime.now()
         this_hour = date.strftime(hr_fmt)
-        rhel01 = ReportData(
+            
+        row = ReportData(
                                 instance_identifier = "12:31:3D:08:49:00",
-                                consumer_uuid = "8d401b5e-2fa5-4cb6-be64-5f57386fda86",
-                                consumer = "rhel-server-1190457-3116649-prem-l1-l3",
-                                product=["69"],
-                                product_name = "RHEL Server",
                                 date =  date,
-                                sla = "prem",
-                                support = "l1-l3",
-                                contract_id = "3116649",
-                                contract_use = "20", 
+
+                                
                                 hour = this_hour,
                                 memtotal = 16048360,
                                 cpu_sockets = 4,
@@ -153,35 +168,79 @@ class TestData():
                                 splice_server = "splice-server-1.spliceproject.org"
                                 )
         
+        for key, value in products_dict.items():
+            if product == key:
+                rhic = RHIC.objects.filter(uuid=value[1])[0]
+                row['product_name']=key
+                row['product']=value[0]
+                row['consumer_uuid']=value[1]
+                row['consumer']=value[2]
+                row['contract_id']=rhic.contract
+                row['sla']=rhic.sla
+                row['support']=rhic.support_level
+                row['contract_use']="20"
+                
+        
         if memhigh:
-            rhel01['memtotal'] = 16048360
-            return rhel01
+            row['memtotal'] = 16048360
+            return row
         else:
-            rhel01['memtotal'] = 640
-            return rhel01
+            row['memtotal'] = 640
+            return row
        
         
     
     @staticmethod    
-    def create_rhel_product():
-        rhel01_product = Product(
-                                 name = "RHEL Server",
-                                 engineering_ids = ["69"],
-                                 quantity = "20",
-                                 support_level = "l1-l3",
-                                 sla = "prem"
-                                 )
-        return rhel01_product
+    def create_products():
+        
+        for key, value in products_dict.items():
+            #print('create_product', key)
+            rhic = RHIC.objects.filter(uuid=value[1])[0]
+            contract_num = rhic.contract
+            #print('contract_num', contract_num)
+            #print('account_id', rhic.account_id)
+            contract_list = Account.objects.filter(account_id=rhic.account_id)[0].contracts
+            for contract in contract_list:
+                if contract.contract_id == contract_num:
+                    list_of_products = contract.products
+                    for p in list_of_products:
+                        #print p.name
+                        if p.name == key:
+                            row = Product(
+                                          quantity = p.quantity,
+                                          support_level = p.support_level,
+                                          sla = p.sla,
+                                          name=p.name,
+                                          engineering_ids=p.engineering_ids
+                                          )
+                            row.save()
+            
+    @staticmethod
+    def create_rhic():
+        rhic = {
+                    'uuid': '1001',
+                    'name': 'test_rhic',
+                    'account_id': '1001',
+                    'contract': '1',
+                    'support_level': 'l1-l3',
+                    'sla': 'prem',
+                    'products': [RHEL, HA, EDU, EUS, LB, JBoss, GEAR ],
+                    'engineering_ids': ["69", "83", "70", "85", "183"]
+                    }
+                    
+        RHIC.objects.get_or_create(rhic)
+        
     
 class ReportTestCase(TestCase):
     def setUp(self):
         db_name = settings.MONGO_DATABASE_NAME_RESULTS
         self.db = connect(db_name)
         ReportData.drop_collection()
-        rhel_product = TestData.create_rhel_product()
-        rhel_product.save()
-        rhel_entry = TestData.create_rhel_entry(memhigh=True)
-        rhel_entry.save()        
+        rhel_product = TestData.create_products()
+        rhel_entry = TestData.create_entry(RHEL, memhigh=True)
+        rhel_entry.save()
+
+        
          
     def test_report_data(self):
         self.setUp()
@@ -189,12 +248,15 @@ class ReportTestCase(TestCase):
         self.assertEqual(len(lookup), 1)
      
     def test_rhel_basic_results(self):
-        end = datetime.now()
+        
         delta=timedelta(days=1)
         start = datetime.now() - delta
+        end = datetime.now() + delta
         contract_num = "3116649"
         environment = "us-east-1"
         
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 1)
         #test perfect match
         p = Product.objects.filter(name="RHEL Server")[0]
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
@@ -240,7 +302,7 @@ class ReportTestCase(TestCase):
         search_date_end = datetime.now()
                                                      
         delta = timedelta(days=10)
-        rhel = TestData.create_rhel_entry(memhigh=True, date=(datetime.now() - delta))
+        rhel = TestData.create_entry(RHEL, memhigh=True, date=(datetime.now() - delta))
         rhel.save()
         
         lookup = ReportData.objects.all()
@@ -267,7 +329,7 @@ class ReportTestCase(TestCase):
         results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
         self.assertTrue('> ' in results_dicts[0]['facts'], ' > 8GB found')
         
-        rhel02 = TestData.create_rhel_entry(memhigh=False)
+        rhel02 = TestData.create_entry(RHEL, memhigh=False)
         rhel02.save()
         end = datetime.now()
         
@@ -279,6 +341,32 @@ class ReportTestCase(TestCase):
         results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
         self.assertEqual(len(results_dicts), 2)
         
+    
+    def test_find_each_product(self):
+        ReportData.drop_collection()
+        count = 0
+        for key, value in products_dict.items():
+            count += 1
+            entry = TestData.create_entry(key, memhigh=True)
+            entry.save(safe=True)
+            lookup = len(ReportData.objects.all())
+            self.assertEqual(lookup, count)
+            
+            
+        end = datetime.now()
+        delta=timedelta(days=1)
+        start = datetime.now() - delta
+        
+        for key, value in products_dict.items():
+            print(key)
+            p = Product.objects.filter(name=key)[0]
+            print(p.name)
+
+            rhic = RHIC.objects.filter(uuid=value[1])[0]
+            print(rhic.uuid)
+            print(rhic.contract)
+            results_dicts = Product_Def.get_product_match(p, rhic, start, end, rhic.contract, "us-east-1")
+            self.assertEqual(len(results_dicts), 1)
     
     
     

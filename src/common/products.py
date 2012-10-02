@@ -11,10 +11,11 @@
 
 from __future__ import division
 from sreport.models import  ReportData
-import math
+
 import logging
 from utils import datespan
 import json
+from common.utils import subscription_calc
 
 
 
@@ -67,7 +68,22 @@ class Product_Def:
             return count_list
         
         elif product.name == "RHEL Server 2-socket Unlimited Guest":
-            _LOG.error('not supported') # need more info
+            count, filter_args_dict = RHEL_Host_High(product, rhic, start, end, contract_number, environment)
+            if(count):
+                result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
+                result_dict['facts'] = '2 > socket <= 4  '
+                result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+                count_list.append(result_dict)
+            
+            #print(RHEL_Server_Low(product, rhic, start, end))
+            count, filter_args_dict = RHEL_Host_Low(product, rhic, start, end, contract_number, environment)
+            if(count):
+                result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
+                result_dict['facts'] = 'socket <= 2  '
+                result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+                count_list.append(result_dict)
+            
+            return count_list
             
         elif product.name == "OpenShift Gear":
             count, filter_args_dict = OpenShift_Gear_high(product, rhic, start, end, contract_number, environment)
@@ -83,15 +99,15 @@ class Product_Def:
                 result_dict['facts'] = '  1 vCPU, <= 2GB  '
                 result_dict['filter_args_dict']=json.dumps(filter_args_dict)
                 count_list.append(result_dict)
+                
             return count_list
         
          
 
 def build_result(product, rhic, start, end, contract_number, count, environment):
     result_dict = {}
-    hours_for_sub = datespan(start, end) 
-    nau = count / int(hours_for_sub)
-    nau = math.ceil(nau)
+    hours_for_sub = datespan(start, end)
+    nau = subscription_calc(count, start, end)
     
     result_dict['count'] = count
     result_dict['checkins'] = "{0:.0f}".format(nau)
@@ -172,6 +188,30 @@ def OpenShift_Gear_low(product, rhic, start, end, contract_number, environment):
                       'product': product.engineering_ids,  \
                        'cpu_sockets__lt': 4, 'memtotal__lt': 8388608, \
                        'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
+    if environment != "All":
+        filter_args_dict['environment'] = environment
+    
+    low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
+                            
+    return low, filter_args_dict
+
+
+
+def RHEL_Host_High(product, rhic, start, end, contract_number, environment):
+    filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
+                      'product': product.engineering_ids, 'cpu_sockets__gte': 2, 'cpu_sockets__lte': 4,\
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
+    if environment != "All":
+        filter_args_dict['environment'] = environment
+    
+    high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
+                            
+    return high, filter_args_dict
+
+def RHEL_Host_Low(product, rhic, start, end, contract_number, environment):
+    filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
+                      'product': product.engineering_ids, 'cpu_sockets__lte': 2,\
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
