@@ -8,7 +8,7 @@
 # NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
-
+from __future__ import division
 from datetime import datetime, timedelta
 import logging
 import math
@@ -55,6 +55,6 @@ def datespan(startDate, endDate):
 
 def subscription_calc(count, start, end):
     hours_for_sub = datespan(start, end) 
-    nau = count / int(hours_for_sub)
+    nau = count/hours_for_sub
     nau = math.ceil(nau)
     return nau
