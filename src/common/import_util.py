@@ -23,10 +23,15 @@ from rhic_serve.rhic_rest.models import Account
 from datetime import datetime
 from common.utils import find_item
 from sets import Set
+from common import config
 
 _LOG = logging.getLogger("sreport.import_util")
 
 def checkin_data():
+    #config fail/pass on missing rhic
+    config.init()
+    c = config.get_import_info()
+    
     results = []
     #debug
     format = "%a %b %d %H:%M:%S %Y"
@@ -56,7 +61,10 @@ def checkin_data():
                 cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
-                raise Exception('rhic not found: ' + uuid)
+                if c['continue_on_error'] == 0:
+                    raise Exception('rhic not found: ' + uuid)
+                else:
+                    continue
             
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()

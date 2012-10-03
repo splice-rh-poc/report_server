@@ -1,4 +1,4 @@
-# Copyright © 2012 Red Hat, Inc.
+# Copyright  2012 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public
 # License as published by the Free Software Foundation; either version
@@ -35,4 +35,11 @@ def get_rhic_serve_config_info():
         "port": CONFIG.get("rhic_serve", "port"),
         "user": CONFIG.get("rhic_serve", "username"),
         "passwd": CONFIG.get("rhic_serve", "password")
+    }
+    
+def get_import_info():
+    if CONFIG.get("import", "continue_on_error") is None:
+        CONFIG.set("import", "continue_on_error", "0")
+    return {
+        "continue_on_error": CONFIG.get("import", "continue_on_error")
     }
