@@ -55,8 +55,8 @@ def checkin_data():
                 rhic = RHIC.objects.filter(uuid=uuid)[0]
                 cached_rhics[uuid] = rhic
             except IndexError:
-                _LOG.critical('rhic not found @ import')
-                raise Exception('rhic not found')
+                _LOG.critical('rhic not found @ import: ' + uuid)
+                raise Exception('rhic not found: ' + uuid)
             
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()
