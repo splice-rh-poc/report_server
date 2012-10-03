@@ -36,22 +36,24 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
     
     for rhic in list_of_rhics:
         rhic_list = []
+        account_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].account_id)
         contract_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].contract)
         #list_of_products = Account.objects.filter(account_id=account_num)[0]#.contracts[contract_num].products
         list_of_products = []
             
-        contract = Account.objects.get(account_id=account_num, 
-                                       contracts__contract_id=contract_num).contracts[0]
-        list_of_products = contract.products
+        contract_list = Account.objects.filter(account_id=account_num)[0].contracts
+        for contract in contract_list:
+            if contract.contract_id == contract_num:
+                list_of_products = contract.products
         
-        #list of products in the RHIC's Contract
+        products_contract = {item['name']: item for item in list_of_products}
+        products_rhic = {item: item for item in rhic.products}
         
-        for p in list_of_products:
-            if p.name not in rhic.products:
-                print('skipping %s' % p.name)
-                continue
-            _LOG.debug(p.name)
-            print(p.name)
+        intersect = set(products_contract.keys()).intersection(set(products_rhic.keys()))
+
+        for p in (p for p in list_of_products if p.name in intersect): 
+            _LOG.debug(p.name, p.sla, p.support_level)
+            results_dicts = []
             results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
             if results_dicts:
                 for result in results_dicts:
