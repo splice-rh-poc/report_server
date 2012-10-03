@@ -46,10 +46,12 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
             if contract.contract_id == contract_num:
                 list_of_products = contract.products
         
-        products_contract = {item['name']: item for item in list_of_products}
-        products_rhic = {item: item for item in rhic.products}
+        products_contract = []
+        for item in list_of_products:
+            products_contract.append(item.name)
         
-        intersect = set(products_contract.keys()).intersection(set(products_rhic.keys()))
+        
+        intersect = set(products_contract).intersection(set(rhic.products))
 
         for p in (p for p in list_of_products if p.name in intersect): 
             _LOG.debug(p.name, p.sla, p.support_level)
