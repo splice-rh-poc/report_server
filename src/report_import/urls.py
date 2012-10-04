@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#
 # Copyright © 2012 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public
@@ -10,16 +11,22 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from sreport.models import ProductUsage
-from django.contrib.auth.models import User
-from tastypie.authorization import Authorization
-from tastypie import fields
-from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 
-from common import import_util
+from django.conf.urls import patterns, include, url
+from tastypie.api import Api
+
 from report_import.api import productusage
 
-class ProductUsageResource(productusage.ProductUsageResource):
+v1_api = Api(api_name='v1')
 
-    def import_hook(self, product_usage):
-        return import_util.import_data(product_usage)
+# Resources
+productusage_resource = productusage.ProductUsageResource()
+
+v1_api.register(productusage_resource)
+
+urlpatterns = patterns('',
+
+    # API Resources
+    url(r'^api/', include(v1_api.urls)),
+
+)

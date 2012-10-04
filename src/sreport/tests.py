@@ -31,7 +31,7 @@ from datetime import datetime, timedelta
 from common.products import Product_Def
 from common.utils import datespan
 from common.report import get_list_of_products, hours_per_consumer
-from common.import_util import checkin_data
+from common.import_util import import_data
 import sys
 
 
@@ -541,7 +541,7 @@ class ReportTestCase(TestCase):
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = checkin_data()
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -561,7 +561,7 @@ class ReportTestCase(TestCase):
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         pu = TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = checkin_data()
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -583,7 +583,7 @@ class ReportTestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = checkin_data()
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -606,7 +606,7 @@ class ReportTestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = checkin_data()
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()

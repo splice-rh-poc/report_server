@@ -24,7 +24,6 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from common.report import hours_per_consumer
-from common.import_util import checkin_data
 
 import json
 
@@ -145,15 +144,6 @@ def report(request):
     response = TemplateResponse(request, 'create_report/report.html',
                                  {'list': results, 'account': account,
                                    'start': start, 'end': end})
-    return response
-
-
-
-
-def import_checkin_data(request):
-    
-    results = checkin_data()
-    response = TemplateResponse(request, 'import.html', {'list': results})
     return response
 
 

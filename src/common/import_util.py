@@ -13,8 +13,6 @@
 from __future__ import division
 import logging
 from sreport.models import ReportData
-#from splice.entitlement.models import ProductUsage
-#from splice.entitlement.models import SpliceServer
 from sreport.models import ProductUsage, SpliceServer
 #from rhic_serve.rhic_rcs.models import RHIC
 from rhic_serve.rhic_rest.models import RHIC
@@ -27,7 +25,7 @@ from common import config
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def checkin_data():
+def import_data(product_usage=ProductUsage.objects.all()):
     #config fail/pass on missing rhic
     config.init()
     c = config.get_import_info()
@@ -49,7 +47,7 @@ def checkin_data():
     cached_contracts = {}
     rds = []
     
-    for pu in ProductUsage.objects.all():
+    for pu in product_usage:
         uuid = pu.consumer
 
         if uuid in cached_rhics:
@@ -102,7 +100,11 @@ def checkin_data():
                 # performance by making the set we need to search smaller each
                 # time.
                 product_set.difference_update(product_eng_id_set) 
-                splice_server = SpliceServer.objects.get(id=pu.splice_server.id)
+                try:
+                    splice_server = SpliceServer.objects.get(id=pu.splice_server.id)
+                except AttributeError:
+                    splice_server = SpliceServer.objects.get(
+                        id=pu.splice_server['$id']['$oid'])
                 
                 rd = ReportData(instance_identifier = str(pu.instance_identifier),
                                 consumer = rhic.name, 
