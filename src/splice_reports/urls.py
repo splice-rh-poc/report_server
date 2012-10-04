@@ -28,3 +28,10 @@ urlpatterns = patterns('',
     (r'^ui/report/details/$', 'sreport.views.detailed_report'),
     (r'^ui/report/details/instance_details/$', 'sreport.views.instance_report')
 )
+
+urlpatterns += (
+    # ProductUsage Resource
+    url(r'', include('report_import.urls')),
+)
+
+
