@@ -24,8 +24,6 @@ from bson.json_util import loads
 
 from sreport.models import ProductUsage, SpliceServer
 
-from report_import import import_util
-
 class ProductUsageResource(MongoEngineResource):
 
     class Meta:
@@ -34,6 +32,7 @@ class ProductUsageResource(MongoEngineResource):
 
 
     def post_list(self, request, **kwargs):
+        import epdb; epdb.st()  
         deserialized = self.deserialize(
             request, request.raw_post_data, 
             format=request.META.get('CONTENT_TYPE', 'application/json'))
@@ -57,5 +56,5 @@ class ProductUsageResource(MongoEngineResource):
         return response
 
     def import_hook(self, product_usage):
-        return import_util.import_data(product_usage)
+        raise NotImplementedError
 

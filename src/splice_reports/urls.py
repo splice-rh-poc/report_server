@@ -3,7 +3,6 @@ from django.views.generic import list_detail
 
 from tastypie.api import Api
 
-from report_import.api import productusage
 from sreport.api import ProductUsageResource
 
 v1_api = Api(api_name='v1')

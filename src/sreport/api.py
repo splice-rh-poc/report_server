@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright © 2012 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public
@@ -15,10 +16,10 @@ from tastypie.authorization import Authorization
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 
-from sreport.common import import_util
+from common import import_util
+from report_import.api import productusage
 
 class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
         return import_util.import_data(product_usage)
-
