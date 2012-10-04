@@ -15,8 +15,10 @@ from tastypie.authorization import Authorization
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 
+from sreport.common import import_util
 
-class ProductUsageResource(ModelResource):
-    class Meta:
-        queryset = ProductUsage.consumer
+class ProductUsageResource(productusage.ProductUsageResource):
+
+    def import_hook(self, product_usage):
+        return import_util.import_data(product_usage)
 

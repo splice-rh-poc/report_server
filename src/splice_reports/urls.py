@@ -1,12 +1,16 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
 
+from tastypie.api import Api
 
+from report_import.api import productusage
+from sreport.api import ProductUsageResource
 
-# Uncomment the next two lines to enable the admin:
-#from django.contrib import admin
-#admin.autodiscover()
+v1_api = Api(api_name='v1')
 
+# Resources
+productusage_resource = ProductUsageResource()
+v1_api.register(productusage_resource)
 
 urlpatterns = patterns('',
     # Examples:
@@ -30,8 +34,8 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += (
-    # ProductUsage Resource
-    url(r'', include('report_import.urls')),
+    # API Resources
+    url(r'^api/', include(v1_api.urls)),
 )
 
 

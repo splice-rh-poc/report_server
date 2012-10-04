@@ -25,7 +25,7 @@ from common import config
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage):
+def import_data(product_usage=ProductUsage.objects.all()):
     #config fail/pass on missing rhic
     config.init()
     c = config.get_import_info()
