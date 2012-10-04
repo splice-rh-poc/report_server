@@ -151,7 +151,7 @@ def RHEL_Server_Low(product, rhic, start, end, contract_number, environment):
     
 def JBoss_EAP_VCPU_gt4(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': product.engineering_ids, 'cpu_sockets__gte': 4, \
+                      'product': product.engineering_ids, 'cpu_sockets__gt': 4, \
                       'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
@@ -162,7 +162,7 @@ def JBoss_EAP_VCPU_gt4(product, rhic, start, end, contract_number, environment):
 
 def JBoss_EAP_VCPU_lt4(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': product.engineering_ids, 'cpu_sockets__lt': 4, \
+                      'product': product.engineering_ids, 'cpu_sockets__lte': 4, \
                       'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
@@ -174,7 +174,7 @@ def JBoss_EAP_VCPU_lt4(product, rhic, start, end, contract_number, environment):
 def OpenShift_Gear_high(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids,  \
-                      'cpu_sockets__gte': 4, 'memtotal__gte': 8388608, \
+                      'cpu__gt': 1, 'memtotal__gt': 2097152, \
                       'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
@@ -186,7 +186,7 @@ def OpenShift_Gear_high(product, rhic, start, end, contract_number, environment)
 def OpenShift_Gear_low(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids,  \
-                       'cpu_sockets__lt': 4, 'memtotal__lt': 8388608, \
+                       'cpu': 1, 'memtotal__lte': 2097152, \
                        'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
@@ -199,7 +199,7 @@ def OpenShift_Gear_low(product, rhic, start, end, contract_number, environment):
 
 def RHEL_Host_High(product, rhic, start, end, contract_number, environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': product.engineering_ids, 'cpu_sockets__gte': 2, 'cpu_sockets__lte': 4,\
+                      'product': product.engineering_ids, 'cpu_sockets__gt': 2, 'cpu_sockets__lte': 4,\
                       'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment

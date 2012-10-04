@@ -38,19 +38,17 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
         rhic_list = []
         account_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].account_id)
         contract_num = str(RHIC.objects.filter(uuid=str(rhic.uuid))[0].contract)
-        #list_of_products = Account.objects.filter(account_id=account_num)[0]#.contracts[contract_num].products
-        list_of_products = []
-            
-        contract_list = Account.objects.filter(account_id=account_num)[0].contracts
-        for contract in contract_list:
-            if contract.contract_id == contract_num:
-                list_of_products = contract.products
         
-        products_contract = []
-        for item in list_of_products:
-            products_contract.append(item.name)
+        '''
+        There can be multiple contracts under an account.  The contract is an embedded
+        document under account and can not be filtered directly. Iterating through the 
+        list of contracts under an account is the only way I can think of to get the 
+        correct contract
+        ''' 
         
-        
+        list_of_products = get_list_of_products(account_num, contract_num)
+        products_contract = [(prod.name) for prod in list_of_products]
+
         intersect = set(products_contract).intersection(set(rhic.products))
 
         for p in (p for p in list_of_products if p.name in intersect): 
@@ -65,5 +63,9 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
     return results
 
 
-
-
+def get_list_of_products(account_num, contract_num ):
+    contract_list = Account.objects.filter(account_id=account_num)[0].contracts
+    for contract in contract_list:
+        if contract.contract_id == contract_num:
+            list_of_products = contract.products
+    return list_of_products

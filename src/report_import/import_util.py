@@ -59,10 +59,10 @@ def import_data(product_usage):
                 cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
-                if c['continue_on_error'] == 0:
-                    raise Exception('rhic not found: ' + uuid)
-                else:
-                    continue
+                #if c['continue_on_error'] == 0:
+                #    raise Exception('rhic not found: ' + uuid)
+                #else:
+                continue
             
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()
@@ -119,13 +119,14 @@ def import_data(product_usage):
                                 contract_use = str(product.quantity),
                                 memtotal = int(pu.facts['memory_dot_memtotal']),
                                 cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                                cpu = int(pu.facts['lscpu_dot_cpu(s)']),
                                 environment = str(splice_server.environment),
                                 splice_server = str(splice_server.hostname)
                                 )
 
                 # If there's a dupe, log it instead of saving a new record.
                 dupe = ReportData.objects.filter(
-                    consumer_uuid=uuid,
+                    #consumer_uuid=rhic.uuid, # removing this assumes one rhic per box
                     instance_identifier=str(pu.instance_identifier),
                     hour=pu.date.strftime(hr_fmt),
                     product= product.engineering_ids)
@@ -133,7 +134,10 @@ def import_data(product_usage):
                     _LOG.info("found dupe:" + str(pu))
                 else:
                     _LOG.info('recording: ' + str(product.engineering_ids))
-                    # rd.save()
+                    rd.save()
+                    '''
+                    #The following code causes duplicate entries in the db
+                    #This is due to the bulk load.. we are not checking for duplicates in the bulk load itself, just the db
                     rds.append(rd)
 
         if rds and len(rds) % commit_count == 0:
@@ -142,6 +146,7 @@ def import_data(product_usage):
 
     if rds:
         ReportData.objects.insert(rds)
+    '''
 
     end = datetime.utcnow()
     time['end'] = end.strftime(format)
