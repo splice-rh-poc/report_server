@@ -131,7 +131,10 @@ def checkin_data():
                     _LOG.info("found dupe:" + str(pu))
                 else:
                     _LOG.info('recording: ' + str(product.engineering_ids))
-                    # rd.save()
+                    rd.save()
+                    '''
+                    #The following code causes duplicate entries in the db
+                    #This is due to the bulk load.. we are not checking for duplicates in the bulk load itself, just the db
                     rds.append(rd)
 
         if rds and len(rds) % commit_count == 0:
@@ -140,6 +143,7 @@ def checkin_data():
 
     if rds:
         ReportData.objects.insert(rds)
+    '''
 
     end = datetime.utcnow()
     time['end'] = end.strftime(format)
