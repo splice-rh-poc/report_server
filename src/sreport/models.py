@@ -83,6 +83,7 @@ class ReportData(Document):
     hour = StringField(required=True)
     memtotal = IntField(required=True)
     cpu_sockets = IntField(required=True)
+    cpu = IntField(required=True)
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     

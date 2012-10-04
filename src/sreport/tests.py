@@ -8,6 +8,7 @@
 # NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+from splice.entitlement.models import ProductUsage
 
 
 """
@@ -22,6 +23,7 @@ from mongoengine.connection import connect, disconnect
 from django.conf import settings
 from logging import getLogger
 from sreport.models import ReportData, MyQuerySet
+from sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField, IntField
@@ -29,11 +31,14 @@ from datetime import datetime, timedelta
 from common.products import Product_Def
 from common.utils import datespan
 from common.report import get_list_of_products, hours_per_consumer
+from common.import_util import checkin_data
 import sys
 
 
 LOG = getLogger(__name__)
 hr_fmt = "%m%d%Y:%H"
+mn_fmt = "%m%d%Y:%H%M"
+ss = SpliceServer
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -153,7 +158,7 @@ products_dict={
 class TestData():
     
     @staticmethod
-    def create_entry(product, memhigh=True, date=None):
+    def create_entry(product, mem_high=True, date=None, socket=4, cpu=4):
         if not date:
             date = datetime.now()
         this_hour = date.strftime(hr_fmt)
@@ -161,11 +166,7 @@ class TestData():
         row = ReportData(
                                 instance_identifier = "12:31:3D:08:49:00",
                                 date =  date,
-
-                                
                                 hour = this_hour,
-                                memtotal = 16048360,
-                                cpu_sockets = 4,
                                 environment = "us-east-1",
                                 splice_server = "splice-server-1.spliceproject.org"
                                 )
@@ -181,14 +182,20 @@ class TestData():
                 row['sla']=rhic.sla
                 row['support']=rhic.support_level
                 row['contract_use']="20"
+                row['cpu_sockets'] = socket
+                row['cpu'] = cpu
                 
         
-        if memhigh:
+        if mem_high:
             row['memtotal'] = 16048360
             return row
         else:
             row['memtotal'] = 640
             return row
+        
+        
+
+        
        
         
     
@@ -244,6 +251,28 @@ class TestData():
                     
         RHIC.objects.get_or_create(rhic)
         
+    @staticmethod
+    def create_splice_server(hostname='splice01.example.com', environment="east"):
+        ss = SpliceServer(
+                  uuid=hostname,
+                  description=hostname,
+                  hostname=hostname,
+                  environment=environment
+                )
+        ss.save()
+        return ss
+        
+    @staticmethod
+    def create_product_usage(splice_server, facts, cdate, consumer='consumer01', instance='ident01', products=['69']):
+        pu = ProductUsage(
+             consumer=consumer,
+             splice_server=splice_server,
+             instance_identifier=instance,
+             allowed_product_info=products,
+             facts=facts,
+             date=cdate
+             )
+        pu.save(cascade=True)
     
 class ReportTestCase(TestCase):
     def setUp(self):
@@ -251,7 +280,7 @@ class ReportTestCase(TestCase):
         self.db = connect(db_name)
         ReportData.drop_collection()
         rhel_product = TestData.create_products()
-        rhel_entry = TestData.create_entry(RHEL, memhigh=True)
+        rhel_entry = TestData.create_entry(RHEL, mem_high=True)
         rhel_entry.save()
 
         
@@ -316,7 +345,7 @@ class ReportTestCase(TestCase):
         search_date_end = datetime.now()
                                                      
         delta = timedelta(days=10)
-        rhel = TestData.create_entry(RHEL, memhigh=True, date=(datetime.now() - delta))
+        rhel = TestData.create_entry(RHEL, mem_high=True, date=(datetime.now() - delta))
         rhel.save()
         
         lookup = ReportData.objects.all()
@@ -343,7 +372,7 @@ class ReportTestCase(TestCase):
         results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
         self.assertTrue('> ' in results_dicts[0]['facts'], ' > 8GB found')
         
-        rhel02 = TestData.create_entry(RHEL, memhigh=False)
+        rhel02 = TestData.create_entry(RHEL, mem_high=False)
         rhel02.save()
         end = datetime.now()
         
@@ -361,7 +390,7 @@ class ReportTestCase(TestCase):
         count = 0
         for key, value in products_dict.items():
             count += 1
-            entry = TestData.create_entry(key, memhigh=True)
+            entry = TestData.create_entry(key, mem_high=True)
             entry.save(safe=True)
             lookup = len(ReportData.objects.all())
             self.assertEqual(lookup, count)
@@ -387,7 +416,7 @@ class ReportTestCase(TestCase):
         count = 0
         for key, value in products_dict.items():
             count += 1
-            entry = TestData.create_entry(key, memhigh=True)
+            entry = TestData.create_entry(key, mem_high=True)
             entry.save(safe=True)
             lookup = len(ReportData.objects.all())
             self.assertEqual(lookup, count)
@@ -408,15 +437,7 @@ class ReportTestCase(TestCase):
         intersect = set(results_product_list).intersection(products_dict.keys())
         self.assertEqual(len(intersect), len(products_dict), "number of products returned in results is accurate")
 
-    
-    def test_RHEL_memory(self):
-        ReportData.drop_collection()
-        
-        entry_high = TestData.create_entry(RHEL, memhigh=True)
-        entry_high.save(safe=True)
-        entry_low = TestData.create_entry(RHEL, memhigh=False)
-        entry_low.save(safe=True)
-        
+    def check_product_result(self, result1, result2):   
         lookup = len(ReportData.objects.all())
         self.assertEqual(lookup, 2)
         
@@ -427,9 +448,170 @@ class ReportTestCase(TestCase):
         list_of_rhics = RHIC.objects.all()
         results = hours_per_consumer(start, end, list_of_rhics )
         
-        self.assertEqual(len(results), 1, "correct number of results returned, 1 result per rhic")
-        self.assertEqual(len(results[0]), 2, "correct number of products returned in result.. mem high RHEL, mem low RHEL are two diff products")
+        self.assertEqual(len(results), int(result1), "correct number of results returned, 1 result per rhic")
+        self.assertEqual(len(results[0]), int(result2), "correct number of products returned in result..")
     
+    def test_RHEL_memory(self):
+        ReportData.drop_collection()
+        
+        entry_high = TestData.create_entry(RHEL, mem_high=True)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(RHEL, mem_high=False)
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 2)
+        
+    def test_RHEL_memory_negative(self):
+        ReportData.drop_collection()
+        
+        entry_high = TestData.create_entry(RHEL, mem_high=True)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(RHEL, mem_high=True, socket=12)
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 1)
+        
+    def test_JBoss_vcpu(self):
+        ReportData.drop_collection()
+        entry_high = TestData.create_entry(JBoss, socket=5)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(JBoss, socket=4 )
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 2)
+    
+    def test_JBoss_vcpu_negative(self):
+        ReportData.drop_collection()
+        entry_high = TestData.create_entry(JBoss, socket=5)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(JBoss, socket=5, mem_high=True )
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 1)
+    
+    def test_OpenShift_Gear(self):
+        ReportData.drop_collection()
+        entry_high = TestData.create_entry(GEAR, cpu=2, mem_high=True)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(GEAR, cpu=1, mem_high=False)
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 2)
+    
+    def test_OpenShift_Gear_negative(self):
+        ReportData.drop_collection()
+        entry_high = TestData.create_entry(GEAR, cpu=2, mem_high=True)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(GEAR, cpu=3, mem_high=True)
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 1)
+    
+    def test_RHEL_Host(self):
+        ReportData.drop_collection()
+        entry_high = TestData.create_entry(UNLIMITED, socket=3)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(UNLIMITED, socket=1 )
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 2)
+        
+    def test_RHEL_Host_negative(self):
+        ReportData.drop_collection()
+        entry_high = TestData.create_entry(UNLIMITED, socket=3)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(UNLIMITED, socket=3, mem_high=True )
+        entry_low.save(safe=True)
+        
+        self.check_product_result(1, 1)
+        
+        
+    
+    
+    #def create_product_usage(splice_server, facts, cdate, consumer='consumer01', instance='ident01', products=['69']):
+    def test_import(self):
+        SpliceServer.drop_collection()
+        ProductUsage.drop_collection()
+        ReportData.drop_collection()
+        fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        
+        ss = TestData.create_splice_server("test01", "east")
+        time = datetime.strptime("10102012:05", hr_fmt)
+        uuid = products_dict[RHEL][1]
+        prod = products_dict[RHEL][0]
+        pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        #run import
+        results = checkin_data()
+        
+        #verify 1 items in db
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 1)
+    
+    def test_import_dup(self):
+        SpliceServer.drop_collection()
+        ProductUsage.drop_collection()
+        ReportData.drop_collection()
+        fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        
+        ss = TestData.create_splice_server("test01", "east")
+        time = datetime.strptime("10102012:0530", mn_fmt)
+        time2 = datetime.strptime("10102012:0531", mn_fmt)
+        uuid = products_dict[RHEL][1]
+        prod = products_dict[RHEL][0]
+        pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        pu = TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        #run import
+        results = checkin_data()
+        
+        #verify 1 items in db
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 1)
+    
+    def test_import_three(self):
+        SpliceServer.drop_collection()
+        ProductUsage.drop_collection()
+        ReportData.drop_collection()
+        fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        
+        ss = TestData.create_splice_server("test01", "east")
+        time = datetime.strptime("10102012:0530", mn_fmt)
+        time2 = datetime.strptime("10102012:0631", mn_fmt)
+        time3 = datetime.strptime("10102012:0531", mn_fmt)
+        uuid = products_dict[RHEL][1]
+        prod = products_dict[RHEL][0]
+        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        #run import
+        results = checkin_data()
+        
+        #verify 1 items in db
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 2)
+    
+    def test_import_four(self):
+        SpliceServer.drop_collection()
+        ProductUsage.drop_collection()
+        ReportData.drop_collection()
+        fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        
+        ss = TestData.create_splice_server("test01", "east")
+        time = datetime.strptime("10102012:0530", mn_fmt)
+        time2 = datetime.strptime("10102012:0631", mn_fmt)
+        time3 = datetime.strptime("10102012:0531", mn_fmt)
+        uuid = products_dict[RHEL][1]
+        prod = products_dict[RHEL][0]
+        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
+        #run import
+        results = checkin_data()
+        
+        #verify 1 items in db
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 3)
+        
     
     
     

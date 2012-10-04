@@ -117,6 +117,7 @@ def checkin_data():
                                 contract_use = str(product.quantity),
                                 memtotal = int(pu.facts['memory_dot_memtotal']),
                                 cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                                cpu = int(pu.facts['lscpu_dot_cpu(s)']),
                                 environment = str(splice_server.environment),
                                 splice_server = str(splice_server.hostname)
                                 )
