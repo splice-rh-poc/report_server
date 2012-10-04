@@ -28,6 +28,8 @@ from mongoengine import Document, StringField, ListField, DateTimeField, IntFiel
 from datetime import datetime, timedelta
 from common.products import Product_Def
 from common.utils import datespan
+from common.report import get_list_of_products, hours_per_consumer
+import sys
 
 
 LOG = getLogger(__name__)
@@ -192,6 +194,13 @@ class TestData():
     
     @staticmethod    
     def create_products():
+        #currently we rely on specific rhics to be created by the generate_product_usage script in splice-server/playpen
+        # assert that appears to be sane..
+        
+        num = RHIC.objects.all().count()
+        if num != 9:
+            raise Exception('rhics in rhic_serve db may not be valid')
+            
         
         for key, value in products_dict.items():
             #print('create_product', key)
@@ -199,21 +208,26 @@ class TestData():
             contract_num = rhic.contract
             #print('contract_num', contract_num)
             #print('account_id', rhic.account_id)
-            contract_list = Account.objects.filter(account_id=rhic.account_id)[0].contracts
-            for contract in contract_list:
-                if contract.contract_id == contract_num:
-                    list_of_products = contract.products
-                    for p in list_of_products:
-                        #print p.name
-                        if p.name == key:
-                            row = Product(
-                                          quantity = p.quantity,
-                                          support_level = p.support_level,
-                                          sla = p.sla,
-                                          name=p.name,
-                                          engineering_ids=p.engineering_ids
-                                          )
-                            row.save()
+            list_of_products = get_list_of_products(rhic.account_id, contract_num)
+                    
+            products_contract = [(prod.name) for prod in list_of_products]
+            intersect = set(products_contract).intersection(set(rhic.products))
+            #print(intersect)
+            if len(intersect) < 1:
+                raise Exception('rhics and account/contracts in rhic_serve db may not be valid')
+                
+            
+            for p in list_of_products:
+                #print p.name
+                if p.name == key:
+                    row = Product(
+                                  quantity = p.quantity,
+                                  support_level = p.support_level,
+                                  sla = p.sla,
+                                  name=p.name,
+                                  engineering_ids=p.engineering_ids
+                                  )
+                    row.save()
             
     @staticmethod
     def create_rhic():
@@ -358,16 +372,63 @@ class ReportTestCase(TestCase):
         start = datetime.now() - delta
         
         for key, value in products_dict.items():
-            print(key)
+            #print(key)
             p = Product.objects.filter(name=key)[0]
-            print(p.name)
+            #print(p.name)
 
             rhic = RHIC.objects.filter(uuid=value[1])[0]
-            print(rhic.uuid)
-            print(rhic.contract)
+            #print(rhic.uuid)
+            #print(rhic.contract)
             results_dicts = Product_Def.get_product_match(p, rhic, start, end, rhic.contract, "us-east-1")
             self.assertEqual(len(results_dicts), 1)
     
+    def test_hours_per_consumer(self):
+        ReportData.drop_collection()
+        count = 0
+        for key, value in products_dict.items():
+            count += 1
+            entry = TestData.create_entry(key, memhigh=True)
+            entry.save(safe=True)
+            lookup = len(ReportData.objects.all())
+            self.assertEqual(lookup, count)
+        
+        end = datetime.now()
+        delta=timedelta(days=1)
+        start = datetime.now() - delta
+        
+        list_of_rhics = RHIC.objects.all()
+        results = hours_per_consumer(start, end, list_of_rhics )
+        
+        self.assertEqual(len(results), len(products_dict), "correct number of results returned")
+        results_product_list = []
+        for r in results:
+            self.assertEqual(r[0]['checkins'], '1', "number of checkins is accurate")
+            results_product_list.append(r[0]['product_name'])
+        
+        intersect = set(results_product_list).intersection(products_dict.keys())
+        self.assertEqual(len(intersect), len(products_dict), "number of products returned in results is accurate")
+
+    
+    def test_RHEL_memory(self):
+        ReportData.drop_collection()
+        
+        entry_high = TestData.create_entry(RHEL, memhigh=True)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(RHEL, memhigh=False)
+        entry_low.save(safe=True)
+        
+        lookup = len(ReportData.objects.all())
+        self.assertEqual(lookup, 2)
+        
+        end = datetime.now()
+        delta=timedelta(days=1)
+        start = datetime.now() - delta
+        
+        list_of_rhics = RHIC.objects.all()
+        results = hours_per_consumer(start, end, list_of_rhics )
+        
+        self.assertEqual(len(results), 1, "correct number of results returned, 1 result per rhic")
+        self.assertEqual(len(results[0]), 2, "correct number of products returned in result.. mem high RHEL, mem low RHEL are two diff products")
     
     
     
