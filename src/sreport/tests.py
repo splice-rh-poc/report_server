@@ -611,6 +611,30 @@ class ReportTestCase(TestCase):
         #verify 1 items in db
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 3)
+    
+    def test_import_change_rhics(self):
+        SpliceServer.drop_collection()
+        ProductUsage.drop_collection()
+        ReportData.drop_collection()
+        fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        
+        ss = TestData.create_splice_server("test01", "east")
+        time = datetime.strptime("10102012:0530", mn_fmt)
+        time2 = datetime.strptime("10102012:0631", mn_fmt)
+        time3 = datetime.strptime("10102012:0531", mn_fmt)
+        uuid = products_dict[RHEL][1]
+        prod = products_dict[RHEL][0]
+        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        uuid = products_dict[EDU][1]
+        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        #run import
+        results = checkin_data()
+        
+        #verify 1 items in db
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 3)
         
     
     
