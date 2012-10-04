@@ -61,10 +61,10 @@ def checkin_data():
                 cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
-                if c['continue_on_error'] == 0:
-                    raise Exception('rhic not found: ' + uuid)
-                else:
-                    continue
+                #if c['continue_on_error'] == 0:
+                #    raise Exception('rhic not found: ' + uuid)
+                #else:
+                continue
             
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()
@@ -123,7 +123,7 @@ def checkin_data():
 
                 # If there's a dupe, log it instead of saving a new record.
                 dupe = ReportData.objects.filter(
-                    consumer_uuid=rhic.uuid,
+                    #consumer_uuid=rhic.uuid, # removing this assumes one rhic per box
                     instance_identifier=str(pu.instance_identifier),
                     hour=pu.date.strftime(hr_fmt),
                     product= product.engineering_ids)
