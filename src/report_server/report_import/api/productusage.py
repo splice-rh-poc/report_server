@@ -32,7 +32,6 @@ class ProductUsageResource(MongoEngineResource):
 
 
     def post_list(self, request, **kwargs):
-        import epdb; epdb.st()  
         deserialized = self.deserialize(
             request, request.raw_post_data, 
             format=request.META.get('CONTENT_TYPE', 'application/json'))

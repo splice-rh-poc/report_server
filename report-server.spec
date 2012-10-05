@@ -12,6 +12,17 @@ Source0:	%{name}-%{version}.tar.gz
 BuildRequires:	python-setuptools
 BuildRequires:  python2-devel
 
+Requires:   mongodb-server
+Requires:   pymongo
+Requires:   httpd
+Requires:   mod_wsgi
+Requires:   mod_ssl
+Requires:   python-isodate
+Requires:   Django
+Requires:   python-django-tastypie
+Requires:   python-django-tastypie-mongoengine
+Requires:   python-mongoengine
+
 
 %description
 Reporting server for reporting RHIC net aggregate usage.
@@ -21,6 +32,18 @@ Reporting server for reporting RHIC net aggregate usage.
 %package import
 Summary:    Reporting server import application
 Group:		Development/Languages
+
+Requires:   mongodb-server
+Requires:   pymongo
+Requires:   httpd
+Requires:   mod_wsgi
+Requires:   mod_ssl
+Requires:   python-bson
+Requires:   python-isodate
+Requires:   Django
+Requires:   python-django-tastypie
+Requires:   python-django-tastypie-mongoengine
+Requires:   python-mongoengine
 
 
 %description import
