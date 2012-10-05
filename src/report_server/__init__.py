@@ -10,17 +10,3 @@
 # NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
-
-
-from setuptools import setup, find_packages
-
-setup(
-    name='RHIC Reporting Server',
-    version='0.1',
-    license='GPLv2+',
-    author='Splice Team - Red Hat',
-    author_email='splice-devel@redhat.com',
-    description='Reporting server for reporting RHIC net aggregate usage',
-    url='https://github.com/splice/report_server.git',
-    packages=find_packages(exclude=['dev']),
-)

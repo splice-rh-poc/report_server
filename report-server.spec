@@ -46,13 +46,13 @@ pushd src
 popd
 
 # Install template files
-mkdir %{buildroot}/%{_usr}/lib/report_server/report_import
-cp -R src/templates %{buildroot}/%{_usr}/lib/report_server
-cp -R src/report_import/templates %{buildroot}/%{_usr}/lib/report_server
+mkdir -p %{buildroot}/%{_usr}/lib/report_server/report_import
+cp -R src/report_server/templates %{buildroot}/%{_usr}/lib/report_server
+cp -R src/report_server/report_import/templates %{buildroot}/%{_usr}/lib/report_server/report_import
 
 # Install static files
-mkdir %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
-cp -R src/sreport/static %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
+mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
+cp -R src/report_server/sreport/static %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
 
 # Remove egg info
 rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
@@ -62,7 +62,7 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %defattr(-,root,root,-)
 %{python_sitelib}/report_server
 %defattr(-,apache,apache,-)
-%{_usr}/lib/report_server/templates/report_server
+%{_usr}/lib/report_server
 %{_localstatedir}/www/html/report_server
  
 
@@ -70,7 +70,7 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %defattr(-,root,root,-)
 %{python_sitelib}/report_server/report_import
 %defattr(-,apache,apache,-)
-%{_usr}/lib/report_server/templates/report_server/report_import
+%{_usr}/lib/report_server/report_import
 
 
 %clean
