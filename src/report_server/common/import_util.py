@@ -18,16 +18,17 @@ from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 
 from datetime import datetime
-from common.utils import find_item
 from sets import Set
-from common import config
+from report_server.common import config
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage=ProductUsage.objects.all()):
+def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False):
     #config fail/pass on missing rhic
     config.init()
-    c = config.get_import_info()
+    this_config = config.get_import_info()
+    total_import_count = len(product_usage)
+    remaining_import_count = total_import_count
     
     results = []
     #debug
@@ -41,10 +42,10 @@ def import_data(product_usage=ProductUsage.objects.all()):
     
     # committing every 100 records instead of every 1 record saves about 5
     # seconds.
-    commit_count = 100
+    commit_count = 500
     cached_rhics = {}
     cached_contracts = {}
-    rds = []
+    rds = {}
     
     for pu in product_usage:
         uuid = pu.consumer
@@ -58,10 +59,10 @@ def import_data(product_usage=ProductUsage.objects.all()):
                 cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
-                #if c['continue_on_error'] == 0:
-                #    raise Exception('rhic not found: ' + uuid)
-                #else:
-                continue
+                if this_config['continue_on_error'] == '0':
+                    raise Exception('rhic not found: ' + uuid)
+                else:
+                    continue
             
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()
@@ -125,28 +126,39 @@ def import_data(product_usage=ProductUsage.objects.all()):
 
                 # If there's a dupe, log it instead of saving a new record.
                 dupe = ReportData.objects.filter(
-                    #consumer_uuid=rhic.uuid, # removing this assumes one rhic per box
+                    consumer_uuid=str(rhic.uuid), 
                     instance_identifier=str(pu.instance_identifier),
                     hour=pu.date.strftime(hr_fmt),
                     product= product.engineering_ids)
                 if dupe:
                     _LOG.info("found dupe:" + str(pu))
                 else:
-                    _LOG.info('recording: ' + str(product.engineering_ids))
-                    rd.save()
-                    '''
-                    #The following code causes duplicate entries in the db
-                    #This is due to the bulk load.. we are not checking for duplicates in the bulk load itself, just the db
-                    rds.append(rd)
+                    if not use_bulk_load:
+                        _LOG.info('recording: ' + str(product.engineering_ids))
+                        rd.save()
+                    else:
+                        dupe_check = ("%s%s%s%s" % (str(rd.consumer_uuid), rd.instance_identifier, str(rd.hour),  str(rd.product))).__hash__()
+                        #print(dupe_check)
+                        rds[dupe_check]=rd
+                        
+                        #Insert into db if requirements met
+                        if remaining_import_count < commit_count:
+                            num = len(rds)
+                            ReportData.objects.insert(rds.values())
+                            rds = {}
+                            remaining_import_count -= num
+                         
+                        elif len(rds) >= commit_count:
+                            ReportData.objects.insert(rds.values())
+                            rds = {}
+                            remaining_import_count -= commit_count
+                            #print(remaining_import_count)
+                        
+                            
+                        
+                            
 
-        if rds and len(rds) % commit_count == 0:
-            ReportData.objects.insert(rds)
-            rds = []
-
-    if rds:
-        ReportData.objects.insert(rds)
-    '''
-
+    
     end = datetime.utcnow()
     time['end'] = end.strftime(format)
     results.append(time)

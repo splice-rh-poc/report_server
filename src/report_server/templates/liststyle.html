@@ -12,92 +12,27 @@
     <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
     
     <script>
+        function getBaseURL () {
+          return location.protocol + "//" + location.hostname + 
+          (location.port && ":" + location.port) + "/";
+        }
+        
         $(function() {
-                var username = $( "#username" ),
-                    password = $( "#password" ),
-                    allFields = $( [] ).add( username ).add( password );
-
-                $( "#login-form" ).dialog({
-                    autoOpen: false,
-                    height: 300,
-                    width: 350,
-                    modal: true,
-                    buttons: {
-                        "Login": function() {
-
-                            var data = {
-                                 "username": username.val(),
-                                 "password": password.val()
-                            };
-
-                            var jqxhr = $.ajax({
-                                url: "/ui/login",
-                                type: "POST",
-                                contentType: "application/json",
-                                data: data,
-                                dataType: "html",
-                            })
-
-                            jqxhr.error(function(jqxhr, textStatus, errorThrown) {
-                                $("#relogin").addClass("ui-helper-hidden");
-                                if ( jqxhr.status == "403" ) {
-                                    $("#login-error").removeClass("ui-helper-hidden");
-                                }
-                            });
-
-                            jqxhr.complete(function(jqxhr, textStatus){  
-                                if ( textStatus == "success" ) {
-                                    $(this).dialog("close");
-                                    window.location="rhic"
-                                }
-                            });
-                       },
-                        Cancel: function() {
-                            $( this ).dialog( "close" );
-                            $("#login-error").addClass("ui-helper-hidden");
-                            $("#relogin").addClass("ui-helper-hidden");
-                        }
-                    },
-                    close: function() {
-                        allFields.val( "" ).removeClass( "ui-state-error" );
-                    }
-                });
-
-                function login(relogin) {
-                    $("#login-form").dialog( "open" );
-
-                    if ( relogin ) {
-                        $("#relogin").removeClass("ui-helper-hidden");
-                    }
-                }
-
-                $.ajaxSetup({
-                    "error": function() {
-                        login(true);
-                    },
-                });
-
-                // Login button click action.
-                $( "#login-button" )
-                    .button()
-                    .click(function() {
-                        login();
-                });
-
+               
                 // Logout button click action.
                 $( "#logout-button" )
                     .button()
                     .click(function() {
                         var jqxhr = $.ajax({
                             url: "/ui/logout",
-                            type: "POST",
+                            type: "GET",
                             contentType: "application/json",
                         })
 
                         $("#logout-button").attr("disabled", true)
 
                         jqxhr.complete(function(){  
-                            window.location = "logout"
+                            window.location = getBaseURL()+"ui/"
                         });
                 });
 
@@ -107,6 +42,7 @@
                 {% else %}
                     $("#logout-button").attr("disabled", true)
                     $("#logout-button").css("opacity", "0.35")
+                    $("#login-button").attr("disabled", true)
                 {% endif %}
 
                 {% block scripts %}
@@ -131,16 +67,27 @@
 <img src="https://access.redhat.com/chrome_themes/umbra/g/logo_redhat.png" alt="Red Hat logo">
 </a>
 </div>
-
         <div id="utility">
         <div id="utility-links">
             <div id="account-links" class="account-links" style="display:block">
+              
                 <span style="color: #FFFFFF;">
-                {{ user }} <br>   Account: {{ account }}  
+                <div style="padding: 4 2;">
+                
+                <button id="logout-button">Logout</button>
+                </div>                
+                
+                {% if user.is_authenticated %}
+                    {{ user.username }} <br> Account {{ account }}
+                {% else %}
+                    You are not logged in.
+                {% endif %}
+
                 </span>
             </div>
         </div>
         </div>
+        
 
 </div>
 </div>

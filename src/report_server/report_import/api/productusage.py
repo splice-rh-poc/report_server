@@ -19,8 +19,9 @@ from tastypie import http
 from tastypie.resources import Resource, ModelResource
 from tastypie_mongoengine.resources import MongoEngineResource
 from tastypie.utils import dict_strip_unicode_keys
-
-from bson.json_util import loads
+#can not get this to work on f17
+#from bson import loads
+from bson import *
 
 from sreport.models import ProductUsage, SpliceServer
 

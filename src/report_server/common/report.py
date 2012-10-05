@@ -12,13 +12,8 @@
 from __future__ import division
 import logging
 
-
-from sreport.models import  ReportData
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
-
-import math
-from sets import Set
 from products import Product_Def
 
 

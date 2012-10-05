@@ -10,16 +10,12 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 #Fetch data from various services
-import os
 import httplib
 import urllib
-import json
 import logging
-import time
 import base64
-from common import config
+from report_server.common import config
 import pycurl, cStringIO, json
-from subprocess import call
 
 _LOG = logging.getLogger(__name__)
 

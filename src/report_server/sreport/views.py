@@ -12,20 +12,21 @@
 # Create your views here.
 from __future__ import division
 import logging
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 from django.template import RequestContext
-from sreport.models import  ProductUsageForm, ReportData, SpliceServer
+from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from common.report import hours_per_consumer
+from report_server.common.report import hours_per_consumer
 
 import json
+from django.db.models.base import get_absolute_url
 
 _LOG = logging.getLogger(__name__)
 
@@ -58,7 +59,8 @@ def logout(request):
     logout avail at host:port/ui/logout
     '''
     auth_logout(request)
-    return template_response(request, 'create_report/logout.html')
+    #return redirect('sreport.views.index')
+    #return template_response(request, 'create_report/logout.html')
 
 @ensure_csrf_cookie
 def index(request):
@@ -73,8 +75,8 @@ def create_report(request):
     #ReportFormSet = formset_factory( ProductUsageForm)
     
     contracts = []
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    user = request.user
+    account = Account.objects.filter(login=str(user))[0].account_id
     list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
     #environments = [(env, env ) for env in SpliceServer.objects().distinct("environment")]
@@ -99,9 +101,8 @@ def report(request):
     
     '''
     _LOG.info("report called by method: %s" % (request.method))
-    
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    user = request.user
+    account = Account.objects.filter(login=str(user))[0].account_id
     if 'byMonth' in request.GET:
         month = int(request.GET['byMonth'].encode('ascii'))
         year = datetime.today().year
@@ -148,8 +149,8 @@ def report(request):
 
 
 def detailed_report(request):
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    user = request.user
+    account = Account.objects.filter(login=str(user))[0].account_id
     filter_args_dict = json.loads(request.GET['filter_args_dict'])
     start = datetime.fromordinal(int(request.GET['start']))
     end = datetime.fromordinal(int(request.GET['end']))
@@ -168,7 +169,7 @@ def detailed_report(request):
 
 def instance_report(request):
     user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    account = Account.objects.filter(login=str(user))[0].account_id
     instance = request.GET['instance']
     filter_args_dict = json.loads(request.GET['filter_args_dict'])
     start = datetime.fromordinal(int(request.GET['start']))
