@@ -60,7 +60,7 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 
 %files
 %defattr(-,root,root,-)
-%{python_sitelib}/report_server/report_import
+%{python_sitelib}/report_import
 
 
 %clean
