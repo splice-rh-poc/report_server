@@ -28,11 +28,11 @@ from rhic_serve.rhic_rest.models import RHIC, Account
 from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField, IntField
 from datetime import datetime, timedelta
-from report_server.common.products import Product_Def
-from report_server.common.utils import datespan
-from report_server.common.report import get_list_of_products, hours_per_consumer
-from report_server.common.import_util import import_data
-from report_server.common import config
+from common.products import Product_Def
+from common.utils import datespan
+from common.report import get_list_of_products, hours_per_consumer
+from common.import_util import import_data
+from common import config
 
 
 LOG = getLogger(__name__)

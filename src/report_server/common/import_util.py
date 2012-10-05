@@ -19,7 +19,7 @@ from rhic_serve.rhic_rest.models import Account
 
 from datetime import datetime
 from sets import Set
-from report_server.common import config
+from common import config
 
 _LOG = logging.getLogger("sreport.import_util")
 

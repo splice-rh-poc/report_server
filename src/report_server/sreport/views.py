@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from report_server.common.report import hours_per_consumer
+from common.report import hours_per_consumer
 
 import json
 from django.db.models.base import get_absolute_url

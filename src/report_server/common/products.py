@@ -15,7 +15,7 @@ from report_server.sreport.models import  ReportData
 import logging
 from utils import datespan
 import json
-from report_server.common.utils import subscription_calc
+from common.utils import subscription_calc
 
 
 

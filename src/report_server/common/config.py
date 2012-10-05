@@ -11,7 +11,7 @@
 
 
 import ConfigParser
-from report_server.common import constants
+from common import constants
 import logging
 
 CONFIG = None
