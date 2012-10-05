@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.1
+Version:	0.2
 Release:	1%{?dist}
 Summary:	Reporting server for reporting RHIC net aggregate usage.
 
@@ -68,4 +68,7 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Oct 05 2012 James Slagle <jslagle@redhat.com> 0.2-1
+- new package built with tito
+
 
