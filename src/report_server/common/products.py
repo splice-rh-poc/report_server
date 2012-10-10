@@ -61,7 +61,7 @@ class Product_Def:
             count, filter_args_dict = JBoss_EAP_VCPU_lt4(product, rhic, start, end, contract_number, environment)
             if(count):
                 result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
-                result_dict['facts'] = ' < 4 vCPU  '
+                result_dict['facts'] = ' <= 4 vCPU  '
                 result_dict['filter_args_dict']=json.dumps(filter_args_dict)
                 count_list.append(result_dict)
                 
