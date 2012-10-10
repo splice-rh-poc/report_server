@@ -42,6 +42,11 @@ def get_import_info():
         "continue_on_error": CONFIG.get('import', 'continue_on_error'),
         'bulk_load': CONFIG.get('import', 'bulk_load')    
         }
+
+def get_nau():
+    return {
+            'calculation': CONFIG.get('nau', 'calculation')
+        }
     
     
     

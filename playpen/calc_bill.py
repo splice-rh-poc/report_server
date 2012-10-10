@@ -2,22 +2,31 @@
 from datetime import date, datetime, timedelta
 import datetime
 
+from common import config
+
 '''
 start_date = input("Enter a start date as.. yyyy mm dd hh \n")
 print('you entered ', start_date)
 
 end_date = input("Enter an end date as.. yyyy mm dd hh \n")
 print('you entered ', end_date)
+
+Double check w/ http://www.timeanddate.com/date/timeduration.html
 '''
 
-def datespan(startDate, endDate):
-    delta=timedelta(hours=1)
+def datespan_by_hour(startDate, endDate):
+    return datespan(startDate, endDate)
+
+def datespan_by_day(startDate, endDate):
+    return datespan(startDate, endDate, delta=timedelta(days=1))
+
+def datespan(startDate, endDate, delta=timedelta(hours=1)):
     currentDate = startDate
     count = 0
     last_month_days = 0
     hours_for_sub = {}
     total_hours = 0
-    while currentDate < endDate:
+    while currentDate <= endDate:
         hours_for_sub[currentDate.month] = {}
         hours_for_sub[currentDate.month]['start'] = startDate
         if (currentDate + delta).month > currentDate.month :
@@ -39,26 +48,26 @@ def datespan(startDate, endDate):
     for key, value in hours_for_sub.items():
         print(key, value['start'], value['end'], value['hours_for_sub'])
         total_hours += value['hours_for_sub']
-    print(total_hours)
+    
     return total_hours
 
-def datespan_count(startDate, endDate, delta=timedelta(hours=1)):
-    currentDate = startDate
-    count = 0
-    while currentDate < endDate:
-        count += 1
-        currentDate += delta
-    return count
 
-
-start_date = "2012 01 05 05"
-end_date = "2012 0 01 06"
+config.init()
+nau_config = config.get_nau()
+start_date = "2012 01 01 00"
+end_date = "2012 02 01 00"
 sd = datetime.datetime.strptime(start_date, "%Y %m %d %H")
 #ed = datetime.datetime.strptime(end_date, "%Y %m %d %H")
 ed = datetime.datetime.now()
 
 
-
-print datespan(sd, ed)
+if nau_config['calculation'] == 'hour':
+    print('#'*6 + 'HOUR' + '#'*6)
+    print datespan_by_hour(sd, ed)
+    print('#'*6 + 'HOUR' + '#'*6)
+    print('')
     
-#print(datespan_count(sd, ed))
+if nau_config['calculation'] == 'day':
+    print('#'*6 + 'DAY' + '#'*6)
+    print datespan_by_day(sd, ed)
+    print('#'*6 + 'DAY' + '#'*6)

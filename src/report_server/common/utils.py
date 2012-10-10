@@ -20,9 +20,14 @@ def find_item(f, seq):
     for item in seq:
         if f(item): 
             return item
+
+def datespan_by_hour(startDate, endDate):
+    return datespan(startDate, endDate)
+
+def datespan_by_day(startDate, endDate):
+    return datespan(startDate, endDate, delta=timedelta(days=1))
         
-def datespan(startDate, endDate):
-    delta=timedelta(hours=1)
+def datespan(startDate, endDate, delta=timedelta(hours=1)):
     currentDate = startDate
     count = 0
     last_month_days = 0

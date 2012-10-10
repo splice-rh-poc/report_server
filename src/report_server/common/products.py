@@ -22,6 +22,12 @@ from common.utils import subscription_calc
 _LOG = logging.getLogger(__name__)
 
 class Product_Def:
+    
+    @staticmethod
+    def get_product_match_config(product, rhic, start, end, contract_number, environment, config):
+        count_list = []
+        count, filter_args_dict = generic_count(product, rhic, start, end, contract_number, environment)
+    
 
     @staticmethod
     def get_product_match(product, rhic, start, end, contract_number, environment):
@@ -124,6 +130,24 @@ def build_result(product, rhic, start, end, contract_number, count, environment)
     
     return result_dict
     
+
+def generic_count(product, rhic, start, end, contract_number,  environment, config):
+    product_config = config[product.name]
+    
+    filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
+                      'product': product.engineering_ids, \
+                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
+    if environment != "All":
+        filter_args_dict['environment'] = environment
+    
+    if product_config['memory']:
+        print('has memory')
+    if product_config['cpu']:
+        print('has cpu')
+        
+    mem_high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
+                                
+    return mem_high, filter_args_dict
     
 def RHEL_Server_High(product, rhic, start, end, contract_number,  environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
