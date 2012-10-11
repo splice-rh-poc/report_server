@@ -1,4 +1,4 @@
-import json
+import json, os
 import collections
 import logging
 
@@ -35,7 +35,11 @@ Value Tuple Format : six entries
 
 '''
 report_biz_rules = collections.defaultdict(dict)
-
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+if 'report_server' in curr_dir:
+    path = '../../etc/splice/report.json'
+else:
+    path = '../etc/splice/report.json'
 
 
 class Rules:
@@ -57,19 +61,19 @@ class Rules:
         report_biz_rules[JBoss]['cpu_sockets']=[0, 5, '<= 4 vCPU', 4, -1, '> 4 vCPU']
         
         
-        with open('../etc/splice/report.json', 'wb') as rulz:
+        with open(path, 'wb') as rulz:
             json.dump(report_biz_rules, rulz)
-        
-        with open('../etc/splice/report.json', 'rb') as final_rules:
+            print('rule written')
+        with open(path, 'rb') as final_rules:
             loaded_rules = final_rules
     
     def list_rules(self):
-        with open('../etc/splice/report.json', 'rb') as rulz:
+        with open(path, 'rb') as rulz:
             report_rules = json.load(rulz)
         print(report_rules)
         _LOG.info('report server rules=' + str(report_rules))
         
     def get_rules(self):
-        with open('../etc/splice/report.json', 'rb') as rulz:
+        with open(path, 'rb') as rulz:
             report_rules = json.load(rulz)
         return report_rules
