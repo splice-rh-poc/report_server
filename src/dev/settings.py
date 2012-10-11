@@ -159,12 +159,19 @@ INSTALLED_APPS = (
     'sreport'
 )
 
-LOG_DIR = "/var/log/report_server/"
+
 if DEBUG:
     LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
     print LOG_DIR
+
+
+#LIST RULES AT START
+#print('test')
+from dev.custom_count import Rules
+r = Rules()
+r.list_rules()
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

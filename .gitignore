@@ -8,5 +8,6 @@ src/debug/*
 *debug_logs
 *.swp
 src/sreport/test
+etc/splice/report.json
 
 

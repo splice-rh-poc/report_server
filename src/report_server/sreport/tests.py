@@ -11,6 +11,7 @@
 from splice.entitlement.models import ProductUsage
 
 
+
 """
 This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
@@ -34,6 +35,7 @@ from common.report import get_list_of_products, hours_per_consumer
 from common.import_util import import_data
 from common import config
 import collections
+from dev.custom_count import Rules
 
 
 LOG = getLogger(__name__)
@@ -301,15 +303,19 @@ class ReportTestCase(TestCase):
         entry_high = TestData.create_entry(RHEL, mem_high=True)
         entry_high.save(safe=True)
         
-        report_biz_rules = collections.defaultdict(dict)
+        #report_biz_rules = collections.defaultdict(dict)
+        #report_biz_rules['name'] = RHEL
+        #report_biz_rules[RHEL]['cpu']=[]
+        #report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
+        #report_biz_rules[RHEL]['cpu_sockets']=[]
+        #report_biz_rules[RHEL]['socket']=[]
 
         
+        rules = Rules()
+        #rules.list_rules()
+        report_biz_rules = rules.get_rules()
         
-        report_biz_rules['name'] = RHEL
-        report_biz_rules[RHEL]['cpu']=[]
-        report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
-        report_biz_rules[RHEL]['cpu_sockets']=[]
-        report_biz_rules[RHEL]['socket']=[]
+        
         
         
         
@@ -339,18 +345,9 @@ class ReportTestCase(TestCase):
         entry_low = TestData.create_entry(JBoss, socket=4 )
         entry_low.save(safe=True)
         
-        
-        report_biz_rules = collections.defaultdict(dict)
-    
-        report_biz_rules['name'] = RHEL
-        report_biz_rules[RHEL]['cpu']=None
-        report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
-        report_biz_rules[RHEL]['cpu_sockets']=None
-        
-        report_biz_rules['name'] = JBoss
-        report_biz_rules[JBoss]['cpu']=[]
-        report_biz_rules[JBoss]['memtotal']= []
-        report_biz_rules[JBoss]['cpu_sockets']=[0, 5, '<= 4 vCPU', 4, -1, '> 4 vCPU']
+        rules = Rules()
+        #rules.list_rules()
+        report_biz_rules = rules.get_rules()
         
         
         
@@ -378,7 +375,7 @@ class ReportTestCase(TestCase):
     
     
     
-     
+   
     def test_rhel_basic_results(self):
         
         delta=timedelta(days=1)
