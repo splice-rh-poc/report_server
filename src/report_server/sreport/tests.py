@@ -22,8 +22,8 @@ from django.test import TestCase
 from mongoengine.connection import connect, disconnect
 from django.conf import settings
 from logging import getLogger
-from report_server.sreport.models import ReportData, MyQuerySet
-from report_server.sreport.models import ProductUsage, SpliceServer
+from sreport.models import ReportData, MyQuerySet
+from sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField, IntField
@@ -33,6 +33,7 @@ from common.utils import datespan
 from common.report import get_list_of_products, hours_per_consumer
 from common.import_util import import_data
 from common import config
+import collections
 
 
 LOG = getLogger(__name__)
@@ -293,6 +294,90 @@ class ReportTestCase(TestCase):
         self.setUp()
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 1)
+    
+    
+    def test_generic_config_RHEL(self):
+        ReportData.drop_collection()        
+        entry_high = TestData.create_entry(RHEL, mem_high=True)
+        entry_high.save(safe=True)
+        
+        report_biz_rules = collections.defaultdict(dict)
+
+        
+        
+        report_biz_rules['name'] = RHEL
+        report_biz_rules[RHEL]['cpu']=[]
+        report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
+        report_biz_rules[RHEL]['cpu_sockets']=[]
+        report_biz_rules[RHEL]['socket']=[]
+        
+        
+        
+        delta=timedelta(days=1)
+        start = datetime.now() - delta
+        end = datetime.now() + delta
+        contract_num = "3116649"
+        environment = "us-east-1"
+        
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 1)
+        #test perfect match
+        p = Product.objects.filter(name="RHEL Server")[0]
+        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        results_dicts = Product_Def.get_product_match_config(p, rhic, start, end, contract_num, environment, report_biz_rules)
+        self.assertEqual(len(results_dicts), 1)
+    
+    
+    def test_generic_config_RHEL_JBOSS_same_rhic(self):
+        ReportData.drop_collection()
+        # create 1 RHEL, 2 JBoss
+        entry_high = TestData.create_entry(RHEL, mem_high=True)
+        entry_high.save(safe=True)
+        
+        entry_high = TestData.create_entry(JBoss, socket=5)
+        entry_high.save(safe=True)
+        entry_low = TestData.create_entry(JBoss, socket=4 )
+        entry_low.save(safe=True)
+        
+        
+        report_biz_rules = collections.defaultdict(dict)
+    
+        report_biz_rules['name'] = RHEL
+        report_biz_rules[RHEL]['cpu']=None
+        report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
+        report_biz_rules[RHEL]['cpu_sockets']=None
+        
+        report_biz_rules['name'] = JBoss
+        report_biz_rules[JBoss]['cpu']=[]
+        report_biz_rules[JBoss]['memtotal']= []
+        report_biz_rules[JBoss]['cpu_sockets']=[0, 5, '<= 4 vCPU', 4, -1, '> 4 vCPU']
+        
+        
+        
+        
+        
+        delta=timedelta(days=1)
+        start = datetime.now() - delta
+        end = datetime.now() + delta
+        
+        environment = "us-east-1"
+        
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 3)
+        #test for RHEL Match
+        p = Product.objects.filter(name=RHEL)[0]
+        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        results_dicts = Product_Def.get_product_match_config(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
+        self.assertEqual(len(results_dicts), 1)
+        
+        #test for JBoss match
+        p = Product.objects.filter(name=JBoss)[0]
+        rhic = RHIC.objects.filter(uuid='ee5c9aaa-a40c-1111-80a6-ef731076bbe8')[0]
+        results_dicts = Product_Def.get_product_match_config(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
+        self.assertEqual(len(results_dicts), 2)
+    
+    
+    
      
     def test_rhel_basic_results(self):
         
@@ -309,8 +394,7 @@ class ReportTestCase(TestCase):
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
         results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
         self.assertEqual(len(results_dicts), 1)
-        
-        #test result not found if name does not match
+    
         test_object = Product.objects.filter(name="RHEL Server")[0]
         test_object.name = "fail"
         results_dicts = Product_Def.get_product_match(test_object, rhic, start, end, contract_num, environment)
@@ -702,5 +786,5 @@ class ReportTestCase(TestCase):
         self.import_bulk_load_base(6001)
         self.import_bulk_load_base(6001, use_bulk_load=True)
     
-    
+
     

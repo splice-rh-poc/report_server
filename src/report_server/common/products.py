@@ -26,7 +26,31 @@ class Product_Def:
     @staticmethod
     def get_product_match_config(product, rhic, start, end, contract_number, environment, config):
         count_list = []
-        count, filter_args_dict = generic_count(product, rhic, start, end, contract_number, environment)
+        #generic_count(product, rhic, start, end, contract_number,  environment, config):
+        #count, filter_args_dict = generic_count(product, rhic, start, end, contract_number, environment, config)
+        product_config = config[product.name]
+        
+        results = generic_count(product, rhic, start, end, contract_number, environment, product_config)
+        
+        #results = {'high_count': high, 'high_facts': facts_high, 'high_filter': filter_args_high, \
+               #'low_count': low, 'low_facts': facts_low, 'low_filter': filter_args_low}
+        if(results['high_count']):
+            count = results['high_count']
+            filter_args_dict = results['filter_args_high']
+            result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
+            result_dict['facts'] = results['facts_high']
+            result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+            count_list.append(result_dict)
+        
+        if(results['low_count']):
+            count = results['low_count']
+            filter_args_dict = results['filter_args_low']
+            result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
+            result_dict['facts'] = results['facts_low']
+            result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+            count_list.append(result_dict)
+        
+        return count_list
     
 
     @staticmethod
@@ -132,22 +156,42 @@ def build_result(product, rhic, start, end, contract_number, count, environment)
     
 
 def generic_count(product, rhic, start, end, contract_number,  environment, config):
-    product_config = config[product.name]
-    
+    product_config = config
+    # Generic parameters to filter on
+    filter_args_dict={}
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
                       'product': product.engineering_ids, \
                       'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
-    if product_config['memory']:
-        print('has memory')
-    if product_config['cpu']:
-        print('has cpu')
+    #add custom business rules
+    filter_args_high = dict(filter_args_dict)
+    filter_args_low = dict(filter_args_dict)
+    facts_high = ""
+    facts_low = ""
+    
+    for key, values in product_config.items():
+        if(values):
+            filter_args_low[key + '__gt'] = values[0] 
+            filter_args_low[key + '__lt'] = values[1]
+            facts_low += values[2]
+           
+            filter_args_high[key + '__gt'] = values[3]
+            if values[4] == -1:
+                _LOG.debug('-1, parameter will not be added to query')
+            else:
+                filter_args_high[key + '__lt'] = values[4]
+            facts_high += values[5]
+     
         
-    mem_high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).count()
+    high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_high).count()
+    low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_low).count()
+    
+    results = {'high_count': high, 'facts_high': facts_high, 'filter_args_high': filter_args_high, \
+               'low_count': low, 'facts_low': facts_low, 'filter_args_low': filter_args_low}
                                 
-    return mem_high, filter_args_dict
+    return results
     
 def RHEL_Server_High(product, rhic, start, end, contract_number,  environment):
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \

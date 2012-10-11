@@ -29,13 +29,13 @@ def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False):
     this_config = config.get_import_info()
     total_import_count = len(product_usage)
     remaining_import_count = total_import_count
-    
+
     results = []
     #debug
-    format = "%a %b %d %H:%M:%S %Y"
+    full_format = "%a %b %d %H:%M:%S %Y"
     start = datetime.utcnow()
     time = {}
-    time['start'] = start.strftime(format)
+    time['start'] = start.strftime(full_format)
     #debug
     
     hr_fmt = "%m%d%Y:%H"
@@ -140,7 +140,7 @@ def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False):
                         dupe_check = ("%s%s%s%s" % (str(rd.consumer_uuid), rd.instance_identifier, str(rd.hour),  str(rd.product))).__hash__()
                         #print(dupe_check)
                         rds[dupe_check]=rd
-                        
+
                         #Insert into db if requirements met
                         if remaining_import_count < commit_count:
                             num = len(rds)
@@ -160,7 +160,7 @@ def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False):
 
     
     end = datetime.utcnow()
-    time['end'] = end.strftime(format)
+    time['end'] = end.strftime(full_format)
     results.append(time)
     _LOG.info('import complete')
     
