@@ -169,8 +169,10 @@ if DEBUG:
 
 #LIST RULES AT START
 #print('test')
+
 from dev.custom_count import Rules
 r = Rules()
+r.init()
 r.list_rules()
 
 # A sample logging configuration. The only tangible logging

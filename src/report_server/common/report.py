@@ -15,6 +15,7 @@ import logging
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 from products import Product_Def
+from dev.custom_count import Rules
 
 
 _LOG = logging.getLogger(__name__)
@@ -22,6 +23,9 @@ _LOG = logging.getLogger(__name__)
 
 def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, environment="All"):
     results = []
+    
+    rules = Rules()
+    report_biz_rules = rules.get_rules()
     
     if contract_number:
         list_of_rhics = list(RHIC.objects.filter(contract=contract_number))
@@ -49,7 +53,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
         for p in (p for p in list_of_products if p.name in intersect): 
             _LOG.debug(p.name, p.sla, p.support_level)
             results_dicts = []
-            results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment)
+            results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
             if results_dicts:
                 for result in results_dicts:
                     rhic_list.append(result)
