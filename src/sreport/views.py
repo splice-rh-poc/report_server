@@ -238,10 +238,7 @@ def detailed_report_admin(request):
         results.append({'instance': i, 'count': count})
     
     this_filter = json.dumps(filter_args_dict)
-    #response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account,
-    #                                                                    'start': request.GET['start'], 'end': request.GET['end'],
-    #                                                                    'this_filter': this_filter})
-    #return response
+
     format = "%a %b %d %H:%M:%S %Y"
 
     response_data = {}
