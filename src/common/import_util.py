@@ -25,6 +25,8 @@ from common.utils import find_item
 from sets import Set
 from common import config
 
+import simplejson as json
+
 _LOG = logging.getLogger("sreport.import_util")
 
 def checkin_data():
@@ -146,4 +148,4 @@ def checkin_data():
     results.append(time)
     _LOG.info('import complete')
     
-    return results
+    return json.dumps(time)

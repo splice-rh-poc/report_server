@@ -1,0 +1,584 @@
+{% comment %}
+#
+# Copyright © 2012 Red Hat, Inc.
+#
+# This software is licensed to you under the GNU General Public
+# License as published by the Free Software Foundation; either version
+# 2 of the License (GPLv2) or (at your option) any later version.
+# There is NO WARRANTY for this software, express or implied,
+# including the implied warranties of MERCHANTABILITY,
+# NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+# have received a copy of GPLv2 along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+{% endcomment %}
+<html>
+    <head>
+        <link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet">
+        <link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet">
+        <link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet">
+        <script src="{{ STATIC_URL }}jquery.min.js"></script>
+        <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
+        <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
+        <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
+        <script>
+            var first_logged_in = false;
+            var logged_in = false;
+			var csrftoken = '';
+
+            $(document).ready(function() {
+				csrftoken = getCookie('csrftoken');
+                setupForm();
+                setupLLButtons();
+                setupCreateForm(false);
+                $('#login-button').click(login);
+                $('#logout-button').click(logout);
+            });
+
+            function login() {
+                $('#login-form').dialog('open');
+            }
+
+            function logout() {
+                $.ajax({
+                    url: '/ui/admin/logout/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: {},
+					crossDomain: false,
+					beforeSend: function(xhr, settings) {
+						if (!csrfSafeMethod(settings.type)) {
+							xhr.setRequestHeader("X-CSRFToken", csrftoken);
+						}
+					}
+				}).done(function(data) {
+                    enableButton($('#login-button'));
+                    disableButton($('#logout-button'));
+                    // alter msg
+                    $('#account-links > span > p').text('You are not logged in.');
+
+                    logged_in = false;
+
+                    loadContent();
+                }).fail(function(jqXHR) {
+                    // TODO: Add error handling here
+                });
+            }
+
+            function setupLLButtons() {
+                if (first_logged_in) {
+                    disableButton($('#login-button'));
+                    logged_in = true;
+                } else {
+                    disableButton($('#logout-button'));
+                    logged_in = false;
+                }
+
+                loadContent();
+            }
+
+            function setupCreateForm(recreate) {
+				$('#report_form').each(function() {
+					this.reset();
+				});
+
+                $('#startDate').attr('disabled', true);
+                $('#endDate').attr('disabled', true);
+                $('#rhic').attr('disabled', true);
+                $('#contract').attr('disabled', true);
+                $('#submit').attr('disabled', true);
+				$("#startDate").attr('disabled', true);
+				$("#endDate").attr('disabled', true);
+
+                $('input.create_radio').each(
+                    function() {
+                        $(this).click(radioClicked);
+                    }
+                );
+
+                $('#startDate').datepicker();
+                $('#endDate').datepicker();
+
+                if (logged_in) {
+                    removeActiveNav();
+                    $('#create_button').addClass('active');
+
+                    $('#create_pane').show();
+                    $('#import_pane').hide();
+
+					if (!recreate) {
+						$.ajax({
+							url: '/ui/admin/report_form/',
+							type: 'GET',
+							contentType: 'application/json',
+							data: {},
+							crossDomain: false,
+							beforeSend: function(xhr, settings) {
+								if (!csrfSafeMethod(settings.type)) {
+									xhr.setRequestHeader("X-CSRFToken", csrftoken);
+								}
+							}
+						}).done(function(data) {
+							fill_create_report_form(JSON.parse(data)); 
+						}).fail(function(jqXHR) {
+							// TODO: Add error handling here
+						});
+					}
+                }
+
+				$('#report_form').submit(function(event){createReport(event);});
+            }
+
+
+			function createReport(event) {
+				// Have to stop url from changing so disable default event
+				event.preventDefault();
+
+                if (logged_in && validateForm()) {
+					// Build up var
+               	    var data = {}; 
+					
+					// Date section
+					if (!$('#byMonth').attr('disabled')) {
+						data['byMonth'] = $('#byMonth').val();
+					} else {
+						data['startDate'] = $('#startDate').val();
+						data['endDate'] = $('#endDate').val();
+					}	
+
+					// Customer data section
+					if (!$('#contract').attr('disabled')) {
+						data['contract_number'] = $('#contract').val();
+					} else if (!$('#rhic').attr('disabled')){
+						data['rhic'] = $('#rhic').val();
+					} else {
+						// pass in nothing
+					}
+
+					// Environment section
+					if (!$('#env').attr('disabled')) {
+						data['env'] = $('#env').val();
+					}
+
+                    $.ajax({
+                        url: '/ui/admin/report/',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: data,
+						crossDomain: false,
+						beforeSend: function(xhr, settings) {
+							if (!csrfSafeMethod(settings.type)) {
+								xhr.setRequestHeader("X-CSRFToken", csrftoken);
+							}
+						}
+					}).done(function(rtn) {
+						alert(rtn);
+						setupCreateForm(true);
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        // TODO: Add error handling here
+						console.log(textStatus);
+						console.log(errorThrown);
+                    });
+                }
+            }
+
+            function importData() {
+                if (logged_in) {
+                   removeActiveNav();
+                    $('#import_button').addClass('active');
+    
+                    $('#create_pane').hide();
+                    $('#import_pane').show();
+
+                    $('#import_pane > div').empty();
+                    var status = $('<span>Working on it...</span>');
+                    $('#import_pane > div').append(status);
+
+                    $.ajax({
+                        url: '/ui/admin/import/',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: {},
+						crossDomain: false,
+						beforeSend: function(xhr, settings) {
+							if (!csrfSafeMethod(settings.type)) {
+								xhr.setRequestHeader("X-CSRFToken", csrftoken);
+							}
+						}
+					}).done(function(data) {
+                        var rtn = jQuery.parseJSON(data);
+                        $('#import_pane > div').empty();
+                        var status = $('<span>Import Complete!\nStart Time: ' + rtn.start + '\nEnd Time: ' + rtn.end + '<span>');
+                        $('#import_pane > div').append(status);
+                    }).fail(function(jqXHR) {
+                        // TODO: Add error handling here
+                    });
+                }
+            }
+
+            // Support functions, shouldn't be called outside of this HTML.
+
+			function getCookie(name) {
+				var cookieValue = null;
+				if (document.cookie && document.cookie != '') {
+					var cookies = document.cookie.split(';');
+					for (var i = 0; i < cookies.length; i++) {
+						var cookie = jQuery.trim(cookies[i]);
+						// Does this cookie string begin with the name we want?
+						if (cookie.substring(0, name.length + 1) == (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			}
+
+            function setupForm() {
+                // Login form
+                $('#login-form').dialog({
+                    autoOpen: false,
+                    height: 300,
+                    width: 350,
+                    modal: true,
+                    buttons: {
+                        "Login": function() {
+                            var data = {
+                                "username": $('#username').val(),
+                                "password": $('#password').val()
+                            };
+
+                            // Login button in form clicked 
+                            $.ajax({
+                                url: '/ui/admin/login/',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: data,
+								crossDomain: false,
+								beforeSend: function(xhr, settings) {
+									console.log(csrfSafeMethod(settings.type));
+									if (!csrfSafeMethod(settings.type)) {
+										xhr.setRequestHeader("X-CSRFToken", csrftoken);
+									}
+								}
+                            }).done(function(data) {
+                                $('#login-form').dialog('close');
+                                // Gray out "Login" button
+                                enableButton($('#logout-button'));
+                                disableButton($('#login-button'));
+                                // alter msg
+                                $('#account-links > span > p').text('Welcome ' + data + ' to the admin console!');
+
+                                logged_in = true;
+
+                                loadContent();
+
+                            }).fail(function(jqXHR) {
+                                // TODO: Add error handling here
+                            });
+                        },
+                        "Cancel": function() {
+                            $('#login-form').dialog('close');
+                        }
+                    }
+                });
+            }
+
+            function fill_create_report_form(data) {
+                // Clear outdated elements
+                $('#contract').empty();
+				$('#rhic').empty();
+
+				// Add defaults
+				$('#contract').append($('<option value=All>All</option>'));
+
+                // Add remainder elements from data
+				jQuery.each(data.contracts, function(index, ele) {
+					$('#contract').append($('<option value=' + ele + '>' + ele + '</option>'));
+				});	
+				jQuery.each(data.list_of_rhics, function(index, ele) {
+					$('#rhic').append($('<option value=' + ele[0] + '>' + ele[1] + '</option>'));
+				});	
+				jQuery.each(data.environments, function(index, ele) {
+					$('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
+				});	
+            }
+
+            function disableButton(btn) {
+                btn.attr('disabled', true);
+                btn.css('opacity', '0.35');
+            }
+
+            function enableButton(btn) {
+                btn.removeAttr('disabled');
+                btn.css('opacity', '');
+            }
+
+            function loadContent() {
+                if (!logged_in) {
+                    $('#create_pane').hide();
+                    $('#import_pane').hide();
+                } else {
+                    $('#create_pane').show();
+                    $('#import_pane').show();
+                }
+            }
+
+            function removeActiveNav() {
+                $('#navPrimary > ul > li').each(
+                    function(index) {
+                        $(this).removeClass('active');
+                    }
+                );
+            }
+
+            function radioClicked() {
+                // find out which radio button was clicked and
+                // disable/enable appropriate input elements
+                switch(this.value) {
+                    case "month" :
+                        $("#byMonth").removeAttr('disabled');
+                        $("#startDate").attr('disabled', true);
+                        $("#endDate").attr('disabled', true);
+
+                        // disable radio button for range
+                        $("input[value='range']").prop('checked', false);
+                        break;
+                    case "range" :
+                        $("#byMonth").attr('disabled', true);
+                        $("#startDate").removeAttr('disabled');
+                        $("#endDate").removeAttr('disabled');
+
+                        // disable radio button for month
+                        $("input[value='month']").prop('checked', false);
+                        break;
+                    case "contract_radio" :
+                        $("#contract").removeAttr('disabled');
+                        $("#rhic").attr('disabled', true);
+
+                        // disable radio button for rhic
+                        $("input[value='rhic_radio']").prop('checked', false);
+                        break;
+                    case "rhic_radio" :
+                        $("#contract").attr('disabled', true);
+                        $("#rhic").removeAttr('disabled');
+
+                        // disable radio button for contract
+                        $("input[value='contract_radio']").prop('checked', false);
+                        break;
+                }
+                // Disable the submit button until everything required is selected
+                if (!$("#byMonth").attr('disabled') || !$("#endDate").attr('disabled')) {
+                    if (!$("#contract").attr('disabled')|| !$("#rhic").attr('disabled')) {
+                            $("#submit").removeAttr('disabled');
+                    }
+                }
+            }
+
+			function validateForm() {
+				var date_month=(report_form.byMonth.value);
+				if (date_month=="-1" && document.forms[0].elements["byMonth"].disabled==false){
+					alert("Please Select Month");
+					return false; 
+				}
+				var datepicker_start=(report_form.startDate.value);
+				if (datepicker_start == "" && document.forms[0].elements["startDate"].disabled==false){
+					alert("Please select a Custom Date Range");
+					return false; 
+				}
+				return true;
+			}
+
+			function csrfSafeMethod(method) {
+				// these HTTP methods do not require CSRF protection
+				return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+			}
+        </script>
+        <style>
+            #outer-wrapper {
+                background: #E6E6E6;
+            }
+            #navPrimary {
+                clear: both;
+            }
+
+            input {
+                vertical-align: bottom;
+            }
+
+        </style>
+    </head>
+    <body>
+	    <div id="outer-wrapper" class="wrapo">
+	        <div id="wrapper" class="wrapo">
+            	<div id="header-wrap" class="wrapi">
+                	<div id="header">
+
+                    	<div id="brand">
+                    		<a id="rhLogo" href="http://www.redhat.com/" title="Go to redhat.com">
+                	    		<img src="https://access.redhat.com/chrome_themes/umbra/g/logo_redhat.png" alt="Red Hat logo">
+                    		</a>
+                    	</div>
+
+                        <div id="utility">
+                        	<div id="utility-links">
+        		                <div id="account-links" class="account-links" style="display:block">
+                        			<span style="color: #FFFFFF;">
+                                  		<div style="padding: 4 2;">
+                			                <!-- Login Button -->
+                                			<button id="login-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Login</span></button>
+                                			<!-- Logout Button -->
+                                 			<button id="logout-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Logout</span></button>
+                                        </div>
+
+                                        <p>
+                            		    {% if user.is_authenticated %}
+		                                    Welcome {{ user.username }} to the admin console!
+                                            <script type='text/javascript'>
+                                                first_logged_in = true;
+                                            </script>
+		                                {% else %}
+                        		            You are not logged in.
+                                            <script type='text/javascript'>
+                                                first_logged_in = false;
+                                            </script>
+		                                {% endif %}
+                                        </p>
+                	            	</span>
+                       			</div>
+                        	</div>
+                        </div>
+                        <div id='navWrap' class='clearWrap'>
+                            <div id='navPrimary'>
+                                <ul>
+                                    <!--
+                                        Create a much more generic way of attaching and
+                                        exercising onclick events.
+                                    -->
+                                    <li id='create_button' onclick='setupCreateReport()' class='active'><a href="#">Create Report</a></li>
+                                    <li id='import_button' onclick='importData()'><a href="#">Import Data</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id='main-wrap' class='wrapu'>
+                    <div id='main-top'></div>
+                    <div class='wrapi'>
+                        <div id='container' class='clearWrap'>
+                            <div id='create_pane'>
+                                <fieldset>
+                                    <form id="report_form">
+                                        <p><b>Filter by Date:</b></p>
+                                        <table>
+                                            <tr>
+                                                <td width="10%">
+                                                    <div style='display: inline-block'>
+                                                        <input type="radio" class="create_radio" value="month"/>
+                                                        <b style='padding-top: 1em'> Month:</b>
+                                                        <select name=byMonth id="byMonth" class='create_select' disabled="true">
+                                                            <option value="-1">Select Month</option>
+                                                            <option value="1">January</option>
+                                                            <option value="2">February</option>
+                                                            <option value="3">March</option>
+                                                            <option value="4">April</option>
+                                                            <option value="5">May</option>
+                                                            <option value="6">June</option>
+                                                            <option value="7">July</option>
+                                                            <option value="8">August</option>
+                                                            <option value="9">September</option>
+                                                            <option value="10">October</option>
+                                                            <option value="11">November</option>
+                                                            <option value="12">December</option>
+                                                        </select> 
+                                                    </div>
+                                                </td>
+                                            </tr>
+        
+                                            <tr>
+                                                <td width="50%"> 
+                                                    <div style='display: inline-block'>
+                                                        <input type="radio" class="create_radio" value="range"/> 
+                                                        <b>Custom Range:</b> 
+                                                            Start Date: <input type="text" id="startDate" name="startDate">
+                                                            End Date: <input type="text" id="endDate" name="endDate"> </p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+        
+                                        <p><b>Filter by Customer Data:</b></p> 
+                                        <table>
+                                            <tr>
+                                                <td width="5%"> 
+                                                    <input type="radio" class="create_radio" value="contract_radio" />
+                                                    <b> Contract: </b> </td> 
+                                                    <td width="40%">
+                                                        <select id="contract" name=contract_number class='create_select' disabled="true"> 
+                                                            <option value=All>All</option>
+                                                        </select> 
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="5%"> 
+                                                    <input type="radio" class="create_radio" value="rhic_radio" />
+                                                    <b> RHIC: </b></td>
+                                                    <td width="40%">
+                                                        <select id="rhic" name="rhic" class='create_select' disabled="true">
+                                                        </select>
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <p><b>Filter by Environment:</b></p> 
+                                        <table>
+                                            <tr> 
+                                                <td width="1%"><b>Environment: </b></td>
+                                                    <td width="51%">
+                                                        <select id='env' name="env" class='create_select'>
+                                                            <option value=All>All</option>
+                                                        </select>
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="5%">
+                                                    <input id='submit' type="submit" name="submit" value="Run Report" disabled=true/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </form>
+                                </fieldset>
+                            </div>
+
+                            <div id='import_pane'>
+                                <div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Login Form -->
+        <div id="login-form" title="Login">
+            <form>{% csrf_token %}
+                <fieldset>
+                    <label for="username">Username</label><br>
+                    <input type="text" name="username" id="username" class="text ui-widget-content ui-corner-all" /><br>
+                    <label for="password">Password</label><br>
+                    <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
+                </fieldset>
+            </form>
+            <div id="login-error" class="ui-state-error ui-helper-hidden">
+                <div class="ui-state-error-text">
+                    <p>Invalid Username or Password.</p>
+                    <p>Please try again.</p>
+                </div>
+            </div>
+            <div id="relogin" class="ui-helper-hidden">
+                <p>Your session has expired, you must relogin.</p>
+            </div>
+        </div>
+    </body>
+</html>

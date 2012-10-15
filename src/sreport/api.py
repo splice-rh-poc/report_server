@@ -20,3 +20,7 @@ class ProductUsageResource(ModelResource):
     class Meta:
         queryset = ProductUsage.consumer
 
+class ReportServerResource(ModelResource):
+    class Meta:
+        queryset = ProductUsage.consumer
+        allowed_methods = ['get', 'put', 'post', 'delete']
