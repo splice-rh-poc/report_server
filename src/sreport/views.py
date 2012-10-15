@@ -19,7 +19,7 @@ from django.template import RequestContext
 from sreport.models import  ProductUsageForm, ReportData, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from django.template.response import TemplateResponse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -196,13 +196,68 @@ def report_admin(request):
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
         results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
     
-        
+    format = "%a %b %d %H:%M:%S %Y"
+
+    for c in results:
+        for x in c:
+            try:
+                #x['start'] = datetime.fromordinal(x['start']()).strftime(format)
+                #x['end'] = datetime.fromordinal(x['end']()).strftime(format)
+                x['start'] = x['start']()
+                x['end'] = x['end']()
+            except:
+                _LOG.error(sys.exc_info()[0])
+                _LOG.error(sys.exc_info()[1])
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    try:
+        response = HttpResponse(simplejson.dumps(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+def detailed_report_admin(request):
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    filter_args_dict = json.loads(request.POST['filter_args_dict'])
+    start = datetime.fromordinal(int(request.POST['start']))
+    end = datetime.fromordinal(int(request.POST['end']))
     
-    #response = TemplateResponse(request, 'create_report/report.html',
-    #                             {'list': results, 'account': account,
-    #                               'start': start, 'end': end})
+    results = []
+    instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
+    for i in instances:
+        count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
+        results.append({'instance': i, 'count': count})
+    
+    this_filter = json.dumps(filter_args_dict)
+    #response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account,
+    #                                                                    'start': request.GET['start'], 'end': request.GET['end'],
+    #                                                                    'this_filter': this_filter})
     #return response
-    return HttpResponse('Worked!')
+    format = "%a %b %d %H:%M:%S %Y"
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+    response_data['this_filter'] = this_filter
+
+    try:
+        response = HttpResponse(simplejson.dumps(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
     
 
 @login_required

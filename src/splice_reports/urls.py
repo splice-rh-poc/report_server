@@ -34,5 +34,6 @@ urlpatterns = patterns('',
     (r'^ui/admin/logout/$', 'sreport.views.logout_admin'),
     (r'^ui/admin/report_form/$', 'sreport.views.report_form_admin'),
     (r'^ui/admin/report/$', 'sreport.views.report_admin'),
+    (r'^ui/admin/details/$', 'sreport.views.detailed_report_admin'),
     (r'^ui/foo/$', 'sreport.views.foo'),
 )
