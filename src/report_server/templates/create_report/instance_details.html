@@ -29,9 +29,10 @@
 </table>
 
 </head>
-<table>
-<th width=1%>Count</th><th width=2%>MAC</th><th width=2%>Product</th><th width=2%>Time</th>
-<th width=2%>Products</th><th width=2%>Memory</th><th width=2%>CPU Sockets</th><th width=2%>Environment</th>
+<table width=100%>
+<th>Count</th><th >MAC</th><th>Product</th><th>Time</th>
+<th>Products</th><th>Memory</th><th>CPU Sockets</th><th>Environment</th><th>Generated</th>  
+
 
 
 <b>Number of checkins: </b>{{ list|length  }}
@@ -45,6 +46,9 @@
 <td> {{ pu.memtotal }} </td>
 <td> {{ pu.cpu_sockets }} </td>
 <td> {{ pu.environment }} </td>
+{% if pu.duplicate > 0 %}
+<td>*<td>
+{% endif %}
  
 </tr>
 {% endfor %}

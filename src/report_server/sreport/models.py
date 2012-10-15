@@ -86,6 +86,7 @@ class ReportData(Document):
     cpu = IntField(required=True)
     environment = StringField(required=True)
     splice_server = StringField(required=True)
+    duplicate = IntField()
     
 
 

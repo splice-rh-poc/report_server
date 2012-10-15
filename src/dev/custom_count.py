@@ -62,9 +62,11 @@ class Rules:
         report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[RHEL]['cpu_sockets']=[]
         
+        
         report_biz_rules[JBoss]['cpu']=[]
         report_biz_rules[JBoss]['memtotal']= []
         report_biz_rules[JBoss]['cpu_sockets']=[0, 5, '<= 4 vCPU', 4, -1, '> 4 vCPU']
+        
         
         report_biz_rules[GEAR]['cpu']=[0, 2, ' 1 cpu', 1, -1, '> 1 cpu']
         report_biz_rules[GEAR]['memtotal']= [0, 2097153, ' <= 2GB', 2097152, -1, '> 2GB']
@@ -77,14 +79,17 @@ class Rules:
         report_biz_rules[HA]['cpu']=[]
         report_biz_rules[HA]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[HA]['cpu_sockets']=[]
+        report_biz_rules[HA]['calculation']=['hourly']
         
         report_biz_rules[EUS]['cpu']=[]
         report_biz_rules[EUS]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[EUS]['cpu_sockets']=[]
+        report_biz_rules[EUS]['calculation']=['daily']
         
         report_biz_rules[EDU]['cpu']=[]
         report_biz_rules[EDU]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[EDU]['cpu_sockets']=[]
+        report_biz_rules[EDU]['calculation']=['four_hours']
         
         report_biz_rules[LB]['cpu']=[]
         report_biz_rules[LB]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
@@ -107,3 +112,6 @@ class Rules:
 
     def get_rules(self):
         return REPORT_RULES
+    
+    def update_rules(self, new_rules):
+        REPORT_RULES = new_rules

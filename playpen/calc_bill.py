@@ -20,6 +20,9 @@ def datespan_by_hour(startDate, endDate):
 def datespan_by_day(startDate, endDate):
     return datespan(startDate, endDate, delta=timedelta(days=1))
 
+def datespan_by_4hour(startDate, endDate):
+    return datespan(startDate, endDate, delta=timedelta(hours=4))
+
 def datespan(startDate, endDate, delta=timedelta(hours=1)):
     currentDate = startDate
     count = 0
@@ -53,7 +56,7 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
 
 
 config.init()
-nau_config = config.get_nau()
+
 start_date = "2012 01 01 00"
 end_date = "2012 02 01 00"
 sd = datetime.datetime.strptime(start_date, "%Y %m %d %H")
@@ -61,13 +64,17 @@ sd = datetime.datetime.strptime(start_date, "%Y %m %d %H")
 ed = datetime.datetime.now()
 
 
-if nau_config['calculation'] == 'hour':
-    print('#'*6 + 'HOUR' + '#'*6)
-    print datespan_by_hour(sd, ed)
-    print('#'*6 + 'HOUR' + '#'*6)
-    print('')
+
+print('#'*6 + 'HOUR' + '#'*6)
+print datespan_by_hour(sd, ed)
+print('#'*6 + 'HOUR' + '#'*6)
+print('')
     
-if nau_config['calculation'] == 'day':
-    print('#'*6 + 'DAY' + '#'*6)
-    print datespan_by_day(sd, ed)
-    print('#'*6 + 'DAY' + '#'*6)
+print('#'*6 + 'DAY' + '#'*6)
+print datespan_by_day(sd, ed)
+print('#'*6 + 'DAY' + '#'*6)
+    
+    
+print('#'*6 + '4hr' + '#'*6)
+print datespan_by_4hour(sd, ed)
+print('#'*6 + '4hr' + '#'*6)

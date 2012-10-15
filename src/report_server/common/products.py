@@ -15,7 +15,7 @@ from sreport.models import  ReportData
 import logging
 from utils import datespan
 import json
-from common.utils import subscription_calc
+from common.utils import subscription_calc, datespan_by_hour
 
 
 
@@ -31,13 +31,11 @@ class Product_Def:
         product_config = config[product.name]
         
         results = generic_count(product, rhic, start, end, contract_number, environment, product_config)
-        
-        #results = {'high_count': high, 'high_facts': facts_high, 'high_filter': filter_args_high, \
-               #'low_count': low, 'low_facts': facts_low, 'low_filter': filter_args_low}
+
         if(results['high_count']):
             count = results['high_count']
             filter_args_dict = results['filter_args_high']
-            result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
+            result_dict = build_result(product, rhic, start, end, contract_number, count, environment, product_config)
             result_dict['facts'] = results['facts_high']
             result_dict['filter_args_dict']=json.dumps(filter_args_dict)
             count_list.append(result_dict)
@@ -45,7 +43,7 @@ class Product_Def:
         if(results['low_count']):
             count = results['low_count']
             filter_args_dict = results['filter_args_low']
-            result_dict = build_result(product, rhic, start, end, contract_number, count, environment)
+            result_dict = build_result(product, rhic, start, end, contract_number, count, environment, product_config)
             result_dict['facts'] = results['facts_low']
             result_dict['filter_args_dict']=json.dumps(filter_args_dict)
             count_list.append(result_dict)
@@ -55,9 +53,9 @@ class Product_Def:
    
          
 
-def build_result(product, rhic, start, end, contract_number, count, environment):
+def build_result(product, rhic, start, end, contract_number, count, environment, product_config):
     result_dict = {}
-    hours_for_sub = datespan(start, end)
+    hours_for_sub = datespan_by_hour(start, end)
     nau = subscription_calc(count, start, end)
     
     result_dict['count'] = count
@@ -78,6 +76,11 @@ def build_result(product, rhic, start, end, contract_number, count, environment)
 
 def generic_count(product, rhic, start, end, contract_number,  environment, config):
     product_config = config
+    
+    if 'calculation' in product_config:
+        print('\n'+product.name)
+        print('calc =' + str(product_config['calculation']))
+    
     # Generic parameters to filter on
     filter_args_dict={}
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
@@ -93,6 +96,8 @@ def generic_count(product, rhic, start, end, contract_number,  environment, conf
     facts_low = ""
     
     for key, values in product_config.items():
+        if key == 'calculation':
+            continue
         if(values):
             filter_args_low[key + '__gt'] = values[0] 
             filter_args_low[key + '__lt'] = values[1]
