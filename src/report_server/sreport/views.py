@@ -25,6 +25,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from common.report import hours_per_consumer
 from common.import_util import import_data
+import sys
+from django.utils import simplejson
+from django.http import HttpResponse
 
 import json
 from django.db.models.base import get_absolute_url
@@ -139,11 +142,14 @@ def report_form_admin(request):
     response_data['user'] = user
     response_data['list_of_rhics'] = [(str(r.uuid), r.name) for r in list_of_rhics]
     response_data['environments'] = environments
+
+    _LOG.info(response_data)
     
     try:
         response = HttpResponse(simplejson.dumps(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
         raise
 
     return response
