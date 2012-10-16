@@ -24,7 +24,7 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from common.report import hours_per_consumer
-from common.import_util import checkin_data
+from common.import_util import import_data
 
 import json
 from django.db.models.base import get_absolute_url
@@ -98,7 +98,7 @@ def index_admin(request):
     return template_response(request, 'admin/index.html')
 
 def import_admin(request):
-    results = checkin_data()
+    results = import_data()
     return HttpResponse(results)
 
 @ensure_csrf_cookie
@@ -376,7 +376,7 @@ def report(request):
 
 def import_checkin_data(request):
     
-    results = checkin_data()
+    results = import_data()
     response = TemplateResponse(request, 'import.html', {'list': results})
     return response
 
