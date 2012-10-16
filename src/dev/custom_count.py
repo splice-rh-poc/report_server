@@ -51,6 +51,9 @@ class Rules:
         global REPORT_RULES
         if REPORT_RULES:
             return REPORT_RULES
+        
+        interval = 'hourly'
+        #interval = 'daily'
 
         '''
         This section will be replaced by some sort of api call to hosted to get the latest business rules
@@ -61,39 +64,46 @@ class Rules:
         report_biz_rules[RHEL]['cpu']=[]
         report_biz_rules[RHEL]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[RHEL]['cpu_sockets']=[]
+        report_biz_rules[RHEL]['calculation']=interval
         
         
         report_biz_rules[JBoss]['cpu']=[]
         report_biz_rules[JBoss]['memtotal']= []
         report_biz_rules[JBoss]['cpu_sockets']=[0, 5, '<= 4 vCPU', 4, -1, '> 4 vCPU']
+        report_biz_rules[JBoss]['calculation']=interval
         
         
         report_biz_rules[GEAR]['cpu']=[0, 2, ' 1 cpu', 1, -1, '> 1 cpu']
         report_biz_rules[GEAR]['memtotal']= [0, 2097153, ' <= 2GB', 2097152, -1, '> 2GB']
         report_biz_rules[GEAR]['cpu_sockets']=[]
+        report_biz_rules[GEAR]['calculation']=interval
         
         report_biz_rules[UNLIMITED]['cpu']=[]
         report_biz_rules[UNLIMITED]['memtotal']=[]
         report_biz_rules[UNLIMITED]['cpu_sockets']=[0, 3, ' <= 2 CPU Sockets', 2, 5, '2 > socket <= 4 ']
+        report_biz_rules[UNLIMITED]['calculation']=interval
         
         report_biz_rules[HA]['cpu']=[]
         report_biz_rules[HA]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[HA]['cpu_sockets']=[]
         report_biz_rules[HA]['calculation']=['hourly']
+        report_biz_rules[HA]['calculation']=interval
         
         report_biz_rules[EUS]['cpu']=[]
         report_biz_rules[EUS]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[EUS]['cpu_sockets']=[]
         report_biz_rules[EUS]['calculation']=['daily']
+        report_biz_rules[EUS]['calculation']=interval
         
         report_biz_rules[EDU]['cpu']=[]
         report_biz_rules[EDU]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[EDU]['cpu_sockets']=[]
-        report_biz_rules[EDU]['calculation']=['four_hours']
+        report_biz_rules[EDU]['calculation']=interval
         
         report_biz_rules[LB]['cpu']=[]
         report_biz_rules[LB]['memtotal']=[0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         report_biz_rules[LB]['cpu_sockets']=[]
+        report_biz_rules[LB]['calculation']=interval
         
         
         with open(path, 'wb') as rulz:

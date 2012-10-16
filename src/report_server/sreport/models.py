@@ -87,6 +87,34 @@ class ReportData(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     duplicate = IntField()
+
+class ReportDataDaily(Document):
+
+    meta = {
+        'db_alias': 'results', 
+        'allow_inheritance': True, 
+        'indexes': [ ('consumer_uuid', 'instance_identifier', 'day',
+                      'product'), 
+                     'date'],
+    }
+
+    instance_identifier = StringField(required=True)
+    consumer_uuid = StringField(required=True)
+    consumer = StringField(required=True)
+    product = ListField(required=True)
+    product_name =  StringField(required=True)
+    date = DateTimeField(required=True)
+    sla = StringField(required=True)
+    support = StringField(required=True)
+    contract_id = StringField(required=True)
+    contract_use = StringField(required=True)
+    day = StringField(required=True)
+    memtotal = IntField(required=True)
+    cpu_sockets = IntField(required=True)
+    cpu = IntField(required=True)
+    environment = StringField(required=True)
+    splice_server = StringField(required=True)
+    duplicate = IntField()
     
 
 

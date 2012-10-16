@@ -32,13 +32,12 @@ from common.report import hours_per_consumer
 from common import config
 from dev.custom_count import Rules
 from setup import TestData, Product
+from common import constants
 
 
 LOG = getLogger(__name__)
 config.init()
 this_config = config.get_import_info()
-hr_fmt = "%m%d%Y:%H"
-mn_fmt = "%m%d%Y:%H%M"
 ss = SpliceServer
 
 '''

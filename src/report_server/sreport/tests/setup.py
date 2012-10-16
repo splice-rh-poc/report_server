@@ -23,7 +23,7 @@ from django.test import TestCase
 from mongoengine.connection import connect, disconnect
 from django.conf import settings
 from logging import getLogger
-from sreport.models import ReportData, MyQuerySet
+from sreport.models import ReportData, ReportDataDaily, MyQuerySet
 from sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from mongoengine.queryset import QuerySet
@@ -36,14 +36,16 @@ from common.import_util import import_data
 from common import config
 import collections
 from dev.custom_count import Rules
+from common import constants
 
 
 LOG = getLogger(__name__)
 config.init()
 this_config = config.get_import_info()
-hr_fmt = "%m%d%Y:%H"
-mn_fmt = "%m%d%Y:%H%M"
 ss = SpliceServer
+
+    
+
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -137,17 +139,31 @@ class TestData():
 
     @staticmethod
     def create_entry(product, mem_high=True, date=None, socket=4, cpu=4):
+        rules = Rules()
+        report_biz_rules = rules.get_rules()
         if not date:
             date = datetime.now()
-        this_hour = date.strftime(hr_fmt)
-            
-        row = ReportData(
-                                instance_identifier = "12:31:3D:08:49:00",
-                                date =  date,
-                                hour = this_hour,
-                                environment = "us-east-1",
-                                splice_server = "splice-server-1.spliceproject.org"
-                                )
+        this_hour = date.strftime(constants.hr_fmt)
+        this_day = date.strftime(constants.day_fmt)
+        
+        interval = report_biz_rules[product]['calculation']
+        
+        if interval == 'hourly':
+            row = ReportData(
+                                    instance_identifier = "12:31:3D:08:49:00",
+                                    date =  date,
+                                    hour = this_hour,
+                                    environment = "us-east-1",
+                                    splice_server = "splice-server-1.spliceproject.org"
+                                    )
+        elif interval == 'daily':
+            row = ReportDataDaily(
+                                    instance_identifier = "12:31:3D:08:49:00",
+                                    date =  date,
+                                    day = this_day,
+                                    environment = "us-east-1",
+                                    splice_server = "splice-server-1.spliceproject.org"
+                                    )
         
         for key, value in PRODUCTS_DICT.items():
             if product == key:
@@ -253,7 +269,5 @@ class TestData():
         if save:
             pu.save(cascade=True)
         return pu
-    
-rules = Rules()
-report_biz_rules = rules.get_rules()
+
 

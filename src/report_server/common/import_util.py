@@ -12,7 +12,7 @@
 
 from __future__ import division
 import logging
-from sreport.models import ReportData
+from sreport.models import ReportData, ReportDataDaily
 from sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
@@ -21,10 +21,11 @@ from datetime import datetime, timedelta
 from datetime import datetime
 from sets import Set
 from common import config
+from common import constants
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False, checkin_interval=1):
+def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1):
     #config fail/pass on missing rhic
     config.init()
     this_config = config.get_import_info()
@@ -33,13 +34,12 @@ def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False, c
 
     results = []
     #debug
-    full_format = "%a %b %d %H:%M:%S %Y"
     start = datetime.utcnow()
     time = {}
-    time['start'] = start.strftime(full_format)
+    time['start'] = start.strftime(constants.full_format)
     #debug
     
-    hr_fmt = "%m%d%Y:%H"
+    
     
     # committing every 100 records instead of every 1 record saves about 5
     # seconds.
@@ -107,17 +107,16 @@ def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False, c
                     splice_server = SpliceServer.objects.get(
                         id=pu.splice_server['$id']['$oid'])
                 
-                  
-                for interval in range(checkin_interval):
-                    td = timedelta(hours=interval)
-                    this_time = pu.date + td
-                    rd = ReportData(instance_identifier = str(pu.instance_identifier),
+                #Daily checkins for Max Consumption
+                #If there is at least one checkin.. product is considered consumed for the day
+                if checkin_interval == 24:
+                    rd = ReportDataDaily(instance_identifier = str(pu.instance_identifier),
                                     consumer = rhic.name, 
                                     consumer_uuid = uuid,
                                     product = product.engineering_ids,
                                     product_name = product.name,
-                                    date = this_time,
-                                    hour = this_time.strftime(hr_fmt),
+                                    date = pu.date,
+                                    day = pu.date.strftime(constants.day_fmt),
                                     sla = product.sla,
                                     support = product.support_level,
                                     contract_id = rhic.contract,
@@ -126,51 +125,64 @@ def import_data(product_usage=ProductUsage.objects.all(), use_bulk_load=False, c
                                     cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
                                     cpu = int(pu.facts['lscpu_dot_cpu(s)']),
                                     environment = str(splice_server.environment),
-                                    splice_server = str(splice_server.hostname),
-                                    duplicate = interval
+                                    splice_server = str(splice_server.hostname)
                                     )
     
                     # If there's a dupe, log it instead of saving a new record.
-                    dupe = ReportData.objects.filter(
+                    dupe = ReportDataDaily.objects.filter(
                         consumer_uuid=str(rhic.uuid), 
                         instance_identifier=str(pu.instance_identifier),
-                        hour=this_time.strftime(hr_fmt),
+                        day=pu.date.strftime(constants.day_fmt),
                         product= product.engineering_ids)
                     if dupe:
                         _LOG.info("found dupe:" + str(pu))
-                        if interval == 0:
-                            _LOG.info("The duplicate is superseded by a real checkin :" + str(pu))
-                            dupe.delete()
-                            rd.save()
                     else:
-                        if not use_bulk_load:
+                        _LOG.info('recording: ' + str(product.engineering_ids))
+                        rd.save()
+                        
+                else: 
+                    for interval in range(checkin_interval):
+                        td = timedelta(hours=interval)
+                        this_time = pu.date + td
+                        rd = ReportData(instance_identifier = str(pu.instance_identifier),
+                                        consumer = rhic.name, 
+                                        consumer_uuid = uuid,
+                                        product = product.engineering_ids,
+                                        product_name = product.name,
+                                        date = this_time,
+                                        hour = this_time.strftime(constants.hr_fmt),
+                                        sla = product.sla,
+                                        support = product.support_level,
+                                        contract_id = rhic.contract,
+                                        contract_use = str(product.quantity),
+                                        memtotal = int(pu.facts['memory_dot_memtotal']),
+                                        cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
+                                        cpu = int(pu.facts['lscpu_dot_cpu(s)']),
+                                        environment = str(splice_server.environment),
+                                        splice_server = str(splice_server.hostname),
+                                        duplicate = interval
+                                        )
+        
+                        # If there's a dupe, log it instead of saving a new record.
+                        dupe = ReportData.objects.filter(
+                            consumer_uuid=str(rhic.uuid), 
+                            instance_identifier=str(pu.instance_identifier),
+                            hour=this_time.strftime(constants.hr_fmt),
+                            product= product.engineering_ids)
+                        if dupe:
+                            _LOG.info("found dupe:" + str(pu))
+                            if interval == 0:
+                                _LOG.info("The duplicate is superseded by a real checkin :" + str(pu))
+                                dupe.delete()
+                                rd.save()
+                        else:
                             _LOG.info('recording: ' + str(product.engineering_ids))
                             rd.save()
-                        else:
-                            dupe_check = ("%s%s%s%s" % (str(rd.consumer_uuid), rd.instance_identifier, str(rd.hour),  str(rd.product))).__hash__()
-                            #print(dupe_check)
-                            rds[dupe_check]=rd
-    
-                            #Insert into db if requirements met
-                            if remaining_import_count < commit_count:
-                                num = len(rds)
-                                ReportData.objects.insert(rds.values())
-                                rds = {}
-                                remaining_import_count -= num
-                             
-                            elif len(rds) >= commit_count:
-                                ReportData.objects.insert(rds.values())
-                                rds = {}
-                                remaining_import_count -= commit_count
-                                #print(remaining_import_count)
-                        
-                            
-                        
-                            
+
 
     
     end = datetime.utcnow()
-    time['end'] = end.strftime(full_format)
+    time['end'] = end.strftime(constants.full_format)
     results.append(time)
     _LOG.info('import complete')
     

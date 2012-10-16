@@ -26,6 +26,12 @@ def datespan_by_hour(startDate, endDate):
 
 def datespan_by_day(startDate, endDate):
     return datespan(startDate, endDate, delta=timedelta(days=1))
+
+def get_datespan(startDate, endDate, product_config):
+    if product_config['calculation'] == 'hourly':
+        return datespan_by_hour(startDate, endDate)
+    if product_config['calculation'] == 'daily':
+        return datespan_by_day(startDate, endDate)
         
 def datespan(startDate, endDate, delta=timedelta(hours=1)):
     currentDate = startDate
@@ -58,8 +64,12 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
     _LOG.debug('total hours:', total_hours)
     return total_hours
 
-def subscription_calc(count, start, end):
-    hours_for_sub = datespan(start, end) 
+def subscription_calc(count, start, end, product_config):
+    if product_config['calculation'] == 'hourly':
+        hours_for_sub = datespan_by_hour(start, end) 
+    if product_config['calculation'] == 'daily':
+        hours_for_sub = datespan_by_day(start, end) 
+    
     nau = count/hours_for_sub
     nau = math.ceil(nau)
     return nau

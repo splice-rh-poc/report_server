@@ -10,12 +10,12 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from __future__ import division
-from sreport.models import  ReportData
+from sreport.models import  ReportData, ReportDataDaily
 
 import logging
 from utils import datespan
 import json
-from common.utils import subscription_calc, datespan_by_hour
+from common.utils import subscription_calc, datespan_by_hour, get_datespan
 
 
 
@@ -55,8 +55,8 @@ class Product_Def:
 
 def build_result(product, rhic, start, end, contract_number, count, environment, product_config):
     result_dict = {}
-    hours_for_sub = datespan_by_hour(start, end)
-    nau = subscription_calc(count, start, end)
+    hours_for_sub = get_datespan(start, end, product_config)
+    nau = subscription_calc(count, start, end, product_config)
     
     result_dict['count'] = count
     result_dict['checkins'] = "{0:.0f}".format(nau)
@@ -76,11 +76,7 @@ def build_result(product, rhic, start, end, contract_number, count, environment,
 
 def generic_count(product, rhic, start, end, contract_number,  environment, config):
     product_config = config
-    
-    if 'calculation' in product_config:
-        print('\n'+product.name)
-        print('calc =' + str(product_config['calculation']))
-    
+        
     # Generic parameters to filter on
     filter_args_dict={}
     filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
@@ -111,8 +107,12 @@ def generic_count(product, rhic, start, end, contract_number,  environment, conf
             facts_high += values[5]
      
         
-    high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_high).count()
-    low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_low).count()
+    if product_config['calculation'] == 'hourly':
+        high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_high).count()
+        low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_low).count()
+    elif product_config['calculation'] == 'daily':
+        high = ReportDataDaily.objects.filter(date__gt=start, date__lt=end, **filter_args_high).count()
+        low = ReportDataDaily.objects.filter(date__gt=start, date__lt=end, **filter_args_low).count()
     
     results = {'high_count': high, 'facts_high': facts_high, 'filter_args_high': filter_args_high, \
                'low_count': low, 'facts_low': facts_low, 'filter_args_low': filter_args_low}

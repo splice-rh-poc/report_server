@@ -31,12 +31,12 @@ from common.import_util import import_data
 from common import config
 from dev.custom_count import Rules
 from setup import TestData
+from common import constants
 
 LOG = getLogger(__name__)
 config.init()
 this_config = config.get_import_info()
-hr_fmt = "%m%d%Y:%H"
-mn_fmt = "%m%d%Y:%H%M"
+
 ss = SpliceServer
 
 '''
@@ -87,12 +87,12 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:05", hr_fmt)
+        time = datetime.strptime("10102012:05", constants.hr_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -105,14 +105,14 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0531", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         pu = TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -125,16 +125,16 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0631", mn_fmt)
-        time3 = datetime.strptime("10102012:0531", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
+        time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -148,9 +148,9 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0631", mn_fmt)
-        time3 = datetime.strptime("10102012:0531", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
+        time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
@@ -158,7 +158,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -171,9 +171,9 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0631", mn_fmt)
-        time3 = datetime.strptime("10102012:0531", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
+        time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
@@ -182,13 +182,13 @@ class Report_Import_TestCase(TestCase):
         uuid = products_dict[EDU][1]
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        results = import_data()
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 3)
     
-    def import_bulk_load_base(self, items_to_load, use_bulk_load=False):
+    def import_bulk_load_base(self, items_to_load, ):
         SpliceServer.drop_collection()
         ProductUsage.drop_collection()
         ReportData.drop_collection()
@@ -196,7 +196,7 @@ class Report_Import_TestCase(TestCase):
        
         
         
-        time = datetime.strptime("10102012:0530", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         timedelt = timedelta(hours=1)
         uuid = products_dict[RHEL][1]
@@ -215,13 +215,13 @@ class Report_Import_TestCase(TestCase):
             my_list.append(value)
         
         timer_start = datetime.now()
-        results = import_data(product_usage=my_list, use_bulk_load=use_bulk_load)
+        results = import_data(product_usage=my_list)
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), items_to_load)
         
         timer_stop = datetime.now()
         print('\n')
-        print('**** use_bulk_load ='+ str(use_bulk_load) + ' ' +  str(timer_stop - timer_start) )
+        print('**** use_bulk_load ='+  ' ' +  str(timer_stop - timer_start) )
     
 
     def test_import_interval_2(self):
@@ -231,12 +231,12 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:05", hr_fmt)
+        time = datetime.strptime("10102012:05", constants.hr_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False, checkin_interval=2)
+        results = import_data( checkin_interval=2)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -256,8 +256,8 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0539", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0539", constants.mn_fmt)
 
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
@@ -266,7 +266,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data(use_bulk_load=False, checkin_interval=2)
+        results = import_data( checkin_interval=2)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -285,8 +285,8 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0639", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0639", constants.mn_fmt)
 
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
@@ -295,7 +295,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data(use_bulk_load=False, checkin_interval=2)
+        results = import_data( checkin_interval=2)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -309,9 +309,9 @@ class Report_Import_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
-        time = datetime.strptime("10102012:0530", mn_fmt)
-        time2 = datetime.strptime("10102012:0731", mn_fmt)
-        time3 = datetime.strptime("10102012:0831", mn_fmt)
+        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time2 = datetime.strptime("10102012:0731", constants.mn_fmt)
+        time3 = datetime.strptime("10102012:0831", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
@@ -319,7 +319,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data(use_bulk_load=False, checkin_interval=2)
+        results = import_data( checkin_interval=2)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -328,9 +328,8 @@ class Report_Import_TestCase(TestCase):
     
     def test_import_bulk_load_100(self):
         self.import_bulk_load_base(100)
-        self.import_bulk_load_base(100, use_bulk_load=True)
     
-    
+    '''
     def test_import_bulk_load_200(self):
         self.import_bulk_load_base(200)
         self.import_bulk_load_base(200, use_bulk_load=True)
@@ -340,11 +339,11 @@ class Report_Import_TestCase(TestCase):
         self.import_bulk_load_base(250)
         self.import_bulk_load_base(250, use_bulk_load=True)
         #print('debug')
-    
+    '''
     def test_import_bulk_load_1000(self):
         self.import_bulk_load_base(1000)
-        self.import_bulk_load_base(1000, use_bulk_load=True)
-    
+
+    '''
     def test_import_bulk_load_1333(self):
         self.import_bulk_load_base(1333)
         self.import_bulk_load_base(1333, use_bulk_load=True)
@@ -352,6 +351,6 @@ class Report_Import_TestCase(TestCase):
     def test_import_bulk_load_6001(self):
         self.import_bulk_load_base(6001)
         self.import_bulk_load_base(6001, use_bulk_load=True)
-            
+    '''        
 
     
