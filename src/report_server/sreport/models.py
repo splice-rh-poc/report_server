@@ -116,6 +116,23 @@ class ReportDataDaily(Document):
     splice_server = StringField(required=True)
     duplicate = IntField()
     
+    def to_dict(self):
+        return {'instance_identifier': self.instance_identifier,
+                'consumer_uuid': self.consumer_uuid,
+                'consumer': self.consumer,
+                'product': self.product,
+                'product_name': self.product_name,
+                'date': self.date,
+                'sla': self.sla,
+                'support': self.support,
+                'contract_id': self.contract_id,
+                'contract_use': self.contract_use,
+                'hour': self.hour,
+                'memtotal': self.memtotal,
+                'cpu_sockets': self.cpu_sockets,
+                'environment': self.environment,
+                'splice_server': self.splice_server,
+        }    
 
 
 

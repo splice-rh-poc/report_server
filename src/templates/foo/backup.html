@@ -1,0 +1,211 @@
+{% comment %}
+#
+# Copyright © 2012 Red Hat, Inc.
+#
+# This software is licensed to you under the GNU General Public
+# License as published by the Free Software Foundation; either version
+# 2 of the License (GPLv2) or (at your option) any later version.
+# There is NO WARRANTY for this software, express or implied,
+# including the implied warranties of MERCHANTABILITY,
+# NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+# have received a copy of GPLv2 along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+{% endcomment %}
+
+<html>
+
+<head>
+<link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet">
+<link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet">
+<link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet">
+
+    <script src="{{ STATIC_URL }}jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
+    <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
+    <script>
+        $(function() {
+                var username = $( "#username" ),
+                    password = $( "#password" ),
+                    allFields = $( [] ).add( username ).add( password );
+
+                $( "#login-form" ).dialog({
+                    autoOpen: false,
+                    height: 300,
+                    width: 350,
+                    modal: true,
+                    buttons: {
+                        "Login": function() {
+
+                            var data = {
+                                 "username": username.val(),
+                                 "password": password.val()
+                            };
+
+                            var jqxhr = $.ajax({
+                                url: "/ui/admin/login/",
+                                type: "POST",
+                                contentType: "application/json",
+                                data: data,
+                                dataType: "html",
+                            })
+
+                            jqxhr.error(function(jqxhr, textStatus, errorThrown) {
+                                $("#relogin").addClass("ui-helper-hidden");
+                                if ( jqxhr.status == "403" ) {
+                                    $("#login-error").removeClass("ui-helper-hidden");
+                                }
+                            });
+
+                            jqxhr.complete(function(jqxhr, textStatus){  
+                                if ( textStatus == "success" ) {
+                                    $(this).dialog("close");
+                                    window.location="index"
+                                }
+                            });
+                       },
+                        Cancel: function() {
+                            $( this ).dialog( "close" );
+                            $("#login-error").addClass("ui-helper-hidden");
+                            $("#relogin").addClass("ui-helper-hidden");
+                        }
+                    },
+                    close: function() {
+                        allFields.val( "" ).removeClass( "ui-state-error" );
+                    }
+                });
+
+                function login(relogin) {
+                    $("#login-form").dialog( "open" );
+
+                    if ( relogin ) {
+                        $("#relogin").removeClass("ui-helper-hidden");
+                    }
+                }
+
+                $.ajaxSetup({
+                    "error": function() {
+                        login(true);
+                    },
+                });
+
+                // Login button click action.
+                $( "#login-button" )
+                    .button()
+                    .click(function() {
+                        login();
+                });
+
+                // Logout button click action.
+                $( "#logout-button" )
+                    .button()
+                    .click(function() {
+                        var jqxhr = $.ajax({
+                            url: "/ui/admin/logout",
+                            type: "POST",
+                            contentType: "application/json",
+                        })
+
+                        $("#logout-button").attr("disabled", true)
+
+                        jqxhr.complete(function(){  
+                            window.location = "logout"
+                        });
+                });
+
+                // Disable Logout button if the user is not logged in.
+                {% if user.is_authenticated %}
+                    $("#logout-button").removeAttr("disabled")
+                {% else %}
+                    $("#logout-button").attr("disabled", true)
+                    $("#logout-button").css("opacity", "0.35")
+                {% endif %}
+
+                {% block scripts %}
+                {% endblock %}
+
+            });
+    </script>
+</head>
+
+<body>
+
+	<div id="outer-wrapper" class="wrapo">
+	<div id="wrapper" class="wrapo">
+	<div id="header-wrap" class="wrapi">
+	<div id="header">
+
+	<div id="brand">
+		<a id="rhLogo" href="http://www.redhat.com/" title="Go to redhat.com">
+			<img src="https://access.redhat.com/chrome_themes/umbra/g/logo_redhat.png" alt="Red Hat logo">
+		</a>
+	</div>
+
+        <div id="utility">
+        	<div id="utility-links">
+        		<div id="account-links" class="account-links" style="display:block">
+        			<span style="color: #FFFFFF;">
+
+                		<div style="padding: 4 2;">
+                			<!-- Login Button -->
+                			<button id="login-button">Login</button>
+                			<!-- Logout Button -->
+                			<button id="logout-button">Logout</button>
+                		</div>                
+                
+                		{% if user.is_authenticated %}
+		                    Welcome to Admin console {{ user.username }}!
+		                {% else %}
+                		    You are not logged in.
+		                {% endif %}
+
+                		</span>
+       			</div>
+        	</div>
+        </div>
+
+</div>
+</div>
+</body>
+
+<!-- Login Form -->
+<div id="login-form" title="Login">
+    <form>
+    <fieldset>
+        <label for="username">Username</label><br>
+        <input type="text" name="username" id="username" class="text ui-widget-content ui-corner-all" /><br>
+        <label for="password">Password</label><br>
+        <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
+    </fieldset>
+    </form>
+    <div id="login-error" class="ui-state-error ui-helper-hidden">
+        <div class="ui-state-error-text">
+            <p>Invalid Username or Password.</p>
+            <p>Please try again.</p>
+        </div>
+    </div>
+    <div id="relogin" class="ui-helper-hidden">
+        <p>Your session has expired, you must relogin.</p>
+    </div>
+</div>
+
+<!--
+{% block content %}
+    {% if user.is_authenticated %}
+        <script>window.location = 'create_report';</script>
+    {% endif %}
+{% endblock %}
+-->
+
+</div>
+</div>
+
+{% block content2 %}
+    {% if not user.is_authenticated %}
+        <div style="color: #FFFFFF">
+            Please login as a superuser to access admin console.
+        </div>
+    {% endif %}
+{% endblock %}
+
+</html>

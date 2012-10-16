@@ -38,6 +38,8 @@ def get_rhic_serve_config_info():
     }
     
 def get_import_info():
+    if CONFIG.get("import", "continue_on_error") is None:
+        CONFIG.set("import", "continue_on_error", "0")
     return {
         "continue_on_error": CONFIG.get('import', 'continue_on_error'),
         'bulk_load': CONFIG.get('import', 'bulk_load')    

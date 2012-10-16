@@ -51,7 +51,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
         intersect = set(products_contract).intersection(set(rhic.products))
 
         for p in (p for p in list_of_products if p.name in intersect): 
-            _LOG.debug(p.name, p.sla, p.support_level)
+            _LOG.info(p.name, p.sla, p.support_level)
             results_dicts = []
             results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
             if results_dicts:
