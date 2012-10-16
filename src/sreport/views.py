@@ -239,13 +239,50 @@ def detailed_report_admin(request):
     
     this_filter = json.dumps(filter_args_dict)
 
+    response_data = {}
+    response_data['list'] = results
+    response_data['start'] = start.toordinal()
+    response_data['end'] = end.toordinal()
+    response_data['this_filter'] = this_filter
+
+    try:
+        response = HttpResponse(simplejson.dumps(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+def instance_detail_admin(request):
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    instance = request.POST['instance']
+    filter_args_dict = json.loads(request.POST['filter_args_dict'])
+    start = datetime.fromordinal(int(request.POST['start']))
+    end = datetime.fromordinal(int(request.POST['end']))
+    
+    results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
+
     format = "%a %b %d %H:%M:%S %Y"
+
+    try:
+        for rd in results:
+            rd.date = rd.date.strftime(format)
+            # this is extremely destructive, figure out why there's a None: ObjectId('507826fa40f346211d2a994a')
+            _LOG.info(rd._data)
+            for k in rd.__dict__.keys():
+                _LOG.info(k)
+                if k is None:
+                    _LOG.info('Removing element %s with value %s.' % (k, rd.k))
+
+    except:
+        _LOG.error(sys.exc_info())[0]
+        _LOG.error(sys.exc_info())[1]
 
     response_data = {}
     response_data['list'] = results
-    response_data['start'] = start.strftime(format)
-    response_data['end'] = end.strftime(format)
-    response_data['this_filter'] = this_filter
+    response_data['account'] = account
 
     try:
         response = HttpResponse(simplejson.dumps(response_data))

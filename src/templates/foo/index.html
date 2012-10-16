@@ -98,10 +98,10 @@
                 $('#startDate').datepicker();
                 $('#endDate').datepicker();
 
-                if (logged_in && !recreate) {
-                    removeActiveNav();
-                    $('#create_button').addClass('active');
+				removeActiveNav();
+				$('#create_button').addClass('active');
 
+                if (logged_in && !recreate) {
                     $('#create_pane').show();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
@@ -185,10 +185,10 @@
             // next three function generic.
 
             function openReport() {
-                if (logged_in) {
-                    removeActiveNav();
-                    $('#report_button').addClass('active');
+				removeActiveNav();
+				$('#report_button').addClass('active');
     
+                if (logged_in) {
                     $('#create_pane').hide();
                     $('#report_pane').show();
                     $('#detail_pane').hide();
@@ -197,10 +197,10 @@
             }
 
             function openDetail() {
+				removeActiveNav();
+				$('#detail_button').addClass('active');
+
                 if (logged_in) {
-                    removeActiveNav();
-                    $('#detail_button').addClass('active');
-    
                     $('#create_pane').hide();
                     $('#report_pane').hide();
                     $('#detail_pane').show();
@@ -209,10 +209,10 @@
             }
 
             function openImport() {
-                if (logged_in) {
-                    removeActiveNav();
-                    $('#import_button').addClass('active');
+				removeActiveNav();
+				$('#import_button').addClass('active');
     
+                if (logged_in) {
                     $('#create_pane').hide();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
@@ -248,7 +248,29 @@
             }
 
             function createInstanceDetail(start, end, instance, filter_args) {
-                // TODO
+                var data = {
+                    "start": start,
+                    "end": end,
+					"instance": instance,
+                    "filter_args_dict": filter_args
+                };
+
+                $.ajax({
+                    url: '/ui/admin/instance_details/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: data,
+                    crossDomain: false,
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type)) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                }).done(function(data) {
+					alert(data);
+                }).fail(function(jqXHR) {
+                    // TODO: Add error handling here
+                });
             }
 
             function importData() {
@@ -389,9 +411,9 @@
                     $('#import_pane').hide();
                 } else {
                     $('#create_pane').show();
-                    $('#report_pane').show();
-                    $('#detail_pane').show();
-                    $('#import_pane').show();
+                    $('#report_pane').hide();
+                    $('#detail_pane').hide();
+                    $('#import_pane').hide();
                 }
             }
 
