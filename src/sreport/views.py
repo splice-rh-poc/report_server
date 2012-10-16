@@ -264,24 +264,19 @@ def instance_detail_admin(request):
     
     results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
 
-    format = "%a %b %d %H:%M:%S %Y"
-
     try:
+        rtn = []
         for rd in results:
-            rd.date = rd.date.strftime(format)
-            # this is extremely destructive, figure out why there's a None: ObjectId('507826fa40f346211d2a994a')
-            _LOG.info(rd._data)
-            for k in rd.__dict__.keys():
-                _LOG.info(k)
-                if k is None:
-                    _LOG.info('Removing element %s with value %s.' % (k, rd.k))
+            copy = rd.to_dict()
+            copy['date'] = rd.date.toordinal()
+            rtn.append(copy)
 
     except:
         _LOG.error(sys.exc_info())[0]
         _LOG.error(sys.exc_info())[1]
 
     response_data = {}
-    response_data['list'] = results
+    response_data['list'] = rtn
     response_data['account'] = account
 
     try:

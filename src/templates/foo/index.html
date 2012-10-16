@@ -32,6 +32,9 @@
                 setupCreateForm(false);
                 $('#login-button').click(login);
                 $('#logout-button').click(logout);
+
+                // initially hide instance detail section
+                $('#instance_details').hide();
             });
 
             function login() {
@@ -101,12 +104,14 @@
 				removeActiveNav();
 				$('#create_button').addClass('active');
 
-                if (logged_in && !recreate) {
+                if (logged_in) {
                     $('#create_pane').show();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
                     $('#import_pane').hide();
+                }
 
+                if (!recreate) {
 					$.ajax({
 						url: '/ui/admin/report_form/',
 						type: 'GET',
@@ -224,7 +229,7 @@
                 var data = {
                     "start": start,
                     "end": end,
-                    "filter_args_dict": filter_args
+                    "filter_args_dict": unescape(filter_args)
                 };
 
                 $.ajax({
@@ -252,7 +257,7 @@
                     "start": start,
                     "end": end,
 					"instance": instance,
-                    "filter_args_dict": filter_args
+                    "filter_args_dict": unescape(filter_args)
                 };
 
                 $.ajax({
@@ -267,7 +272,9 @@
                         }
                     }
                 }).done(function(data) {
-					alert(data);
+                    var rtn = jQuery.parseJSON(data);
+                    populateInstanceDetailReport(rtn);
+                    openDetail(); // this shouldn't be needed, but no harm in calling it again
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
                 });
@@ -410,10 +417,16 @@
                     $('#detail_pane').hide();
                     $('#import_pane').hide();
                 } else {
+                    /*
+                    removeActiveNav();
+                    $('#create_button').addClass('active');
+
                     $('#create_pane').show();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
                     $('#import_pane').hide();
+                    */
+                    setupCreateForm(false);
                 }
             }
 
@@ -506,15 +519,7 @@
                         row.append($('<td>' + product.support + '</td>'));
                         row.append($('<td>' + product.facts + '</td>'));
                         row.append($('<td>' + product.contract_use + '</td>'));
-
-                        var cell = $('<td></td>');
-                        var detailLink = $('<a href=\'#\'>' + product.checkins + '</a>');
-                        detailLink.click(function() {
-                            createDetail(product.start, product.end, product.filter_args_dict);
-                        });
-                        cell.append(detailLink);
-                        row.append(cell);
-                        //row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + product.filter_args_dict + '\')">' + product.checkins + '</a></td>'));
+                        row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + product.checkins + '</a></td>'));
 
                         tbody.append(row);
                     }
@@ -527,7 +532,7 @@
             }
 
             function populateDetailReport(rtn) {
-                var pane = $('#detail_pane > div');
+                var pane = $('#details');
                 // cleanup first
                 pane.empty();
 
@@ -539,7 +544,7 @@
                 var table = $('<table id=\'report_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
 
                 var header = ($('<tr></tr>'));
-                header.append($('<th width=1%>Count</th>'));
+                header.append($('<th width=2%>Count</th>'));
                 header.append($('<th width=5%>MAC</th>'));
                 header.append($('<th width=20%>Number of Checkins</th>'));
 
@@ -547,21 +552,15 @@
 
                 var tbody = $('<tbody></tbody>');
 
-
-                for (var instance_index in rtn.list) {
+                for (var instance_index=0; instance_index < rtn.list.length; instance_index++) {
                     var instance = rtn.list[instance_index];
 
-                    var row = $('<tr></tr>');
-                    row.append($('<td>' + instance_index + '</td>'));
-                    row.append($('<td>' + instance.instance + '</td>'));
+                    var i = instance_index + 1;
 
-                    var cell = $('<td></td>');
-                    var detailLink = $('<a href=\'#\'>' + instance.count + '</a>');
-                    detailLink.click(function() {
-                        createInstanceDetail(rtn.start, rtn.end, instance.instance, rtn.this_filter);
-                        });
-                    cell.append(detailLink);
-                    row.append(cell);
+                    var row = $('<tr></tr>');
+                    row.append($('<td>' + i + '</td>'));
+                    row.append($('<td>' + instance.instance + '</td>'));
+                    row.append($('<td><a href=\'#\' onclick="createInstanceDetail(\'' + rtn.start + '\',\'' + rtn.end + '\', \'' + instance.instance + '\', \'' + escape(new String(rtn.this_filter)) + '\')">' + instance.count + '</a></td>'));
 
                     tbody.append(row);
                 }
@@ -570,6 +569,64 @@
 
                 pane.append(table);
                 pane.append($('<br></br>'));
+            }
+
+            function populateInstanceDetailReport(rtn) {
+                var pane = $('#instance_details');
+
+                // cleanup first
+                pane.empty();
+
+                var title = $('<b>Number of checkins: ' + rtn.list.length + '</b>');
+
+                pane.append(title);
+                pane.append($('<br></br>'));
+
+                var table = $('<table id=\'instance_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+
+                var header = ($('<tr></tr>'));
+                header.append($('<th width=2%>Count</th>'));
+                header.append($('<th width=5%>MAC</th>'));
+                header.append($('<th width=5%>Product</th>'));
+                header.append($('<th width=5%>Time</th>'));
+                header.append($('<th width=5%>Products</th>'));
+                header.append($('<th width=5%>Memory</th>'));
+                header.append($('<th width=5%>CPU Sockets</th>'));
+                header.append($('<th width=5%>Environment</th>'));
+
+                table.append(header);
+
+                var tbody = $('<tbody></tbody>');
+
+                for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+                    var instance = rtn.list[instance_index];
+
+                    var i = instance_index + 1;
+
+                    var row = $('<tr></tr>');
+                    row.append($('<td>' + i + '</td>'));
+                    row.append($('<td>' + instance.instance_identifier + '</td>'));
+                    row.append($('<td>' + instance.product_name + '</td>'));
+                    row.append($('<td>' + instance.hour + '</td>'));
+                    row.append($('<td>' + instance.product + '</td>'));
+                    row.append($('<td>' + instance.memtotal + '</td>'));
+                    row.append($('<td>' + instance.cpu_sockets + '</td>'));
+                    row.append($('<td>' + instance.environment + '</td>'));
+
+                    tbody.append(row);
+                }
+
+                table.append(tbody);
+
+                pane.append(table);
+                pane.append($('<br></br>'));
+
+                // if currently hidden, turn it on
+                if (!pane.is(':visible')) {
+                    pane.show('blind', {percent: 100}, 5000, function() {
+                        // Animation done.
+                    });
+                }
             }
 
 			function validateForm() {
@@ -778,8 +835,11 @@
                                 </table>
                             </div>
                             <div id='detail_pane'>
-                                <div>
+                                <div id='details'>
                                     <b><span>Please create a report first.</span></b>
+                                </div>
+                                <br></br>
+                                <div id='instance_details'>
                                 </div>
                             </div>
                             <div id='import_pane'>
