@@ -156,7 +156,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'tastypie',
     'tastypie_mongoengine',
-    'sreport'
+    'sreport',
+    'report_import'
 )
 
 

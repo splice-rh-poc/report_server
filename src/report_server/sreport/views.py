@@ -101,8 +101,8 @@ def index_admin(request):
     return template_response(request, 'admin/index.html')
 
 def import_admin(request):
-    results = import_data()
-    return HttpResponse(results)
+    response = import_checkin_data(request)
+    return HttpResponse(response)
 
 @ensure_csrf_cookie
 def index(request):
@@ -380,10 +380,11 @@ def report(request):
 
 
 
-def import_import_data(request):
+def import_checkin_data(request):
     
     results = import_data()
     response = TemplateResponse(request, 'import.html', {'list': results})
+    #response = template_response(request, 'import.html')
     return response
 
 
