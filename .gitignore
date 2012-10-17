@@ -9,5 +9,5 @@ src/debug/*
 *.swp
 src/sreport/test
 etc/splice/report.json
-
+selinux/*.pp.targetted
 
