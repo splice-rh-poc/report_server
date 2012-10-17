@@ -29,6 +29,7 @@
 				csrftoken = getCookie('csrftoken');
                 setupLoginForm();
                 setupLLButtons();
+                setupCreateForm();
                 openCreate();
                 $('#login-button').click(login);
                 $('#logout-button').click(logout);
@@ -79,7 +80,7 @@
                 $('#login-error').hide();
             }
 
-            function setupCreateForm(recreate) {
+            function setupCreateForm() {
 				$('#report_form').each(function() {
 					this.reset();
 				});
@@ -100,26 +101,33 @@
                 $('#startDate').datepicker();
                 $('#endDate').datepicker();
 
-                if (!recreate) {
-					$.ajax({
-						url: '/ui/admin/report_form/',
-						type: 'GET',
-						contentType: 'application/json',
-						data: {},
-						crossDomain: false,
-						beforeSend: function(xhr, settings) {
-							if (!csrfSafeMethod(settings.type)) {
-								xhr.setRequestHeader("X-CSRFToken", csrftoken);
-							}
-						}
-					}).done(function(data) {
-						fill_create_report_form(JSON.parse(data)); 
-					}).fail(function(jqXHR) {
-						// TODO: Add error handling here
-					});
-                }
+                setupCreateFormButtons();
+
+                $.ajax({
+                    url: '/ui/admin/report_form/',
+                    type: 'GET',
+                    contentType: 'application/json',
+                    data: {},
+                    crossDomain: false,
+                    beforeSend: function(xhr, settings) {
+                            if (!csrfSafeMethod(settings.type)) {
+                                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                            }
+                        }
+                    }).done(function(data) {
+                        fill_create_report_form(JSON.parse(data)); 
+                    }).fail(function(jqXHR) {
+                        // TODO: Add error handling here
+                });
             }
 
+            function setupCreateFormButtons() {
+                var btn = $('#clear');
+                var o = $('#original');
+                var c = $('#choices');
+                // Initially hide the choices
+                c.hide();
+            }
 
 			function createReport(event) {
 				// Have to stop url from changing so disable default event
@@ -166,11 +174,20 @@
                         var rtn = jQuery.parseJSON(data);
                         populateReport(rtn);
                         openReport();
-						setupCreateForm(true);
                     }).fail(function(jqXHR, textStatus, errorThrown) {
                         // TODO: Add error handling here
                     });
                 }
+            }
+
+            function resetReportForm(event) {
+                $('#report_pane > div').empty();
+                $('#report_pane > div').append($('<h3>This date range contains no usage data.</h3>'));
+                $('#report_pane > div').append($('<br></br>'));
+                $('#report_pane > div').append($('<br></br>'));
+                $('#details').empty();
+                $('#details').append($('<b><span>Please generate a report first and then click the NAU link.</span></b>'));
+                $('#instance_details').empty();
             }
 
             // There has to be a better way to make the
@@ -186,8 +203,6 @@
                     $('#detail_pane').hide();
                     $('#import_pane').hide();
                 }
-
-                setupCreateForm(false);
             }
 
             function openReport() {
@@ -814,6 +829,17 @@
                                                 <td width="5%">
                                                     <button id='submit' name='submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
                                                         <span class='ui-button-text'>Run Report</span>
+                                                    </button>
+                                                </td>
+                                                <td width="5%">
+                                                    <button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
+                                                        <div id='original'>
+                                                            <span class='ui-button-text original' style='float:left'>Reset Form</span>
+                                                        </div>
+                                                        <div id='choices'>
+                                                            <span class='ui-button-text' style='float:left'>Yes</span>
+                                                            <span class='ui-button-text' style='float:left'>No</span>
+                                                        </div>
                                                     </button>
                                                 </td>
                                             </tr>
