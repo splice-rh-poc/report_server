@@ -301,13 +301,17 @@
 						}
 					}).done(function(data) {
                         var rtn = jQuery.parseJSON(data);
-                        $('#import_pane > div').empty();
-                        var status = $('<span>Import Complete!\nStart Time: ' + rtn.start + '\nEnd Time: ' + rtn.end + '<span>');
-                        $('#import_pane > div').append(status);
+                        for (var i = 0; i < rtn.time.length; i++) {
+                            var dt = rtn.time[i];
 
-                        $('#import_pane > button').empty();
-                        var status = $('<span class=\'ui-button-text\'>Import Data</span>');
-                        $('#import_pane > button').append(status);
+                            $('#import_pane > div').empty();
+                            var status = $('<span>Import Complete!\nStart Time: ' + dt.start + '\nEnd Time: ' + dt.end + '<span>');
+                            $('#import_pane > div').append(status);
+
+                            $('#import_pane > button').empty();
+                            var status = $('<span class=\'ui-button-text\'>Import Data</span>');
+                            $('#import_pane > button').append(status);
+                        }
                     }).fail(function(jqXHR) {
                         // TODO: Add error handling here
                     });
