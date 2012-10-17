@@ -9,13 +9,16 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from mongoengine import DateTimeField, Document, EmbeddedDocument, EmbeddedDocumentField, \
-  ListField, ReferenceField, StringField, DictField, UUIDField, FileField, IntField
+from mongoengine import DateTimeField, Document,  \
+  ListField, StringField, IntField
 from django import forms
 from splice.entitlement.models import ProductUsage, SpliceServer
-from mongodbforms import DocumentForm, EmbeddedDocumentForm
+from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
 from rhic_serve.rhic_rcs.models import RHIC
+
+
+
 
 
 
@@ -116,23 +119,9 @@ class ReportDataDaily(Document):
     splice_server = StringField(required=True)
     duplicate = IntField()
     
-    def to_dict(self):
-        return {'instance_identifier': self.instance_identifier,
-                'consumer_uuid': self.consumer_uuid,
-                'consumer': self.consumer,
-                'product': self.product,
-                'product_name': self.product_name,
-                'date': self.date,
-                'sla': self.sla,
-                'support': self.support,
-                'contract_id': self.contract_id,
-                'contract_use': self.contract_use,
-                'hour': self.hour,
-                'memtotal': self.memtotal,
-                'cpu_sockets': self.cpu_sockets,
-                'environment': self.environment,
-                'splice_server': self.splice_server,
-        }    
+
+
+    
 
 
 

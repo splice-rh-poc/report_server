@@ -15,6 +15,8 @@ import logging
 from django.shortcuts import render_to_response
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
+from mongoengine.django.auth import User
+from django.contrib.sessions.backends.db import SessionStore
 from django.template import RequestContext
 from sreport.models import  ProductUsageForm, ReportData, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
@@ -77,8 +79,9 @@ def login_admin(request):
         if user.is_active:
             auth_login(request, user)
             _LOG.info('successfully authenticated')
-            #return template_response(request, 'admin/base.html')
-            return HttpResponse(username)
+            username = str(request.user)
+            account = Account.objects.filter(login=username)[0].account_id
+            return HttpResponse(username + ' ' + account)
         else:
             _LOG.error('authentication failed')
             return HttpResponseForbidden()
@@ -97,7 +100,8 @@ def logout_admin (request):
 
 @ensure_csrf_cookie
 def index_admin(request):
-    _LOG.info("import called by method: %s" % (request.method))
+    _LOG.info("index called by method: %s" % (request.method))
+
     return template_response(request, 'admin/index.html')
 
 def import_admin(request):

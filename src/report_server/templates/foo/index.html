@@ -369,7 +369,7 @@
                                 enableButton($('#logout-button'));
                                 disableButton($('#login-button'));
                                 // alter msg
-                                $('#account-links > span > p').text('Welcome ' + data + ' to the admin console!');
+                                $('#account-links > span > p').text( data );
 
                                 logged_in = true;
 
@@ -699,7 +699,7 @@
 
                                         <p>
                             		    {% if user.is_authenticated %}
-		                                    Welcome {{ user.username }} to the admin console!
+		                                   
                                             <script type='text/javascript'>
                                                 first_logged_in = true;
                                             </script>
