@@ -8,7 +8,6 @@
 # NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
-from splice.entitlement.models import ProductUsage
 
 
 
@@ -18,7 +17,7 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-
+from splice.entitlement.models import ProductUsage
 from django.test import TestCase
 from mongoengine.connection import connect
 from django.conf import settings

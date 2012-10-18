@@ -641,9 +641,10 @@
 
                         pane.append($('<br></br>'));
                         pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
-                        var plot1 = $.jqplot('chartdiv', [[[1,2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
-                        
                         var graph_count = rtn.graph_count;
+                        var plot1 = $.jqplot('chartdiv', [graph_count]);
+                        
+                        
                         
                     
                 } else {
