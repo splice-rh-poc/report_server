@@ -11,6 +11,7 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+import logging
 
 from django.template.response import TemplateResponse
 
@@ -23,7 +24,12 @@ from tastypie.utils import dict_strip_unicode_keys
 #from bson import loads
 from bson import *
 
+import json
+from bson import json_util
+
 from sreport.models import ProductUsage, SpliceServer
+
+_LOG = logging.getLogger(__name__)
 
 class ProductUsageResource(MongoEngineResource):
 
@@ -33,6 +39,8 @@ class ProductUsageResource(MongoEngineResource):
 
 
     def post_list(self, request, **kwargs):
+        _LOG.info("request.raw_post_data = %s" % (request.raw_post_data))
+
         deserialized = self.deserialize(
             request, request.raw_post_data, 
             format=request.META.get('CONTENT_TYPE', 'application/json'))
@@ -40,7 +48,7 @@ class ProductUsageResource(MongoEngineResource):
             request, deserialized)
         bundle = self.build_bundle(data=deserialized, request=request)
 
-        product_usage = loads(request.raw_post_data)
+        product_usage = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
         if isinstance(product_usage, dict):
             product_usage = [product_usage]
 
