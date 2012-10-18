@@ -31,6 +31,7 @@ import sys
 from django.utils import simplejson
 from django.http import HttpResponse
 from common import constants
+from common.max import MaxUsage
 import random
 
 import json
@@ -275,18 +276,8 @@ def max_report(request):
     start = datetime.fromordinal(int(request.POST['start']))
     end = datetime.fromordinal(int(request.POST['end']))
     
-    results = []
-    #instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
-    #for i in instances:
-    #    count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
-    #    results.append({'instance': i, 'count': count})
-    
-    
-    graph_list = []
-    for i in range(0, 30):
-        num = random.randrange(0,50)
-        results.append({'date': i, 'count': num})
-        graph_list.append(num)
+    results, graph_list = MaxUsage.get_product_match(start, end, filter_args_dict)
+
     
     response_data = {}
     response_data['list'] = results

@@ -260,7 +260,7 @@ class TestData():
     def create_product_usage(splice_server, facts, cdate, consumer='consumer01', instance='ident01', products=['69'], save=True):
         pu = ProductUsage(
              consumer=consumer,
-             splice_server=splice_server,
+             splice_server=splice_server.uuid,
              instance_identifier=instance,
              allowed_product_info=products,
              facts=facts,
