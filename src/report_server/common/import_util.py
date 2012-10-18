@@ -101,11 +101,8 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1):
                 # performance by making the set we need to search smaller each
                 # time.
                 product_set.difference_update(product_eng_id_set) 
-                try:
-                    splice_server = SpliceServer.objects.get(id=pu.splice_server.id)
-                except AttributeError:
-                    splice_server = SpliceServer.objects.get(
-                        id=pu.splice_server['$id']['$oid'])
+                splice_server = SpliceServer.objects.get(uuid=pu.splice_server)
+                
                 
                 #Daily checkins for Max Consumption
                 #If there is at least one checkin.. product is considered consumed for the day
@@ -171,7 +168,7 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1):
                             product= product.engineering_ids)
                         if dupe:
                             _LOG.info("found dupe:" + str(pu))
-                            if interval == 0:
+                            if interval == 0 and dupe[0].duplicate > 0:
                                 _LOG.info("The duplicate is superseded by a real checkin :" + str(pu))
                                 dupe.delete()
                                 rd.save()
