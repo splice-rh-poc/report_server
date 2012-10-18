@@ -31,6 +31,7 @@ import sys
 from django.utils import simplejson
 from django.http import HttpResponse
 from common import constants
+import random
 
 import json
 from django.db.models.base import get_absolute_url
@@ -257,6 +258,41 @@ def detailed_report_admin(request):
     response_data['start'] = start.toordinal()
     response_data['end'] = end.toordinal()
     response_data['this_filter'] = this_filter
+
+    try:
+        response = HttpResponse(simplejson.dumps(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+def max_report(request):
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    filter_args_dict = json.loads(request.POST['filter_args_dict'])
+    start = datetime.fromordinal(int(request.POST['start']))
+    end = datetime.fromordinal(int(request.POST['end']))
+    
+    results = []
+    #instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
+    #for i in instances:
+    #    count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
+    #    results.append({'instance': i, 'count': count})
+    
+    
+    graph_list = []
+    for i in range(0, 30):
+        num = random.randrange(0,50)
+        results.append({'date': i, 'count': num})
+        graph_list.append(num)
+    
+    response_data = {}
+    response_data['list'] = results
+    response_data['start'] = start.toordinal()
+    response_data['end'] = end.toordinal()
+    response_data['graph_count'] = graph_list
 
     try:
         response = HttpResponse(simplejson.dumps(response_data))

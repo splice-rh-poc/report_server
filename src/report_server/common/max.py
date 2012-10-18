@@ -48,7 +48,7 @@ class MaxUsage:
             result_dict['filter_args_dict']=json.dumps(filter_args_dict)
             count_list.append(result_dict)
         
-        return count_list
+        return 1
     
    
          

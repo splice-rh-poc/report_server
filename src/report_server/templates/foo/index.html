@@ -16,9 +16,12 @@
         <link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet">
         <link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet">
         <link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet">
+        <link href="{{ STATIC_URL }}jquery.jqplot.min.css" type="text/css" rel="stylesheet">
         <script src="{{ STATIC_URL }}jquery.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.canvasTextRenderer.min.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.canvasAxisLabelRenderer.min.js"></script>
         <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
         <script>
             var first_logged_in = false;
@@ -298,7 +301,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/admin/details/',
+                    url: '/ui/admin/max_report/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -310,8 +313,8 @@
                     }
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
-                    populateMaxReport(rtn);
                     openMax();
+                    populateMaxReport(rtn);
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
                 });
@@ -604,9 +607,57 @@
             
             function populateMaxReport(rtn) {
                 var pane = $('#max_pane');
-                // cleanup first
+             // cleanup first
                 pane.empty();
+
+                if (rtn.list.length > 0) {
+                		var mydata = rtn.list;
+
+                        var table = $('<table id=\'report_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+
+                        var header = ($('<tr></tr>'));
+                        header.append($('<th>Day:</th>'));
+                        header.append($('<th>Maximum Subscriptions Used:</th>'));
+       
+
+                        table.append(header);
+
+                        var tbody = $('<tbody></tbody>');
+
+                        // The following logic has to reduce to one for loop
+                        
+                        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+                            var instance = rtn.list[instance_index];
+                            
+                            var row = $('<tr></tr>');
+                            row.append($('<td>' + instance['date'] + '</td>'));
+                            row.append($('<td>' + instance['count'] + '</td>'));
+                            
+                            tbody.append(row);
+                        }
+
+                        table.append(tbody);
+
+                        pane.append(table);
+                        pane.append($('<br></br>'));
+                        pane.append('<div id="chartdiv" style="height:400px;width:300px; "></div>')
+                        $(function() { var plot1 = $.jqplot('chartdiv', [[[1,2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]); })
+                        //$.jqplot('chartdiv', [[[1,2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]); 
+                        
+                        var graph_count = rtn.graph_count;
+                        
+                    
+                } else {
+                    pane.append($('<h3>This date range contains no usage data.</h3>'));
+                    pane.append($('<br></br>'));
+                    pane.append($('<br></br>'));
+                }
             }
+            
+            function chartTest(){
+            	  var plot1 = jQuery.jqplot ('chartdiv', [[3,7,9,1,4,6,8,2,5]]);
+            	}
+            
             
             function populateDetailReport(rtn) {
                 var pane = $('#details');
@@ -951,8 +1002,9 @@
                             <div id='max_pane'>
                                 <br></br>
                                 <div id='max_details'>
-                                	<b><span>oh fuck me.</span></b>
+                                	<b><span>Please generate a report first and then click the Max Usage link.</span></b>
                                 </div>
+                                
                             </div>
                             <div id='import_pane'>
                                 <div>
