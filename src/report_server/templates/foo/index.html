@@ -20,6 +20,7 @@
         <script src="{{ STATIC_URL }}jquery.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
+        <script src="{{ STATIC_URL }}jquery.jqplot.min.js"></script>
         <script src="{{ STATIC_URL }}jqplot.canvasTextRenderer.min.js"></script>
         <script src="{{ STATIC_URL }}jqplot.canvasAxisLabelRenderer.min.js"></script>
         <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
@@ -571,7 +572,6 @@
 
                         var tbody = $('<tbody></tbody>');
 
-                        // The following logic has to reduce to one for loop
                         for (var product_index in rhic) {
                             var product = rhic[product_index]; 
 
@@ -607,7 +607,8 @@
             
             function populateMaxReport(rtn) {
                 var pane = $('#max_pane');
-             // cleanup first
+
+                // cleanup first
                 pane.empty();
 
                 if (rtn.list.length > 0) {
@@ -624,8 +625,6 @@
 
                         var tbody = $('<tbody></tbody>');
 
-                        // The following logic has to reduce to one for loop
-                        
                         for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
                             var instance = rtn.list[instance_index];
                             
@@ -639,10 +638,12 @@
                         table.append(tbody);
 
                         pane.append(table);
+
                         pane.append($('<br></br>'));
-                        pane.append('<div id="chartdiv" style="height:400px;width:300px; "></div>')
-                        $(function() { var plot1 = $.jqplot('chartdiv', [[[1,2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]); })
-                        //$.jqplot('chartdiv', [[[1,2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]); 
+                        pane.append($('<div id="chartdiv" style="height:400px;width:300px; "></div>'));
+                        alert('hi');
+                        var plot1 = $.jqplot('chartdiv', [[[1,2],[3,5.12],[5,13.1],[7,33.6],[9,85.9],[11,219.9]]]);
+                        alert('ih');
                         
                         var graph_count = rtn.graph_count;
                         
