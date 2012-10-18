@@ -188,6 +188,8 @@
                 $('#details').empty();
                 $('#details').append($('<b><span>Please generate a report first and then click the NAU link.</span></b>'));
                 $('#instance_details').empty();
+                $('#max_details').empty();
+                $('#max_details').append($('<b><span>hey ur empty</span></b>'));
             }
 
             // There has to be a better way to make the
@@ -201,7 +203,9 @@
                     $('#create_pane').show();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
+                    $('#max_pane').hide();
                     $('#import_pane').hide();
+                    
                 }
             }
 
@@ -214,18 +218,34 @@
                     $('#report_pane').show();
                     $('#detail_pane').hide();
                     $('#import_pane').hide();
+                    $('#max_pane').hide();
                 }
             }
 
             function openDetail() {
 				removeActiveNav();
 				$('#detail_button').addClass('active');
-
+				ent: 
                 if (logged_in) {
                     $('#create_pane').hide();
                     $('#report_pane').hide();
                     $('#detail_pane').show();
                     $('#import_pane').hide();
+                    $('#max_pane').hide();
+                }
+            }
+            
+            function openMax() {
+				removeActiveNav();
+				$('#max_button').addClass('active');
+				ent:
+                if (logged_in) {
+                    $('#create_pane').hide();
+                    $('#report_pane').hide();
+                    $('#detail_pane').hide();
+                    $('#max_pane').show();
+                    $('#import_pane').hide();
+                    
                 }
             }
 
@@ -237,7 +257,9 @@
                     $('#create_pane').hide();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
+                    $('#max_pane').hide();
                     $('#import_pane').show();
+                    
                 }
             }
 
@@ -263,6 +285,33 @@
                     var rtn = jQuery.parseJSON(data);
                     populateDetailReport(rtn);
                     openDetail();
+                }).fail(function(jqXHR) {
+                    // TODO: Add error handling here
+                });
+            }
+            
+            function createMax(start, end, filter_args) {
+                var data = {
+                    "start": start,
+                    "end": end,
+                    "filter_args_dict": unescape(filter_args)
+                };
+
+                $.ajax({
+                    url: '/ui/admin/details/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: data,
+                    crossDomain: false,
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type)) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                }).done(function(data) {
+                    var rtn = jQuery.parseJSON(data);
+                    populateMaxReport(rtn);
+                    openMax();
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
                 });
@@ -295,6 +344,8 @@
                     // TODO: Add error handling here
                 });
             }
+            
+            
 
             function importData() {
                 if (logged_in) {
@@ -437,6 +488,7 @@
                     $('#create_pane').hide();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
+                    $('#max_pane').hide();
                     $('#import_pane').hide();
 
                     $('#navWrap').hide();
@@ -510,6 +562,7 @@
                         header.append($('<th>Facts:</th>'));
                         header.append($('<th>Contracted Use:</th>'));
                         header.append($('<th>NAU:</th>'));
+                        header.append($('<th>MAX:</th>'));
 
                         table.append(header);
 
@@ -531,6 +584,7 @@
                             row.append($('<td>' + product.facts + '</td>'));
                             row.append($('<td>' + product.contract_use + '</td>'));
                             row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + product.checkins + '</a></td>'));
+                            row.append($('<td><a href=\'#\' onclick="createMax(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + 'view max' + '</a></td>'));
 
                             tbody.append(row);
                         }
@@ -546,7 +600,14 @@
                     pane.append($('<br></br>'));
                 }
             }
-
+            
+            
+            function populateMaxReport(rtn) {
+                var pane = $('#max_pane');
+                // cleanup first
+                pane.empty();
+            }
+            
             function populateDetailReport(rtn) {
                 var pane = $('#details');
                 // cleanup first
@@ -739,6 +800,7 @@
                                     <li id='create_button' onclick='openCreate()' class='active'><a href="#">Create Report</a></li>
                                     <li id='report_button' onclick='openReport()'><a href='#'>View Report</a></li>
                                     <li id='detail_button' onclick='openDetail()'><a href='#'>View Detail</a></li>
+                                    <li id='max_button'    onclick='openMax()'><a href="#">Max Data</a></li>
                                     <li id='import_button' onclick='openImport()'><a href="#">Import Data</a></li>
                                 </ul>
                             </div>
@@ -884,6 +946,12 @@
                                 </div>
                                 <br></br>
                                 <div id='instance_details'>
+                                </div>
+                            </div>
+                            <div id='max_pane'>
+                                <br></br>
+                                <div id='max_details'>
+                                	<b><span>oh fuck me.</span></b>
                                 </div>
                             </div>
                             <div id='import_pane'>

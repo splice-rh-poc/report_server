@@ -30,6 +30,7 @@ from common.import_util import import_data
 import sys
 from django.utils import simplejson
 from django.http import HttpResponse
+from common import constants
 
 import json
 from django.db.models.base import get_absolute_url
@@ -207,15 +208,16 @@ def report_admin(request):
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
         results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
     
-    format = "%a %b %d %H:%M:%S %Y"
+    format = constants.full_format
+    #format = "%a %b %d %H:%M:%S %Y"
 
-    for c in results:
-        for x in c:
+    for rhic in results:
+        for mark_prod in rhic:
             try:
                 #x['start'] = datetime.fromordinal(x['start']()).strftime(format)
                 #x['end'] = datetime.fromordinal(x['end']()).strftime(format)
-                x['start'] = x['start']()
-                x['end'] = x['end']()
+                mark_prod['start'] = mark_prod['start']()
+                mark_prod['end'] = mark_prod['end']()
             except:
                 _LOG.error(sys.exc_info()[0])
                 _LOG.error(sys.exc_info()[1])
