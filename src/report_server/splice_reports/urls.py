@@ -52,7 +52,6 @@ urlpatterns = patterns('',
     (r'^ui/admin/details/$', 'sreport.views.detailed_report_admin'),
     (r'^ui/admin/max_report/$', 'sreport.views.max_report'),
     (r'^ui/admin/instance_details/$', 'sreport.views.instance_detail_admin'),
-    (r'^ui/foo/$', 'sreport.views.foo'),
 )
 
 urlpatterns += (

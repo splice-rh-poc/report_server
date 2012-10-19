@@ -74,11 +74,6 @@ def logout(request):
 def index(request):
     return template_response(request, 'create_report/base.html')
 
-def admin(request):
-    #return template_response(request, 'admin.html')
-    #return render_to_response('admin.html', {})
-    return TemplateResponse(request, 'admin/base.html', {})
-
 def max_report(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
@@ -128,10 +123,6 @@ def create_report(request):
                                                                     'account': account, 'user': user, 
                                                                     'list_of_rhics': list_of_rhics,
                                                                     'environments': environments })
-
-def foo(request):
-    return template_response(request, 'foo/index.html')
-
 
 def report(request):
     '''
@@ -237,7 +228,7 @@ def instance_report(request):
 #################################################
 
 class MongoEncoder(json.JSONEncoder):
-	""" JSON Encoder for Mongo Objects """
+    """ JSON Encoder for Mongo Objects """
     def default(self, obj, **kwargs):
         from pymongo.objectid import ObjectId
         import mongoengine
@@ -267,6 +258,9 @@ def to_json(obj):
 #################################################
 # UI 2.0 Contents
 #################################################
+
+def admin(request):
+    return template_response(request, 'admin/index.html')
 
 @ensure_csrf_cookie
 def login_admin(request):

@@ -33,6 +33,7 @@
 				csrftoken = getCookie('csrftoken');
                 setupLoginForm();
                 setupLLButtons();
+				setupNavButtons();
                 setupCreateForm();
                 openCreate();
                 $('#login-button').click(login);
@@ -40,6 +41,17 @@
 
                 // initially hide instance detail section
                 $('#instance_details').hide();
+
+				// Disable appropriate nav tabs 
+				$('#report_button').addClass('disabled');
+				$('#detail_button').addClass('disabled');
+				$('#max_button').addClass('disabled');
+
+				$('#report_button').off('click');
+				$('#detail_button').off('click');
+				$('#max_button').off("click");
+
+				// Is there a way to disable :hover event as well?
             });
 
             function login() {
@@ -83,6 +95,14 @@
                 loadContent();
                 $('#login-error').hide();
             }
+
+			function setupNavButtons() {
+				$('#create_button').on("click", openCreate);
+				$('#report_button').on("click", openReport);
+				$('#detail_button').on("click", openDetail);
+				$('#import_button').on("click", openImport);
+				$('#max_button').on("click", openMax);
+			}
 
             function setupCreateForm() {
 				$('#report_form').each(function() {
@@ -178,6 +198,8 @@
                         var rtn = jQuery.parseJSON(data);
                         populateReport(rtn);
                         openReport();
+						// Attach the event handler back on
+						$('#report_button').on("click", openReport);
                     }).fail(function(jqXHR, textStatus, errorThrown) {
                         // TODO: Add error handling here
                     });
@@ -194,6 +216,15 @@
                 $('#instance_details').empty();
                 $('#max_details').empty();
                 $('#max_details').append($('<b><span>hey ur empty</span></b>'));
+
+				// Disable appropriate nav tabs 
+				$('#report_button').addClass('disabled');
+				$('#detail_button').addClass('disabled');
+				$('#max_button').addClass('disabled');
+
+				$('#report_button').off('click');
+				$('#detail_button').off('click');
+				$('#max_button').off("click");
             }
 
             // There has to be a better way to make the
@@ -214,6 +245,7 @@
             }
 
             function openReport() {
+				$('#report_button').removeClass('disabled');
 				removeActiveNav();
 				$('#report_button').addClass('active');
     
@@ -227,6 +259,7 @@
             }
 
             function openDetail() {
+				$('#detail_button').removeClass('disabled');
 				removeActiveNav();
 				$('#detail_button').addClass('active');
 				ent: 
@@ -240,6 +273,7 @@
             }
             
             function openMax() {
+				$('#max_button').removeClass('disabled');
 				removeActiveNav();
 				$('#max_button').addClass('active');
 				ent:
@@ -289,6 +323,7 @@
                     var rtn = jQuery.parseJSON(data);
                     populateDetailReport(rtn);
                     openDetail();
+					$('#detail_button').on("click", openDetail);
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
                 });
@@ -316,6 +351,7 @@
                     var rtn = jQuery.parseJSON(data);
                     openMax();
                     populateMaxReport(rtn);
+					$('#max_button').on("click", openMax);
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
                 });
@@ -344,6 +380,7 @@
                     var rtn = jQuery.parseJSON(data);
                     populateInstanceDetailReport(rtn);
                     openDetail(); // this shouldn't be needed, but no harm in calling it again
+					$('#detail_button').on("click", openDetail);
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
                 });
@@ -795,6 +832,9 @@
             #form_error {
                 color: red;
             }
+			li.disabled {
+				opacity: 0.35;
+			}
         </style>
     </head>
     <body>
@@ -844,11 +884,11 @@
                                         Create a much more generic way of attaching and
                                         exercising onclick events.
                                     -->
-                                    <li id='create_button' onclick='openCreate()' class='active'><a href="#">Create Report</a></li>
-                                    <li id='report_button' onclick='openReport()'><a href='#'>View Report</a></li>
-                                    <li id='detail_button' onclick='openDetail()'><a href='#'>View Detail</a></li>
-                                    <li id='max_button'    onclick='openMax()'><a href="#">Max Data</a></li>
-                                    <li id='import_button' onclick='openImport()'><a href="#">Import Data</a></li>
+                                    <li id='create_button' class='active'><a href="#">Create Report</a></li>
+                                    <li id='report_button'><a href='#'>View Report</a></li>
+                                    <li id='detail_button'><a href='#'>View Detail</a></li>
+                                    <li id='max_button'   ><a href="#">Max Data</a></li>
+                                    <li id='import_button'><a href="#">Import Data</a></li>
                                 </ul>
                             </div>
                         </div>
