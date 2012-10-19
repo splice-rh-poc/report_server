@@ -22,6 +22,7 @@ Requires:   Django
 Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
+Requires:   %{name}-common = %{version}-%{release}
 
 
 %description
@@ -44,6 +45,7 @@ Requires:   Django
 Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
+Requires:   %{name}-common = %{version}-%{release}
 
 
 %description import
