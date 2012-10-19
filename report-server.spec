@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.4
+Version:	0.5
 Release:	1%{?dist}
 Summary:	Reporting server for reporting RHIC net aggregate usage.
 
@@ -115,6 +115,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Oct 19 2012 John Matthews <jmatthews@redhat.com> 0.5-1
+- Add requires for 'report-server-common' to 'report-server-import'
+  (jmatthews@redhat.com)
+
 * Fri Oct 19 2012 John Matthews <jmatthews@redhat.com> 0.4-1
 - Small tweaks to productusage.py after some testing (jmatthews@redhat.com)
 - Created a report-server-common RPM, currently it just packages
