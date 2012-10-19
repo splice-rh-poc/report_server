@@ -17,17 +17,13 @@ from django.template.response import TemplateResponse
 
 from tastypie.authorization import Authorization
 from tastypie import http
-from tastypie.resources import Resource, ModelResource
 from tastypie_mongoengine.resources import MongoEngineResource
-from tastypie.utils import dict_strip_unicode_keys
-#can not get this to work on f17
-#from bson import loads
-from bson import *
+
 
 import json
 from bson import json_util
 
-from sreport.models import ProductUsage, SpliceServer
+from splice.common.models import ProductUsage
 
 _LOG = logging.getLogger(__name__)
 
@@ -41,20 +37,19 @@ class ProductUsageResource(MongoEngineResource):
     def post_list(self, request, **kwargs):
         _LOG.info("request.raw_post_data = %s" % (request.raw_post_data))
 
-        deserialized = self.deserialize(
-            request, request.raw_post_data, 
-            format=request.META.get('CONTENT_TYPE', 'application/json'))
-        deserialized = self.alter_deserialized_detail_data(
-            request, deserialized)
-        bundle = self.build_bundle(data=deserialized, request=request)
+        #deserialized = self.deserialize(
+        #    request, request.raw_post_data,
+        #    format=request.META.get('CONTENT_TYPE', 'application/json'))
+        #deserialized = self.alter_deserialized_detail_data(
+        #    request, deserialized)
+        #bundle = self.build_bundle(data=deserialized, request=request)
+        #_LOG.info("bundle = %s" % (bundle))
 
         product_usage = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
         if isinstance(product_usage, dict):
             product_usage = [product_usage]
-
         pu_models = [ProductUsage._from_son(p) for p in product_usage]
         self.import_hook(pu_models)
-
         return http.HttpAccepted()
 
     def get_list(self, request, **kwargs):
