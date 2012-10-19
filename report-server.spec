@@ -50,6 +50,13 @@ Requires:   python-mongoengine
 Reporting server import application
 
 
+%package common
+Summary:    Common libraries for report-server.
+Group:      Development/Languages
+
+%description common
+Common libraries for report-server.
+
 %prep
 %setup -q
 
@@ -88,6 +95,11 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %{_usr}/lib/report_server
 %{_localstatedir}/www/html/report_server
  
+
+%files common
+%defattr(-,root,root,-)
+%{python_sitelib}/report_server/common
+%{python_sitelib}/report_server/__init__.py*
 
 %files import
 %defattr(-,root,root,-)
