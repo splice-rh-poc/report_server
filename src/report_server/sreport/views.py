@@ -74,31 +74,7 @@ def logout(request):
 def index(request):
     return template_response(request, 'create_report/base.html')
 
-def max_report(request):
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    start = datetime.fromordinal(int(request.POST['start']))
-    end = datetime.fromordinal(int(request.POST['end']))
-    
-    results, graph_list = MaxUsage.get_product_match(start, end, filter_args_dict)
 
-    
-    response_data = {}
-    response_data['list'] = results
-    response_data['start'] = start.toordinal()
-    response_data['end'] = end.toordinal()
-    response_data['graph_count'] = graph_list
-
-    try:
-        #response = HttpResponse(simplejson.dumps(response_data))
-        response = HttpResponse(to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
 
 @login_required
 def create_report(request):
@@ -259,13 +235,13 @@ def to_json(obj):
 # UI 2.0 Contents
 #################################################
 
-def admin(request):
-    return template_response(request, 'admin/index.html')
+def ui20(request):
+    return template_response(request, 'ui20/index.html')
 
 @ensure_csrf_cookie
-def login_admin(request):
+def login_ui20(request):
     '''
-    login, available at host:port/ui/admin
+    login, available at host:port/ui/ui20
     '''
     username = request.POST['username']
     password = request.POST['password']
@@ -276,6 +252,10 @@ def login_admin(request):
             _LOG.info('successfully authenticated')
             username = str(request.user)
             account = Account.objects.filter(login=username)[0].account_id
+            #the User object/model needs to be modified to allow 
+            #for more attributes like account
+            #This would accommodate template usage {{ user.account }} in css
+            #The following return of username/account should eventually be removed
             return HttpResponse(username + ' ' + account)
         else:
             _LOG.error('authentication failed')
@@ -285,7 +265,7 @@ def login_admin(request):
         return HttpResponseForbidden()
 
 @ensure_csrf_cookie
-def logout_admin (request):
+def logout_ui20 (request):
     '''
     logout avail at host:port/ui/logout
     '''
@@ -293,12 +273,12 @@ def logout_admin (request):
     return HttpResponse('Worked!')
 
 @ensure_csrf_cookie
-def index_admin(request):
+def index_ui20(request):
     _LOG.info("index called by method: %s" % (request.method))
 
-    return template_response(request, 'admin/index.html')
+    return template_response(request, 'ui20/index.html')
 
-def import_admin(request):
+def import_ui20(request):
     #response = import_checkin_data(request)
     results = import_data()
     response_data = {}
@@ -313,8 +293,9 @@ def import_admin(request):
     return response
 
 @login_required
-def report_form_admin(request):
-    _LOG.info("report_form_admin called by method: %s" % (request.method))
+def report_form_ui20(request):
+    #replaces create_report()
+    _LOG.info("report_form_ui20 called by method: %s" % (request.method))
    
     if request.method == 'POST':
         form = ProductUsageForm(request.POST)
@@ -353,7 +334,8 @@ def report_form_admin(request):
 
     return response
 
-def report_admin(request):
+def report_ui20(request):
+    #replaces report(request)
     '''
     @param request: http
     
@@ -401,15 +383,6 @@ def report_admin(request):
     
     format = constants.full_format
 
-    for rhic in results:
-        for mark_prod in rhic:
-            try:
-                mark_prod['start'] = mark_prod['start']()
-                mark_prod['end'] = mark_prod['end']()
-            except:
-                _LOG.error(sys.exc_info()[0])
-                _LOG.error(sys.exc_info()[1])
-
     response_data = {}
     response_data['list'] = results
     response_data['account'] = account
@@ -425,7 +398,7 @@ def report_admin(request):
 
     return response
 
-def detailed_report_admin(request):
+def detailed_report_ui20(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
@@ -444,7 +417,8 @@ def detailed_report_admin(request):
     response_data['list'] = results
     response_data['start'] = start.toordinal()
     response_data['end'] = end.toordinal()
-    response_data['this_filter'] = this_filter
+    response_data['this_filter'] = this_filter,
+
 
     try:
         response = HttpResponse(to_json(response_data))
@@ -455,7 +429,7 @@ def detailed_report_admin(request):
 
     return response
 
-def instance_detail_admin(request):
+def instance_detail_ui20(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     instance = request.POST['instance']
@@ -470,6 +444,34 @@ def instance_detail_admin(request):
     response_data['account'] = account
 
     try:
+        response = HttpResponse(to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+def max_report(request):
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    filter_args_dict = json.loads(request.POST['filter_args_dict'])
+    start = datetime.fromordinal(int(request.POST['start']))
+    end = datetime.fromordinal(int(request.POST['end']))
+    contract_use = request.POST['contract_use']
+    product_config = json.loads(request.POST['product_config'])
+    
+    results, graph_list = MaxUsage.get_product_match(start, end, contract_use, filter_args_dict, product_config)
+
+    
+    response_data = {}
+    response_data['list'] = results
+    response_data['start'] = start.toordinal()
+    response_data['end'] = end.toordinal()
+    response_data['graph_count'] = graph_list
+
+    try:
+        #response = HttpResponse(simplejson.dumps(response_data))
         response = HttpResponse(to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])

@@ -60,7 +60,7 @@
 
             function logout() {
                 $.ajax({
-                    url: '/ui/admin/logout/',
+                    url: '/ui/ui20/logout/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: {},
@@ -128,7 +128,7 @@
                 setupCreateFormButtons();
 
                 $.ajax({
-                    url: '/ui/admin/report_form/',
+                    url: '/ui/ui20/report_form/',
                     type: 'GET',
                     contentType: 'application/json',
                     data: {},
@@ -184,7 +184,7 @@
 					}
 
                     $.ajax({
-                        url: '/ui/admin/report/',
+                        url: '/ui/ui20/report/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: data,
@@ -309,7 +309,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/admin/details/',
+                    url: '/ui/ui20/details/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -329,15 +329,17 @@
                 });
             }
             
-            function createMax(start, end, filter_args) {
+            function createMax(start, end, contract_use, product_config, filter_args) {
                 var data = {
                     "start": start,
                     "end": end,
+                    "contract_use": contract_use,
+                    "product_config": unescape(product_config),
                     "filter_args_dict": unescape(filter_args)
                 };
 
                 $.ajax({
-                    url: '/ui/admin/max_report/',
+                    url: '/ui/ui20/max_report/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -366,7 +368,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/admin/instance_details/',
+                    url: '/ui/ui20/instance_details/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -396,7 +398,7 @@
                     $('#import_pane > button').append(status);
 
                     $.ajax({
-                        url: '/ui/admin/import/',
+                        url: '/ui/ui20/import/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: {},
@@ -459,7 +461,7 @@
 
                             // Login button in form clicked 
                             $.ajax({
-                                url: '/ui/admin/login/',
+                                url: '/ui/ui20/login/',
                                 type: 'POST',
                                 contentType: 'application/json',
                                 data: data,
@@ -623,8 +625,10 @@
                             row.append($('<td>' + product.support + '</td>'));
                             row.append($('<td>' + product.facts + '</td>'));
                             row.append($('<td>' + product.contract_use + '</td>'));
-                            row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + product.checkins + '</a></td>'));
-                            row.append($('<td><a href=\'#\' onclick="createMax(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + 'view max' + '</a></td>'));
+                            row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict))
+                            		+ '\')">' + product.checkins + '</a></td>'));
+                            row.append($('<td><a href=\'#\' onclick="createMax(\'' + product.start + '\',\'' + product.end + '\', \''  + product.contract_use +'\', \'' 
+                            		+  escape(new String(product.product_config)) + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + 'view max' + '</a></td>'));
 
                             tbody.append(row);
                         }
@@ -655,7 +659,7 @@
 
                         var header = ($('<tr></tr>'));
                         header.append($('<th>Day:</th>'));
-                        header.append($('<th>Maximum Subscriptions Used:</th>'));
+                        header.append($('<th>Maximum Daily Usage:</th>'));
        
 
                         table.append(header);
