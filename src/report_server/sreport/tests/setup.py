@@ -146,6 +146,7 @@ class TestData():
         this_hour = date.strftime(constants.hr_fmt)
         this_day = date.strftime(constants.day_fmt)
         
+        
         interval = report_biz_rules[product]['calculation']
         
         if interval == 'hourly':
@@ -153,6 +154,7 @@ class TestData():
                                     instance_identifier = "12:31:3D:08:49:00",
                                     date =  date,
                                     hour = this_hour,
+                                    day = this_day,
                                     environment = "us-east-1",
                                     splice_server = "splice-server-1.spliceproject.org"
                                     )
