@@ -17,5 +17,5 @@ hr_fmt = "%m%d%Y:%H"
 mn_fmt = "%m%d%Y:%H%M"
 day_fmt = "%Y%m%d"
 full_format = "%a %b %d %H:%M:%S %Y"
-just_date = "%d"
+just_date = "%m / %d"
 

@@ -84,6 +84,7 @@ class ReportData(Document):
     contract_id = StringField(required=True)
     contract_use = StringField(required=True)
     hour = StringField(required=True)
+    day = StringField(required=True)
     memtotal = IntField(required=True)
     cpu_sockets = IntField(required=True)
     cpu = IntField(required=True)

@@ -148,6 +148,7 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1):
                                         product_name = product.name,
                                         date = this_time,
                                         hour = this_time.strftime(constants.hr_fmt),
+                                        day = pu.date.strftime(constants.day_fmt),
                                         sla = product.sla,
                                         support = product.support_level,
                                         contract_id = rhic.contract,

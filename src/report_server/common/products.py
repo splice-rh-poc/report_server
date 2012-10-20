@@ -46,6 +46,7 @@ class Product_Def:
             result_dict = build_result(product, rhic, start, end, contract_number, count, environment, product_config)
             result_dict['facts'] = results['facts_low']
             result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+            
             count_list.append(result_dict)
         
         return count_list
@@ -67,9 +68,10 @@ def build_result(product, rhic, start, end, contract_number, count, environment,
     result_dict['sla'] = product.sla
     result_dict['support'] = product.support_level
     result_dict['contract_id'] = contract_number
-    result_dict['start'] = start.toordinal
-    result_dict['end'] = end.toordinal
+    result_dict['start'] = start.toordinal()
+    result_dict['end'] = end.toordinal()
     result_dict['sub_hours'] = hours_for_sub
+    result_dict['product_config']=json.dumps(product_config)
     
     return result_dict
     
