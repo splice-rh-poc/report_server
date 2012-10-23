@@ -25,7 +25,7 @@ ADMINS = (
 
 MONGO_DATABASE_NAME_CHECKIN = 'checkin_service'
 MONGO_DATABASE_NAME_RHICSERVE = 'rhic_serve'
-MONGO_DATABASE_NAME_RESULTS = 'results'
+MONGO_DATABASE_NAME_RESULTS = 'test_results'
 
 # Connect to the mongo db
 connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin')
@@ -139,7 +139,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.path.abspath(os.path.dirname(__name__)), "report_server/templates"),
+    os.path.join(os.path.abspath(os.path.dirname(__name__)), "templates"),
 )
 print TEMPLATE_DIRS
 
@@ -157,15 +157,24 @@ INSTALLED_APPS = (
     'tastypie',
     'tastypie_mongoengine',
     'sreport',
-    'report_import',
+    'report_import'
 )
 
-LOG_DIR = "/var/log/report_server/"
+
 if DEBUG:
     LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
     print LOG_DIR
+
+
+#LIST RULES AT START
+#print('test')
+
+from dev.custom_count import Rules
+r = Rules()
+r.init()
+r.list_rules()
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
