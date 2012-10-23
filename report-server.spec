@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.6
+Version:	0.7
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -128,6 +128,12 @@ rm -rf %{buildroot}
 %doc
 
 %changelog
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.7-1
+- updated packaging (whayutin@redhat.com)
+- created a control to prevent imports from stepping on each other
+  (whayutin@redhat.com)
+- adding rules to production settings.py (whayutin@redhat.com)
+
 * Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.6-1
 - merge (whayutin@redhat.com)
 - fix model change from splice server (whayutin@redhat.com)
