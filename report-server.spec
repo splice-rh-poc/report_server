@@ -108,6 +108,9 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %defattr(-,apache,apache,-)
 %{_usr}/lib/report_server
 %{_localstatedir}/www/html/report_server
+%dir /srv/%{name}
+/srv/%{name}/webservices.wsgi
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
  
 
 %files common
