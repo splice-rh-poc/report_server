@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.5
+Version:	0.6
 Release:	1%{?dist}
 Summary:	Reporting server for reporting RHIC net aggregate usage.
 
@@ -115,6 +115,48 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.6-1
+- merge (whayutin@redhat.com)
+- fix model change from splice server (whayutin@redhat.com)
+- update unit tests (whayutin@redhat.com)
+- couple things to clean up (whayutin@redhat.com)
+- rename from admin -> ui20 (whayutin@redhat.com)
+- added functionality to gray out tab(s) before it can be used moved foo folder
+  to admin modified url and view methods to accomodate the move
+  (dgao@redhat.com)
+- added MongoEncoder and helper methods to jsonify objs (dgao@redhat.com)
+- first pass at max daily usage (whayutin@redhat.com)
+- updated import for new splice server model (whayutin@redhat.com)
+- merge in selinux rules (whayutin@redhat.com)
+- added copyright info and graph data (whayutin@redhat.com)
+- changed width of graph to occupy 100%% of the existing content space
+  (dgao@redhat.com)
+- remove debug code (dgao@redhat.com)
+- added charting lib for Max Data tab (dgao@redhat.com)
+- stubbed out max daily usage (whayutin@redhat.com)
+- begin max page (whayutin@redhat.com)
+- merge (whayutin@redhat.com)
+- minor fixes (whayutin@redhat.com)
+- don't reset form after report is generated. added reset button clear out
+  report/detail pane if reset button is clicked (dgao@redhat.com)
+- added to_dict() to ReportData and ReportDataDaily (dgao@redhat.com)
+- fixed import issue (albeit, not very elegant) (dgao@redhat.com)
+- fixing import issue (whayutin@redhat.com)
+- removed unused files (dgao@redhat.com)
+- merge (whayutin@redhat.com)
+- had to move foo templates, removed some bad tests, fixed an import in views
+  (whayutin@redhat.com)
+- intermediate checkin for more fixes from the merge (dgao@redhat.com)
+- moved files to the correct location after merge (dgao@redhat.com)
+- Merge branch 'master' of git://github.com/segfault923/report_server into
+  UI_20 (dgao@redhat.com)
+- finished off instance_detail (dgao@redhat.com)
+- intermediate changes for instance_detail work initial revision for todo list
+  (dgao@redhat.com)
+- minor deletion of unused code (dgao@redhat.com)
+- added reporting and detail pane (dgao@redhat.com)
+- initial revision to centralize everything to one admin page (dgao@redhat.com)
+
 * Fri Oct 19 2012 John Matthews <jmatthews@redhat.com> 0.5-1
 - Add requires for 'report-server-common' to 'report-server-import'
   (jmatthews@redhat.com)
