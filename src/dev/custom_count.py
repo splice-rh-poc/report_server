@@ -41,7 +41,7 @@ if 'report_server' in curr_dir:
     path = '../../etc/splice/report.json'
     print('PATH='+path)
 else:
-    path = '../etc/splice/report.json'
+    path = '../../etc/splice/report.json'
     print('PATH='+path)
 
 REPORT_RULES = None
