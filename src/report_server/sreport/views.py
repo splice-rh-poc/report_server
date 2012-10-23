@@ -36,6 +36,7 @@ import random
 
 import json
 from django.db.models.base import get_absolute_url
+from django.utils.datastructures import MultiValueDictKeyError
 
 _LOG = logging.getLogger(__name__)
 
@@ -436,7 +437,24 @@ def instance_detail_ui20(request):
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     start = datetime.fromordinal(int(request.POST['start']))
     end = datetime.fromordinal(int(request.POST['end']))
-    
+    #try:
+    #    page = request.POST['page']
+    #    page_size = request.POST['page_size']
+    #except MultiValueDictKeyError:
+    #    page = None
+    #    page_size = None
+    #except:
+    #    _LOG.error(sys.exc_info()[0])
+    #    _LOG.error(sys.exc_info()[1])
+
+    #if page is not None and page_size is not None:
+    #    left = (request.POST['page'] - 1) * request.POST['page_size']
+    #    right = left + request.POST['page_size']
+    #    _LOG.info("Fetching instance detail objects [%s:%s]" % (left, right))
+    #    results = ReportData.objects[left:right].filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
+    #else:
+    #    _LOG.info("Fetching all instance detail objects.")
+    #    results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
     results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
 
     response_data = {}
