@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.7
+Version:	0.8
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -128,6 +128,9 @@ rm -rf %{buildroot}
 %doc
 
 %changelog
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.8-1
+- fixed naming for http conf (whayutin@redhat.com)
+
 * Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.7-1
 - updated packaging (whayutin@redhat.com)
 - created a control to prevent imports from stepping on each other
