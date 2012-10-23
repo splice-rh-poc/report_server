@@ -2,7 +2,7 @@
 Name:		report-server
 Version:	0.6
 Release:	1%{?dist}
-Summary:	Reporting server for reporting RHIC net aggregate usage.
+Summary:	Reporting server for Splice.
 
 Group:		Development/Languages
 License:	GPLv2+
@@ -26,7 +26,7 @@ Requires:   %{name}-common = %{version}-%{release}
 
 
 %description
-Reporting server for reporting RHIC net aggregate usage.
+Reporting server for Splice.
 
 
 # report-server import package ------------------------------------------------
@@ -71,6 +71,14 @@ popd
 
 %install
 rm -rf %{buildroot}
+pushd src
+%{__python} setup.py install -O1 --skip-build --root %{buildroot}
+popd
+mkdir -p %{buildroot}/%{_sysconfdir}/httpd/conf.d/
+mkdir -p %{buildroot}/%{_var}/log/%{name}
+mkdir -p %{buildroot}/%{_usr}/lib/report_server
+mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
+
 
 # Install source
 pushd src
@@ -85,6 +93,10 @@ cp -R src/report_server/report_import/templates %{buildroot}/%{_usr}/lib/report_
 # Install static files
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
 cp -R src/report_server/sreport/static %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
+
+# Install WSGI script & httpd conf
+cp -R srv %{buildroot}
+cp etc/httpd/conf.d/%{name}.conf %{buildroot}/%{_sysconfdir}/httpd/conf.d/
 
 # Remove egg info
 rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
@@ -113,6 +125,7 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %clean
 rm -rf %{buildroot}
 
+%doc
 
 %changelog
 * Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.6-1
