@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.11
+Version:	0.12
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -131,6 +131,9 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 #%doc
 
 %changelog
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.12-1
+- changing wsgi name from splice_reports to report-server (whayutin@redhat.com)
+
 * Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.11-1
 - fix to initial page load, and spec (whayutin@redhat.com)
 
