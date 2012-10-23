@@ -12,7 +12,7 @@
 
 from __future__ import division
 import logging
-from sreport.models import ReportData, ReportDataDaily
+from sreport.models import ReportData, ReportDataDaily, ImportHistory
 from sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
@@ -25,22 +25,44 @@ from common import constants
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1):
+def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, from_splice_server="NA"):
+    """
+    @param product_usage
+    @type mongoengine cursor 
+    
+    @param checkin_interval
+    @type int
+    @description the interval between client checkins range 1-23, 24=daily
+    
+    @return dict w/ keys start, end to measure how long the import took
+    @rtype dict 
+    """
     #config fail/pass on missing rhic
+    results = []
     config.init()
     this_config = config.get_import_info()
     total_import_count = len(product_usage)
     remaining_import_count = total_import_count
 
-    results = []
     #debug
     start = datetime.utcnow()
+    
     time = {}
     time['start'] = start.strftime(constants.full_format)
-    #debug
     
-    
-    
+    time_now = datetime.utcnow()
+    last_import_threshhold = time_now - timedelta(minutes=45)
+    last_import =  ImportHistory.objects.filter(date__gt=last_import_threshhold).count()
+    if last_import > 0:
+        time['end'] = -1
+        results.append(time)
+        _LOG.info("import skipped")
+        return results
+    else:
+        record = ImportHistory(date=start, splice_server=from_splice_server)
+        record.save()
+        
+
     # committing every 100 records instead of every 1 record saves about 5
     # seconds.
     commit_count = 500

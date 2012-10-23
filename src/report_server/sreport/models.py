@@ -140,4 +140,14 @@ class ReportDataDaily(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     duplicate = IntField()
+
+class ImportHistory(Document):
+    meta = {
+        'db_alias': 'results', 
+        'allow_inheritance': True, 
+        'indexes': [ ('date', 'splice_server')],
+    }
+    
+    date = DateTimeField(required=True)
+    splice_server = StringField(required=True)
     
