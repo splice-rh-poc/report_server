@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.10
+Version:	0.11
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -125,12 +125,15 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %{_usr}/lib/report_server/report_import
 
 
-%clean
-rm -rf %{buildroot}
+#%clean
+#rm -rf %{buildroot}
 
-%doc
+#%doc
 
 %changelog
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.11-1
+- fix to initial page load, and spec (whayutin@redhat.com)
+
 * Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.10-1
 - rename srv dir (whayutin@redhat.com)
 
