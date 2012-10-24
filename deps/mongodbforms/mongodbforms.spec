@@ -33,6 +33,7 @@ Group: Documentation
 Requires: %{name} = %{version}-%{release}
 
 %build
+mkdir -p %{buildroot}
 %{__python} setup.py build
 
 %install
@@ -42,9 +43,8 @@ Requires: %{name} = %{version}-%{release}
 This package contains documentation for %{name}.
 
 %files
-%dir %{python_sitelib}/mongodbforms
-%{python_sitelib}/mongodbforms*
-%{python_sitelib}/mongodbforms/*
+%{python_sitelib}/mongodbforms/
+
 
 %files doc
 %doc %{docdir}
