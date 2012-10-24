@@ -10,12 +10,12 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from __future__ import division
-from sreport.models import  ReportData, ReportDataDaily
+from report_server.sreport.models import  ReportData, ReportDataDaily
 
 import logging
-from utils import datespan
+from report_server.common.utils import datespan
 import json
-from common.utils import subscription_calc, datespan_by_hour, get_datespan
+from report_server.common.utils import subscription_calc, get_datespan
 
 
 

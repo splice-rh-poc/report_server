@@ -14,7 +14,7 @@
 import os
 import sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'splice_reports.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'report_server.splice_reports.settings'
 
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
