@@ -5,7 +5,7 @@
 # pass --with internet to run them (e.g. when doing a local rebuild
 # for sanity checks before committing)
 
-Name:           mongodbforms
+Name:           python-mongodbforms
 Version:        0.1.4
 Release:        3%{?dist}.splice
 Summary:        An implementation of django forms using mongoengine
