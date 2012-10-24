@@ -27,7 +27,7 @@ This is an implementation of django's model forms for mongoengine documents.
 Mongodbforms supports forms for normal documents and embedded documents.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n mongodbforms-%{version}
 
 
 %build
