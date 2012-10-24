@@ -12,16 +12,14 @@
 
 from __future__ import division
 import logging
-from sreport.models import ReportData, ReportDataDaily, ImportHistory
-from sreport.models import ProductUsage, SpliceServer
+from report_server.sreport.models import ReportData, ReportDataDaily, ImportHistory
+from report_server.sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 from datetime import datetime, timedelta
-
-from datetime import datetime
 from sets import Set
-from common import config
-from common import constants
+from report_server.common import config
+from report_server.common import constants
 
 _LOG = logging.getLogger("sreport.import_util")
 

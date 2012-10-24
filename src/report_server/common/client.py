@@ -14,7 +14,7 @@ import httplib
 import urllib
 import logging
 import base64
-from common import config
+from report_server.common import config
 import pycurl, cStringIO, json
 
 _LOG = logging.getLogger(__name__)

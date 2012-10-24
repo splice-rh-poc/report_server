@@ -171,7 +171,7 @@ if DEBUG:
 #LIST RULES AT START
 #print('test')
 
-from dev.custom_count import Rules
+from report_server.common.custom_count import Rules
 r = Rules()
 r.init()
 r.list_rules()

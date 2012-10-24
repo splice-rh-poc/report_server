@@ -15,27 +15,23 @@ import logging
 from django.shortcuts import render_to_response
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
-from mongoengine.django.auth import User
-from django.contrib.sessions.backends.db import SessionStore
+
 from django.template import RequestContext
-from sreport.models import  ProductUsageForm, ReportData, SpliceServer
+from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from common.report import hours_per_consumer
-from common.import_util import import_data
+from report_server.common.report import hours_per_consumer
+from report_server.common.import_util import import_data
 import sys
-from django.utils import simplejson
 from django.http import HttpResponse
-from common import constants
-from common.max import MaxUsage
-import random
-
+from report_server.common import constants
+from report_server.common.max import MaxUsage
 import json
-from django.db.models.base import get_absolute_url
+
 
 _LOG = logging.getLogger(__name__)
 

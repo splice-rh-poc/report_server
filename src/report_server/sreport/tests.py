@@ -23,18 +23,16 @@ from django.test import TestCase
 from mongoengine.connection import connect, disconnect
 from django.conf import settings
 from logging import getLogger
-from sreport.models import ReportData, MyQuerySet
-from sreport.models import ProductUsage, SpliceServer
+from report_server.sreport.models import ReportData, MyQuerySet
+from report_server.sreport.models import  SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from mongoengine.queryset import QuerySet
-from mongoengine import Document, StringField, ListField, DateTimeField, IntField
+from mongoengine import Document, StringField, ListField, IntField
 from datetime import datetime, timedelta
-from common.products import Product_Def
-from common.utils import datespan
-from common.report import get_list_of_products, hours_per_consumer
-from common.import_util import import_data
-from common import config
-import collections
+from report_server.common.products import Product_Def
+from report_server.common.report import get_list_of_products, hours_per_consumer
+from report_server.common.import_util import import_data
+from report_server.common import config
 from dev.custom_count import Rules
 
 
