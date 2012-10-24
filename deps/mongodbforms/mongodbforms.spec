@@ -26,28 +26,30 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 This is an implementation of django's model forms for mongoengine documents.
 Mongodbforms supports forms for normal documents and embedded documents.
 
-%package doc
-Summary: Documentation for %{name}
-Group: Documentation
+%prep
+%setup -q -n %{name}-%{version}
 
-Requires: %{name} = %{version}-%{release}
 
 %build
-mkdir -p %{buildroot}
-%{__python} setup.py build
+# Remove CFLAGS=... for noarch packages (unneeded)
+CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
+
 
 %install
-%{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT
+%{__python} setup.py install -O1 --skip-build --root $RPM_BUILD_ROOT
 
-%description doc
-This package contains documentation for %{name}.
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %files
-%{python_sitelib}/mongodbforms/
+%defattr(-,root,root,-)
+%doc docs AUTHORS LICENSE README.rst
+# For noarch packages: sitelib
+ %{python_sitelib}/*
+# For arch-specific packages: sitearch
+# %{python_sitearch}/*
 
-
-%files doc
-%doc %{docdir}
 
 %changelog
 * Wed Oct 24 2012 Wes Hayutin
