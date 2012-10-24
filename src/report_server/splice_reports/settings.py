@@ -25,7 +25,7 @@ ADMINS = (
 
 MONGO_DATABASE_NAME_CHECKIN = 'checkin_service'
 MONGO_DATABASE_NAME_RHICSERVE = 'rhic_serve'
-MONGO_DATABASE_NAME_RESULTS = 'test_results'
+MONGO_DATABASE_NAME_RESULTS = 'results'
 
 # Connect to the mongo db
 connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin')
@@ -163,7 +163,8 @@ INSTALLED_APPS = (
 
 
 if DEBUG:
-    LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
+    #LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
+    LOG_DIR = '/var/log/report-server'
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
     print LOG_DIR

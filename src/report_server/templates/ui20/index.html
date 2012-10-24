@@ -60,7 +60,7 @@
 
             function logout() {
                 $.ajax({
-                    url: '/ui/ui20/logout/',
+                    url: '/report-server/ui20/logout/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: {},
@@ -128,7 +128,7 @@
                 setupCreateFormButtons();
 
                 $.ajax({
-                    url: '/ui/ui20/report_form/',
+                    url: '/report-server/ui20/report_form/',
                     type: 'GET',
                     contentType: 'application/json',
                     data: {},
@@ -184,7 +184,7 @@
 					}
 
                     $.ajax({
-                        url: '/ui/ui20/report/',
+                        url: '/report-server/ui20/report/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: data,
@@ -309,7 +309,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/ui20/details/',
+                    url: '/report-server/ui20/details/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -339,7 +339,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/ui20/max_report/',
+                    url: '/report-server/ui20/max_report/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -368,7 +368,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/ui20/instance_details/',
+                    url: '/report-server/ui20/instance_details/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -398,7 +398,7 @@
                     $('#import_pane > button').append(status);
 
                     $.ajax({
-                        url: '/ui/ui20/import/',
+                        url: '/report-server/ui20/import/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: {},
@@ -467,7 +467,7 @@
 
                             // Login button in form clicked 
                             $.ajax({
-                                url: '/ui/ui20/login/',
+                                url: '/report-server/ui20/login/',
                                 type: 'POST',
                                 contentType: 'application/json',
                                 data: data,
