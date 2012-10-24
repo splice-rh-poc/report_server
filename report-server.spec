@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.16
+Version:	0.17
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -132,6 +132,22 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 #%doc
 
 %changelog
+* Wed Oct 24 2012 Wes Hayutin
+ 0.17-1
+ <whayutin@redhat.com>
+- additional changes for packaging (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-7.splice]. (whayutin@redhat.com)
+- update prep step for proper build root name (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-6.splice]. (whayutin@redhat.com)
+- update build root (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-5.splice]. (whayutin@redhat.com)
+- getting a bad exit code from a %%clean (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-4.splice]. (whayutin@redhat.com)
+
 * Wed Oct 24 2012 Wes Hayutin
  0.16-1
  <whayutin@redhat.com>
