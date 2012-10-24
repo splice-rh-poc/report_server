@@ -7,7 +7,7 @@
 
 Name:           python-mongodbforms
 Version:        0.1.4
-Release:        5%{?dist}.splice
+Release:        6%{?dist}.splice
 Summary:        An implementation of django forms using mongoengine
 
 Group:          Development/Languages
@@ -53,6 +53,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Oct 24 2012 Wes Hayutin
+ 0.1.4-6.splice
+ <whayutin@redhat.com>
+- update build root (whayutin@redhat.com)
+
 * Wed Oct 24 2012 Wes Hayutin
  0.1.4-5.splice
  <whayutin@redhat.com>
