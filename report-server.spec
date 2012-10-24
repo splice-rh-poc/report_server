@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.13
+Version:	0.14
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -131,6 +131,13 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 #%doc
 
 %changelog
+* Wed Oct 24 2012 Wes Hayutin
+ 0.14-1
+ <whayutin@redhat.com>
+- most of the packaging is complete (whayutin@redhat.com)
+- Automatic commit of package [report-server] release [0.13-1].
+  (whayutin@redhat.com)
+
 * Wed Oct 24 2012 Wes Hayutin
  0.13-1
  <whayutin@redhat.com>
