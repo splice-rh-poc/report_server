@@ -131,6 +131,11 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 #%doc
 
 %changelog
+* Wed Oct 24 2012 Wes Hayutin
+ 0.13-1
+ <whayutin@redhat.com>
+- fixed imports for packaging (whayutin@redhat.com)
+
 * Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.12-1
 - changing wsgi name from splice_reports to report-server (whayutin@redhat.com)
 
