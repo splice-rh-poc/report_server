@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.14
+Version:	0.15
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -131,6 +131,16 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 #%doc
 
 %changelog
+* Wed Oct 24 2012 Wes Hayutin
+ 0.15-1
+ <whayutin@redhat.com>
+- another attempt to fix mongoddbforms (whayutin@redhat.com)
+- trying to fix mongodbform build issue (whayutin@redhat.com)
+- updated deps (whayutin@redhat.com)
+- Automatic commit of package [mongodbforms] minor release [0.1.4-2.splice].
+  (whayutin@redhat.com)
+- adding dep source for mongodbforms (whayutin@redhat.com)
+
 * Wed Oct 24 2012 Wes Hayutin
  0.14-1
  <whayutin@redhat.com>
