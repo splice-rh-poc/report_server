@@ -7,7 +7,7 @@
 
 Name:           mongodbforms
 Version:        0.1.4
-Release:        1%{?dist}.splice
+Release:        2%{?dist}.splice
 Summary:        An implementation of django forms using mongoengine
 
 Group:          Development/Languages
@@ -43,4 +43,9 @@ This package contains documentation for %{name}.
 %doc %{docdir}
 
 %changelog
+* Wed Oct 24 2012 Wes Hayutin
+ 0.1.4-2.splice
+ <whayutin@redhat.com>
+- new package built with tito
+
 
