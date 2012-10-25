@@ -1,6 +1,6 @@
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.18
+Version:	0.19
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -144,6 +144,9 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 #%doc
 
 %changelog
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.19-1
+- missed an url change, added rcs to Requires (whayutin@redhat.com)
+
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.18-1
 - add gridfs as dep, make a log dir (whayutin@redhat.com)
 
