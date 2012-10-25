@@ -120,6 +120,7 @@ mkdir -p %{buildroot}/%{_sysconfdir}/httpd/conf.d/
 mkdir -p %{buildroot}/%{_var}/log/%{name}
 mkdir -p %{buildroot}/%{_usr}/lib/report_server
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
+mkdir -p %{buildroot}/%{_sysconfdir}/rc.d/init.d
 mkdir -p /var/log/%{name}
 
 
@@ -140,6 +141,8 @@ cp -R src/report_server/sreport/static %{buildroot}/%{_localstatedir}/www/html/r
 # Install WSGI script & httpd conf
 cp -R srv %{buildroot}
 cp etc/httpd/conf.d/%{name}.conf %{buildroot}/%{_sysconfdir}/httpd/conf.d/
+cp -R etc/splice %{buildroot}/%{_sysconfdir}
+cp -R etc/rc.d/init.d %{buildroot}/%{_sysconfdir}/rc.d
 
 # Remove egg info
 rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
@@ -192,6 +195,7 @@ exit 0
 %defattr(-,root,root,-)
 %{python_sitelib}/report_server/common
 %{python_sitelib}/report_server/__init__.py*
+%config(noreplace) %{_sysconfdir}/rc.d/init.d/report-server
 
 %files import
 %defattr(-,root,root,-)
