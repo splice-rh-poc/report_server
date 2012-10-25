@@ -1,3 +1,6 @@
+#SELinux
+%global selinux_policyver %(%{__sed} -e 's,.*selinux-policy-\\([^/]*\\)/.*,\\1,' /usr/share/selinux/devel/policyhelp || echo 0.0.0)
+
 # report-server package -------------------------------------------------------
 Name:		report-server
 Version:	0.19
@@ -70,6 +73,26 @@ Group:      Development/Languages
 %description common
 Common libraries for report-server.
 
+%package        selinux
+Summary:        Splice Report Server SELinux policy
+Group:          Development/Languages
+BuildRequires:  rpm-python
+BuildRequires:  make
+BuildRequires:  checkpolicy
+BuildRequires:  selinux-policy-devel
+# el6, selinux-policy-doc is the required RPM which will bring below 'policyhelp'
+BuildRequires:  /usr/share/selinux/devel/policyhelp
+BuildRequires:  hardlink
+Requires: selinux-policy >= %{selinux_policyver}
+Requires(post): policycoreutils-python 
+Requires(post): selinux-policy-targeted
+Requires(post): /usr/sbin/semodule, /sbin/fixfiles, /usr/sbin/semanage
+Requires(postun): /usr/sbin/semodule
+
+%description  selinux
+SELinux policy for Splice Report Server
+
+
 %prep
 %setup -q
 
@@ -78,6 +101,12 @@ Common libraries for report-server.
 pushd src
 %{__python} setup.py build
 popd
+# SELinux Configuration
+cd selinux
+perl -i -pe 'BEGIN { $VER = join ".", grep /^\d+$/, split /\./, "%{version}.%{release}"; } s!0.0.0!$VER!g;' splice-server.te
+./build.sh
+cd -
+
 
 
 %install
