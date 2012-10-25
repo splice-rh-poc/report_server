@@ -113,6 +113,37 @@ cp etc/httpd/conf.d/%{name}.conf %{buildroot}/%{_sysconfdir}/httpd/conf.d/
 # Remove egg info
 rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 
+# Install SELinux policy modules
+cd selinux
+./install.sh %{buildroot}%{_datadir}
+mkdir -p %{buildroot}%{_datadir}/%{name}/selinux
+cp enable.sh %{buildroot}%{_datadir}/%{name}/selinux
+cp uninstall.sh %{buildroot}%{_datadir}/%{name}/selinux
+cp relabel.sh %{buildroot}%{_datadir}/%{name}/selinux
+cd -
+
+%post selinux
+# Enable SELinux policy modules
+if /usr/sbin/selinuxenabled ; then
+ %{_datadir}/%{name}/selinux/enable.sh %{_datadir}
+fi
+
+# Continuing with using posttrans, as we did this for Pulp and it worked for us.
+# restorcecon wasn't reading new file contexts we added when running under 'post' so moved to 'posttrans'
+# Spacewalk saw same issue and filed BZ here: https://bugzilla.redhat.com/show_bug.cgi?id=505066
+%posttrans selinux
+if /usr/sbin/selinuxenabled ; then
+ %{_datadir}/%{name}/selinux/relabel.sh %{_datadir}
+fi
+
+%preun selinux
+# Clean up after package removal
+if [ $1 -eq 0 ]; then
+  %{_datadir}/%{name}/selinux/uninstall.sh
+  %{_datadir}/%{name}/selinux/relabel.sh
+fi
+exit 0
+
 
 %files 
 %defattr(-,root,root,-)
