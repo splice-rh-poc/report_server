@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.26
+Version:	0.27
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -218,6 +218,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.27-1
+- django.log does not need to be changed only the parent dir
+  (whayutin@redhat.com)
+
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.26-1
 - fixed bug in spec for report.conf (whayutin@redhat.com)
 
