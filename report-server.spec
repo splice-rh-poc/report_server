@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.20
+Version:	0.21
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -204,6 +204,15 @@ exit 0
 #%doc
 
 %changelog
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.21-1
+- Automatic commit of package [report-server] release [0.20-1].
+  (whayutin@redhat.com)
+- package for report-server-selinux added to spec (whayutin@redhat.com)
+- added some more config for selinux, added init.d (whayutin@redhat.com)
+- Added some logging for performance measurements to product usage import, also
+  now return a CONFLICT if an error occurred during import.  Needs more work to
+  return back jsonified list of objects that errored (jmatthews@redhat.com)
+
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.20-1
 - package for report-server-selinux added to spec (whayutin@redhat.com)
 - added some more config for selinux, added init.d (whayutin@redhat.com)
