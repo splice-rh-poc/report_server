@@ -197,6 +197,13 @@ exit 0
 %defattr(-,apache,apache,-)
 %{_usr}/lib/report_server/report_import
 
+%files selinux
+%defattr(-,root,root,-)
+%doc selinux/%{name}-server.fc selinux/%{name}-server.if selinux/%{name}-server.te
+%{_datadir}/%{name}/selinux/*
+%{_datadir}/selinux/*/%{name}-server.pp
+%{_datadir}/selinux/devel/include/apps/%{name}-server.if
+
 
 #%clean
 #rm -rf %{buildroot}
