@@ -28,6 +28,8 @@ Requires:   python-mongoengine
 Requires:   python-mongodbforms
 Requires:   pymongo-gridfs
 Requires:   %{name}-common = %{version}-%{release}
+Requires:   %{name}-import = %{version}-%{release}
+Requires:   %{name}-selinux = %{version}-%{release}
 Requires:   splice-common
 Requires:   rhic-serve-common
 Requires:   rhic-serve-rcs
