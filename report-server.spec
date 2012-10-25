@@ -25,6 +25,10 @@ Requires:   python-mongoengine
 Requires:   python-mongodbforms
 Requires:   pymongo-gridfs
 Requires:   %{name}-common = %{version}-%{release}
+Requires:   splice-common
+Requires:   rhic-serve-common
+Requires:   rhic-serve-rcs
+Requires:   rhic-serve
 
 
 %description
@@ -48,6 +52,11 @@ Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
 Requires:   %{name}-common = %{version}-%{release}
+Requires:   pymongo-gridfs
+Requires:   splice-common
+Requires:   rhic-serve-common
+Requires:   rhic-serve-rcs
+Requires:   rhic-serve
 
 
 %description import
