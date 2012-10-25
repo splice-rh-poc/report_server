@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.23
+Version:	0.24
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -213,6 +213,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.24-1
+- bug w/ selinux perm for /srv (whayutin@redhat.com)
+
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.23-1
 - selinux building now (whayutin@redhat.com)
 
