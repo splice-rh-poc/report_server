@@ -6,7 +6,7 @@
 # :Usage: /etc/init.d/report-server {start|stop|restart|status}
 #
 
-LOG_FILE=/var/log/report-server/django.log
+LOG_FILE=/var/log/report-server
 
 #
 # Hack to force the django log file is writeable by apache
