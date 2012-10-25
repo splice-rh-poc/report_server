@@ -23,6 +23,7 @@ Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
 Requires:   python-mongodbforms
+Requires:   pymongo-gridfs
 Requires:   %{name}-common = %{version}-%{release}
 
 
@@ -79,6 +80,7 @@ mkdir -p %{buildroot}/%{_sysconfdir}/httpd/conf.d/
 mkdir -p %{buildroot}/%{_var}/log/%{name}
 mkdir -p %{buildroot}/%{_usr}/lib/report_server
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
+mkdir -p /var/log/%{name}
 
 
 # Install source
@@ -110,6 +112,7 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %{_usr}/lib/report_server
 %{_localstatedir}/www/html/report_server
 %dir /srv/%{name}
+%dir /var/log/%{name}
 /srv/%{name}/webservices.wsgi
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
  
