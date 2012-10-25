@@ -12,7 +12,7 @@ License:	GPLv2+
 URL:		https://github.com/splice/report_server
 Source0:	%{name}-%{version}.tar.gz
 
-BuildRequires:	python-setuptools
+BuildRequires:  python-setuptools
 BuildRequires:  python2-devel
 
 Requires:   mongodb-server
@@ -103,7 +103,7 @@ pushd src
 popd
 # SELinux Configuration
 cd selinux
-perl -i -pe 'BEGIN { $VER = join ".", grep /^\d+$/, split /\./, "%{version}.%{release}"; } s!0.0.0!$VER!g;' splice-server.te
+perl -i -pe 'BEGIN { $VER = join ".", grep /^\d+$/, split /\./, "%{version}.%{release}"; } s!0.0.0!$VER!g;' report-server.te
 ./build.sh
 cd -
 
@@ -199,16 +199,16 @@ exit 0
 
 %files selinux
 %defattr(-,root,root,-)
-%doc selinux/%{name}-server.fc selinux/%{name}-server.if selinux/%{name}-server.te
+%doc selinux/%{name}.fc selinux/%{name}.if selinux/%{name}.te
 %{_datadir}/%{name}/selinux/*
-%{_datadir}/selinux/*/%{name}-server.pp
-%{_datadir}/selinux/devel/include/apps/%{name}-server.if
+%{_datadir}/selinux/*/%{name}.pp
+%{_datadir}/selinux/devel/include/apps/%{name}.if
 
 
-#%clean
-#rm -rf %{buildroot}
+%clean
+rm -rf %{buildroot}
 
-#%doc
+
 
 %changelog
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.22-1
