@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.21
+Version:	0.22
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -211,6 +211,9 @@ exit 0
 #%doc
 
 %changelog
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.22-1
+- add files in spec for selinux (whayutin@redhat.com)
+
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.21-1
 - Automatic commit of package [report-server] release [0.20-1].
   (whayutin@redhat.com)
