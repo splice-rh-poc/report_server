@@ -1,0 +1,1 @@
+Search.setIndex({objects:{},terms:{index:0,search:0,welcom:0,modul:0,indic:0,server:0,content:0,api:[0,1],rest:[0,1],splice:0,tabl:0,report:0,document:0,page:0},objtypes:{},titles:["Welcome to Splice Report Server&#8217;s documentation!","REST API"],objnames:{},filenames:["index","rest-api/index"]})

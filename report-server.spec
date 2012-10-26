@@ -93,6 +93,16 @@ Requires(postun): /usr/sbin/semodule
 %description  selinux
 SELinux policy for Splice Report Server
 
+%package doc
+Summary:    Splice Report Server documentation
+Group:      Development/Languages
+
+BuildRequires:  python-sphinx
+BuildRequires:  python-sphinxcontrib-httpdomain
+
+%description doc
+Splice Report Server documentation
+
 
 %prep
 %setup -q
@@ -107,7 +117,10 @@ cd selinux
 perl -i -pe 'BEGIN { $VER = join ".", grep /^\d+$/, split /\./, "%{version}.%{release}"; } s!0.0.0!$VER!g;' report-server.te
 ./build.sh
 cd -
-
+# Sphinx documentation
+pushd doc
+make html
+popd
 
 
 %install
@@ -154,6 +167,12 @@ cp enable.sh %{buildroot}%{_datadir}/%{name}/selinux
 cp uninstall.sh %{buildroot}%{_datadir}/%{name}/selinux
 cp relabel.sh %{buildroot}%{_datadir}/%{name}/selinux
 cd -
+
+# Documentation
+mkdir -p %{buildroot}/%{_docdir}/%{name}
+cp LICENSE %{buildroot}/%{_docdir}/%{name}
+cp -R doc/_build/html %{buildroot}/%{_docdir}/%{name}
+
 
 %post selinux
 # Enable SELinux policy modules
@@ -209,6 +228,9 @@ exit 0
 %{_datadir}/%{name}/selinux/*
 %{_datadir}/selinux/*/%{name}.pp
 %{_datadir}/selinux/devel/include/apps/%{name}.if
+
+%files doc
+%doc %{_docdir}/%{name}
 
 
 %clean
