@@ -59,9 +59,8 @@ Requires:   python-mongoengine
 Requires:   %{name}-common = %{version}-%{release}
 Requires:   pymongo-gridfs
 Requires:   splice-common
-Requires:   rhic-serve-common
 Requires:   rhic-serve-rcs
-Requires:   rhic-serve
+Requires:   rhic-serve-rest
 
 
 %description import
