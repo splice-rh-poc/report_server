@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.27
+Version:	0.28
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -217,6 +217,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.28-1
+- Update requires for new rhic-serve packaging (jslagle@redhat.com)
+
 * Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.27-1
 - django.log does not need to be changed only the parent dir
   (whayutin@redhat.com)
