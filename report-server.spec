@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.28
+Version:	0.29
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.29-1
+- Add some api docs (jslagle@redhat.com)
+- Initial docs and packaging (jslagle@redhat.com)
+
 * Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.28-1
 - Update requires for new rhic-serve packaging (jslagle@redhat.com)
 
