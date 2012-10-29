@@ -320,7 +320,7 @@
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
                     populateDetailReport(rtn);
-                    //openDetail();
+                    openDetail();
 				    $('#detail_button').removeClass('disabled');
 					$('#detail_button').on("click", openDetail);
                 }).fail(function(jqXHR) {
@@ -350,7 +350,7 @@
                     }
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
-                    openMax();
+                    //openMax();
                     populateMaxReport(rtn);
 					$('#max_button').on("click", openMax);
                 }).fail(function(jqXHR) {
@@ -612,7 +612,7 @@
                         header_row.append($('<th>Facts:</th>'));
                         header_row.append($('<th>Contracted Use:</th>'));
                         header_row.append($('<th>NAU:</th>'));
-                        header_row.append($('<th>MAX:</th>'));
+                        
 
                         header.append(header_row);
 
@@ -635,7 +635,7 @@
                             row.append($('<td>' + product.facts + '</td>'));
                             row.append($('<td>' + product.contract_use + '</td>'));
                             row.append($('<td>' + product.checkins + '</td>'));
-                            row.append($('<td>View Max</td>'));
+                            
 
                             row.click(function() {
                                 $($('#report_pane').find('tbody')).children().each(function() {

@@ -23,7 +23,7 @@ from report_server.common import constants
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, from_splice_server="NA"):
+def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, from_splice_server="NA", force_import=False):
     """
     @param product_usage
     @type mongoengine cursor 
@@ -51,7 +51,7 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
     time_now = datetime.utcnow()
     last_import_threshhold = time_now - timedelta(minutes=45)
     last_import =  ImportHistory.objects.filter(date__gt=last_import_threshhold).count()
-    if last_import > 0:
+    if last_import > 0 and force_import == False:
         time['end'] = -1
         results.append(time)
         _LOG.info("import skipped")

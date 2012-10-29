@@ -17,20 +17,20 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-from splice.entitlement.models import ProductUsage
+from splice.common.models import ProductUsage
 from django.test import TestCase
 from mongoengine.connection import connect
 from django.conf import settings
 from logging import getLogger
-from sreport.models import ReportData
-from sreport.models import SpliceServer, ProductUsage
+from report_server.sreport.models import ReportData
+from report_server.sreport.models import SpliceServer, ProductUsage
 from rhic_serve.rhic_rest.models import RHIC, Account
 from datetime import datetime, timedelta
-from common.import_util import import_data
-from common import config
-from dev.custom_count import Rules
+from report_server.common.import_util import import_data
+from report_server.common import config
+from report_server.common.custom_count import Rules
 from setup import TestData
-from common import constants
+from report_server.common import constants
 
 LOG = getLogger(__name__)
 config.init()
@@ -91,7 +91,7 @@ class Report_Import_TestCase(TestCase):
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data()
+        results = import_data(force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -111,7 +111,7 @@ class Report_Import_TestCase(TestCase):
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         pu = TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data()
+        results = import_data(force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -133,7 +133,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data()
+        results = import_data(force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -157,7 +157,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data()
+        results = import_data(force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -181,7 +181,7 @@ class Report_Import_TestCase(TestCase):
         uuid = products_dict[EDU][1]
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data()
+        results = import_data(force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -214,7 +214,7 @@ class Report_Import_TestCase(TestCase):
             my_list.append(value)
         
         timer_start = datetime.now()
-        results = import_data(product_usage=my_list)
+        results = import_data(product_usage=my_list, force_import=True)
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), items_to_load)
         
@@ -235,7 +235,7 @@ class Report_Import_TestCase(TestCase):
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data( checkin_interval=2)
+        results = import_data( checkin_interval=2, force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -265,7 +265,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data( checkin_interval=2)
+        results = import_data( checkin_interval=2, force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -294,7 +294,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data( checkin_interval=2)
+        results = import_data( checkin_interval=2, force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -318,7 +318,7 @@ class Report_Import_TestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data( checkin_interval=2)
+        results = import_data( checkin_interval=2, force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
