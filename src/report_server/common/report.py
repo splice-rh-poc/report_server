@@ -14,8 +14,8 @@ import logging
 
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
-from products import Product_Def
-from dev.custom_count import Rules
+from report_server.common.products import Product_Def
+from report_server.common.custom_count import Rules
 
 
 _LOG = logging.getLogger(__name__)

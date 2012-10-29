@@ -14,6 +14,9 @@
 import os
 from mongoengine import *
 
+from logging import getLogger
+_LOG = getLogger(__name__)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -130,7 +133,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'splice_reports.urls'
+ROOT_URLCONF = 'dev.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'splice_reports.wsgi.application'
@@ -171,7 +174,7 @@ if DEBUG:
 #LIST RULES AT START
 #print('test')
 
-from dev.custom_count import Rules
+from report_server.common.custom_count import Rules
 r = Rules()
 r.init()
 r.list_rules()

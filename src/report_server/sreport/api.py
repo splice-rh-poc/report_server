@@ -9,14 +9,14 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from sreport.models import ProductUsage
+from report_server.sreport.models import ProductUsage
 from django.contrib.auth.models import User
 from tastypie.authorization import Authorization
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 
-from common import import_util
-from report_import.api import productusage
+from report_server.common import import_util
+from report_server.report_import.api import productusage
 
 class ProductUsageResource(productusage.ProductUsageResource):
 

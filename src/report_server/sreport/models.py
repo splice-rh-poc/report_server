@@ -14,7 +14,6 @@ from mongoengine import DateTimeField, Document,  \
 from django import forms
 #from splice.entitlement.models import ProductUsage, SpliceServer
 from splice.common.models import ProductUsage, SpliceServer
-from mongodbforms import DocumentForm, EmbeddedDocumentForm
 from mongoengine.queryset import QuerySet
 from rhic_serve.rhic_rcs.models import RHIC
 
@@ -139,4 +138,14 @@ class ReportDataDaily(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     duplicate = IntField()
+
+class ImportHistory(Document):
+    meta = {
+        'db_alias': 'results', 
+        'allow_inheritance': True, 
+        'indexes': [ ('date', 'splice_server')],
+    }
+    
+    date = DateTimeField(required=True)
+    splice_server = StringField(required=True)
     

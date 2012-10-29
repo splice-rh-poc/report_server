@@ -61,7 +61,7 @@
 
             function logout() {
                 $.ajax({
-                    url: '/ui/ui20/logout/',
+                    url: '/report-server/ui20/logout/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: {},
@@ -129,7 +129,7 @@
                 setupCreateFormButtons();
 
                 $.ajax({
-                    url: '/ui/ui20/report_form/',
+                    url: '/report-server/ui20/report_form/',
                     type: 'GET',
                     contentType: 'application/json',
                     data: {},
@@ -185,7 +185,7 @@
 					}
 
                     $.ajax({
-                        url: '/ui/ui20/report/',
+                        url: '/report-server/ui20/report/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: data,
@@ -307,7 +307,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/ui20/details/',
+                    url: '/report-server/ui20/details/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -338,7 +338,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/ui20/max_report/',
+                    url: '/report-server/ui20/max_report/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -367,7 +367,7 @@
                 };
 
                 $.ajax({
-                    url: '/ui/ui20/instance_details/',
+                    url: '/report-server/ui20/instance_details/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: data,
@@ -397,7 +397,7 @@
                     $('#import_pane > button').append(status);
 
                     $.ajax({
-                        url: '/ui/ui20/import/',
+                        url: '/report-server/ui20/import/',
                         type: 'POST',
                         contentType: 'application/json',
                         data: {},
@@ -409,17 +409,23 @@
 						}
 					}).done(function(data) {
                         var rtn = jQuery.parseJSON(data);
-                        for (var i = 0; i < rtn.time.length; i++) {
-                            var dt = rtn.time[i];
-
-                            $('#import_pane > div').empty();
-                            var status = $('<span>Import Complete!\nStart Time: ' + dt.start + '\nEnd Time: ' + dt.end + '<span>');
+                        
+                        
+                            var dt = rtn.time[0];
+                            if (dt.end < 0){
+                            var status = $('<span>Import Skipped, import has been executed in the last 45 minutes<span>');
                             $('#import_pane > div').append(status);
-
+                            }
+                            else { 
+                                $('#import_pane > div').empty();
+                                var status = $('<span>Import Complete!\nStart Time: ' + dt.start + '\nEnd Time: ' + dt.end + '<span>');
+                                $('#import_pane > div').append(status);
+                            }
                             $('#import_pane > button').empty();
                             var status = $('<span class=\'ui-button-text\'>Import Data</span>');
                             $('#import_pane > button').append(status);
-                        }
+                            
+                        
                     }).fail(function(jqXHR) {
                         // TODO: Add error handling here
                     });
@@ -460,7 +466,7 @@
 
                             // Login button in form clicked 
                             $.ajax({
-                                url: '/ui/ui20/login/',
+                                url: '/report-server/ui20/login/',
                                 type: 'POST',
                                 contentType: 'application/json',
                                 data: data,
@@ -537,6 +543,7 @@
                 } else {
                     $('#navWrap').show();
                     openCreate();
+                    setupCreateForm();
                 }
             }
 
