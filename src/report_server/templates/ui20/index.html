@@ -350,7 +350,7 @@
                     }
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
-                    //openMax();
+                    openMax();
                     populateMaxReport(rtn);
 					$('#max_button').on("click", openMax);
                 }).fail(function(jqXHR) {
@@ -644,6 +644,7 @@
                                 $(this).addClass('highlighted');
                                 createDetail(product.start, product.end, escape(new String(product.filter_args_dict)));
                                 createMax(product.start, product.end, product.contract_use, escape(new String(product.product_config)), escape(new String(product.filter_args_dict)));
+                                
                             });
 
                             tbody.append(row);
