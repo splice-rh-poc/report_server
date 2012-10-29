@@ -585,9 +585,6 @@
                 }
             }
 
-            function detail_row_clicked() {
-            }
-
             function populateReport(rtn) {
                 var pane = $('#report_pane > div');
 
@@ -732,6 +729,18 @@
                 reportDetailTableData.forEach(function(data) {
                     detail_table.fnAddData(data);
                 });
+
+                // attach event
+                pane.children('tbody').find('tr').each(function() {
+                    $(this).click(function() {
+                        $(this).siblings().each(function() {
+                            $(this).removeClass('highlighted');
+                        });
+                        $(this).addClass('highlighted');
+                        var instance = $($(this).children('td')[1]).text();
+                        createInstanceDetail(rtn.start, rtn.end, instance, escape(new String(rtn.this_filter)));
+                    });
+                });
             }
 
             function populateInstanceDetailReport(rtn) {
@@ -850,6 +859,10 @@
             }
             table.dataTable td {
                 text-align: center;
+            }
+            tr.highlighted {
+                background-color: #A1ACB2 !important;
+                color: #FFFFFF;
             }
         </style>
     </head>
