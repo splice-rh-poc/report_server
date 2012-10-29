@@ -696,6 +696,7 @@
 
             function populateDetailReport(rtn) {
                 var pane = $('#details > table');
+
                 // cleanup first
                 pane.empty();
 
@@ -711,24 +712,13 @@
                     ],
                 });
 
-
                 for (var instance_index=0; instance_index < rtn.list.length; instance_index++) {
                     var instance = rtn.list[instance_index];
 
                     var i = instance_index + 1;
 
-                    var row = $('<tr></tr>');
-                    row.append($('<td>' + i + '</td>'));
-                    row.append($('<td>' + instance.instance + '</td>'));
-                    row.append($('<td><a href=\'#\' onclick="createInstanceDetail(\'' + rtn.start + '\',\'' + rtn.end + '\', \'' + instance.instance + '\', \'' + escape(new String(rtn.this_filter)) + '\')">' + instance.count + '</a></td>'));
-
-                    //tbody.append(row);
-                    reportDetailTableData.push([i, instance.instance, instance.count]);
+                    detail_table.fnAddData([i, instance.instance, instance.count]);
                 }
-
-                reportDetailTableData.forEach(function(data) {
-                    detail_table.fnAddData(data);
-                });
 
                 // attach event
                 pane.children('tbody').find('tr').each(function() {
@@ -744,60 +734,42 @@
             }
 
             function populateInstanceDetailReport(rtn) {
-                var pane = $('#instance_details');
+                var pane = $('#instance_details > table');
 
                 // cleanup first
                 pane.empty();
 
-                var title = $('<b>Number of checkins: ' + rtn.list.length + '</b>');
+                var instanceDetailTableData = [];
 
-                pane.append(title);
-                pane.append($('<br></br>'));
+                instance_table = pane.dataTable({
+                    "bAutoWidth": false,
+                    "bJQueryUI": true,
+                    "aoColumns": [
+                        {"sTitle": "Count"},
+                        {"sTitle": "MAC"},
+                        {"sTitle": "Product"},
+                        {"sTitle": "Time"},
+                        {"sTitle": "Products"},
+                        {"sTitle": "Memory"},
+                        {"sTitle": "CPU Sockets"},
+                        {"sTitle": "Environment"},
+                    ],
+                });
 
-                var table = $('<table id=\'instance_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-
-                var header = ($('<tr></tr>'));
-                header.append($('<th width=2%>Count</th>'));
-                header.append($('<th width=5%>MAC</th>'));
-                header.append($('<th width=5%>Product</th>'));
-                header.append($('<th width=5%>Time</th>'));
-                header.append($('<th width=5%>Products</th>'));
-                header.append($('<th width=5%>Memory</th>'));
-                header.append($('<th width=5%>CPU Sockets</th>'));
-                header.append($('<th width=5%>Environment</th>'));
-
-                table.append(header);
-
-                var tbody = $('<tbody></tbody>');
 
                 for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
                     var instance = rtn.list[instance_index];
 
                     var i = instance_index + 1;
 
-                    var row = $('<tr></tr>');
-                    row.append($('<td>' + i + '</td>'));
-                    row.append($('<td>' + instance.instance_identifier + '</td>'));
-                    row.append($('<td>' + instance.product_name + '</td>'));
-                    row.append($('<td>' + instance.hour + '</td>'));
-                    row.append($('<td>' + instance.product + '</td>'));
-                    row.append($('<td>' + instance.memtotal + '</td>'));
-                    row.append($('<td>' + instance.cpu_sockets + '</td>'));
-                    row.append($('<td>' + instance.environment + '</td>'));
+                    //instanceDetailTableData.push([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
+                    instance_table.fnAddData([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
 
-                    tbody.append(row);
                 }
 
-                table.append(tbody);
-
-                pane.append(table);
-                pane.append($('<br></br>'));
-
                 // if currently hidden, turn it on
-                if (!pane.is(':visible')) {
-                    pane.show('blind', {percent: 100}, 5000, function() {
-                        // Animation done.
-                    });
+                if (!$('#instance_details').is(':visible')) {
+                    $('#instance_details').show();
                 }
             }
 
@@ -1058,11 +1030,15 @@
                             </div>
                             <div id='detail_pane'>
                                 <div id='details'>
+                                    <b>Instance Details</b>
                                     <table style="width: 100%; margin-bottom: 0;">
                                     </table>
                                 </div>
                                 <br></br>
                                 <div id='instance_details'>
+                                    <b>Number of Checkins</b>
+                                    <table style="width: 100%; margin-bottom: 0;">
+                                    </table>
                                 </div>
                             </div>
                             <div id='max_pane'>
