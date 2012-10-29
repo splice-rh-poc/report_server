@@ -282,7 +282,6 @@
                     $('#detail_pane').hide();
                     $('#max_pane').show();
                     $('#import_pane').hide();
-                    
                 }
             }
 
@@ -321,7 +320,8 @@
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
                     populateDetailReport(rtn);
-                    openDetail();
+                    //openDetail();
+				    $('#detail_button').removeClass('disabled');
 					$('#detail_button').on("click", openDetail);
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
@@ -595,16 +595,19 @@
                     for (var rhic_index in rtn.list) {
                         var rhic = rtn.list[rhic_index];
 
-                        var table = $('<table id=\'report_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+                        var table = $('<table class=\'display\' style=\'display: table\' width=\'100%\'></table>');
 
-                        var header = ($('<tr></tr>'));
-                        header.append($('<th>Product:</th>'));
-                        header.append($('<th>SLA:</th>'));
-                        header.append($('<th>Support:</th>'));
-                        header.append($('<th>Facts:</th>'));
-                        header.append($('<th>Contracted Use:</th>'));
-                        header.append($('<th>NAU:</th>'));
-                        header.append($('<th>MAX:</th>'));
+                        var header = $('<thead></thead>');
+                        var header_row = $('<tr></tr>');
+                        header_row.append($('<th>Product:</th>'));
+                        header_row.append($('<th>SLA:</th>'));
+                        header_row.append($('<th>Support:</th>'));
+                        header_row.append($('<th>Facts:</th>'));
+                        header_row.append($('<th>Contracted Use:</th>'));
+                        header_row.append($('<th>NAU:</th>'));
+                        header_row.append($('<th>MAX:</th>'));
+
+                        header.append(header_row);
 
                         table.append(header);
 
@@ -624,10 +627,17 @@
                             row.append($('<td>' + product.support + '</td>'));
                             row.append($('<td>' + product.facts + '</td>'));
                             row.append($('<td>' + product.contract_use + '</td>'));
-                            row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict))
-                            		+ '\')">' + product.checkins + '</a></td>'));
-                            row.append($('<td><a href=\'#\' onclick="createMax(\'' + product.start + '\',\'' + product.end + '\', \''  + product.contract_use +'\', \'' 
-                            		+  escape(new String(product.product_config)) + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + 'view max' + '</a></td>'));
+                            row.append($('<td>' + product.checkins + '</td>'));
+                            row.append($('<td>View Max</td>'));
+
+                            row.click(function() {
+                                $($('#report_pane').find('tbody')).children().each(function() {
+                                    $(this).removeClass('highlighted');
+                                });
+                                $(this).addClass('highlighted');
+                                createDetail(product.start, product.end, escape(new String(product.filter_args_dict)));
+                                createMax(product.start, product.end, product.contract_use, escape(new String(product.product_config)), escape(new String(product.filter_args_dict)));
+                            });
 
                             tbody.append(row);
                         }
@@ -652,41 +662,37 @@
                 pane.empty();
 
                 if (rtn.list.length > 0) {
-                		var mydata = rtn.list;
+                    var mydata = rtn.list;
 
-                        var table = $('<table id=\'report_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+                    var table = $('<table id=\'max_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
 
-                        var header = ($('<tr></tr>'));
-                        header.append($('<th>Day:</th>'));
-                        header.append($('<th>Maximum Daily Usage:</th>'));
-       
+                    var header = ($('<tr></tr>'));
+                    header.append($('<th>Day:</th>'));
+                    header.append($('<th>Maximum Daily Usage:</th>'));
 
-                        table.append(header);
 
-                        var tbody = $('<tbody></tbody>');
+                    table.append(header);
 
-                        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-                            var instance = rtn.list[instance_index];
-                            
-                            var row = $('<tr></tr>');
-                            row.append($('<td>' + instance['date'] + '</td>'));
-                            row.append($('<td>' + instance['count'] + '</td>'));
-                            
-                            tbody.append(row);
-                        }
+                    var tbody = $('<tbody></tbody>');
 
-                        table.append(tbody);
+                    for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+                        var instance = rtn.list[instance_index];
 
-                        pane.append(table);
+                        var row = $('<tr></tr>');
+                        row.append($('<td>' + instance['date'] + '</td>'));
+                        row.append($('<td>' + instance['count'] + '</td>'));
 
-                        pane.append($('<br></br>'));
-                        pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
-                        var graph_count = rtn.graph_count;
-                        var plot1 = $.jqplot('chartdiv', [graph_count]);
-                        
-                        
-                        
-                    
+                        tbody.append(row);
+                    }
+
+                    table.append(tbody);
+
+                    pane.append(table);
+
+                    pane.append($('<br></br>'));
+                    pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
+                    var graph_count = rtn.graph_count;
+                    var plot1 = $.jqplot('chartdiv', [graph_count]);
                 } else {
                     pane.append($('<h3>This date range contains no usage data.</h3>'));
                     pane.append($('<br></br>'));
