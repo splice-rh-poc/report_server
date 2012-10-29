@@ -321,7 +321,6 @@
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
                     populateDetailReport(rtn);
-                    createPagination(start, end, filter_args, rtn);
                     openDetail();
 					$('#detail_button').on("click", openDetail);
                 }).fail(function(jqXHR) {
@@ -329,27 +328,6 @@
                 });
             }
 
-            function createPagination(start, end, filter_args, rtn) {
-                var list = $('#detail_pagination_list');
-
-                // just in case it has leftover from previous report
-                list.empty();
-
-                var length = Math.ceil(rtn.list.length / page_size);
-
-                // calculate number of pagination element
-                for (var i=0; i < length; i++) {
-                    var n = i + 1;
-                    var li = $('<li class=\'pager-item\'><a href=\'#\'>' + n + '</a></li>');
-
-                    if (i == 0) {
-                        li.addClass('pager-current');
-                    }
-
-                    list.append(li);
-                }
-            }
-            
             function createMax(start, end, contract_use, product_config, filter_args) {
                 var data = {
                     "start": start,
