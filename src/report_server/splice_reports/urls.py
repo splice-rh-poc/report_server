@@ -15,7 +15,7 @@ from django.views.generic import list_detail
 
 from tastypie.api import Api
 
-from sreport.api import ProductUsageResource
+from report_server.sreport.api import ProductUsageResource
 
 v1_api = Api(api_name='v1')
 
@@ -33,25 +33,25 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     #url(r'^admin/', include(admin.site.urls)),
-    (r'^ui/login/$', 'sreport.views.login'),
-    (r'^ui/logout/$', 'sreport.views.logout'),
-    (r'^ui/$', 'sreport.views.index'),
-    (r'^ui/index$', 'sreport.views.index'),
-    (r'^ui/create_report/$', 'sreport.views.create_report'),
-    (r'^ui/report/$', 'sreport.views.report'),
-    (r'^ui/import/$', 'sreport.views.import_checkin_data'),
-    (r'^ui/report/details/$', 'sreport.views.detailed_report'),
-    (r'^ui/report/details/instance_details/$', 'sreport.views.instance_report'),
-    (r'^ui/ui20/$', 'sreport.views.ui20'),
-    (r'^ui/ui20/index/$', 'sreport.views.index_ui20'),
-    (r'^ui/ui20/import/$', 'sreport.views.import_ui20'),
-    (r'^ui/ui20/login/$', 'sreport.views.login_ui20'),
-    (r'^ui/ui20/logout/$', 'sreport.views.logout_ui20'),
-    (r'^ui/ui20/report_form/$', 'sreport.views.report_form_ui20'),
-    (r'^ui/ui20/report/$', 'sreport.views.report_ui20'),
-    (r'^ui/ui20/details/$', 'sreport.views.detailed_report_ui20'),
-    (r'^ui/ui20/max_report/$', 'sreport.views.max_report'),
-    (r'^ui/ui20/instance_details/$', 'sreport.views.instance_detail_ui20'),
+    (r'^ui/login/$', 'report_server.sreport.views.login'),
+    (r'^ui/logout/$', 'report_server.sreport.views.logout'),
+    (r'^ui/$', 'report_server.sreport.views.index'),
+    (r'^ui/index$', 'report_server.sreport.views.index'),
+    (r'^ui/create_report/$', 'report_server.sreport.views.create_report'),
+    (r'^ui/report/$', 'report_server.sreport.views.report'),
+    (r'^ui/import/$', 'report_server.sreport.views.import_checkin_data'),
+    (r'^ui/report/details/$', 'report_server.sreport.views.detailed_report'),
+    (r'^ui/report/details/instance_details/$', 'report_server.sreport.views.instance_report'),
+    (r'^ui20/$', 'report_server.sreport.views.ui20'),
+    (r'^ui20/index/$', 'report_server.sreport.views.index_ui20'),
+    (r'^ui20/import/$', 'report_server.sreport.views.import_ui20'),
+    (r'^ui20/login/$', 'report_server.sreport.views.login_ui20'),
+    (r'^ui20/logout/$', 'report_server.sreport.views.logout_ui20'),
+    (r'^ui20/report_form/$', 'report_server.sreport.views.report_form_ui20'),
+    (r'^ui20/report/$', 'report_server.sreport.views.report_ui20'),
+    (r'^ui20/details/$', 'report_server.sreport.views.detailed_report_ui20'),
+    (r'^ui20/max_report/$', 'report_server.sreport.views.max_report'),
+    (r'^ui20/instance_details/$', 'report_server.sreport.views.instance_detail_ui20'),
 )
 
 urlpatterns += (

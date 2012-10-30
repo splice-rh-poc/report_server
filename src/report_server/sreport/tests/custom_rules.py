@@ -9,7 +9,7 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from dev.custom_count import Rules
+from report_server.common.custom_count import Rules
 from django.test import TestCase
 from setup import TestData
 
@@ -36,7 +36,7 @@ class RulesTestCase(TestCase):
         this_test = rules[RHEL]['memtotal']
         this_expected_results = [0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
         self.assertEqual(this_test, this_expected_results, 'results match')
-        
+    '''
     def test_update_rules(self):
         r = Rules()
         rules = r.get_rules()
@@ -48,4 +48,5 @@ class RulesTestCase(TestCase):
         this_test = new_rules[RHEL]['memtotal']
         this_expected_results = [0, 9388608, '< 9GB', 9388608, -1, '> 9GB' ]
         self.assertEqual(this_test, this_expected_results, 'results match')
+    '''
     

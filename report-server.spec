@@ -1,15 +1,18 @@
+#SELinux
+%global selinux_policyver %(%{__sed} -e 's,.*selinux-policy-\\([^/]*\\)/.*,\\1,' /usr/share/selinux/devel/policyhelp || echo 0.0.0)
+
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.5
+Version:	0.30
 Release:	1%{?dist}
-Summary:	Reporting server for reporting RHIC net aggregate usage.
+Summary:	Reporting server for Splice.
 
 Group:		Development/Languages
 License:	GPLv2+
 URL:		https://github.com/splice/report_server
 Source0:	%{name}-%{version}.tar.gz
 
-BuildRequires:	python-setuptools
+BuildRequires:  python-setuptools
 BuildRequires:  python2-devel
 
 Requires:   mongodb-server
@@ -22,11 +25,19 @@ Requires:   Django
 Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
+Requires:   python-mongodbforms
+Requires:   pymongo-gridfs
 Requires:   %{name}-common = %{version}-%{release}
+Requires:   %{name}-import = %{version}-%{release}
+Requires:   %{name}-selinux = %{version}-%{release}
+Requires:   splice-common
+Requires:   rhic-serve-common
+Requires:   rhic-serve-rcs
+Requires:   rhic-serve
 
 
 %description
-Reporting server for reporting RHIC net aggregate usage.
+Reporting server for Splice.
 
 
 # report-server import package ------------------------------------------------
@@ -46,6 +57,10 @@ Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
 Requires:   %{name}-common = %{version}-%{release}
+Requires:   pymongo-gridfs
+Requires:   splice-common
+Requires:   rhic-serve-rcs
+Requires:   rhic-serve-rest
 
 
 %description import
@@ -59,6 +74,36 @@ Group:      Development/Languages
 %description common
 Common libraries for report-server.
 
+%package        selinux
+Summary:        Splice Report Server SELinux policy
+Group:          Development/Languages
+BuildRequires:  rpm-python
+BuildRequires:  make
+BuildRequires:  checkpolicy
+BuildRequires:  selinux-policy-devel
+# el6, selinux-policy-doc is the required RPM which will bring below 'policyhelp'
+BuildRequires:  /usr/share/selinux/devel/policyhelp
+BuildRequires:  hardlink
+Requires: selinux-policy >= %{selinux_policyver}
+Requires(post): policycoreutils-python 
+Requires(post): selinux-policy-targeted
+Requires(post): /usr/sbin/semodule, /sbin/fixfiles, /usr/sbin/semanage
+Requires(postun): /usr/sbin/semodule
+
+%description  selinux
+SELinux policy for Splice Report Server
+
+%package doc
+Summary:    Splice Report Server documentation
+Group:      Development/Languages
+
+BuildRequires:  python-sphinx
+BuildRequires:  python-sphinxcontrib-httpdomain
+
+%description doc
+Splice Report Server documentation
+
+
 %prep
 %setup -q
 
@@ -67,10 +112,29 @@ Common libraries for report-server.
 pushd src
 %{__python} setup.py build
 popd
+# SELinux Configuration
+cd selinux
+perl -i -pe 'BEGIN { $VER = join ".", grep /^\d+$/, split /\./, "%{version}.%{release}"; } s!0.0.0!$VER!g;' report-server.te
+./build.sh
+cd -
+# Sphinx documentation
+pushd doc
+make html
+popd
 
 
 %install
 rm -rf %{buildroot}
+pushd src
+%{__python} setup.py install -O1 --skip-build --root %{buildroot}
+popd
+mkdir -p %{buildroot}/%{_sysconfdir}/httpd/conf.d/
+mkdir -p %{buildroot}/%{_var}/log/%{name}
+mkdir -p %{buildroot}/%{_usr}/lib/report_server
+mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
+mkdir -p %{buildroot}/%{_sysconfdir}/rc.d/init.d
+mkdir -p /var/log/%{name}
+
 
 # Install source
 pushd src
@@ -86,8 +150,51 @@ cp -R src/report_server/report_import/templates %{buildroot}/%{_usr}/lib/report_
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
 cp -R src/report_server/sreport/static %{buildroot}/%{_localstatedir}/www/html/report_server/sreport
 
+# Install WSGI script & httpd conf
+cp -R srv %{buildroot}
+cp etc/httpd/conf.d/%{name}.conf %{buildroot}/%{_sysconfdir}/httpd/conf.d/
+cp -R etc/splice %{buildroot}/%{_sysconfdir}
+cp -R etc/rc.d/init.d %{buildroot}/%{_sysconfdir}/rc.d
+
 # Remove egg info
 rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
+
+# Install SELinux policy modules
+cd selinux
+./install.sh %{buildroot}%{_datadir}
+mkdir -p %{buildroot}%{_datadir}/%{name}/selinux
+cp enable.sh %{buildroot}%{_datadir}/%{name}/selinux
+cp uninstall.sh %{buildroot}%{_datadir}/%{name}/selinux
+cp relabel.sh %{buildroot}%{_datadir}/%{name}/selinux
+cd -
+
+# Documentation
+mkdir -p %{buildroot}/%{_docdir}/%{name}
+cp LICENSE %{buildroot}/%{_docdir}/%{name}
+cp -R doc/_build/html %{buildroot}/%{_docdir}/%{name}
+
+
+%post selinux
+# Enable SELinux policy modules
+if /usr/sbin/selinuxenabled ; then
+ %{_datadir}/%{name}/selinux/enable.sh %{_datadir}
+fi
+
+# Continuing with using posttrans, as we did this for Pulp and it worked for us.
+# restorcecon wasn't reading new file contexts we added when running under 'post' so moved to 'posttrans'
+# Spacewalk saw same issue and filed BZ here: https://bugzilla.redhat.com/show_bug.cgi?id=505066
+%posttrans selinux
+if /usr/sbin/selinuxenabled ; then
+ %{_datadir}/%{name}/selinux/relabel.sh %{_datadir}
+fi
+
+%preun selinux
+# Clean up after package removal
+if [ $1 -eq 0 ]; then
+  %{_datadir}/%{name}/selinux/uninstall.sh
+  %{_datadir}/%{name}/selinux/relabel.sh
+fi
+exit 0
 
 
 %files 
@@ -96,12 +203,18 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %defattr(-,apache,apache,-)
 %{_usr}/lib/report_server
 %{_localstatedir}/www/html/report_server
+%dir /srv/%{name}
+%dir /var/log/%{name}
+/srv/%{name}/webservices.wsgi
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
  
 
 %files common
 %defattr(-,root,root,-)
 %{python_sitelib}/report_server/common
 %{python_sitelib}/report_server/__init__.py*
+%config(noreplace) %{_sysconfdir}/rc.d/init.d/report-server
+%config(noreplace) %{_sysconfdir}/splice/report.conf
 
 %files import
 %defattr(-,root,root,-)
@@ -109,12 +222,181 @@ rm -rf %{buildroot}/%{python_sitelib}/*.egg-info
 %defattr(-,apache,apache,-)
 %{_usr}/lib/report_server/report_import
 
+%files selinux
+%defattr(-,root,root,-)
+%doc selinux/%{name}.fc selinux/%{name}.if selinux/%{name}.te
+%{_datadir}/%{name}/selinux/*
+%{_datadir}/selinux/*/%{name}.pp
+%{_datadir}/selinux/devel/include/apps/%{name}.if
+
+%files doc
+%doc %{_docdir}/%{name}
+
 
 %clean
 rm -rf %{buildroot}
 
 
+
 %changelog
+* Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.30-1
+- Add missing LICENSE file (jslagle@redhat.com)
+
+* Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.29-1
+- Add some api docs (jslagle@redhat.com)
+- Initial docs and packaging (jslagle@redhat.com)
+
+* Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.28-1
+- Update requires for new rhic-serve packaging (jslagle@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.27-1
+- django.log does not need to be changed only the parent dir
+  (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.26-1
+- fixed bug in spec for report.conf (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.25-1
+- added splice.config and init.d files to spec (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.24-1
+- bug w/ selinux perm for /srv (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.23-1
+- selinux building now (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.22-1
+- add files in spec for selinux (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.21-1
+- Automatic commit of package [report-server] release [0.20-1].
+  (whayutin@redhat.com)
+- package for report-server-selinux added to spec (whayutin@redhat.com)
+- added some more config for selinux, added init.d (whayutin@redhat.com)
+- Added some logging for performance measurements to product usage import, also
+  now return a CONFLICT if an error occurred during import.  Needs more work to
+  return back jsonified list of objects that errored (jmatthews@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.20-1
+- package for report-server-selinux added to spec (whayutin@redhat.com)
+- added some more config for selinux, added init.d (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.19-1
+- missed an url change, added rcs to Requires (whayutin@redhat.com)
+
+* Thu Oct 25 2012 Wes Hayutin <whayutin@redhat.com> 0.18-1
+- add gridfs as dep, make a log dir (whayutin@redhat.com)
+
+* Wed Oct 24 2012 Wes Hayutin
+ 0.17-1
+ <whayutin@redhat.com>
+- additional changes for packaging (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-7.splice]. (whayutin@redhat.com)
+- update prep step for proper build root name (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-6.splice]. (whayutin@redhat.com)
+- update build root (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-5.splice]. (whayutin@redhat.com)
+- getting a bad exit code from a %%clean (whayutin@redhat.com)
+- Automatic commit of package [python-mongodbforms] minor release
+  [0.1.4-4.splice]. (whayutin@redhat.com)
+
+* Wed Oct 24 2012 Wes Hayutin
+ 0.16-1
+ <whayutin@redhat.com>
+- since mongdbforms requires python-mongoengine.. renaming to python-
+  mongodbforms, and making reports require it (whayutin@redhat.com)
+- Automatic commit of package [mongodbforms] minor release [0.1.4-3.splice].
+  (whayutin@redhat.com)
+- seems to be building locally now (whayutin@redhat.com)
+
+* Wed Oct 24 2012 Wes Hayutin
+ 0.15-1
+ <whayutin@redhat.com>
+- another attempt to fix mongoddbforms (whayutin@redhat.com)
+- trying to fix mongodbform build issue (whayutin@redhat.com)
+- updated deps (whayutin@redhat.com)
+- Automatic commit of package [mongodbforms] minor release [0.1.4-2.splice].
+  (whayutin@redhat.com)
+- adding dep source for mongodbforms (whayutin@redhat.com)
+
+* Wed Oct 24 2012 Wes Hayutin
+ 0.14-1
+ <whayutin@redhat.com>
+- most of the packaging is complete (whayutin@redhat.com)
+- Automatic commit of package [report-server] release [0.13-1].
+  (whayutin@redhat.com)
+
+* Wed Oct 24 2012 Wes Hayutin
+ 0.13-1
+ <whayutin@redhat.com>
+- fixed imports for packaging (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.12-1
+- changing wsgi name from splice_reports to report-server (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.11-1
+- fix to initial page load, and spec (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.10-1
+- rename srv dir (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.9-1
+- missing files in spec (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.8-1
+- fixed naming for http conf (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.7-1
+- updated packaging (whayutin@redhat.com)
+- created a control to prevent imports from stepping on each other
+  (whayutin@redhat.com)
+- adding rules to production settings.py (whayutin@redhat.com)
+
+* Tue Oct 23 2012 Wes Hayutin <whayutin@redhat.com> 0.6-1
+- merge (whayutin@redhat.com)
+- fix model change from splice server (whayutin@redhat.com)
+- update unit tests (whayutin@redhat.com)
+- couple things to clean up (whayutin@redhat.com)
+- rename from admin -> ui20 (whayutin@redhat.com)
+- added functionality to gray out tab(s) before it can be used moved foo folder
+  to admin modified url and view methods to accomodate the move
+  (dgao@redhat.com)
+- added MongoEncoder and helper methods to jsonify objs (dgao@redhat.com)
+- first pass at max daily usage (whayutin@redhat.com)
+- updated import for new splice server model (whayutin@redhat.com)
+- merge in selinux rules (whayutin@redhat.com)
+- added copyright info and graph data (whayutin@redhat.com)
+- changed width of graph to occupy 100%% of the existing content space
+  (dgao@redhat.com)
+- remove debug code (dgao@redhat.com)
+- added charting lib for Max Data tab (dgao@redhat.com)
+- stubbed out max daily usage (whayutin@redhat.com)
+- begin max page (whayutin@redhat.com)
+- merge (whayutin@redhat.com)
+- minor fixes (whayutin@redhat.com)
+- don't reset form after report is generated. added reset button clear out
+  report/detail pane if reset button is clicked (dgao@redhat.com)
+- added to_dict() to ReportData and ReportDataDaily (dgao@redhat.com)
+- fixed import issue (albeit, not very elegant) (dgao@redhat.com)
+- fixing import issue (whayutin@redhat.com)
+- removed unused files (dgao@redhat.com)
+- merge (whayutin@redhat.com)
+- had to move foo templates, removed some bad tests, fixed an import in views
+  (whayutin@redhat.com)
+- intermediate checkin for more fixes from the merge (dgao@redhat.com)
+- moved files to the correct location after merge (dgao@redhat.com)
+- Merge branch 'master' of git://github.com/segfault923/report_server into
+  UI_20 (dgao@redhat.com)
+- finished off instance_detail (dgao@redhat.com)
+- intermediate changes for instance_detail work initial revision for todo list
+  (dgao@redhat.com)
+- minor deletion of unused code (dgao@redhat.com)
+- added reporting and detail pane (dgao@redhat.com)
+- initial revision to centralize everything to one admin page (dgao@redhat.com)
+
 * Fri Oct 19 2012 John Matthews <jmatthews@redhat.com> 0.5-1
 - Add requires for 'report-server-common' to 'report-server-import'
   (jmatthews@redhat.com)

@@ -12,6 +12,7 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 import logging
+import time
 
 from django.template.response import TemplateResponse
 
@@ -35,7 +36,7 @@ class ProductUsageResource(MongoEngineResource):
 
 
     def post_list(self, request, **kwargs):
-        _LOG.info("request.raw_post_data = %s" % (request.raw_post_data))
+        _LOG.info("ProductUsageResource::post_list() processing %s KB." % (len(request.raw_post_data)/1024.0))
 
         #deserialized = self.deserialize(
         #    request, request.raw_post_data,
@@ -44,13 +45,20 @@ class ProductUsageResource(MongoEngineResource):
         #    request, deserialized)
         #bundle = self.build_bundle(data=deserialized, request=request)
         #_LOG.info("bundle = %s" % (bundle))
-
+        a = time.time()
         product_usage = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
         if isinstance(product_usage, dict):
             product_usage = [product_usage]
         pu_models = [ProductUsage._from_son(p) for p in product_usage]
-        self.import_hook(pu_models)
-        return http.HttpAccepted()
+        b = time.time()
+        items_not_imported = self.import_hook(pu_models)
+        c = time.time()
+        _LOG.info("ProductUsageResource::post_list() Total Time: %s,  %s seconds to convert %s KB to JSON. "
+                  "%s seconds to import %s objects into mongo." % (c-a, b-a, len(request.raw_post_data)/1024.0, c-b, len(pu_models)))
+        if not items_not_imported:
+            return http.HttpAccepted()
+        else:
+            return http.HttpConflict()
 
     def get_list(self, request, **kwargs):
         product_usage = ProductUsage.objects.all()
@@ -59,5 +67,9 @@ class ProductUsageResource(MongoEngineResource):
         return response
 
     def import_hook(self, product_usage):
+        """
+        @param product_usage:
+        @return: a list of items which failed to import.
+        """
         raise NotImplementedError
 

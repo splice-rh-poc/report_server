@@ -8,7 +8,7 @@
 # NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
-from splice.entitlement.models import ProductUsage
+from splice.common.models import ProductUsage
 
 
 
@@ -23,16 +23,16 @@ from django.test import TestCase
 from mongoengine.connection import connect
 from django.conf import settings
 from logging import getLogger
-from sreport.models import ReportData
-from sreport.models import SpliceServer
+from report_server.sreport.models import ReportData
+from report_server.sreport.models import SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from datetime import datetime, timedelta
-from common.products import Product_Def
-from common.report import hours_per_consumer
-from common import config
-from dev.custom_count import Rules
+from report_server.common.products import Product_Def
+from report_server.common.report import hours_per_consumer
+from report_server.common import config
+from report_server.common.custom_count import Rules
 from setup import TestData, Product
-from common import constants
+from report_server.common import constants
 
 
 LOG = getLogger(__name__)

@@ -2,7 +2,7 @@
 from datetime import date, datetime, timedelta
 import datetime
 
-from common import config
+from report_server.common import config
 
 '''
 start_date = input("Enter a start date as.. yyyy mm dd hh \n")

@@ -130,7 +130,7 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'splice_reports.urls'
+ROOT_URLCONF = 'report_server.splice_reports.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'splice_reports.wsgi.application'
@@ -139,7 +139,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.path.abspath(os.path.dirname(__name__)), "report_server/templates"),
+    #os.path.join(os.path.abspath(os.path.dirname(__name__)), "templates"),
+    '/usr/lib/report_server/templates',
 )
 print TEMPLATE_DIRS
 
@@ -156,16 +157,26 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'tastypie',
     'tastypie_mongoengine',
-    'sreport',
-    'report_import',
+    'report_server.sreport',
+    'report_server.report_import'
 )
 
-LOG_DIR = "/var/log/report_server/"
+
 if DEBUG:
-    LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
+    #LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__name__)), "debug_logs")
+    LOG_DIR = '/var/log/report-server'
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
     print LOG_DIR
+
+
+#LIST RULES AT START
+#print('test')
+
+from report_server.common.custom_count import Rules
+r = Rules()
+r.init()
+r.list_rules()
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
