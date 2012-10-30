@@ -740,10 +740,14 @@
             }
 
             function populateInstanceDetailReport(rtn) {
-                var pane = $('#instance_details > table');
+                // cleanup
+                $('#instance_details').empty();
+                var header = $('<b>Number of Checkins</b>');
+                var table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
+                $('#instance_details').append(header);
+                $('#instance_details').append(table);
 
-                // cleanup first
-                pane.empty();
+                var pane = $('#instance_details > table');
 
                 var instanceDetailTableData = [];
 
@@ -1045,9 +1049,11 @@
                                 </div>
                                 <br></br>
                                 <div id='instance_details'>
+                                <!--
                                     <b>Number of Checkins</b>
                                     <table style="width: 100%; margin-bottom: 0;">
                                     </table>
+                                 -->
                                 </div>
                             </div>
                             <div id='max_pane'>
