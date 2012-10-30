@@ -78,6 +78,8 @@ class UI_TestCase(TestCase):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
         ss = TestData.create_splice_server("test01", "east")
+        ss = TestData.create_splice_server("test02", "east")
+        ss = TestData.create_splice_server("test03", "east-")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
         time3 = datetime.strptime("10102012:0531", constants.mn_fmt)

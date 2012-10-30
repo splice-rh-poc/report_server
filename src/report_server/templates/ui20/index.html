@@ -17,13 +17,17 @@
         <link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet"/>
         <link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}jquery.jqplot.min.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}chosen.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}TableTools.css" type="text/css" rel="stylesheet"/>
         <script src="{{ STATIC_URL }}jquery.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
         <script src="{{ STATIC_URL }}jquery.jqplot.min.js"></script>
         <script src="{{ STATIC_URL }}jqplot.canvasTextRenderer.min.js"></script>
         <script src="{{ STATIC_URL }}jqplot.canvasAxisLabelRenderer.min.js"></script>
+        <script src="{{ STATIC_URL }}chosen.jquery.js"></script>
         <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
+        <script src="{{ STATIC_URL }}TableTools.min.js"></script>
         <script>
             var first_logged_in = false;
             var logged_in = false;
@@ -51,9 +55,36 @@
 				$('#report_button').off('click');
 				$('#detail_button').off('click');
 				$('#max_button').off("click");
+				
+				$('#contract').change(function() {
+					$('#rhic').val('').trigger('liszt:updated');
+				});
+				
+				$('#rhic').change(function() {
+					$('#contract').val('').trigger('liszt:updated');
+					
+				});
+				
+				$("#byMonth").change(function() {
+					$("#startDate").val('').trigger('liszt:updated');
+	                $("#endDate").val('').trigger('liszt:updated');
+				});
+				
+				$("#startDate").change(function() {
+					$("#byMonth").val('').trigger('liszt:updated');
+				});
+				
+				$("#endDate").change(function() {
+					$("#byMonth").val('').trigger('liszt:updated');
+				});
+				
+				
+                
 
 				// Is there a way to disable :hover event as well?
+				
             });
+            
 
             function login() {
                 $('#login-form').dialog('open');
@@ -110,18 +141,15 @@
 					this.reset();
 				});
 
-                $('#startDate').attr('disabled', true);
-                $('#endDate').attr('disabled', true);
-                $('#rhic').attr('disabled', true);
-                $('#contract').attr('disabled', true);
-				$("#startDate").attr('disabled', true);
-				$("#endDate").attr('disabled', true);
+                $('#startDate').attr('disabled', false);
+                $('#endDate').attr('disabled', false);
+                $('#rhic').attr('disabled', false);
+                $('#contract').attr('disabled', false);
+				$("#startDate").attr('disabled', false);
+				$("#endDate").attr('disabled', false);
+				$("#byMonth").attr('disabled', false);
+				$("#env").attr('disabled', false);
 
-                $('input.create_radio').each(
-                    function() {
-                        $(this).click(radioClicked);
-                    }
-                );
 
                 $('#startDate').datepicker();
                 $('#endDate').datepicker();
@@ -140,11 +168,18 @@
                             }
                         }
                     }).done(function(data) {
-                        fill_create_report_form(JSON.parse(data)); 
+                    	
+                        fill_create_report_form(JSON.parse(data));
+                    	//fill_create_report_rhic_form(JSON.parse(data));
+                        $('#contract').chosen();
+                    	$('#rhic').chosen();
+                    	$('#byMonth').chosen();
+                    	$('#env').chosen();
                     }).fail(function(jqXHR) {
                         // TODO: Add error handling here
                 });
             }
+
 
             function setupCreateFormButtons() {
                 var btn = $('#clear');
@@ -163,26 +198,21 @@
                	    var data = {}; 
 					
 					// Date section
-					if (!$('#byMonth').attr('disabled')) {
-						data['byMonth'] = $('#byMonth').val();
-					} else {
-						data['startDate'] = $('#startDate').val();
-						data['endDate'] = $('#endDate').val();
-					}	
-
-					// Customer data section
-					if (!$('#contract').attr('disabled')) {
-						data['contract_number'] = $('#contract').val();
-					} else if (!$('#rhic').attr('disabled')){
-						data['rhic'] = $('#rhic').val();
-					} else {
-						// pass in nothing
-					}
-
-					// Environment section
-					if (!$('#env').attr('disabled')) {
-						data['env'] = $('#env').val();
-					}
+                    if($.trim($('#byMonth').val()) != "-1") {
+                    	data['byMonth'] = $('#byMonth').val();
+                    }
+                    if($.trim($('#startDate').val()) != "") {
+                    	data['startDate'] = $('#startDate').val();
+    					data['endDate'] = $('#endDate').val();
+                    }
+                    if($.trim($('#contract').val()) != "") {
+                    	data['contract_number'] = $('#contract').val();
+                    }
+                    if($.trim($('#rhic').val()) != "") {
+                    	data['rhic'] = $('#rhic').val();
+                    }
+					
+					data['env'] = $('#env').val();
 
                     $.ajax({
                         url: '/report-server/ui20/report/',
@@ -213,10 +243,9 @@
                 $('#report_pane > div').append($('<br></br>'));
                 $('#report_pane > div').append($('<br></br>'));
                 $('#details > table').empty();
-                $('#details > table').append($('<b><span>Please generate a report first and then click the NAU link.</span></b>'));
                 $('#instance_details').empty();
                 $('#max_details').empty();
-                $('#max_details').append($('<b><span>hey ur empty</span></b>'));
+                
 
 				// Disable appropriate nav tabs 
 				$('#report_button').addClass('disabled');
@@ -327,6 +356,8 @@
                     // TODO: Add error handling here
                 });
             }
+            
+            
 
             function createMax(start, end, contract_use, product_config, filter_args) {
                 var data = {
@@ -505,21 +536,49 @@
                 // Clear outdated elements
                 $('#contract').empty();
 				$('#rhic').empty();
+				$('#env').empty();
+				//$('#byMonth').empty();
 
 				// Add defaults
+				$('#contract').append($('<option selected value=null></option>'));
 				$('#contract').append($('<option value=All>All</option>'));
+				
 
                 // Add remainder elements from data
 				jQuery.each(data.contracts, function(index, ele) {
 					$('#contract').append($('<option value=' + ele + '>' + ele + '</option>'));
 				});	
+				
+				$('#rhic').append($('<option selected value=null></option>'));
 				jQuery.each(data.list_of_rhics, function(index, ele) {
 					$('#rhic').append($('<option value=' + ele[0] + '>' + ele[1] + '</option>'));
 				});	
+				
+				$('#env').append($('<option value=All>All</option>'));
 				jQuery.each(data.environments, function(index, ele) {
 					$('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
 				});	
+				
+				var d = new Date();
+				var n = d.getMonth() + 1;
+				var month=new Array();
+				month[1]="January";
+				month[2]="February";
+				month[3]="March";
+				month[4]="April";
+				month[5]="May";
+				month[6]="June";
+				month[7]="July";
+				month[8]="August";
+				month[9]="September";
+				month[10]="October";
+				month[11]="November";
+				month[12]="December";
+				$('#byMonth').append($('<option selected value=' + n + '>' + month[n] + '</option>'));
+				
             }
+            
+         
 
             function disableButton(btn) {
                 btn.attr('disabled', true);
@@ -555,43 +614,7 @@
                 );
             }
 
-            function radioClicked() {
-                // find out which radio button was clicked and
-                // disable/enable appropriate input elements
-                switch(this.value) {
-                    case "month" :
-                        $("#byMonth").removeAttr('disabled');
-                        $("#startDate").attr('disabled', true);
-                        $("#endDate").attr('disabled', true);
-
-                        // disable radio button for range
-                        $("input[value='range']").prop('checked', false);
-                        break;
-                    case "range" :
-                        $("#byMonth").attr('disabled', true);
-                        $("#startDate").removeAttr('disabled');
-                        $("#endDate").removeAttr('disabled');
-
-                        // disable radio button for month
-                        $("input[value='month']").prop('checked', false);
-                        break;
-                    case "contract_radio" :
-                        $("#contract").removeAttr('disabled');
-                        $("#rhic").attr('disabled', true);
-
-                        // disable radio button for rhic
-                        $("input[value='rhic_radio']").prop('checked', false);
-                        break;
-                    case "rhic_radio" :
-                        $("#contract").attr('disabled', true);
-                        $("#rhic").removeAttr('disabled');
-
-                        // disable radio button for contract
-                        $("input[value='contract_radio']").prop('checked', false);
-                        break;
-                }
-            }
-
+            
             function populateReport(rtn) {
                 var pane = $('#report_pane > div');
 
@@ -717,13 +740,31 @@
                 var reportDetailTableData = [];
 
                 detail_table = pane.dataTable({
-                    "bAutoWidth": false,
+                    "bAutoWidth": true,
                     "bJQueryUI": true,
                     "aoColumns": [
                         {"sTitle": "Count"},
-                        {"sTitle": "MAC"},
+                        {"sTitle": "UUID"},
                         {"sTitle": "Number of Checkins"}
                     ],
+                    "sDom": 'T<"clear">lfrtip',
+                    "oTableTools": {
+                			"sSwfPath": "{{ STATIC_URL }}copy_csv_xls_pdf.swf",
+                			"aButtons": [
+                							{
+                								"sExtends": "copy",
+                								"sButtonText": "Copy to clipboard"
+                							},
+                							{
+                								"sExtends": "csv",
+                								"sButtonText": "Save to CSV"
+                							},
+                							{
+                								"sExtends": "pdf",
+                								"sButtonText": "Save to PDF"
+                							}
+                						]
+                		}
                 });
 
                 for (var instance_index=0; instance_index < rtn.list.length; instance_index++) {
@@ -745,6 +786,8 @@
                         createInstanceDetail(rtn.start, rtn.end, instance, escape(new String(rtn.this_filter)));
                     });
                 });
+                
+                
             }
 
             function populateInstanceDetailReport(rtn) {
@@ -760,14 +803,32 @@
                     "bJQueryUI": true,
                     "aoColumns": [
                         {"sTitle": "Count"},
-                        {"sTitle": "MAC"},
+                        {"sTitle": "UUID"},
                         {"sTitle": "Product"},
                         {"sTitle": "Time"},
                         {"sTitle": "Products"},
                         {"sTitle": "Memory"},
                         {"sTitle": "CPU Sockets"},
-                        {"sTitle": "Environment"},
+                        {"sTitle": "Reporting Domain"},
                     ],
+                    "sDom": 'T<"clear">lfrtip',
+                    "oTableTools": {
+                			"sSwfPath": "{{ STATIC_URL }}copy_csv_xls_pdf.swf",
+                			"aButtons": [
+             							{
+             								"sExtends": "copy",
+             								"sButtonText": "Copy to clipboard"
+             							},
+             							{
+             								"sExtends": "csv",
+             								"sButtonText": "Save to CSV"
+             							},
+             							{
+             								"sExtends": "pdf",
+             								"sButtonText": "Save to PDF"
+             							}
+             						]
+                		}
                 });
 
 
@@ -780,7 +841,7 @@
                     instance_table.fnAddData([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
 
                 }
-
+                
                 // if currently hidden, turn it on
                 if (!$('#instance_details').is(':visible')) {
                     $('#instance_details').show();
@@ -919,14 +980,14 @@
                             <div id='create_pane'>
                                 <fieldset>
                                     <form id="report_form">
-                                        <p><b>Filter by Date:</b></p>
+                                     <h2>Filter by Date:</h2>
                                         <table>
                                             <tr>
                                                 <td width="10%">
                                                     <div style='display: inline-block'>
-                                                        <input type="radio" class="create_radio" value="month"/>
+                                                        
                                                         <b style='padding-top: 1em'> Month:</b>
-                                                        <select name=byMonth id="byMonth" class='create_select' disabled="true">
+                                                        <select name=byMonth id="byMonth" class='chosen' style="width:100px;" disabled="false">
                                                             <option value="-1">Select Month</option>
                                                             <option value="1">January</option>
                                                             <option value="2">February</option>
@@ -948,7 +1009,7 @@
                                             <tr>
                                                 <td width="50%"> 
                                                     <div style='display: inline-block'>
-                                                        <input type="radio" class="create_radio" value="range"/> 
+                                                        
                                                         <b>Custom Range:</b> 
                                                             Start Date: <input type="text" id="startDate" name="startDate">
                                                             End Date: <input type="text" id="endDate" name="endDate"> </p>
@@ -957,37 +1018,37 @@
                                             </tr>
                                         </table>
         
-                                        <p><b>Filter by Customer Data:</b></p> 
+                                        <h2>Filter by Customer Data:</h2> 
                                         <table>
                                             <tr>
                                                 <td width="5%"> 
-                                                    <input type="radio" class="create_radio" value="contract_radio" />
+                                                    
                                                     <b> Contract: </b> </td> 
                                                     <td width="40%">
-                                                        <select id="contract" name=contract_number class='create_select' disabled="true"> 
-                                                            <option value=All>All</option>
+                                                        <select id="contract" name=contract_number class='chosen'  style="width:150px;" disabled="false"> 
+                                                            
                                                         </select> 
                                                     </td>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td width="5%"> 
-                                                    <input type="radio" class="create_radio" value="rhic_radio" />
+                                                    
                                                     <b> RHIC: </b></td>
                                                     <td width="40%">
-                                                        <select id="rhic" name="rhic" class='create_select' disabled="true">
+                                                        <select id="rhic" name="rhic" class='chosen' style="width:400px;" disabled="false">
                                                         </select>
                                                     </td>
                                                 </td>
                                             </tr>
                                         </table>
-                                        <p><b>Filter by Environment:</b></p> 
+                                        <h2>Filter by Reporting Domain:</h2> 
                                         <table>
                                             <tr> 
-                                                <td width="1%"><b>Environment: </b></td>
+                                                <td width="1%"><b>Reporting Domain: </b></td>
                                                     <td width="51%">
-                                                        <select id='env' name="env" class='create_select'>
-                                                            <option value=All>All</option>
+                                                        <select id='env' name="env" class='chosen'  style="width:150px;" disabled="false">
+                                                            
                                                         </select>
                                                     </td>
                                                 </td>
@@ -1031,6 +1092,19 @@
                                             <td><h3>Glossary:</h3></td>
                                         </tr>
                                         <tr>
+                                        <td width="15%">SLA :</td>
+                                        <td>Service level agreement as defined in the customers contract</td>
+                                        </tr>
+                                        <tr>
+                                        <td width="15%">Support :</td>
+                                        <td>Support parameters as defined in the customers contract</td>
+                                        </tr>
+                                        <tr>
+                                        <tr>
+                                        <td width="15%">Facts :</td>
+                                        <td>Characteristics of both hardware and software of the resource</td>
+                                        </tr>
+                                        <tr>
                                             <td width="15%">Contracted Use:</h3></td>
                                             <td>This is the number of concurrent entitlements purchased in the contract</td>
                                         </tr>
@@ -1042,18 +1116,19 @@
                                             <td width="15%">Consumed :</td>
                                             <td>Defined as an entitlement being installed and running on an instance or physical machine. If an instance is not running ( ie.. shutdown or terminated), then it is not counted as consumed</td>
                                         </tr>
+                                        
                                     </tbody>
                                 </table>
                             </div>
                             <div id='detail_pane'>
                                 <div id='details'>
-                                    <b>Instance Details</b>
+                                    <h2>Unique Resources:</h2>
                                     <table style="width: 100%; margin-bottom: 0;">
                                     </table>
                                 </div>
                                 <br></br>
                                 <div id='instance_details'>
-                                    <b>Number of Checkins</b>
+                                    <h2>Details:</h2>
                                     <table style="width: 100%; margin-bottom: 0;">
                                     </table>
                                 </div>

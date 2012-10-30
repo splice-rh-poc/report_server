@@ -362,12 +362,12 @@ def report_ui20(request):
         environment = "All"
         
     list_of_rhics = []
-    if 'rhic' in request.POST:
+    if request.POST['rhic'] != 'null':
         my_uuid = request.POST['rhic']
         list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
         results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
         
-    elif 'contract_number' in request.POST:
+    elif request.POST['contract_number'] != 'null':
         contract = request.POST['contract_number']
         if contract == "All":
             list_of_rhics = list(RHIC.objects.filter(account_id=account))
