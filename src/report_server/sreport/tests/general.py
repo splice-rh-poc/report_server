@@ -103,7 +103,7 @@ class ReportTestCase(TestCase):
         #test perfect match
         p = Product.objects.filter(name="RHEL Server")[0]
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
     
     
@@ -129,13 +129,13 @@ class ReportTestCase(TestCase):
         #test for RHEL Match
         p = Product.objects.filter(name=RHEL)[0]
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
         
         #test for JBoss match
         p = Product.objects.filter(name=JBoss)[0]
         rhic = RHIC.objects.filter(uuid='ee5c9aaa-a40c-1111-80a6-ef731076bbe8')[0]
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 2)
     
     
@@ -153,13 +153,13 @@ class ReportTestCase(TestCase):
         #test perfect match
         p = Product.objects.filter(name="RHEL Server")[0]
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
     
         test_object = Product.objects.filter(name="RHEL Server")[0]
         test_object.name = "fail"
         try:
-            results_dicts = Product_Def.get_product_match(test_object, rhic, start, end, contract_num, environment, report_biz_rules)
+            results_dicts = Product_Def.get_MDU(test_object, rhic, start, end, contract_num, environment, report_biz_rules)
         except KeyError:
             self.assertTrue(1, 'key error appropriately found, no results returned')
         except Exception:
@@ -169,26 +169,26 @@ class ReportTestCase(TestCase):
         # test result not found where rhic uuid does not match
         test_object =  RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
         test_object.uuid = "1234"
-        results_dicts = Product_Def.get_product_match(p, test_object, start, end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, test_object, start, end, contract_num, environment, report_biz_rules)
         self.assertFalse(results_dicts, 'no results returned')
         
         # test no results are found if usage date is not in range
         test_object = datetime.now()
-        results_dicts = Product_Def.get_product_match(p, rhic, test_object, end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, test_object, end, contract_num, environment, report_biz_rules)
         self.assertFalse(results_dicts, 'no results returned')
         
         test_object = start
-        results_dicts = Product_Def.get_product_match(p, rhic, start, test_object, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, test_object, contract_num, environment, report_biz_rules)
         self.assertFalse(results_dicts, 'no results returned')
         
         #test if contract number is not a match
         test_object = "1234"
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, test_object, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, test_object, environment, report_biz_rules)
         self.assertFalse(results_dicts, 'no results returned')
         
         #test if environment is not a match
         test_object = "env_hell"
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, test_object, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, contract_num, test_object, report_biz_rules)
         self.assertFalse(results_dicts, 'no results returned')
         
         
@@ -208,7 +208,7 @@ class ReportTestCase(TestCase):
         #test that there are now two objects in the database
         p = Product.objects.filter(name="RHEL Server")[0]
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
-        results_dicts = Product_Def.get_product_match(p, rhic, search_date_start, search_date_end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, search_date_start, search_date_end, contract_num, environment, report_biz_rules)
         #lenth of list should be one per product
         self.assertEqual(len(results_dicts), 1)
         #dictionary should contain the count of checkins
@@ -223,7 +223,7 @@ class ReportTestCase(TestCase):
         
         p = Product.objects.filter(name="RHEL Server")[0]
         rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertTrue('> ' in results_dicts[0]['facts'], ' > 8GB found')
         
         rhel02 = TestData.create_entry(RHEL, mem_high=False)
@@ -235,7 +235,7 @@ class ReportTestCase(TestCase):
         self.assertEqual(len(lookup), 2)
         #RHEL w/ > 8GB and < 8GB memory are considered two different products
         #The result dict should have two items in the list (2 products, 1 count each)
-        results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
+        results_dicts = Product_Def.get_MDU(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 2)
         
     
@@ -262,7 +262,7 @@ class ReportTestCase(TestCase):
             rhic = RHIC.objects.filter(uuid=value[1])[0]
             #print(rhic.uuid)
             #print(rhic.contract)
-            results_dicts = Product_Def.get_product_match(p, rhic, start, end, rhic.contract, "us-east-1", report_biz_rules)
+            results_dicts = Product_Def.get_MDU(p, rhic, start, end, rhic.contract, "us-east-1", report_biz_rules)
             self.assertEqual(len(results_dicts), 1)
     
     def test_hours_per_consumer(self):

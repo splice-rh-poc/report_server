@@ -47,13 +47,15 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
         
         list_of_products = get_list_of_products(account_num, contract_num)
         products_contract = [(prod.name) for prod in list_of_products]
-
-        intersect = set(products_contract).intersection(set(rhic.products))
+        
+        #in
+        #intersect = set(products_contract).intersection(set(rhic.products))
+        intersect = set(products_contract)
 
         for p in (p for p in list_of_products if p.name in intersect): 
             _LOG.info(p.name, p.sla, p.support_level)
             results_dicts = []
-            results_dicts = Product_Def.get_product_match(p, rhic, start, end, contract_num, environment, report_biz_rules)
+            results_dicts = Product_Def.get_MDU(p, rhic, start, end, contract_num, environment, report_biz_rules)
             if results_dicts:
                 for result in results_dicts:
                     rhic_list.append(result)

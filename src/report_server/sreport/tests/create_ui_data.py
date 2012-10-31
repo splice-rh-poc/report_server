@@ -80,19 +80,28 @@ class UI_TestCase(TestCase):
         ss = TestData.create_splice_server("test01", "east")
         ss = TestData.create_splice_server("test02", "east")
         ss = TestData.create_splice_server("test03", "east-")
-        time = datetime.strptime("10102012:0530", constants.mn_fmt)
+        time1 = datetime.strptime("10092012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
         time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
+        time4 = datetime.strptime("10112012:0531", constants.mn_fmt)
+        time5 = datetime.strptime("10112012:0631", constants.mn_fmt)
+        time6 = datetime.strptime("10122012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        prod2 = products_dict[JBoss][0]
+        
+        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac03', products=prod)
+        
+        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance='mac01', products=prod2)
+        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance='mac02', products=prod2)
+        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance='mac03', products=prod)
         #run import
         results = import_data(force_import=True)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
-        self.assertEqual(len(lookup), 3)
+        self.assertEqual(len(lookup), 6)
     
    

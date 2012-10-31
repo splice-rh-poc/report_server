@@ -26,7 +26,7 @@
         <script src="{{ STATIC_URL }}jqplot.canvasTextRenderer.min.js"></script>
         <script src="{{ STATIC_URL }}jqplot.canvasAxisLabelRenderer.min.js"></script>
         <script src="{{ STATIC_URL }}chosen.jquery.js"></script>
-        <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script>
+        <script src="http://datatables.net/download/build/jquery.dataTables.min.js"></script> 
         <script src="{{ STATIC_URL }}TableTools.min.js"></script>
         <script>
             var first_logged_in = false;
@@ -383,6 +383,7 @@
                     var rtn = jQuery.parseJSON(data);
                     openMax();
                     populateMaxReport(rtn);
+                    openDetail(); //also should not be needed :) jumps back from max to detail
 					$('#max_button').on("click", openMax);
                 }).fail(function(jqXHR) {
                     // TODO: Add error handling here
@@ -668,6 +669,7 @@
                                 createDetail(product.start, product.end, escape(new String(product.filter_args_dict)));
                                 createMax(product.start, product.end, product.contract_use, escape(new String(product.product_config)), escape(new String(product.filter_args_dict)));
                                 
+                                
                             });
 
                             tbody.append(row);
@@ -700,6 +702,7 @@
                     var header = ($('<tr></tr>'));
                     header.append($('<th>Day:</th>'));
                     header.append($('<th>Maximum Daily Usage:</th>'));
+                    header.append($('<th>Maximum Concurrent Usage:</th>'));
 
 
                     table.append(header);
@@ -711,7 +714,8 @@
 
                         var row = $('<tr></tr>');
                         row.append($('<td>' + instance['date'] + '</td>'));
-                        row.append($('<td>' + instance['count'] + '</td>'));
+                        row.append($('<td>' + instance['mdu'] + '</td>'));
+                        row.append($('<td>' + instance['mcu'] + '</td>'));
 
                         tbody.append(row);
                     }
@@ -722,8 +726,36 @@
 
                     pane.append($('<br></br>'));
                     pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
-                    var graph_count = rtn.graph_count;
-                    var plot1 = $.jqplot('chartdiv', [graph_count]);
+                    var mdu = rtn.mdu;
+                    var mcu = rtn.mcu;
+                    var plot1 = $.jqplot('chartdiv', [mdu, mcu],
+                     {
+                    	title:'MDU vs MCU',
+                    	axesDefaults: {
+                    		labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                    	},
+                    	axes: {
+                    		xaxis:{
+                    			label: "Date Range",
+                    			pad: 0
+                    		},
+                    		yaxis:{
+                    			label: "Number of Resources",
+                    			pad: 0
+                    		}
+                    	},
+                    	series:[
+                    	     {
+                    	    	 lineWidth:2,
+                    	         markerOptions: { style:'dimaond' } 
+                    	     },
+                    	     {
+                    	    	 markerOptions: { sytle:'circle'}
+                    	     }
+                    	   ]
+                     });
+                    
+                    
                 } else {
                     pane.append($('<h3>This date range contains no usage data.</h3>'));
                     pane.append($('<br></br>'));
@@ -793,7 +825,7 @@
             function populateInstanceDetailReport(rtn) {
                 // cleanup
                 $('#instance_details').empty();
-                var header = $('<b>Number of Checkins</b>');
+                var header = $('<h2>Number of Checkins</h2>');
                 var table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
                 $('#instance_details').append(header);
                 $('#instance_details').append(table);
@@ -1132,18 +1164,20 @@
                                 </div>
                                 <br></br>
                                 <div id='instance_details'>
+                                    
                                 </div>
                             </div>
                             <div id='max_pane'>
                                 <br></br>
                                 <div id='max_details'>
-                                	<b><span>Please generate a report first and then click the Max Usage link.</span></b>
+                              
                                 </div>
                             </div>
                             <div id='import_pane'>
                                 <div>
                                 </div>
                                 <br></br>
+                                <h2> Demonstration Purposes Only.   Import will not be available to non admin users in a G.A. or production deployment</h2>
                                 <button id='createAnotherReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
                                     <span class='ui-button-text'>Import Data</span>
                                 </button>

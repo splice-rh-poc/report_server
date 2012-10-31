@@ -415,7 +415,7 @@ def detailed_report_ui20(request):
     response_data['list'] = results
     response_data['start'] = start.toordinal()
     response_data['end'] = end.toordinal()
-    response_data['this_filter'] = this_filter,
+    response_data['this_filter'] = this_filter
 
 
     try:
@@ -476,14 +476,16 @@ def max_report(request):
     contract_use = request.POST['contract_use']
     product_config = json.loads(request.POST['product_config'])
     
-    results, graph_list = MaxUsage.get_product_match(start, end, contract_use, filter_args_dict, product_config)
+    results, mdu, mcu = MaxUsage.get_MDU_MCU(start, end, contract_use, filter_args_dict, product_config)
+    
 
     
     response_data = {}
     response_data['list'] = results
     response_data['start'] = start.toordinal()
     response_data['end'] = end.toordinal()
-    response_data['graph_count'] = graph_list
+    response_data['mdu'] = mdu
+    response_data['mcu'] = mcu
 
     try:
         #response = HttpResponse(simplejson.dumps(response_data))
