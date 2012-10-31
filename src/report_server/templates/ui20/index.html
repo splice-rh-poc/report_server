@@ -278,27 +278,31 @@
 				$('#report_button').removeClass('disabled');
 				removeActiveNav();
 				$('#report_button').addClass('active');
+				$('#detail_button').addClass('disabled');
+				$('#max_pane').addClass('disabled');
+				$('#detail_button').off('click');
+				$('#max_button').off("click");
     
-                if (logged_in) {
-                    $('#create_pane').hide();
-                    $('#report_pane').show();
-                    $('#detail_pane').hide();
-                    $('#import_pane').hide();
-                    $('#max_pane').hide();
-                }
+                $('#create_pane').hide();
+                $('#report_pane').hide();
+                $('#detail_pane').hide();
+                $('#import_pane').hide();
+                $('#max_pane').hide();
+                $('#report_pane').show();
+                
             }
 
             function openDetail() {
 				$('#detail_button').removeClass('disabled');
 				removeActiveNav();
 				$('#detail_button').addClass('active');
-                if (logged_in) {
-                    $('#create_pane').hide();
-                    $('#report_pane').hide();
-                    $('#detail_pane').show();
-                    $('#import_pane').hide();
-                    $('#max_pane').hide();
-                }
+                $('#create_pane').hide();
+                $('#report_pane').hide();
+                $('#detail_pane').hide();
+                $('#import_pane').hide();
+                $('#max_pane').hide();
+                $('#detail_pane').show();
+               
             }
             
             function openMax() {
@@ -309,8 +313,9 @@
                     $('#create_pane').hide();
                     $('#report_pane').hide();
                     $('#detail_pane').hide();
-                    $('#max_pane').show();
+                    $('#max_pane').hide();
                     $('#import_pane').hide();
+                    $('#max_pane').show();
                 }
             }
 
@@ -348,6 +353,7 @@
                     }
                 }).done(function(data) {
                     var rtn = jQuery.parseJSON(data);
+                    openDetail();
                     populateDetailReport(rtn);
                     openDetail();
 				    $('#detail_button').removeClass('disabled');
@@ -636,6 +642,7 @@
                         header_row.append($('<th>Facts:</th>'));
                         header_row.append($('<th>Contracted Use:</th>'));
                         header_row.append($('<th>NAU:</th>'));
+                        header_row.append($('<th>MAX:</th>'));
                         
 
                         header.append(header_row);
@@ -658,120 +665,45 @@
                             row.append($('<td>' + product.support + '</td>'));
                             row.append($('<td>' + product.facts + '</td>'));
                             row.append($('<td>' + product.contract_use + '</td>'));
-                            row.append($('<td>' + product.checkins + '</td>'));
-                            
-
-                            row.click(function() {
-                                $($('#report_pane').find('tbody')).children().each(function() {
-                                    $(this).removeClass('highlighted');
-                                });
-                                $(this).addClass('highlighted');
-                                createDetail(product.start, product.end, escape(new String(product.filter_args_dict)));
-                                createMax(product.start, product.end, product.contract_use, escape(new String(product.product_config)), escape(new String(product.filter_args_dict)));
-                                
-                                
-                            });
+                            row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict))
+                            	+ '\') ">' + product.checkins + '</a></td>'));
+                            row.append($('<td><a href=\'#\' onclick="createMax(\'' + product.start + '\',\'' + product.end + '\', \''  + product.contract_use +'\', \'' 
+                            		+  escape(new String(product.product_config)) + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + 'max' + '</a></td>'));
 
                             tbody.append(row);
+                         
                         }
 
                         table.append(tbody);
 
                         pane.append(table);
+                     
                         pane.append($('<br></br>'));
+                     
+                        
                     }
-                } else {
-                    pane.append($('<h3>This date range contains no usage data.</h3>'));
-                    pane.append($('<br></br>'));
-                    pane.append($('<br></br>'));
                 }
+             
+               
             }
             
+           
             
-            function populateMaxReport(rtn) {
-                var pane = $('#max_pane');
-
-                // cleanup first
-                pane.empty();
-
-                if (rtn.list.length > 0) {
-                    var mydata = rtn.list;
-
-                    var table = $('<table id=\'max_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-
-                    var header = ($('<tr></tr>'));
-                    header.append($('<th>Day:</th>'));
-                    header.append($('<th>Maximum Daily Usage:</th>'));
-                    header.append($('<th>Maximum Concurrent Usage:</th>'));
-
-
-                    table.append(header);
-
-                    var tbody = $('<tbody></tbody>');
-
-                    for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-                        var instance = rtn.list[instance_index];
-
-                        var row = $('<tr></tr>');
-                        row.append($('<td>' + instance['date'] + '</td>'));
-                        row.append($('<td>' + instance['mdu'] + '</td>'));
-                        row.append($('<td>' + instance['mcu'] + '</td>'));
-
-                        tbody.append(row);
-                    }
-
-                    table.append(tbody);
-
-                    pane.append(table);
-
-                    pane.append($('<br></br>'));
-                    pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
-                    var mdu = rtn.mdu;
-                    var mcu = rtn.mcu;
-                    var plot1 = $.jqplot('chartdiv', [mdu, mcu],
-                     {
-                    	title:'MDU vs MCU',
-                    	axesDefaults: {
-                    		labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-                    	},
-                    	axes: {
-                    		xaxis:{
-                    			label: "Date Range",
-                    			pad: 0
-                    		},
-                    		yaxis:{
-                    			label: "Number of Resources",
-                    			pad: 0
-                    		}
-                    	},
-                    	series:[
-                    	     {
-                    	    	 lineWidth:2,
-                    	         markerOptions: { style:'dimaond' } 
-                    	     },
-                    	     {
-                    	    	 markerOptions: { sytle:'circle'}
-                    	     }
-                    	   ]
-                     });
-                    
-                    
-                } else {
-                    pane.append($('<h3>This date range contains no usage data.</h3>'));
-                    pane.append($('<br></br>'));
-                    pane.append($('<br></br>'));
-                }
-            }
 
             function populateDetailReport(rtn) {
-                var pane = $('#details > table');
+                //var pane = $('#details > table');
 
-                // cleanup first
-                pane.empty();
+             // cleanup
+                $('#details').empty();
+                $('#instance_details').empty();
+                var header = $('<h2>Unique Resources</h2>');
+                var detail_table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
+                $('#details').append(header);
+                $('#details').append(detail_table);
 
                 var reportDetailTableData = [];
 
-                detail_table = pane.dataTable({
+                detail_table = detail_table.dataTable({
                     "bAutoWidth": true,
                     "bJQueryUI": true,
                     "aoColumns": [
@@ -808,7 +740,7 @@
                 }
 
                 // attach event
-                pane.children('tbody').find('tr').each(function() {
+                detail_table.children('tbody').find('tr').each(function() {
                     $(this).click(function() {
                         $(this).siblings().each(function() {
                             $(this).removeClass('highlighted');
@@ -866,8 +798,7 @@
              						]
                 		}
                 });
-
-
+                
                 for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
                     var instance = rtn.list[instance_index];
 
@@ -883,6 +814,85 @@
                     $('#instance_details').show();
                 }
             }
+                
+                
+                function populateMaxReport(rtn) {
+                    var pane = $('#max_pane');
+
+                    // cleanup first
+                    pane.empty();
+
+                    if (rtn.list.length > 0) {
+                        var mydata = rtn.list;
+
+                        var table = $('<table id=\'max_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+
+                        var header = ($('<tr></tr>'));
+                        header.append($('<th>Day:</th>'));
+                        header.append($('<th>Maximum Daily Usage:</th>'));
+                        header.append($('<th>Maximum Concurrent Usage:</th>'));
+
+
+                        table.append(header);
+
+                        var tbody = $('<tbody></tbody>');
+
+                        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+                            var instance = rtn.list[instance_index];
+
+                            var row = $('<tr></tr>');
+                            row.append($('<td>' + instance['date'] + '</td>'));
+                            row.append($('<td>' + instance['mdu'] + '</td>'));
+                            row.append($('<td>' + instance['mcu'] + '</td>'));
+
+                            tbody.append(row);
+                        }
+
+                        table.append(tbody);
+
+                        pane.append(table);
+
+                        pane.append($('<br></br>'));
+                        pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
+                        var mdu = rtn.mdu;
+                        var mcu = rtn.mcu;
+                        var plot1 = $.jqplot('chartdiv', [mdu, mcu],
+                         {
+                        	title:'MDU vs MCU',
+                        	axesDefaults: {
+                        		labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                        	},
+                        	axes: {
+                        		xaxis:{
+                        			label: "Date Range",
+                        			pad: 0
+                        		},
+                        		yaxis:{
+                        			label: "Number of Resources",
+                        			pad: 0
+                        		}
+                        	},
+                        	series:[
+                        	     {
+                        	    	 lineWidth:2,
+                        	         markerOptions: { style:'dimaond' } 
+                        	     },
+                        	     {
+                        	    	 markerOptions: { sytle:'circle'}
+                        	     }
+                        	   ]
+                         });
+                        
+                        
+                    } else {
+                        pane.append($('<h3>This date range contains no usage data.</h3>'));
+                        pane.append($('<br></br>'));
+                        pane.append($('<br></br>'));
+                    }
+                }
+
+
+               
 
 			function validateForm() {
                 var rtn = true;
