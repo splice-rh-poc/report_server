@@ -1,0 +1,19 @@
+table#basic_report {
+    border-collapse: collapse;   
+}
+#basic_report tr {
+    background-color: #eee;
+    border-top: 1px solid #fff;
+}
+#basic_report tr:hover {
+    background-color: #ccc;
+}
+#basic_report th {
+    background-color: #fff;
+}
+#basic_report th, #basic_report td {
+    padding: 3px 5px;
+}
+#basic_report td:hover {
+    cursor: pointer;
+}

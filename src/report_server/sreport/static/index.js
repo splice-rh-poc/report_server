@@ -585,7 +585,7 @@ function populateReport(rtn) {
         for (var rhic_index in rtn.list) {
             var rhic = rtn.list[rhic_index];
 
-            var table = $('<table class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+            var table = $('<table id=basic_report class=\'display\' style=\'display: table\' width=\'100%\'></table>');
 
             var header = $('<thead></thead>');
             var header_row = $('<tr></tr>');
@@ -710,8 +710,8 @@ function populateMaxReport(rtn) {
                 ]
             });
         pane.append('<h3>Legend:</h3>');
-        pane.append('<b>blue line = MDU</b><br>');
-        pane.append('<b>green line = MCU</b>');
+        pane.append('<b>blue line = Maximum Daily Usage (MDU)</b><br>');
+        pane.append('<b>green line = Maximum Concurrent Usage (MCU)</b>');
     } else {
         pane.append($('<h3>This date range contains no usage data.</h3>'));
         pane.append($('<br></br>'));
