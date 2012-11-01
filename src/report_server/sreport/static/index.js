@@ -30,7 +30,7 @@ $(document).ready(function() {
     });
 
     $('#rhic').change(function() {
-        $('#contract').val('').trigger('liszt:updated');
+        $('#contract').val('null').trigger('liszt:updated');
     });
 
     $("#byMonth").change(function() {
@@ -503,8 +503,8 @@ function fill_create_report_form(data) {
     //$('#byMonth').empty();
 
     // Add defaults
-    $('#contract').append($('<option selected value=null></option>'));
-    $('#contract').append($('<option value=All>All</option>'));
+    $('#contract').append($('<option value=null></option>'));
+    $('#contract').append($('<option selected value=All>All</option>'));
 
 
     // Add remainder elements from data
