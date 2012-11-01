@@ -473,10 +473,8 @@ def max_report(request):
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     start = datetime.fromordinal(int(request.POST['start']))
     end = datetime.fromordinal(int(request.POST['end']))
-    contract_use = request.POST['contract_use']
-    product_config = json.loads(request.POST['product_config'])
     
-    results, mdu, mcu = MaxUsage.get_MDU_MCU(start, end, contract_use, filter_args_dict, product_config)
+    results, mdu, mcu = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
     
 
     

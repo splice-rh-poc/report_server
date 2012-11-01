@@ -241,12 +241,7 @@ function openCreate() {
 function openReport() {
     $('#report_button').removeClass('disabled');
     removeActiveNav();
-    $('#report_button').addClass('active');
-    $('#detail_button').addClass('disabled');
-    $('#max_pane').addClass('disabled');
-    $('#detail_button').off('click');
-    $('#max_button').off("click");
-
+    $('#report_button').addClass('active');;
     $('#create_pane').hide();
     $('#report_pane').hide();
     $('#detail_pane').hide();
@@ -319,7 +314,9 @@ function createDetail(start, end, filter_args) {
         var rtn = jQuery.parseJSON(data);
         openDetail();
         populateDetailReport(rtn);
-        openDetail();
+        createMax(start, end, filter_args);
+        
+
         $('#detail_button').removeClass('disabled');
         $('#detail_button').on("click", openDetail);
     }).fail(function(jqXHR) {
@@ -329,12 +326,10 @@ function createDetail(start, end, filter_args) {
 
 
 
-function createMax(start, end, contract_use, product_config, filter_args) {
+function createMax(start, end, filter_args) {
     var data = {
         "start": start,
         "end": end,
-        "contract_use": contract_use,
-        "product_config": unescape(product_config),
         "filter_args_dict": unescape(filter_args)
     };
 
@@ -600,7 +595,7 @@ function populateReport(rtn) {
             header_row.append($('<th>Facts:</th>'));
             header_row.append($('<th>Contracted Use:</th>'));
             header_row.append($('<th>NAU:</th>'));
-            header_row.append($('<th>MAX:</th>'));
+            
 
 
             header.append(header_row);
@@ -617,17 +612,15 @@ function populateReport(rtn) {
                     pane.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
                 }
 
-                var row = $('<tr></tr>');
+                var row = $('<tr onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict))
+                        + '\') "></tr>');
                 row.append($('<td>' + product.product_name + '</td>'));
                 row.append($('<td>' + product.sla + '</td>'));
                 row.append($('<td>' + product.support + '</td>'));
                 row.append($('<td>' + product.facts + '</td>'));
                 row.append($('<td>' + product.contract_use + '</td>'));
-                row.append($('<td><a href=\'#\' onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict))
-                    + '\') ">' + product.checkins + '</a></td>'));
-                row.append($('<td><a href=\'#\' onclick="createMax(\'' + product.start + '\',\'' + product.end + '\', \''  + product.contract_use +'\', \'' 
-                    +  escape(new String(product.product_config)) + '\', \'' + escape(new String(product.filter_args_dict)) + '\')">' + 'max' + '</a></td>'));
-
+                row.append($('<td>' + product.checkins + '</td>'));
+                
                 tbody.append(row);
 
             }
@@ -648,130 +641,6 @@ function populateReport(rtn) {
 
 
 
-function populateDetailReport(rtn) {
-    //var pane = $('#details > table');
-
-    // cleanup
-    $('#details').empty();
-    $('#instance_details').empty();
-    var header = $('<h2>Unique Resources</h2>');
-    var detail_table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
-    $('#details').append(header);
-    $('#details').append(detail_table);
-
-    var reportDetailTableData = [];
-
-    detail_table = detail_table.dataTable({
-            "bAutoWidth": true,
-            "bJQueryUI": true,
-            "aoColumns": [
-            {"sTitle": "Count"},
-            {"sTitle": "UUID"},
-            {"sTitle": "Number of Checkins"}
-            ],
-            "sDom": 'T<"clear">lfrtip',
-            "oTableTools": {
-            "sSwfPath": "{{ STATIC_URL }}copy_csv_xls_pdf.swf",
-            "aButtons": [
-            {
-            "sExtends": "copy",
-            "sButtonText": "Copy to clipboard"
-            },
-            {
-            "sExtends": "csv",
-            "sButtonText": "Save to CSV"
-            },
-            {
-                "sExtends": "pdf",
-                "sButtonText": "Save to PDF"
-            }
-    ]
-            }
-    });
-
-    for (var instance_index=0; instance_index < rtn.list.length; instance_index++) {
-        var instance = rtn.list[instance_index];
-
-        var i = instance_index + 1;
-
-        detail_table.fnAddData([i, instance.instance, instance.count]);
-    }
-
-    // attach event
-    detail_table.children('tbody').find('tr').each(function() {
-            $(this).click(function() {
-                $(this).siblings().each(function() {
-                    $(this).removeClass('highlighted');
-                    });
-                $(this).addClass('highlighted');
-                var instance = $($(this).children('td')[1]).text();
-                createInstanceDetail(rtn.start, rtn.end, instance, escape(new String(rtn.this_filter)));
-                });
-            });
-
-
-}
-
-function populateInstanceDetailReport(rtn) {
-    // cleanup
-    $('#instance_details').empty();
-    var header = $('<h2>Number of Checkins</h2>');
-    var table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
-    $('#instance_details').append(header);
-    $('#instance_details').append(table);
-
-    var pane = $('#instance_details > table');
-
-    var instanceDetailTableData = [];
-
-    instance_table = pane.dataTable({
-            "bAutoWidth": false,
-            "bJQueryUI": true,
-            "aoColumns": [
-            {"sTitle": "Count"},
-            {"sTitle": "UUID"},
-            {"sTitle": "Product"},
-            {"sTitle": "Time"},
-            {"sTitle": "Products"},
-            {"sTitle": "Memory"},
-            {"sTitle": "CPU Sockets"},
-            {"sTitle": "Reporting Domain"},
-            ],
-            "sDom": 'T<"clear">lfrtip',
-            "oTableTools": {
-            "sSwfPath": "{{ STATIC_URL }}copy_csv_xls_pdf.swf",
-            "aButtons": [
-            {
-            "sExtends": "copy",
-            "sButtonText": "Copy to clipboard"
-            },
-            {
-                "sExtends": "csv",
-                "sButtonText": "Save to CSV"
-            },
-            {
-                "sExtends": "pdf",
-                "sButtonText": "Save to PDF"
-            }
-    ]
-            }
-    });
-
-    for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-        var instance = rtn.list[instance_index];
-
-        var i = instance_index + 1;
-
-        //instanceDetailTableData.push([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
-        instance_table.fnAddData([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
-
-    }
-
-    // if currently hidden, turn it on
-    if (!$('#instance_details').is(':visible')) {
-        $('#instance_details').show();
-    }
-}
 
 
 function populateMaxReport(rtn) {
