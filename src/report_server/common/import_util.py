@@ -80,10 +80,7 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                 cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
-                if this_config['continue_on_error'] == '0':
-                    raise Exception('rhic not found: ' + uuid)
-                else:
-                    continue
+                continue
             
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()

@@ -719,6 +719,99 @@ function populateMaxReport(rtn) {
     }
 }
 
+function populateDetailReport(rtn) {
+    //var pane = $('#details > table');
+
+    // cleanup
+    $('#details').empty();
+    $('#instance_details').empty();
+    var header = $('<h2>Unique Resources</h2>');
+    var detail_table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
+    $('#details').append(header);
+    $('#details').append(detail_table);
+
+    var reportDetailTableData = [];
+
+    detail_table = detail_table.dataTable({
+            "bAutoWidth": true,
+            "bJQueryUI": true,
+            "aoColumns": [
+            {"sTitle": "Count"},
+            {"sTitle": "UUID"},
+            {"sTitle": "Number of Checkins"}
+            ],
+
+
+    });
+
+    for (var instance_index=0; instance_index < rtn.list.length; instance_index++) {
+        var instance = rtn.list[instance_index];
+
+        var i = instance_index + 1;
+
+        detail_table.fnAddData([i, instance.instance, instance.count]);
+    }
+
+    // attach event
+    detail_table.children('tbody').find('tr').each(function() {
+            $(this).click(function() {
+                $(this).siblings().each(function() {
+                    $(this).removeClass('highlighted');
+                    });
+                $(this).addClass('highlighted');
+                var instance = $($(this).children('td')[1]).text();
+                createInstanceDetail(rtn.start, rtn.end, instance, escape(new String(rtn.this_filter)));
+                });
+            });
+
+
+}
+
+function populateInstanceDetailReport(rtn) {
+    // cleanup
+    $('#instance_details').empty();
+    var header = $('<h2>Number of Checkins</h2>');
+    var table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
+    $('#instance_details').append(header);
+    $('#instance_details').append(table);
+
+    var pane = $('#instance_details > table');
+
+    var instanceDetailTableData = [];
+
+    instance_table = pane.dataTable({
+            "bAutoWidth": false,
+            "bJQueryUI": true,
+            "aoColumns": [
+            {"sTitle": "Count"},
+            {"sTitle": "UUID"},
+            {"sTitle": "Product"},
+            {"sTitle": "Time"},
+            {"sTitle": "Products"},
+            {"sTitle": "Memory"},
+            {"sTitle": "CPU Sockets"},
+            {"sTitle": "Reporting Domain"},
+            ],
+
+            
+    });
+
+    for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+        var instance = rtn.list[instance_index];
+
+        var i = instance_index + 1;
+
+        //instanceDetailTableData.push([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
+        instance_table.fnAddData([i, instance.instance_identifier, instance.product_name, instance.hour, instance.product, instance.memtotal, instance.cpu_sockets, instance.environment]);
+
+    }
+
+    // if currently hidden, turn it on
+    if (!$('#instance_details').is(':visible')) {
+        $('#instance_details').show();
+    }
+}
+
 function validateForm() {
     var rtn = true;
 
