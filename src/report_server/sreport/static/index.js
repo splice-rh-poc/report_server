@@ -709,6 +709,9 @@ function populateMaxReport(rtn) {
                     }
                 ]
             });
+        pane.append('<h3>Legend:</h3>');
+        pane.append('<b>blue line = MDU</b><br>');
+        pane.append('<b>green line = MCU</b>');
     } else {
         pane.append($('<h3>This date range contains no usage data.</h3>'));
         pane.append($('<br></br>'));
