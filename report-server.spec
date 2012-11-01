@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.30
+Version:	0.31
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,46 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Nov 01 2012 Wes Hayutin
+ 0.31-1
+ <whayutin@redhat.com>
+- fixed contract defaults (whayutin@redhat.com)
+- readded tabletools.css and added legend for max graphs (whayutin@redhat.com)
+- fix some breakage from failed merge (whayutin@redhat.com)
+- yanked javascript out to its own separate file (dgao@redhat.com)
+- clicking the row in reports was not working as designed, had to pull it
+  (whayutin@redhat.com)
+- asdf (whayutin@redhat.com)
+- oops accidentally committed some unmerged code (dgao@redhat.com)
+- Merge branch 'UI_20' of github.com:splice/report_server into UI_20
+  (dgao@redhat.com)
+- minor tweak to make instance table updates (dgao@redhat.com)
+- taking out tabletools css for the moment (whayutin@redhat.com)
+- updated ui for new requirements, firefox is not working atm.. use chrome
+  (whayutin@redhat.com)
+- clean up (whayutin@redhat.com)
+- added ui control test (whayutin@redhat.com)
+- fixed unit tests for UI_20 branch (whayutin@redhat.com)
+- merge fix (whayutin@redhat.com)
+- merge from master (whayutin@redhat.com)
+- updated dev setup (whayutin@redhat.com)
+- minor change to override min-height from datatable css (dgao@redhat.com)
+- clicking report row will now fill both instance_detail and max_data pane
+  (dgao@redhat.com)
+- converted instance details to datatable removed unnecessary code
+  (dgao@redhat.com)
+- added click functionality back to detail page to show instance details
+  (dgao@redhat.com)
+- removed out-dated function/reference (dgao@redhat.com)
+- Add sample response (jslagle@redhat.com)
+- Now that packaging is done, no need to ever use anything other than
+  dev.settings (jslagle@redhat.com)
+- initial commit for datatable work (need more cleanup, very messy right now
+  and also event handling for checkins (dgao@redhat.com)
+- Merge branch 'UI_20' of github.com:splice/report_server into UI_20
+  (dgao@redhat.com)
+- modified import path for splice models (dgao@redhat.com)
+
 * Fri Oct 26 2012 James Slagle <jslagle@redhat.com> 0.30-1
 - Add missing LICENSE file (jslagle@redhat.com)
 
