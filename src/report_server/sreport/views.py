@@ -488,7 +488,7 @@ def max_report(request):
     end = datetime.fromordinal(int(request.POST['end']))
     description = request.POST['description']
     
-    results, mdu, mcu = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
+    results, mdu, mcu, daily_contract = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
     
 
     
@@ -499,6 +499,7 @@ def max_report(request):
     response_data['mdu'] = mdu
     response_data['mcu'] = mcu
     response_data['description'] = description
+    response_data['daily_contract'] = daily_contract
 
     try:
         #response = HttpResponse(simplejson.dumps(response_data))

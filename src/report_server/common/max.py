@@ -16,6 +16,7 @@ import logging
 from report_server.common.custom_count import Rules
 from datetime import datetime, timedelta
 from report_server.common import constants
+from report_server.common.report import reportTools
 
 
 
@@ -37,6 +38,8 @@ class MaxUsage:
         mdu_count = []
         mcu_count = []
         daily_highest_concurrent_usage = 0
+        contract_quantity = reportTools.get_product_info(f)
+        daily_contract = []
         
         
         
@@ -70,8 +73,9 @@ class MaxUsage:
             results.append({'date': currentDate.strftime(constants.just_date), 'mdu': mdu, 'mcu': mcu})
             mdu_count.append(mdu)
             mcu_count.append(mcu)
+            daily_contract.append(contract_quantity)
             currentDate += delta
         
-        return results, mdu_count, mcu_count
+        return results, mdu_count, mcu_count, daily_contract
     
 

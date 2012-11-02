@@ -764,7 +764,8 @@ function populateMaxReport(rtn) {
         pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
         var mdu = rtn.mdu;
         var mcu = rtn.mcu;
-        var plot1 = $.jqplot('chartdiv', [mdu, mcu],
+        var contract = rtn.daily_contract
+        var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
             {
                 title:'MDU vs MCU',
                 axesDefaults: {
@@ -777,22 +778,36 @@ function populateMaxReport(rtn) {
                     },
                     yaxis:{
                         label: "Number of Resources",
-                        pad: 0
+                        pad: 1.2
                     }
+                },
+                legend: {
+                	show: true,
+                	location: 'e'
                 },
                 series:[
                     {
+                    	label: 'MDU',
                         lineWidth:2,
                         markerOptions: { style:'dimaond' } 
                     },
                     {
+                    	label: 'MCU',
                         markerOptions: { sytle:'circle'}
+                    },
+                    {
+                    	label: 'Contracted Use',
+                    	lineWidth:5,
+                    	color: '#FF0000',
+                        markerOptions: { style:"filledSquare", size:10 }
                     }
                 ]
+                
             });
-        pane.append('<h3>Legend:</h3>');
-        pane.append('<b>blue line = Maximum Daily Usage (MDU)</b><br>');
-        pane.append('<b>green line = Maximum Concurrent Usage (MCU)</b>');
+        pane.append('<h3>Glossary:</h3>');
+        pane.append('<b>Maximum Daily Usage (MDU)</b><br>');
+        pane.append('<b>Maximum Concurrent Usage (MCU)</b><br>');
+        pane.append('<b>Contracted Use: This is the number of concurrent entitlements purchased in the contract</b>');
     } else {
         pane.append($('<h3>This date range contains no usage data.</h3>'));
         pane.append($('<br></br>'));

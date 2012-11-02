@@ -70,3 +70,30 @@ def get_list_of_products(account_num, contract_num ):
         if contract.contract_id == contract_num:
             list_of_products = contract.products
     return list_of_products
+
+class reportTools:
+
+    @staticmethod
+    def get_product_info(filter_args):
+        contract_num = filter_args['contract_id']
+        rhic_uuid = filter_args['consumer_uuid']
+        eng_product = filter_args['product']
+        sla = filter_args['sla']
+        support = filter_args['support']
+        
+        account_num = RHIC.objects.get(uuid=rhic_uuid).account_id
+        contract_list = Account.objects.filter(account_id=account_num)[0].contracts
+        quantity = 0;
+        count = 0
+        for contract in contract_list:
+            if contract.contract_id == contract_num:
+                list_of_products = contract.products
+                for product in list_of_products:
+                    if product.engineering_ids == eng_product and product.sla == sla and product.support_level == support:
+                        count += 1
+                        quantity = product.quantity
+                        if count > 1:
+                            raise Exception("too many matches for a product, sla, support_level combination")
+        return quantity
+                        
+    
