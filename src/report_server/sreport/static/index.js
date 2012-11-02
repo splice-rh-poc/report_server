@@ -731,34 +731,7 @@ function populateMaxReport(rtn) {
     $('#max_pane').append(header);
 
     if (rtn.list.length > 0) {
-        var mydata = rtn.list;
-
-        var table = $('<table id=\'max_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-
-        var header = ($('<tr></tr>'));
-        header.append($('<th>Day:</th>'));
-        header.append($('<th>Maximum Daily Usage:</th>'));
-        header.append($('<th>Maximum Concurrent Usage:</th>'));
-
-
-        table.append(header);
-
-        var tbody = $('<tbody></tbody>');
-
-        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-            var instance = rtn.list[instance_index];
-
-            var row = $('<tr></tr>');
-            row.append($('<td>' + instance['date'] + '</td>'));
-            row.append($('<td>' + instance['mdu'] + '</td>'));
-            row.append($('<td>' + instance['mcu'] + '</td>'));
-
-            tbody.append(row);
-        }
-
-        table.append(tbody);
-
-        pane.append(table);
+       
 
         pane.append($('<br></br>'));
         pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
@@ -808,6 +781,37 @@ function populateMaxReport(rtn) {
         pane.append('<b>Maximum Daily Usage (MDU)</b><br>');
         pane.append('<b>Maximum Concurrent Usage (MCU)</b><br>');
         pane.append('<b>Contracted Use: This is the number of concurrent entitlements purchased in the contract</b>');
+        
+        pane.append('<br><br>')
+        pane.append('<h3>Details:</h3>');
+        var mydata = rtn.list;
+
+        var table = $('<table id=\'max_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+
+        var header = ($('<tr></tr>'));
+        header.append($('<th>Day:</th>'));
+        header.append($('<th>Maximum Daily Usage:</th>'));
+        header.append($('<th>Maximum Concurrent Usage:</th>'));
+
+
+        table.append(header);
+
+        var tbody = $('<tbody></tbody>');
+
+        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+            var instance = rtn.list[instance_index];
+
+            var row = $('<tr></tr>');
+            row.append($('<td>' + instance['date'] + '</td>'));
+            row.append($('<td>' + instance['mdu'] + '</td>'));
+            row.append($('<td>' + instance['mcu'] + '</td>'));
+
+            tbody.append(row);
+        }
+
+        table.append(tbody);
+
+        pane.append(table);
     } else {
         pane.append($('<h3>This date range contains no usage data.</h3>'));
         pane.append($('<br></br>'));
