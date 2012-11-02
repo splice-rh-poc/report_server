@@ -46,8 +46,35 @@ $(document).ready(function() {
         $("#byMonth").val('').trigger('liszt:updated');
     });
 
-    // Is there a way to disable :hover event as well?
+    /*
+    $("#export").button().click(function() {
+      // Have to stop url from changing so disable default event
+        event.preventDefault();
+            // Build up var
+            var data = {}; 
+       
+            // Date section
+            if($.trim($('#byMonth').val()) != "-1") {
+                data['byMonth'] = $('#byMonth').val();
+            }
+            if($.trim($('#startDate').val()) != "") {
+                data['startDate'] = $('#startDate').val();
+                data['endDate'] = $('#endDate').val();
+            }
+            if($.trim($('#contract').val()) != "") {
+                data['contract_number'] = $('#contract').val();
+            }
+            if($.trim($('#rhic').val()) != "") {
+                data['rhic'] = $('#rhic').val();
+            }
 
+            data['env'] = $('#env').val();
+           
+            $.download('/report-server/ui20/export', data, 'get');
+
+    })
+    */
+    
 });
 
 
@@ -201,6 +228,56 @@ function createReport(event) {
     }
 }
 
+
+
+function exportReport(event) {
+ //Have to stop url from changing so disable default event
+	event.preventDefault();
+    // Build up var
+    var data = {}; 
+
+     // Date section
+     if($.trim($('#byMonth').val()) != "-1") {
+         data['byMonth'] = $('#byMonth').val();
+     }
+     if($.trim($('#startDate').val()) != "") {
+         data['startDate'] = $('#startDate').val();
+         data['endDate'] = $('#endDate').val();
+     }
+     if($.trim($('#contract').val()) != "") {
+         data['contract_number'] = $('#contract').val();
+     }
+      if($.trim($('#rhic').val()) != "") {
+         data['rhic'] = $('#rhic').val();
+     }
+
+     data['env'] = $('#env').val();
+     
+     $.download('/report-server/ui20/export', data, 'get');
+
+ }
+
+$.download = function(url, data, method){
+    //url and data options required
+    
+        //data can be string of parameters or array/object
+        data = typeof data == 'string' ? data : jQuery.param(data);
+        //split params into form inputs
+        var inputs = '';
+        jQuery.each(data.split('&'), function(){ 
+            var pair = this.split('=');
+            inputs+='<input type="hidden" name="'+ pair[0] +'" value="'+ pair[1] +'" />'; 
+        });
+        //send request
+        //alert("url:" + url + "data: " + data);
+        var url = '/report-server/ui20/export/';
+       //send request
+        jQuery('<form action="/report-server/ui20/export/" method="'+ ('get') +'">'+inputs+'</form>')
+        .appendTo('body').submit().remove();
+        //alert('Please wait while the export is generated')
+
+};
+
 function resetReportForm(event) {
     $('#report_pane > div').empty();
     $('#report_pane > div').append($('<h3>This date range contains no usage data.</h3>'));
@@ -292,10 +369,11 @@ function openImport() {
     }
 }
 
-function createDetail(start, end, filter_args) {
+function createDetail(start, end, description,  filter_args) {
     var data = {
         "start": start,
         "end": end,
+        "description": description,
         "filter_args_dict": unescape(filter_args)
     };
 
@@ -314,7 +392,7 @@ function createDetail(start, end, filter_args) {
         var rtn = jQuery.parseJSON(data);
         openDetail();
         populateDetailReport(rtn);
-        createMax(start, end, filter_args);
+        createMax(start, end, description,  filter_args);
         
 
         $('#detail_button').removeClass('disabled');
@@ -326,10 +404,11 @@ function createDetail(start, end, filter_args) {
 
 
 
-function createMax(start, end, filter_args) {
+function createMax(start, end, description, filter_args) {
     var data = {
         "start": start,
         "end": end,
+        "description": description,
         "filter_args_dict": unescape(filter_args)
     };
 
@@ -611,9 +690,9 @@ function populateReport(rtn) {
                 if (product_index == 0) {
                     pane.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
                 }
-
-                var row = $('<tr onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\', \'' + escape(new String(product.filter_args_dict))
-                        + '\') "></tr>');
+                var description = 'Product: '+ product.product_name + ', SLA:' + product.sla + ', Support: ' + product.support + ' Facts: ' + product.facts;
+                var row = $('<tr onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\',\'' + description + '\', \'' + escape(new String(product.filter_args_dict))
+                        +  '\') "></tr>');
                 row.append($('<td>' + product.product_name + '</td>'));
                 row.append($('<td>' + product.sla + '</td>'));
                 row.append($('<td>' + product.support + '</td>'));
@@ -645,9 +724,11 @@ function populateReport(rtn) {
 
 function populateMaxReport(rtn) {
     var pane = $('#max_pane');
-
+    
     // cleanup first
     pane.empty();
+    var header = $('<b> ' +  rtn.description + '</b>' );
+    $('#max_pane').append(header);
 
     if (rtn.list.length > 0) {
         var mydata = rtn.list;
@@ -725,7 +806,7 @@ function populateDetailReport(rtn) {
     // cleanup
     $('#details').empty();
     $('#instance_details').empty();
-    var header = $('<h2>Unique Resources</h2>');
+    var header = $('<b> ' +  rtn.description + '</b>' );
     var detail_table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
     $('#details').append(header);
     $('#details').append(detail_table);
@@ -770,7 +851,7 @@ function populateDetailReport(rtn) {
 function populateInstanceDetailReport(rtn) {
     // cleanup
     $('#instance_details').empty();
-    var header = $('<h2>Number of Checkins</h2>');
+    var header = $('<b>Number of Checkins</b>');
     var table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
     $('#instance_details').append(header);
     $('#instance_details').append(table);

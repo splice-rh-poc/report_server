@@ -24,7 +24,7 @@ _LOG = logging.getLogger(__name__)
 class Product_Def:
     
     @staticmethod
-    def get_MDU(product, rhic, start, end, contract_number, environment, config):
+    def get_count(product, rhic, start, end, contract_number, environment, config):
         count_list = []
         #generic_count(product, rhic, start, end, contract_number,  environment, config):
         #count, filter_args_dict = generic_count(product, rhic, start, end, contract_number, environment, config)

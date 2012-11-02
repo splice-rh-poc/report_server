@@ -33,6 +33,10 @@ from report_server.common.max import MaxUsage
 import json
 from django.db.models.base import get_absolute_url
 from django.utils.datastructures import MultiValueDictKeyError
+import csv
+from django.template.defaultfilters import slugify
+from django.db.models.loading import get_model
+
 
 
 _LOG = logging.getLogger(__name__)
@@ -128,7 +132,7 @@ def report(request):
         environment = "All"
         
     list_of_rhics = []
-    if 'rhic' in request.GET:
+    if request.GET['rhic'] != 'null':
         my_uuid = request.GET['rhic']
         list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
         results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
@@ -145,15 +149,22 @@ def report(request):
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
         results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
     
-    
-    
-        
-    
-    response = TemplateResponse(request, 'create_report/report.html',
-                                 {'list': results, 'account': account,
-                                   'start': start, 'end': end})
-    return response
+    format = constants.full_format
 
+    response_data = {}
+    response_data['list'] = results
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    try:
+        response = HttpResponse(to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
 
 
 
@@ -400,6 +411,7 @@ def detailed_report_ui20(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
+    description = request.POST['description']
     start = datetime.fromordinal(int(request.POST['start']))
     end = datetime.fromordinal(int(request.POST['end']))
     
@@ -416,6 +428,7 @@ def detailed_report_ui20(request):
     response_data['start'] = start.toordinal()
     response_data['end'] = end.toordinal()
     response_data['this_filter'] = this_filter
+    response_data['description'] = description
 
 
     try:
@@ -473,6 +486,7 @@ def max_report(request):
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     start = datetime.fromordinal(int(request.POST['start']))
     end = datetime.fromordinal(int(request.POST['end']))
+    description = request.POST['description']
     
     results, mdu, mcu = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
     
@@ -484,6 +498,7 @@ def max_report(request):
     response_data['end'] = end.toordinal()
     response_data['mdu'] = mdu
     response_data['mcu'] = mcu
+    response_data['description'] = description
 
     try:
         #response = HttpResponse(simplejson.dumps(response_data))
@@ -493,6 +508,39 @@ def max_report(request):
         _LOG.error(sys.exc_info()[1])
         raise
 
+    return response
+
+def export(request):
+    if request.method == 'GET':
+        result = report(request)
+    else:
+        result = report_ui20(request)
+    
+    mydict = json.loads(result.content)
+    list_of_results = mydict['list']
+    start = datetime.strptime(mydict['start'], constants.full_format)
+    end = datetime.strptime(mydict['end'], constants.full_format)
+    filter_args_list = []
+    for rhic in list_of_results:
+        for products in rhic:
+            filter_args_list.append(products['filter_args_dict'])
+    
+    
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(ReportData.__name__)
+    writer = csv.writer(response)
+    # Write headers to CSV file
+    headers = []
+    
+    # Write data to CSV file
+    for f in filter_args_list:
+        thismap = json.loads(f)
+        #print ReportData.objects.filter(date__gt=start, date__lt=end, **thismap)
+        for obj in ReportData.objects.filter(date__gt=start, date__lt=end, **thismap):
+            row = [obj.consumer, obj.instance_identifier, obj.product_name, obj.product, obj.hour, obj.splice_server]
+            #row.append(getattr(obj), "wes")
+            writer.writerow(row)
+    # Return CSV file to browser as download
     return response
     
 

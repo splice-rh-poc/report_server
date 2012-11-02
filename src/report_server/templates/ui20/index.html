@@ -124,6 +124,7 @@
                                     <li id='detail_button'><a href='#'>View Detail</a></li>
                                     <li id='max_button'   ><a href="#">Max Data</a></li>
                                     <li id='import_button'><a href="#">Import Data</a></li>
+                                    
                                 </ul>
                             </div>
                         </div>
@@ -137,6 +138,7 @@
                                 <fieldset>
                                     <form id="report_form">
                                      <h2>Filter by Date:</h2>
+                                      <br>
                                         <table>
                                             <tr>
                                                 <td width="10%">
@@ -175,6 +177,7 @@
                                         </table>
         
                                         <h2>Filter by Customer Data:</h2> 
+                                        <br>
                                         <table>
                                             <tr>
                                                 <td width="5%"> 
@@ -199,9 +202,10 @@
                                             </tr>
                                         </table>
                                         <h2>Filter by Reporting Domain:</h2> 
-                                        <table>
+                                        <br>
+                                        <table width=50%>
                                             <tr> 
-                                                <td width="1%"><b>Reporting Domain: </b></td>
+                                                <td width="15%"><b>Reporting Domain: </b></td>
                                                     <td width="51%">
                                                         <select id='env' name="env" class='chosen'  style="width:150px;" disabled="false">
                                                             
@@ -209,13 +213,21 @@
                                                     </td>
                                                 </td>
                                             </tr>
+                                            </table>
+                                            <table id=buttons width=50%>
+                                            <br><br><br>
                                             <tr>
-                                                <td width="5%">
-                                                    <button id='submit' name='submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
+                                                <td width="2%">
+                                                    <button id='report-submit' name='report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
                                                         <span class='ui-button-text'>Run Report</span>
                                                     </button>
                                                 </td>
-                                                <td width="5%">
+                                                <td width="2%">
+                                                <button id='export' name='export' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='exportReport(event)'>
+                                                    <span class='ui-button-text'>Export Report</span>
+                                                </button>
+                                                </td>
+                                                <td width="2%">
                                                     <button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
                                                         <div id='original'>
                                                             <span class='ui-button-text original' style='float:left'>Reset Form</span>
@@ -226,6 +238,7 @@
                                                         </div>
                                                     </button>
                                                 </td>
+                                                
                                             </tr>
                                         </table>
                                         <div id='form_error'>
@@ -242,6 +255,8 @@
                                     <button id='createAnotherReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='openCreate()'>
                                         <span class='ui-button-text'>Run another report</span>
                                     </button>
+                                    
+                                </button>
                                 <table width="100%">
                                     <tbody>
                                         <tr>
