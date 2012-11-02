@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.31
+Version:	0.32
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,13 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Nov 02 2012 Wes Hayutin
+ 0.32-1
+ <whayutin@redhat.com>
+- have csv export working on firefox and chrome (whayutin@redhat.com)
+- ripped out table export and fixed import issue (whayutin@redhat.com)
+- added css for report table, removed pdf export (whayutin@redhat.com)
+
 * Thu Nov 01 2012 Wes Hayutin
  0.31-1
  <whayutin@redhat.com>
