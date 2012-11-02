@@ -106,17 +106,19 @@ UNLIMITED = "RHEL Server 2-socket Unlimited Guest"
 GEAR = "OpenShift Gear"
 
 PRODUCTS_DICT={
-                 RHEL: (["69"], '8d401b5e-2fa5-4cb6-be64-5f57386fda86', "rhel-server-1190457-3116649-prem-l1-l3"), 
+                 #RHEL and JBOSS are now using the same RHIC
+                 RHEL: (["69"], 'fea363f5-af37-4a23-a2fd-bea8d1fff9e8', "rhel-server-jboss-1190457-3116649-prem-l1-l3"), 
                  HA: (["83"], 'fbbd06c6-ebed-4892-87a3-2bf17c864444', 'rhel-ha-1190457-3874444-na-standard'),
                  EUS: (["70"],'fbbd06c6-ebed-4892-87a3-2bf17c865555', 'rhel-eus-1190457-3874444-prem-l1-l3'),
                  LB: (["85"], 'fbbd06c6-ebed-4892-87a3-2bf17c866666', 'rhel-lb-1190457-3874444-prem-l1-l3'),
-                 JBoss: (["183"],'ee5c9aaa-a40c-1111-80a6-ef731076bbe8', 'jboss-1111730-4582732-prem-l1-l3'),
+                 JBoss: (["183"],'fea363f5-af37-4a23-a2fd-bea8d1fff9e8', "rhel-server-jboss-1190457-3116649-prem-l1-l3"),
                  EDU: (["69"], 'fbbd06c6-ebed-4892-87a3-2bf17c86e610', 'rhel-server-education-1190457-3879847-na-ss'),
                  UNLIMITED: (["69"], 'fbbd06c6-ebed-4892-87a3-2bf17c867777', 'rhel-2socket_unlimited-1190457-3874444-prem-l1-l3'),
                  GEAR: (["69", "183"], 'b0e7bd8a-0b23-4b35-86d7-52a87311a5c2', 'openshift-gear-3485301-4582732-prem-l1-l3')
                 }
  
 class TestData():
+    
     RHEL = "RHEL Server"
     HA = "RHEL HA"
     EUS = "RHEL EUS"
@@ -127,11 +129,12 @@ class TestData():
     GEAR = "OpenShift Gear"
 
     PRODUCTS_DICT={
-                     RHEL: (["69"], '8d401b5e-2fa5-4cb6-be64-5f57386fda86', "rhel-server-1190457-3116649-prem-l1-l3"), 
+                     #RHEL and JBOSS are now using the same RHIC
+                     RHEL: (["69"], 'fea363f5-af37-4a23-a2fd-bea8d1fff9e8', "rhel-server-jboss-1190457-3116649-prem-l1-l3"), 
                      HA: (["83"], 'fbbd06c6-ebed-4892-87a3-2bf17c864444', 'rhel-ha-1190457-3874444-na-standard'),
                      EUS: (["70"],'fbbd06c6-ebed-4892-87a3-2bf17c865555', 'rhel-eus-1190457-3874444-prem-l1-l3'),
                      LB: (["85"], 'fbbd06c6-ebed-4892-87a3-2bf17c866666', 'rhel-lb-1190457-3874444-prem-l1-l3'),
-                     JBoss: (["183"],'ee5c9aaa-a40c-1111-80a6-ef731076bbe8', 'jboss-1111730-4582732-prem-l1-l3'),
+                     JBoss: (["183"],'fea363f5-af37-4a23-a2fd-bea8d1fff9e8', "rhel-server-jboss-1190457-3116649-prem-l1-l3"),
                      EDU: (["69"], 'fbbd06c6-ebed-4892-87a3-2bf17c86e610', 'rhel-server-education-1190457-3879847-na-ss'),
                      UNLIMITED: (["69"], 'fbbd06c6-ebed-4892-87a3-2bf17c867777', 'rhel-2socket_unlimited-1190457-3874444-prem-l1-l3'),
                      GEAR: (["69", "183"], 'b0e7bd8a-0b23-4b35-86d7-52a87311a5c2', 'openshift-gear-3485301-4582732-prem-l1-l3')

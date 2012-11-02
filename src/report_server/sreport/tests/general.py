@@ -101,8 +101,9 @@ class ReportTestCase(TestCase):
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 1)
         #test perfect match
-        p = Product.objects.filter(name="RHEL Server")[0]
-        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        p = Product.objects.filter(name=RHEL)[0]
+        #print(products_dict[RHEL][1])
+        rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
         results_dicts = Product_Def.get_count(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
     
@@ -128,13 +129,13 @@ class ReportTestCase(TestCase):
         self.assertEqual(len(lookup), 3)
         #test for RHEL Match
         p = Product.objects.filter(name=RHEL)[0]
-        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
         results_dicts = Product_Def.get_count(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
         
         #test for JBoss match
         p = Product.objects.filter(name=JBoss)[0]
-        rhic = RHIC.objects.filter(uuid='ee5c9aaa-a40c-1111-80a6-ef731076bbe8')[0]
+        rhic = RHIC.objects.filter(uuid=products_dict[JBoss][1])[0]
         results_dicts = Product_Def.get_count(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 2)
     
@@ -151,12 +152,12 @@ class ReportTestCase(TestCase):
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 1)
         #test perfect match
-        p = Product.objects.filter(name="RHEL Server")[0]
-        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        p = Product.objects.filter(name=RHEL)[0]
+        rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
         results_dicts = Product_Def.get_count(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
     
-        test_object = Product.objects.filter(name="RHEL Server")[0]
+        test_object = Product.objects.filter(name=RHEL)[0]
         test_object.name = "fail"
         try:
             results_dicts = Product_Def.get_count(test_object, rhic, start, end, contract_num, environment, report_biz_rules)
@@ -206,8 +207,8 @@ class ReportTestCase(TestCase):
         self.assertEqual(len(lookup), 2)
         
         #test that there are now two objects in the database
-        p = Product.objects.filter(name="RHEL Server")[0]
-        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        p = Product.objects.filter(name=RHEL)[0]
+        rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
         results_dicts = Product_Def.get_count(p, rhic, search_date_start, search_date_end, contract_num, environment, report_biz_rules)
         #lenth of list should be one per product
         self.assertEqual(len(results_dicts), 1)
@@ -221,8 +222,8 @@ class ReportTestCase(TestCase):
         delta=timedelta(days=1)
         start = datetime.now() - delta
         
-        p = Product.objects.filter(name="RHEL Server")[0]
-        rhic = RHIC.objects.filter(uuid="8d401b5e-2fa5-4cb6-be64-5f57386fda86")[0]
+        p = Product.objects.filter(name=RHEL)[0]
+        rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
         results_dicts = Product_Def.get_count(p, rhic, start, end, contract_num, environment, report_biz_rules)
         self.assertTrue('> ' in results_dicts[0]['facts'], ' > 8GB found')
         
@@ -282,14 +283,15 @@ class ReportTestCase(TestCase):
         list_of_rhics = RHIC.objects.all()
         results = hours_per_consumer(start, end, list_of_rhics )
         
-        self.assertEqual(len(results), len(products_dict), "correct number of results returned")
+        # right now products_dict RHEL and JBoss are sharing a RHIC so.. -1 on length
+        self.assertEqual(len(results), (len(products_dict) -1 ), "correct number of results returned")
         results_product_list = []
         for r in results:
             self.assertEqual(r[0]['checkins'], '1', "number of checkins is accurate")
             results_product_list.append(r[0]['product_name'])
         
         intersect = set(results_product_list).intersection(products_dict.keys())
-        self.assertEqual(len(intersect), len(products_dict), "number of products returned in results is accurate")
+        self.assertEqual(len(intersect), (len(products_dict) -1), "number of products returned in results is accurate")
 
     def check_product_result(self, result1, result2):   
         lookup = len(ReportData.objects.all())
