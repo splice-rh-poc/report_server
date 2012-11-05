@@ -223,10 +223,16 @@
 
                                         <p>
                             		    {% if user.is_authenticated %}
-		                                   
+                                            {{ user.username }} account #{{ user.account }}
                                             <script type='text/javascript'>
                                                 first_logged_in = true;
                                             </script>
+                                            {% if user.is_staff and user.is_superuser %}
+                                                <script type='text/javascript'>
+                                                    is_admin = true;
+                                                    turnOnAdminFeatures();
+                                                </script>
+                                            {% endif %}
 		                                {% else %}
                         		            You are not logged in.
                                             <script type='text/javascript'>

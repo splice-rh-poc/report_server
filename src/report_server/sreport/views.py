@@ -18,7 +18,7 @@ from django.contrib.auth import (login as auth_login,
 
 from django.template import RequestContext
 from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer
-from rhic_serve.rhic_rest.models import RHIC, Account
+from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
@@ -243,18 +243,22 @@ def login_ui20(request):
     '''
     username = request.POST['username']
     password = request.POST['password']
+    response_data = {}
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
             auth_login(request, user)
             _LOG.info('successfully authenticated')
             username = str(request.user)
-            account = Account.objects.filter(login=username)[0].account_id
-            #the User object/model needs to be modified to allow 
-            #for more attributes like account
-            #This would accommodate template usage {{ user.account }} in css
-            #The following return of username/account should eventually be removed
-            return HttpResponse(username + ' ' + account)
+            admin_grp = SpliceAdminGroup.objects.filter(name='Splice Admins')[0]
+            if user in admin_grp.members and user.is_staff and user.is_superuser:
+                response_data['is_admin'] = True 
+            else:
+                response_data['is_admin'] = False
+
+            response_data['username'] = username
+            response_data['account'] = user.account
+            return HttpResponse(to_json(response_data))
         else:
             _LOG.error('authentication failed')
             return HttpResponseForbidden()

@@ -1,5 +1,6 @@
 var first_logged_in = false;
 var logged_in = false;
+var is_admin = false;
 var csrftoken = '';
 var page_size = 10; // default value
 
@@ -7,7 +8,7 @@ $(document).ready(function() {
     csrftoken = getCookie('csrftoken');
     setupLoginForm();
     setupLLButtons();
-    setupNavButtons();
+    //setupNavButtons(); // obsolete?
     setupCreateForm();
     openCreate();
     $('#login-button').click(login);
@@ -15,6 +16,8 @@ $(document).ready(function() {
 
     // initially hide instance detail section
     $('#instance_details').hide();
+
+    console.log('1');
 
     // Disable appropriate nav tabs 
     $('#report_button').addClass('disabled');
@@ -45,6 +48,12 @@ $(document).ready(function() {
     $("#endDate").change(function() {
         $("#byMonth").val('').trigger('liszt:updated');
     });
+    console.log('2');
+
+    if (!first_logged_in || !is_admin) {
+        $('#import_button').addClass('disabled');
+        $('#import_button').off("click");
+    }
 
     // Is there a way to disable :hover event as well?
 
@@ -74,6 +83,38 @@ function logout() {
         $('#account-links > span > p').text('You are not logged in.');
 
         logged_in = false;
+
+        // Disable appropriate nav tabs 
+        $('#report_button').addClass('disabled');
+        $('#detail_button').addClass('disabled');
+        $('#max_button').addClass('disabled');
+        $('#import_button').addClass('disabled');
+
+        $('#report_button').off('click');
+        $('#detail_button').off('click');
+        $('#max_button').off("click");
+        $('#import_button').off("click");
+
+        $('#contract').change(function() {
+            $('#rhic').val('').trigger('liszt:updated');
+        });
+
+        $('#rhic').change(function() {
+            $('#contract').val('').trigger('liszt:updated');
+        });
+
+        $("#byMonth").change(function() {
+            $("#startDate").val('').trigger('liszt:updated');
+            $("#endDate").val('').trigger('liszt:updated');
+        });
+
+        $("#startDate").change(function() {
+            $("#byMonth").val('').trigger('liszt:updated');
+        });
+
+        $("#endDate").change(function() {
+            $("#byMonth").val('').trigger('liszt:updated');
+        });
 
         loadContent();
     }).fail(function(jqXHR) {
@@ -199,6 +240,11 @@ function createReport(event) {
             // TODO: Add error handling here
         });
     }
+}
+
+function turnOnAdminFeatures() {
+    $('#import_button').removeClass('disabled');
+    $('#import_button').on("click", openImport);
 }
 
 function resetReportForm(event) {
@@ -471,13 +517,23 @@ function setupLoginForm() {
                     }
                 }
                 }).done(function(data) {
+                    var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
+
                     $('#login-error').hide();
                     $('#login-form').dialog('close');
+
                     // Gray out "Login" button
                     enableButton($('#logout-button'));
                     disableButton($('#login-button'));
+
+                    // Check for admin permission
+                    if (rtn.is_admin === true) {
+                        $('#import_button').removeClass('disabled');
+                        $('#import_button').on("click", openImport);
+                    }
+
                     // alter msg
-                    $('#account-links > span > p').text( data );
+                    $('#account-links > span > p').text(rtn.username + ", account #" + rtn.account);
 
                     logged_in = true;
 
@@ -563,6 +619,10 @@ function loadContent() {
         $('#navWrap').show();
         openCreate();
         setupCreateForm();
+        $('#create_button').on("click", openCreate);
+        if (is_admin) {
+            $('#import_button').on("click", openImport);
+        }
     }
 }
 
@@ -637,11 +697,6 @@ function populateReport(rtn) {
 
 
 }
-
-
-
-
-
 
 function populateMaxReport(rtn) {
     var pane = $('#max_pane');
