@@ -37,6 +37,7 @@ class MaxUsage:
         results = []
         mdu_count = []
         mcu_count = []
+        date = []
         daily_highest_concurrent_usage = 0
         contract_quantity = reportTools.get_product_info(f)
         daily_contract = []
@@ -74,8 +75,9 @@ class MaxUsage:
             mdu_count.append(mdu)
             mcu_count.append(mcu)
             daily_contract.append(contract_quantity)
+            date.append(currentDate.strftime(constants.max_fmt))
             currentDate += delta
         
-        return results, mdu_count, mcu_count, daily_contract
+        return results, mdu_count, mcu_count, daily_contract, date
     
 

@@ -33,15 +33,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     #url(r'^admin/', include(admin.site.urls)),
-    (r'^ui/login/$', 'report_server.sreport.views.login'),
-    (r'^ui/logout/$', 'report_server.sreport.views.logout'),
-    (r'^ui/$', 'report_server.sreport.views.index'),
-    (r'^ui/index$', 'report_server.sreport.views.index'),
-    (r'^ui/create_report/$', 'report_server.sreport.views.create_report'),
-    (r'^ui/report/$', 'report_server.sreport.views.report'),
-    (r'^ui/import/$', 'report_server.sreport.views.import_checkin_data'),
-    (r'^ui/report/details/$', 'report_server.sreport.views.detailed_report'),
-    (r'^ui/report/details/instance_details/$', 'report_server.sreport.views.instance_report'),
+
     (r'^ui20/$', 'report_server.sreport.views.ui20'),
     (r'^ui20/index/$', 'report_server.sreport.views.index_ui20'),
     (r'^ui20/import/$', 'report_server.sreport.views.import_ui20'),

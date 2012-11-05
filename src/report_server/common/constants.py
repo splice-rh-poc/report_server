@@ -16,6 +16,7 @@ REPORT_CONFIG_FILE=os.path.join(REPORT_CONFIG_DIR, "report.conf")
 hr_fmt = "%m%d%Y:%H"
 mn_fmt = "%m%d%Y:%H%M"
 day_fmt = "%Y%m%d"
+max_fmt = "%m-%d"
 full_format = "%a %b %d %H:%M:%S %Y"
 just_date = "%m / %d"
 

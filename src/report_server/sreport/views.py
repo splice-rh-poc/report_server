@@ -45,65 +45,14 @@ def template_response(request, template_name):
     return render_to_response(template_name, {},
         context_instance=RequestContext(request))
 
-def login(request):
-    '''
-    login, available at host:port/ui
-    '''
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            auth_login(request, user)
-            _LOG.info('successfully authenticated')
-            return template_response(request, 'create_report/base.html')
-        else:
-            _LOG.error('authentication failed')
-            return HttpResponseForbidden()
-    else:
-        _LOG.error('authentication failed, user does not exist')
-        return HttpResponseForbidden()
-
-@ensure_csrf_cookie
-def logout(request):
-    '''
-    logout avail at host:port/ui/logout
-    '''
-    auth_logout(request)
-    #return template_response(request, 'create_report/logout.html')
-
-@ensure_csrf_cookie
-def index(request):
-    return template_response(request, 'create_report/base.html')
 
 
-
-@login_required
-def create_report(request):
-    '''
-    @param request: http
-    '''
-    _LOG.info("create_report called by method: %s" % (request.method))
-    #ReportFormSet = formset_factory( ProductUsageForm)
-    
-    contracts = []
-    user = request.user
-    account = Account.objects.filter(login=str(user))[0].account_id
-    list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
-    list_of_rhics = list(RHIC.objects.filter(account_id=account))
-    #environments = [(env, env ) for env in SpliceServer.objects().distinct("environment")]
-    environments = SpliceServer.objects.distinct("environment")
-    for c in list_of_contracts:
-        contracts.append(c.contract_id)
-    
-    form = ProductUsageForm()
-    return render_to_response('create_report/create_report.html', {'form': form, 'contracts': contracts,
-                                                                    'account': account, 'user': user, 
-                                                                    'list_of_rhics': list_of_rhics,
-                                                                    'environments': environments })
 
 def report(request):
     '''
+    This is now used by "Export Report" and should be the "GET" equiv
+    of report_ui20
+    
     @param request: http
     
     generate the data for the report.
@@ -115,7 +64,9 @@ def report(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     if 'byMonth' in request.GET:
-        month = int(request.GET['byMonth'].encode('ascii'))
+        month_year = request.GET['byMonth'].encode('ascii').split('%2C')
+        month = int(month_year[0]);
+        year = int(month_year[1]);
         year = datetime.today().year
         start = datetime(year, month, 1)
         end =  datetime(year, month + 1, 1) - timedelta (days = 1)
@@ -168,45 +119,7 @@ def report(request):
 
 
 
-def import_checkin_data(request):
-    
-    results = import_data()
-    #response = TemplateResponse(request, 'import.html', {'list': results})
-    #response = template_response(request, 'import.html')
-    response = render_to_response('import.html', {'list': results})
-    return response
 
-
-def detailed_report(request):
-    user = request.user
-    account = Account.objects.filter(login=str(user))[0].account_id
-    filter_args_dict = json.loads(request.GET['filter_args_dict'])
-    start = datetime.fromordinal(int(request.GET['start']))
-    end = datetime.fromordinal(int(request.GET['end']))
-    
-    results = []
-    instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
-    for  i in instances:
-        count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
-        results.append({'instance': i, 'count': count})
-    
-    this_filter = json.dumps(filter_args_dict)
-    response = TemplateResponse(request, 'create_report/details.html', {'list': results, 'account': account,
-                                                                        'start': request.GET['start'], 'end': request.GET['end'],
-                                                                        'this_filter': this_filter})
-    return response
-
-def instance_report(request):
-    user = str(request.user)
-    account = Account.objects.filter(login=str(user))[0].account_id
-    instance = request.GET['instance']
-    filter_args_dict = json.loads(request.GET['filter_args_dict'])
-    start = datetime.fromordinal(int(request.GET['start']))
-    end = datetime.fromordinal(int(request.GET['end']))
-    
-    results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
-    response = TemplateResponse(request, 'create_report/instance_details.html', {'list': results, 'account': account})
-    return response
 
 #################################################
 # Helper Classes / Methods
@@ -357,7 +270,9 @@ def report_ui20(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     if 'byMonth' in request.POST:
-        month = int(request.POST['byMonth'].encode('ascii'))
+        month_year = request.POST['byMonth'].encode('ascii').split(',')
+        month = int(month_year[0]);
+        year = int(month_year[1]);
         year = datetime.today().year
         start = datetime(year, month, 1)
         end =  datetime(year, month + 1, 1) - timedelta (days = 1)
@@ -488,7 +403,7 @@ def max_report(request):
     end = datetime.fromordinal(int(request.POST['end']))
     description = request.POST['description']
     
-    results, mdu, mcu, daily_contract = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
+    results, mdu, mcu, daily_contract, date = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
     
 
     
@@ -498,6 +413,7 @@ def max_report(request):
     response_data['end'] = end.toordinal()
     response_data['mdu'] = mdu
     response_data['mcu'] = mcu
+    response_data['date'] = date
     response_data['description'] = description
     response_data['daily_contract'] = daily_contract
 
@@ -514,8 +430,6 @@ def max_report(request):
 def export(request):
     if request.method == 'GET':
         result = report(request)
-    else:
-        result = report_ui20(request)
     
     mydict = json.loads(result.content)
     list_of_results = mydict['list']

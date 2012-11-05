@@ -183,8 +183,10 @@ function setupCreateFormButtons() {
 function createReport(event) {
     // Have to stop url from changing so disable default event
     event.preventDefault();
-
-    if (logged_in && validateForm()) {
+    
+    // validating the form is no longer required
+    //if (logged_in && validateForm()) {
+    if (logged_in) {
         // Build up var
         var data = {}; 
 
@@ -341,6 +343,14 @@ function openDetail() {
 
 }
 
+function closeDetail() {
+    $('#detail_button').addClass('disabled');
+    removeActiveNav();
+    $('#detail_button').off("click");
+    $('#detail_pane').hide();
+
+}
+
 function openMax() {
     $('#max_button').removeClass('disabled');
     removeActiveNav();
@@ -353,6 +363,14 @@ function openMax() {
         $('#import_pane').hide();
         $('#max_pane').show();
     }
+}
+
+function closeMax() {
+    $('#max_button').addClass('disabled');
+    removeActiveNav();
+    $('#max_button').off("click");
+    $('#max_pane').hide();
+
 }
 
 function openImport() {
@@ -390,6 +408,8 @@ function createDetail(start, end, description,  filter_args) {
         }
     }).done(function(data) {
         var rtn = jQuery.parseJSON(data);
+        closeDetail();
+        closeMax();
         openDetail();
         populateDetailReport(rtn);
         createMax(start, end, description,  filter_args);
@@ -576,6 +596,7 @@ function setupLoginForm() {
 
 function fill_create_report_form(data) {
     // Clear outdated elements
+	$('#byMonth').empty();
     $('#contract').empty();
     $('#rhic').empty();
     $('#env').empty();
@@ -584,6 +605,7 @@ function fill_create_report_form(data) {
     // Add defaults
     $('#contract').append($('<option value=null></option>'));
     $('#contract').append($('<option selected value=All>All</option>'));
+    
 
 
     // Add remainder elements from data
@@ -603,20 +625,51 @@ function fill_create_report_form(data) {
 
     var d = new Date();
     var n = d.getMonth() + 1;
+    var year = d.getFullYear()
     var month=new Array();
-    month[1]="January";
-    month[2]="February";
-    month[3]="March";
-    month[4]="April";
+    month[1]="Jan";
+    month[2]="Feb";
+    month[3]="Mar";
+    month[4]="Apr";
     month[5]="May";
-    month[6]="June";
-    month[7]="July";
-    month[8]="August";
-    month[9]="September";
-    month[10]="October";
-    month[11]="November";
-    month[12]="December";
-    $('#byMonth').append($('<option selected value=' + n + '>' + month[n] + '</option>'));
+    month[6]="Jun";
+    month[7]="Jul";
+    month[8]="Aug";
+    month[9]="Sep";
+    month[10]="Oct";
+    month[11]="Nov";
+    month[12]="Dec";
+    
+
+    //having trouble finding an equiv of python's timedelta for javascript
+    // hacking for demo
+    if (n == 2){
+    	date_b_month = 12;
+    	date_b_year = year - 1;
+    }
+    else if (n == 1){
+    	date_a_month = 11;
+    	date_a_year = (year - 1);
+    	date_b_month = 12;
+    	date_b_year = (year - 1);
+    }
+    else {
+    	//get previous two months
+        var date_a = new Date(year, (n), 0);
+        var date_b = new Date(year, (n - 1), 0);
+        
+    	var date_a_month = date_a.getMonth();
+        var date_b_month = date_b.getMonth();
+        var date_a_year = date_a.getFullYear();
+        var date_b_year = date_b.getFullYear();
+    }
+    
+    $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
+    $('#byMonth').append($('<option selected value=' + n + ',' + year +  '>' + month[n] + ' ' + year + '</option>'));
+    $('#byMonth').append($('<option  value=' + (date_a_month) + ',' + year + '>' + month[date_a_month] + ' ' + date_a_year + '</option>'));
+    $('#byMonth').append($('<option  value=' + (date_b_month) + ',' + year + '>' + month[date_b_month] + ' '+ date_b_year +'</option>'));
+    
+    
 }
 
 function disableButton(btn) {
@@ -735,48 +788,59 @@ function populateMaxReport(rtn) {
 
         pane.append($('<br></br>'));
         pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
+        var date = rtn.date;
         var mdu = rtn.mdu;
         var mcu = rtn.mcu;
         var contract = rtn.daily_contract
+        
+        var date_mdu = [date, mdu];
+        var date_mcu = [date, mcu];
+        var date_contract = [date, contract]
+        var date_length = date.length
+        
         var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
-            {
-                title:'MDU vs MCU',
-                axesDefaults: {
-                    labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-                },
-                axes: {
-                    xaxis:{
-                        label: "Date Range",
-                        pad: 0
+                {
+                    title:'MDU vs MCU',
+                    axesDefaults: {
+                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                     },
-                    yaxis:{
-                        label: "Number of Resources",
-                        pad: 1.2
-                    }
-                },
-                legend: {
-                	show: true,
-                	location: 'e'
-                },
-                series:[
-                    {
-                    	label: 'MDU',
-                        lineWidth:2,
-                        markerOptions: { style:'dimaond' } 
+                    axes: {
+                        xaxis:{
+                            label: "Date Range",
+                            //renderer:$.jqplot.DateAxisRenderer, 
+                            //tickOptions:{formatString : '%m-%d'}, 
+                            //autoscale: true ,
+                            pad: 0
+                        },
+                        yaxis:{
+                            label: "Number of Resources",
+                            pad: 1.2
+                        }
                     },
-                    {
-                    	label: 'MCU',
-                        markerOptions: { sytle:'circle'}
+                    legend: {
+                    	show: true,
+                    	location: 'e'
                     },
-                    {
-                    	label: 'Contracted Use',
-                    	lineWidth:5,
-                    	color: '#FF0000',
-                        markerOptions: { style:"filledSquare", size:10 }
-                    }
-                ]
-                
-            });
+                    series:[
+                        {
+                        	label: 'MDU',
+                            lineWidth:2,
+                            markerOptions: { style:'dimaond' } 
+                        },
+                        {
+                        	label: 'MCU',
+                            markerOptions: { sytle:'circle'}
+                        },
+                        {
+                        	label: 'Contracted Use',
+                        	lineWidth:5,
+                        	color: '#FF0000',
+                            markerOptions: { style:"filledSquare", size:10 }
+                        }
+                    ]
+                    
+                });
+    
         pane.append('<h3>Glossary:</h3>');
         pane.append('<b>Maximum Daily Usage (MDU)</b><br>');
         pane.append('<b>Maximum Concurrent Usage (MCU)</b><br>');
@@ -836,7 +900,6 @@ function populateDetailReport(rtn) {
             "bAutoWidth": true,
             "bJQueryUI": true,
             "aoColumns": [
-            {"sTitle": "Count"},
             {"sTitle": "UUID"},
             {"sTitle": "Number of Checkins"}
             ],
@@ -849,7 +912,7 @@ function populateDetailReport(rtn) {
 
         var i = instance_index + 1;
 
-        detail_table.fnAddData([i, instance.instance, instance.count]);
+        detail_table.fnAddData([ instance.instance, instance.count]);
     }
 
     // attach event
@@ -859,7 +922,7 @@ function populateDetailReport(rtn) {
                     $(this).removeClass('highlighted');
                     });
                 $(this).addClass('highlighted');
-                var instance = $($(this).children('td')[1]).text();
+                var instance = $($(this).children('td')[0]).text();
                 createInstanceDetail(rtn.start, rtn.end, instance, escape(new String(rtn.this_filter)));
                 });
             });
@@ -912,12 +975,15 @@ function populateInstanceDetailReport(rtn) {
     }
 }
 
+/*
+ * Form Validation is no longer required
+ * 
 function validateForm() {
     var rtn = true;
 
     $('#form_error').empty();
 
-    if ($('#byMonth').val() > 0 || ($('#startDate').val() && $('#endDate').val())) {
+    if ($('#byMonth').val() || ($('#startDate').val() && $('#endDate').val())) {
         // pass
     } else {
         $('#form_error').append($('<b>Please enter a valid date range or select a month.</b>'));
@@ -934,6 +1000,7 @@ function validateForm() {
     }
     return rtn;
 }
+*/
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
