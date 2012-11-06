@@ -93,34 +93,40 @@ class UI_TestCase(TestCase):
         time10 = datetime.strptime("10142012:0931", constants.mn_fmt)
         time11 = datetime.strptime("10142012:1031", constants.mn_fmt)
         time12 = datetime.strptime("10142012:2331", constants.mn_fmt)
+        
+        mac01 = '00:24:7E:69:5C:57-03:54:34:23:23:65:'
+        mac02 = '00:DF:FD:45:6V:54-05:34:00:24:34:01:'
+        mac03 = '34:EF:GR:34:4C:4T-34:45:55:76:65:32:'
+        mac04 = 'RT:ER:G4:24:C6:47-38:49:85:77:85:02:'
+        mac05 = 'Z4:EF:ZR:34:XC:4Z-34:43:54:73:25:22:'
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
         prod2 = products_dict[JBoss][0]
         
         #MCU =2 MDU =3 
-        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance='mac02', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac03', products=prod)
+        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance=mac01, products=prod)
+        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance=mac02, products=prod)
+        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance=mac03, products=prod)
 
         #MCU=3 MDU =5
-        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance='mac01', products=prod2)
-        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance='mac02', products=prod2)
-        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance='mac03', products=prod2)
-        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance='mac04', products=prod2)
-        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance='mac05', products=prod2)
+        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance=mac01, products=prod2)
+        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance=mac02, products=prod2)
+        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance=mac03, products=prod2)
+        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance=mac04, products=prod2)
+        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance=mac05, products=prod2)
         
         
         #MCU =2 MDU =3 
-        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance='mac01', products=prod2)
-        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance='mac02', products=prod2)
-        TestData.create_product_usage(ss, fact1, time8, consumer=uuid, instance='mac03', products=prod2)
+        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance=mac01, products=prod2)
+        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance=mac02, products=prod2)
+        TestData.create_product_usage(ss, fact1, time8, consumer=uuid, instance=mac03, products=prod2)
 
         #MCU=3 MDU =5
-        TestData.create_product_usage(ss, fact1, time9, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance='mac02', products=prod)
-        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance='mac03', products=prod)
-        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance='mac04', products=prod)
-        TestData.create_product_usage(ss, fact1, time12, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(ss, fact1, time9, consumer=uuid, instance=mac01, products=prod)
+        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance=mac02, products=prod)
+        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance=mac03, products=prod)
+        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance=mac04, products=prod)
+        TestData.create_product_usage(ss, fact1, time12, consumer=uuid, instance=mac01, products=prod)
         
     
         #run import
