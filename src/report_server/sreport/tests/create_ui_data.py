@@ -26,17 +26,20 @@ from report_server.sreport.models import ReportData
 from report_server.sreport.models import SpliceServer, ProductUsage
 from rhic_serve.rhic_rest.models import RHIC, Account
 from datetime import datetime, timedelta
+import time
 from report_server.common.import_util import import_data
 from report_server.common import config
 from report_server.common.custom_count import Rules
 from setup import TestData
 from report_server.common import constants
+import random, string
 
 LOG = getLogger(__name__)
 config.init()
 this_config = config.get_import_info()
 
-ss = SpliceServer
+
+
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -68,6 +71,7 @@ products_dict = TestData.PRODUCTS_DICT
 rules = Rules()
 report_biz_rules = rules.get_rules()
 
+
 class UI_TestCase(TestCase):
 
     
@@ -75,65 +79,103 @@ class UI_TestCase(TestCase):
         SpliceServer.drop_collection()
         ProductUsage.drop_collection()
         ReportData.drop_collection()
-        fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        ss1 = TestData.create_splice_server("test01", "east")
         
-        ss = TestData.create_splice_server("test01", "east")
-        ss = TestData.create_splice_server("test02", "east")
-        ss = TestData.create_splice_server("test03", "east-")
-        time1 = datetime.strptime("10102012:0130", constants.mn_fmt)
-        time2 = datetime.strptime("10102012:0231", constants.mn_fmt)
-        time3 = datetime.strptime("10102012:0331", constants.mn_fmt)
-        time4 = datetime.strptime("10102012:0931", constants.mn_fmt)
-        time5 = datetime.strptime("10102012:1031", constants.mn_fmt)
-        time6 = datetime.strptime("10102012:2331", constants.mn_fmt)
+        uuid_rhel_jboss = products_dict[RHEL][1]
+        prod_rhel = products_dict[RHEL][0]
+        prod_jboss = products_dict[JBoss][0]
         
-        time7 = datetime.strptime("10142012:0130", constants.mn_fmt)
-        time8 = datetime.strptime("10142012:0231", constants.mn_fmt)
-        time9 = datetime.strptime("10142012:0331", constants.mn_fmt)
-        time10 = datetime.strptime("10142012:0931", constants.mn_fmt)
-        time11 = datetime.strptime("10142012:1031", constants.mn_fmt)
-        time12 = datetime.strptime("10142012:2331", constants.mn_fmt)
+        uuid_ha = products_dict[HA][1]
+        prod_ha = products_dict[HA][0]
         
-        mac01 = '00:24:7E:69:5C:57-03:54:34:23:23:65:'
-        mac02 = '00:DF:FD:45:6V:54-05:34:00:24:34:01:'
-        mac03 = '34:EF:GR:34:4C:4T-34:45:55:76:65:32:'
-        mac04 = 'RT:ER:G4:24:C6:47-38:49:85:77:85:02:'
-        mac05 = 'Z4:EF:ZR:34:XC:4Z-34:43:54:73:25:22:'
-        uuid = products_dict[RHEL][1]
-        prod = products_dict[RHEL][0]
-        prod2 = products_dict[JBoss][0]
-        
-        #MCU =2 MDU =3 
-        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance=mac01, products=prod)
-        TestData.create_product_usage(ss, fact1, time1, consumer=uuid, instance=mac02, products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance=mac03, products=prod)
-
-        #MCU=3 MDU =5
-        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance=mac01, products=prod2)
-        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance=mac02, products=prod2)
-        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance=mac03, products=prod2)
-        TestData.create_product_usage(ss, fact1, time4, consumer=uuid, instance=mac04, products=prod2)
-        TestData.create_product_usage(ss, fact1, time5, consumer=uuid, instance=mac05, products=prod2)
+        uuid_edu = products_dict[EDU][1]
+        prod_edu = products_dict[EDU][0]
         
         
-        #MCU =2 MDU =3 
-        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance=mac01, products=prod2)
-        TestData.create_product_usage(ss, fact1, time6, consumer=uuid, instance=mac02, products=prod2)
-        TestData.create_product_usage(ss, fact1, time8, consumer=uuid, instance=mac03, products=prod2)
-
-        #MCU=3 MDU =5
-        TestData.create_product_usage(ss, fact1, time9, consumer=uuid, instance=mac01, products=prod)
-        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance=mac02, products=prod)
-        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance=mac03, products=prod)
-        TestData.create_product_usage(ss, fact1, time10, consumer=uuid, instance=mac04, products=prod)
-        TestData.create_product_usage(ss, fact1, time12, consumer=uuid, instance=mac01, products=prod)
         
-    
+        
+        
+        now = datetime.now()
+        delta_day = timedelta(days=4)
+        delta_hour = timedelta(days=3)
+        
+        
+        for i in range(1,10):
+            this_time = now - (delta_hour * i)
+            create_set_of_usage(prod_rhel, uuid_rhel_jboss, getTimes(this_time), ss1, 7)
+            
+        for i in range(1,10):
+            this_time = now - (delta_hour * i)
+            create_set_of_usage(prod_jboss, uuid_rhel_jboss, getTimes(this_time), ss1, 4)
+        
+        for i in range(1,4):
+            this_time = now - (delta_hour * i)
+            create_set_of_usage(prod_ha, uuid_ha, getTimes(this_time), ss1, 7)
+            
+        for i in range(5,10):
+            this_time = now - (delta_hour * i)
+            create_set_of_usage(prod_edu, uuid_edu, getTimes(this_time), ss1, 5)
         #run import
         results = import_data(force_import=True)
         
+        
         #verify 1 items in db
         lookup = ReportData.objects.all()
-        self.assertEqual(len(lookup), 16)
+        print(len(lookup))
+        
+        
+def getTimes(start):
+            delta_day = timedelta(days=1)
+            minus_one = start - (delta_day * 1)
+            minus_one = minus_one.strftime(constants.month_day_year_fmt)
+            timelist = []
+            delta_hour = timedelta(hours=1)
+            time1 = datetime.strptime(minus_one + ":0130", constants.mn_fmt)
+            time2 = time1 + delta_hour
+            time3 = time1 + (delta_hour * 2)
+            time4 = time1 + (delta_hour * 6)
+            time5 = time1 + (delta_hour * 7)
+            time6 = time1 + (delta_hour * 10)
+            
+            time7 = time1 + (delta_hour * 12)
+            time8 = time7 + delta_hour
+            time9 = time7 + (delta_hour * 2)
+            time10 = time7 + (delta_hour * 8)
+            time11 = time7 + (delta_hour * 9)
+            time12 = time7 + (delta_hour * 12)
+            
+            timelist = [time1, time2, time3, time4, time5, time6, time7, time8, time9, time10, time11, time12]
+            return timelist
+        
+def create_set_of_usage(prod, uuid, list_of_times, splice_server, iterate_num):
+            fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
+        
+            
+            for i in range(iterate_num):
+                lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(10)]
+                rand = "".join(lst)
+                print rand
+            
+                
+                mac01 = '00:24:7E:69:5C:57-03:54:' + rand
+                mac02 = '00:DF:FD:45:6V:54-05:34:' + rand
+                mac03 = '34:EF:GR:34:4C:4T-34:45:' + rand
+                mac04 = 'RT:ER:G4:24:C6:47-38:49:' + rand
+                mac05 = 'Z4:EF:ZR:34:XC:4Z-34:43:' + rand
+                
+                
+                
+                #MCU =2 MDU =3 
+                TestData.create_product_usage(splice_server, fact1, list_of_times[0], consumer=uuid, instance=mac01, products=prod)
+                TestData.create_product_usage(splice_server, fact1, list_of_times[0], consumer=uuid, instance=mac02, products=prod)
+                TestData.create_product_usage(splice_server, fact1, list_of_times[1], consumer=uuid, instance=mac03, products=prod)
+        
+        
+                #MCU=3 MDU =5
+                TestData.create_product_usage(splice_server, fact1, list_of_times[8], consumer=uuid, instance=mac01, products=prod)
+                TestData.create_product_usage(splice_server, fact1, list_of_times[9], consumer=uuid, instance=mac02, products=prod)
+                TestData.create_product_usage(splice_server, fact1, list_of_times[9], consumer=uuid, instance=mac03, products=prod)
+                TestData.create_product_usage(splice_server, fact1, list_of_times[9], consumer=uuid, instance=mac04, products=prod)
+                TestData.create_product_usage(splice_server, fact1, list_of_times[11], consumer=uuid, instance=mac01, products=prod)
     
    
