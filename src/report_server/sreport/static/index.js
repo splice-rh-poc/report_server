@@ -391,7 +391,7 @@ function createDetail(start, end, description,  filter_args) {
     var data = {
         "start": start,
         "end": end,
-        "description": description,
+        "description":  description,
         "filter_args_dict": unescape(filter_args)
     };
 
@@ -743,7 +743,11 @@ function populateReport(rtn) {
                 if (product_index == 0) {
                     pane.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
                 }
+
                 var description = 'Product: '+ product.product_name + ', SLA:' + product.sla + ', Support: ' + product.support + ' Facts: ' + product.facts;
+                //json attempt
+                //var description = {"Product": product.product_name, "SLA": product.sla , "Support": product.support, "Facts": product.facts };
+                //var description = '';
                 var row = $('<tr onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\',\'' + description + '\', \'' + escape(new String(product.filter_args_dict))
                         +  '\') "></tr>');
                 row.append($('<td>' + product.product_name + '</td>'));

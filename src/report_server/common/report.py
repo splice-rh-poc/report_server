@@ -74,7 +74,7 @@ def get_list_of_products(account_num, contract_num ):
 class reportTools:
 
     @staticmethod
-    def get_product_info(filter_args):
+    def get_product_info(filter_args, product_name):
         contract_num = filter_args['contract_id']
         rhic_uuid = filter_args['consumer_uuid']
         eng_product = filter_args['product']
@@ -89,10 +89,12 @@ class reportTools:
             if contract.contract_id == contract_num:
                 list_of_products = contract.products
                 for product in list_of_products:
-                    if product.engineering_ids == eng_product and product.sla == sla and product.support_level == support:
+                    if product.engineering_ids == eng_product and product.sla == sla and \
+                        product.support_level == support and product.name == product_name:
                         count += 1
                         quantity = product.quantity
                         if count > 1:
+                            _LOG.error("too many matches for a product, sla, support_level combination");
                             raise Exception("too many matches for a product, sla, support_level combination")
         return quantity
                         

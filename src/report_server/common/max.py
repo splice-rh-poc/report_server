@@ -28,7 +28,7 @@ class MaxUsage:
     
     
    @staticmethod
-   def get_MDU_MCU(start, end, filter_args):
+   def get_MDU_MCU(start, end, filter_args, product_name):
         count_list = []
         f = filter_args
         delta=timedelta(days=1)
@@ -39,7 +39,7 @@ class MaxUsage:
         mcu_count = []
         date = []
         daily_highest_concurrent_usage = 0
-        contract_quantity = reportTools.get_product_info(f)
+        contract_quantity = reportTools.get_product_info(f, product_name)
         daily_contract = []
         
         

@@ -402,8 +402,10 @@ def max_report(request):
     start = datetime.fromordinal(int(request.POST['start']))
     end = datetime.fromordinal(int(request.POST['end']))
     description = request.POST['description']
+    product_name = description.split(',')[0].split(':')[1].strip()
     
-    results, mdu, mcu, daily_contract, date = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict)
+    
+    results, mdu, mcu, daily_contract, date = MaxUsage.get_MDU_MCU(start, end,  filter_args_dict, product_name)
     
 
     
