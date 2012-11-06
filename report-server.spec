@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.34
+Version:	0.35
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,12 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Nov 06 2012 Wes Hayutin <whayutin@redhat.com> 0.35-1
+- found bug w/ finding contract data, fixed up the report table css
+  (whayutin@redhat.com)
+- few minor updates, changed date format, trying to get dates on x-axis
+  (whayutin@redhat.com)
+
 * Fri Nov 02 2012 Wes Hayutin
  0.34-1
  <whayutin@redhat.com>
