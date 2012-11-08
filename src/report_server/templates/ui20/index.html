@@ -79,6 +79,9 @@
 	        <div id="wrapper" class="wrapo">
             	<div id="header-wrap" class="wrapi">
                 	<div id="header">
+                	<div id="spinner" class="spinner" style="display:none;">
+                	    <img id="img-spinner" src="{{ STATIC_URL }}ajax-loader.gif" alt="Loading"/>
+                	</div>
 
                     	<div id="brand">
                     		<a id="rhLogo" href="http://www.redhat.com/" title="Go to redhat.com">
@@ -129,8 +132,8 @@
                                     -->
                                     <li id='create_button' class='active'><a href="#">Create Report</a></li>
                                     <li id='report_button'><a href='#'>View Report</a></li>
+                                    <li id='max_button'   ><a href="#">MCU</a></li>
                                     <li id='detail_button'><a href='#'>View Detail</a></li>
-                                    <li id='max_button'   ><a href="#">Max Data</a></li>
                                     <li id='import_button'><a href="#">Import Data</a></li>
                                     
                                 </ul>
@@ -301,7 +304,7 @@
                             <div id='max_pane'>
                                 <br></br>
                                 <div id='max_details'>
-                              
+                                
                                 </div>
                             </div>
                             <div id='import_pane'>

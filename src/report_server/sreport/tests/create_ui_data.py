@@ -121,7 +121,7 @@ class UI_TestCase(TestCase):
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
-        print(len(lookup))
+        #print(len(lookup))
         
         
 def getTimes(start):
@@ -154,7 +154,7 @@ def create_set_of_usage(prod, uuid, list_of_times, splice_server, iterate_num):
             for i in range(iterate_num):
                 lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(10)]
                 rand = "".join(lst)
-                print rand
+                #print rand
             
                 
                 mac01 = '00:24:7E:69:5C:57-03:54:' + rand

@@ -6,6 +6,15 @@ var page_size = 10; // default value
 
 $(document).ready(function() {
     csrftoken = getCookie('csrftoken');
+    
+    $("#spinner").bind("ajaxSend", function() {
+		$(this).show();
+	}).bind("ajaxStop", function() {
+		$(this).hide();
+	}).bind("ajaxError", function() {
+		$(this).hide();
+	});
+    
     setupLoginForm();
     setupLLButtons();
     //setupNavButtons(); // obsolete?
@@ -17,7 +26,6 @@ $(document).ready(function() {
     // initially hide instance detail section
     $('#instance_details').hide();
 
-    console.log('1');
 
     // Disable appropriate nav tabs 
     $('#report_button').addClass('disabled');
@@ -48,7 +56,6 @@ $(document).ready(function() {
     $("#endDate").change(function() {
         $("#byMonth").val('').trigger('liszt:updated');
     });
-    console.log('2');
 
     if (!first_logged_in || !is_admin) {
         $('#import_button').addClass('disabled');
@@ -319,6 +326,9 @@ $.download = function(url, data, method){
 
 };
 
+
+
+
 function turnOnAdminFeatures() {
     $('#import_button').removeClass('disabled');
     $('#import_button').on("click", openImport);
@@ -432,10 +442,9 @@ function openImport() {
     }
 }
 
-function createDetail(start, end, description,  filter_args) {
+function createDetail(date, description,  filter_args) {
     var data = {
-        "start": start,
-        "end": end,
+        "date": date,
         "description":  description,
         "filter_args_dict": unescape(filter_args)
     };
@@ -454,11 +463,8 @@ function createDetail(start, end, description,  filter_args) {
     }).done(function(data) {
         var rtn = jQuery.parseJSON(data);
         closeDetail();
-        closeMax();
-        openDetail();
         populateDetailReport(rtn);
-        createMax(start, end, description,  filter_args);
-        
+        openDetail();
 
         $('#detail_button').removeClass('disabled');
         $('#detail_button').on("click", openDetail);
@@ -470,6 +476,8 @@ function createDetail(start, end, description,  filter_args) {
 
 
 function createMax(start, end, description, filter_args) {
+    closeDetail();
+    closeMax();
     var data = {
         "start": start,
         "end": end,
@@ -490,19 +498,19 @@ function createMax(start, end, description, filter_args) {
     }
     }).done(function(data) {
         var rtn = jQuery.parseJSON(data);
+
         openMax();
-        populateMaxReport(rtn);
-        openDetail(); //also should not be needed :) jumps back from max to detail
+        populateMaxReport(rtn, filter_args);
+        
         $('#max_button').on("click", openMax);
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });
 }
 
-function createInstanceDetail(start, end, instance, filter_args) {
+function createInstanceDetail(date, instance, filter_args) {
     var data = {
-        "start": start,
-        "end": end,
+        "date": date,
         "instance": instance,
         "filter_args_dict": unescape(filter_args)
     };
@@ -807,7 +815,7 @@ function populateReport(rtn) {
                 //json attempt
                 //var description = {"Product": product.product_name, "SLA": product.sla , "Support": product.support, "Facts": product.facts };
                 //var description = '';
-                var row = $('<tr onclick="createDetail(\'' + product.start + '\',\'' + product.end + '\',\'' + description + '\', \'' + escape(new String(product.filter_args_dict))
+                var row = $('<tr onclick="createMax(\'' + product.start + '\',\'' + product.end + '\',\'' + description + '\', \'' + escape(new String(product.filter_args_dict))
                         +  '\') "></tr>');
                 row.append($('<td>' + product.product_name + '</td>'));
                 row.append($('<td>' + product.sla + '</td>'));
@@ -850,11 +858,13 @@ function populateMaxReport(rtn) {
         var mdu = rtn.mdu;
         var mcu = rtn.mcu;
         var contract = rtn.daily_contract
+        var filter_args = rtn.filter_args
         
         var date_mdu = [date, mdu];
         var date_mcu = [date, mcu];
         var date_contract = [date, contract]
         var date_length = date.length
+        
         
         var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
                 {
@@ -905,11 +915,19 @@ function populateMaxReport(rtn) {
         pane.append('<b>Contracted Use: This is the number of concurrent entitlements purchased in the contract</b>');
         
         pane.append('<br><br>')
-        pane.append('<h3>Details:</h3>');
+        //pane.append('<h3>Details:</h3>');
+        
+        //pane.append('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+        var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+        pane.append(show_details)
+        //pane.append('<button id=hide_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Hide Details</button>');
+        //var hide_details = $('<button id=hide_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Hide Details</button>');
         var mydata = rtn.list;
-
+        
+        
         var table = $('<table id=\'max_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-
+        
+        
         var header = ($('<tr></tr>'));
         header.append($('<th>Day:</th>'));
         header.append($('<th>Maximum Daily Usage:</th>'));
@@ -924,16 +942,24 @@ function populateMaxReport(rtn) {
             var instance = rtn.list[instance_index];
 
             var row = $('<tr></tr>');
+            var row = $('<tr onclick="createDetail(\'' + instance['date'] + '\',\'' + rtn.description + '\', \'' + escape(new String(filter_args)) +  '\') "></tr>');
             row.append($('<td>' + instance['date'] + '</td>'));
             row.append($('<td>' + instance['mdu'] + '</td>'));
             row.append($('<td>' + instance['mcu'] + '</td>'));
 
             tbody.append(row);
         }
-
+       
         table.append(tbody);
-
+        table.hide();
         pane.append(table);
+        
+        
+        $("button").click(function (){
+            $('#max_data').toggle("slow");
+            
+          })
+          
     } else {
         pane.append($('<h3>This date range contains no usage data.</h3>'));
         pane.append($('<br></br>'));
@@ -981,7 +1007,7 @@ function populateDetailReport(rtn) {
                     });
                 $(this).addClass('highlighted');
                 var instance = $($(this).children('td')[0]).text();
-                createInstanceDetail(rtn.start, rtn.end, instance, escape(new String(rtn.this_filter)));
+                createInstanceDetail(rtn.date, instance, escape(new String(rtn.this_filter)));
                 });
             });
 

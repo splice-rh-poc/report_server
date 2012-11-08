@@ -331,21 +331,21 @@ def detailed_report_ui20(request):
     account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     description = request.POST['description']
-    start = datetime.fromordinal(int(request.POST['start']))
-    end = datetime.fromordinal(int(request.POST['end']))
+    date = datetime.strptime(request.POST['date'], constants.just_date)
+    day = date.strftime(constants.day_fmt)
+    
     
     results = []
-    instances = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_dict).distinct('instance_identifier')
+    instances = ReportData.objects.filter(day=day, **filter_args_dict).distinct('instance_identifier')
     for i in instances:
-        count = ReportData.objects.filter(instance_identifier=i, date__gt=start, date__lt=end, **filter_args_dict).count()
+        count = ReportData.objects.filter(instance_identifier=i, day=day, **filter_args_dict).count()
         results.append({'instance': i, 'count': count})
     
     this_filter = json.dumps(filter_args_dict)
 
     response_data = {}
     response_data['list'] = results
-    response_data['start'] = start.toordinal()
-    response_data['end'] = end.toordinal()
+    response_data['date'] = date.toordinal()
     response_data['this_filter'] = this_filter
     response_data['description'] = description
 
@@ -364,8 +364,9 @@ def instance_detail_ui20(request):
     account = Account.objects.filter(login=user)[0].account_id
     instance = request.POST['instance']
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    start = datetime.fromordinal(int(request.POST['start']))
-    end = datetime.fromordinal(int(request.POST['end']))
+    date = datetime.fromordinal(int(request.POST['date']))
+    day = date.strftime(constants.day_fmt)
+    
     #try:
     #    page = request.POST['page']
     #    page_size = request.POST['page_size']
@@ -384,7 +385,7 @@ def instance_detail_ui20(request):
     #else:
     #    _LOG.info("Fetching all instance detail objects.")
     #    results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
-    results = ReportData.objects.filter(instance_identifier=instance, date__gt=start, date__lt=end, **filter_args_dict)
+    results = ReportData.objects.filter(instance_identifier=instance, day=day, **filter_args_dict)
 
     response_data = {}
     response_data['list'] = results
@@ -422,6 +423,7 @@ def max_report(request):
     response_data['date'] = date
     response_data['description'] = description
     response_data['daily_contract'] = daily_contract
+    response_data['filter_args'] = json.dumps(filter_args_dict)
 
     try:
         #response = HttpResponse(simplejson.dumps(response_data))

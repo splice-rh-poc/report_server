@@ -17,6 +17,7 @@ from report_server.sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 from datetime import datetime, timedelta
+from mongoengine import OperationError
 from sets import Set
 from report_server.common import config
 from report_server.common import constants
@@ -37,8 +38,6 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
     """
     #config fail/pass on missing rhic
     results = []
-    config.init()
-    this_config = config.get_import_info()
     total_import_count = len(product_usage)
     remaining_import_count = total_import_count
 
@@ -139,9 +138,10 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                                     cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
                                     cpu = int(pu.facts['lscpu_dot_cpu(s)']),
                                     environment = str(splice_server.environment),
-                                    splice_server = str(splice_server.hostname)
+                                    splice_server = str(splice_server.hostname),
+                                    record_identifier = rhic.name + str(pu.instance_identifier) + pu.date.strftime(constants.hr_fmt) + product.name
                                     )
-    
+                    '''
                     # If there's a dupe, log it instead of saving a new record.
                     dupe = ReportDataDaily.objects.filter(
                         consumer_uuid=str(rhic.uuid), 
@@ -153,6 +153,15 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                     else:
                         _LOG.info('recording: ' + str(product.engineering_ids))
                         rd.save()
+                    '''
+                    try:
+                        rd.save(safe=True)
+                        _LOG.info('recording: ' + str(product.engineering_ids))
+                    except OperationError as oe:
+                        _LOG.info("found dupe:" + str(pu) + "Exception: "+ str(oe))
+                    except:
+                        _LOG.info("Unexpected error:")
+                        raise
                         
                 else: 
                     for interval in range(checkin_interval):
@@ -175,9 +184,10 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                                         cpu = int(pu.facts['lscpu_dot_cpu(s)']),
                                         environment = str(splice_server.environment),
                                         splice_server = str(splice_server.hostname),
-                                        duplicate = interval
+                                        duplicate = interval,
+                                        record_identifier = rhic.name + str(pu.instance_identifier) + pu.date.strftime(constants.day_fmt) + product.name
                                         )
-        
+                        '''
                         # If there's a dupe, log it instead of saving a new record.
                         dupe = ReportData.objects.filter(
                             consumer_uuid=str(rhic.uuid), 
@@ -193,7 +203,16 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                         else:
                             _LOG.info('recording: ' + str(product.engineering_ids))
                             rd.save()
-
+                        '''
+                        try:
+                            rd.save(safe=True)
+                            _LOG.info('recording: ' + str(product.engineering_ids))
+                        except OperationError as oe:
+                            _LOG.info("found dupe:" + str(pu) + "Exception: "+ str(oe))
+                        except:
+                            _LOG.info("Unexpected error:")
+                            raise
+                        
 
     
     end = datetime.utcnow()

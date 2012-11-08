@@ -93,6 +93,8 @@ class ReportData(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     duplicate = IntField()
+    record_identifier = StringField(required=True, unique_with=['consumer', 'instance_identifier', 'hour', 'product'])
+
 
     def to_dict(self):
         return {'instance_identifier': self.instance_identifier,
@@ -111,6 +113,7 @@ class ReportData(Document):
                 'environment': self.environment,
                 'splice_server': self.splice_server,
                 'duplicate': self.duplicate,
+                'record_identifier': self.record_identifier
         }    
 
 class ReportDataDaily(Document):
@@ -140,6 +143,7 @@ class ReportDataDaily(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     duplicate = IntField()
+    record_identifier = StringField(required=True, unique_with=['consumer', 'instance_identifier', 'day', 'product'])
 
 class ImportHistory(Document):
     meta = {

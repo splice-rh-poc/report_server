@@ -183,6 +183,7 @@ class TestData():
                 row['contract_use']="20"
                 row['cpu_sockets'] = socket
                 row['cpu'] = cpu
+                row['record_identifier'] = str(value[2]) + "12:31:3D:08:49:00" + str(date) + str(value[0])
                 
         
         if mem_high:

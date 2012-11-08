@@ -18,6 +18,6 @@ mn_fmt = "%m%d%Y:%H%M"
 day_fmt = "%Y%m%d"
 max_fmt = "%m-%d"
 full_format = "%a %b %d %H:%M:%S %Y"
-just_date = "%m / %d"
+just_date = "%m-%d-%Y"
 month_day_year_fmt = "%m%d%Y"
 
