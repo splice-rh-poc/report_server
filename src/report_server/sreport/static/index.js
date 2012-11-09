@@ -9,6 +9,7 @@ $(document).ready(function() {
     
     $("#spinner").bind("ajaxSend", function() {
 		$(this).show();
+		
 	}).bind("ajaxStop", function() {
 		$(this).hide();
 	}).bind("ajaxError", function() {
@@ -776,9 +777,13 @@ function removeActiveNav() {
 
 function populateReport(rtn) {
     var pane = $('#report_pane > div');
+    
 
     // cleanup first
     pane.empty();
+    
+    pane.append('<h3>Date Range: ' + rtn.start.substr(0,10) + ' ----> ' + rtn.end.substr(0,10) + '</h3>')
+    pane.append('<br><br>')
 
     if (rtn.list.length > 0) {
         for (var rhic_index in rtn.list) {
@@ -810,8 +815,9 @@ function populateReport(rtn) {
                 if (product_index == 0) {
                     pane.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
                 }
+                
 
-                var description = 'Product: '+ product.product_name + ', SLA:' + product.sla + ', Support: ' + product.support + ' Facts: ' + product.facts;
+                var description = 'Product: '+ product.product_name + ', SLA:' + product.sla + ', Support: ' + product.support + ' Facts: ' + product.facts ;
                 //json attempt
                 //var description = {"Product": product.product_name, "SLA": product.sla , "Support": product.support, "Facts": product.facts };
                 //var description = '';
@@ -846,6 +852,16 @@ function populateMaxReport(rtn) {
     
     // cleanup first
     pane.empty();
+    
+    var desc_start = new Date(0);
+    var desc_end = new Date(0);
+    desc_start.setUTCSeconds(rtn.start);
+    desc_end.setUTCSeconds(rtn.end);
+    
+
+    
+    pane.append('<h3>Date Range: ' + desc_start.toDateString().substr(0,10) + ' ----> ' + desc_end.toDateString().substr(0,10) + '</h3>');
+    pane.append('<br><br>');
     var header = $('<b> ' +  rtn.description + '</b>' );
     $('#max_pane').append(header);
 
@@ -854,18 +870,22 @@ function populateMaxReport(rtn) {
 
         pane.append($('<br></br>'));
         pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
+        var date = []; 
+        //for (var i=0; i<rtn.date.length; i++){
+        //	var this_date = new Date(rtn.date[i]);
+        //	date.push(this_date.toISOString());
+        //}
+        
         var date = rtn.date;
         var mdu = rtn.mdu;
         var mcu = rtn.mcu;
         var contract = rtn.daily_contract
         var filter_args = rtn.filter_args
         
-        var date_mdu = [date, mdu];
-        var date_mcu = [date, mcu];
-        var date_contract = [date, contract]
         var date_length = date.length
         
         
+        //var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
         var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
                 {
                     title:'MDU vs MCU',
@@ -875,19 +895,28 @@ function populateMaxReport(rtn) {
                     axes: {
                         xaxis:{
                             label: "Date Range",
-                            //renderer:$.jqplot.DateAxisRenderer, 
-                            //tickOptions:{formatString : '%m-%d'}, 
-                            //autoscale: true ,
-                            pad: 0
+                            renderer:$.jqplot.DateAxisRenderer, 
+                            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                            tickOptions: {
+                              angle: -30,
+                              formatString: '%b %e %Y'
+                            } 
                         },
                         yaxis:{
                             label: "Number of Resources",
-                            pad: 1.2
+                            pad: 1.3
                         }
                     },
+                    highlighter: {
+                        show: true,
+                        sizeAdjust: 9.5
+                    },
+                   
                     legend: {
                     	show: true,
-                    	location: 'e'
+                    	location: 'se',
+                    	yoffset: 500
+                    	
                     },
                     series:[
                         {
@@ -908,6 +937,12 @@ function populateMaxReport(rtn) {
                     ]
                     
                 });
+        $('#chartdiv').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data) { 
+        	   //alert("test" + "," + data[0] + "," + data[1]);
+        	   var this_date = new Date(data[0]);
+        	   var date_to_send = (this_date.getMonth() + 1) + "-" + this_date.getDate() + "-" + this_date.getFullYear();
+        	   createDetail( date_to_send, rtn.description,  escape(new String(filter_args)));
+        	  });
     
         pane.append('<h3>Glossary:</h3>');
         pane.append('<b>Maximum Daily Usage (MDU)</b><br>');
@@ -973,10 +1008,19 @@ function populateDetailReport(rtn) {
     // cleanup
     $('#details').empty();
     $('#instance_details').empty();
+    var desc_date = new Date(0);
+    desc_date.setUTCSeconds(rtn.date);
+    
+    var pane = $('#details');
+    
+    pane.append('<h3>Date Range: ' + desc_date.toDateString().substr(0,10) + '</h3>');
+    pane.append('<br><br>');
+    
+    
     var header = $('<b> ' +  rtn.description + '</b>' );
     var detail_table = $('<table style="width: 100%; margin-bottom: 0;"></table>');
-    $('#details').append(header);
-    $('#details').append(detail_table);
+    pane.append(header);
+    pane.append(detail_table);
 
     var reportDetailTableData = [];
 

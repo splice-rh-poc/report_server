@@ -15,6 +15,8 @@ import math
 
 _LOG = logging.getLogger(__name__)
 
+
+
 def find_item(f, seq):
     """Return first item in sequence where f(item) == True."""
     for item in seq:
@@ -73,3 +75,18 @@ def subscription_calc(count, start, end, product_config):
     nau = count/hours_for_sub
     nau = math.ceil(nau)
     return nau
+
+def get_date_epoch(date):
+    '''
+    return python epoch time * 1000 for javascript 
+    '''
+    
+    epoch =  (int(date.strftime("%s")))
+    return epoch
+
+def get_date_object(epoch_int):
+    '''
+    return datetime object from epoch string
+    '''
+    date = datetime.utcfromtimestamp(int(epoch_int))
+    return date

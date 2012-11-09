@@ -16,6 +16,7 @@ import logging
 from report_server.common.utils import datespan
 import json
 from report_server.common.utils import subscription_calc, get_datespan
+from report_server.common.utils import get_date_epoch, get_date_object
 
 
 
@@ -68,8 +69,8 @@ def build_result(product, rhic, start, end, contract_number, count, environment,
     result_dict['sla'] = product.sla
     result_dict['support'] = product.support_level
     result_dict['contract_id'] = contract_number
-    result_dict['start'] = start.toordinal()
-    result_dict['end'] = end.toordinal()
+    result_dict['start'] = get_date_epoch(start)
+    result_dict['end'] = get_date_epoch(end)
     result_dict['sub_hours'] = hours_for_sub
     result_dict['product_config']=json.dumps(product_config)
     

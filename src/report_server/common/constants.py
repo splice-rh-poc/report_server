@@ -19,5 +19,7 @@ day_fmt = "%Y%m%d"
 max_fmt = "%m-%d"
 full_format = "%a %b %d %H:%M:%S %Y"
 just_date = "%m-%d-%Y"
+jqplot_fmt = "%Y-%m-%d %I:%M%p"
 month_day_year_fmt = "%m%d%Y"
+epoch = "%s"
 

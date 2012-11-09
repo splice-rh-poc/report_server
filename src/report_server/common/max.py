@@ -72,10 +72,10 @@ class MaxUsage:
             mcu = hourly_highest_concurrent_usage
             
             results.append({'date': currentDate.strftime(constants.just_date), 'mdu': mdu, 'mcu': mcu})
-            mdu_count.append(mdu)
-            mcu_count.append(mcu)
-            daily_contract.append(contract_quantity)
-            date.append(currentDate.strftime(constants.max_fmt))
+            mdu_count.append([currentDate.strftime(constants.jqplot_fmt), mdu])
+            mcu_count.append([currentDate.strftime(constants.jqplot_fmt), mcu])
+            daily_contract.append([currentDate.strftime(constants.jqplot_fmt), contract_quantity])
+            date.append(currentDate.strftime(constants.jqplot_fmt))
             currentDate += delta
         
         return results, mdu_count, mcu_count, daily_contract, date

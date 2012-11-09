@@ -29,6 +29,7 @@ from report_server.common.import_util import import_data
 import sys
 from django.http import HttpResponse
 from report_server.common import constants
+from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.common.max import MaxUsage
 import json
 from django.db.models.base import get_absolute_url
@@ -345,7 +346,7 @@ def detailed_report_ui20(request):
 
     response_data = {}
     response_data['list'] = results
-    response_data['date'] = date.toordinal()
+    response_data['date'] =  get_date_epoch(date)  #int(date.strftime("%s")) * 1000
     response_data['this_filter'] = this_filter
     response_data['description'] = description
 
@@ -364,7 +365,7 @@ def instance_detail_ui20(request):
     account = Account.objects.filter(login=user)[0].account_id
     instance = request.POST['instance']
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    date = datetime.fromordinal(int(request.POST['date']))
+    date = get_date_object(request.POST['date'])
     day = date.strftime(constants.day_fmt)
     
     #try:
@@ -404,8 +405,10 @@ def max_report(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    start = datetime.fromordinal(int(request.POST['start']))
-    end = datetime.fromordinal(int(request.POST['end']))
+    s = request.POST['start']
+    e = request.POST['end']
+    start = get_date_object(s)
+    end = get_date_object(e)
     description = request.POST['description']
     product_name = description.split(',')[0].split(':')[1].strip()
     
@@ -416,8 +419,8 @@ def max_report(request):
     
     response_data = {}
     response_data['list'] = results
-    response_data['start'] = start.toordinal()
-    response_data['end'] = end.toordinal()
+    response_data['start'] = get_date_epoch(start) #start.int(date.strftime("%s")) * 1000
+    response_data['end'] = get_date_epoch(end)#end.int(date.strftime("%s")) * 1000
     response_data['mdu'] = mdu
     response_data['mcu'] = mcu
     response_data['date'] = date
