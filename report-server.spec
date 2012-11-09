@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.36
+Version:	0.37
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,14 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Nov 09 2012 Wes Hayutin
+ 0.37-1
+ <whayutin@redhat.com>
+- MCU workflow complete (whayutin@redhat.com)
+- changed import to let mongo check for dupes (should increase perf), changed
+  workflow for mcu, added ajax spinner (whayutin@redhat.com)
+- updated unit tests (whayutin@redhat.com)
+
 * Tue Nov 06 2012 Wes Hayutin <whayutin@redhat.com> 0.36-1
 * Demo Server for Sprint 3
 - 
