@@ -892,6 +892,14 @@ function populateMaxReport(rtn) {
                     axesDefaults: {
                         labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                     },
+                    highlighter: {
+                        show: true,
+                        sizeAdjust: 10.5,
+                        useAxesFormatters: true
+                    },
+                    cursor: {
+                    	show: true
+                    },
                     axes: {
                         xaxis:{
                             label: "Date Range",
@@ -907,11 +915,6 @@ function populateMaxReport(rtn) {
                             pad: 1.3
                         }
                     },
-                    highlighter: {
-                        show: true,
-                        sizeAdjust: 9.5
-                    },
-                   
                     legend: {
                     	show: true,
                     	location: 'se',

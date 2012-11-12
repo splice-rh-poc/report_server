@@ -59,7 +59,7 @@ class MaxUsage:
             
             
             hour_delta = timedelta(hours=1)
-            currentHour = currentDate
+            currentHour = datetime.strptime(currentDate.strftime(constants.day_fmt), constants.day_fmt)
             for h in range(24):
                 this_hour = currentHour.strftime(constants.hr_fmt)
                 mcu = ReportData.objects.filter(hour=this_hour, **filter_args).count()
@@ -76,6 +76,7 @@ class MaxUsage:
             mcu_count.append([currentDate.strftime(constants.jqplot_fmt), mcu])
             daily_contract.append([currentDate.strftime(constants.jqplot_fmt), contract_quantity])
             date.append(currentDate.strftime(constants.jqplot_fmt))
+            
             currentDate += delta
         
         return results, mdu_count, mcu_count, daily_contract, date
