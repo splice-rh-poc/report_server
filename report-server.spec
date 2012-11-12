@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.38
+Version:	0.39
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Nov 12 2012 Wes Hayutin <whayutin@redhat.com> 0.39-1
+* fixed added NAU back in, fixed graph pointer
+- 
+
 * Mon Nov 12 2012 Wes Hayutin <whayutin@redhat.com> 0.38-1
 - first pass at compliance report (whayutin@redhat.com)
 - fixed mdu vs mcu bug, updated js files (whayutin@redhat.com)
