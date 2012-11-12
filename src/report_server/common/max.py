@@ -16,7 +16,9 @@ import logging
 from report_server.common.custom_count import Rules
 from datetime import datetime, timedelta
 from report_server.common import constants
-from report_server.common.report import reportTools
+from rhic_serve.rhic_rest.models import RHIC
+from rhic_serve.rhic_rest.models import Account
+
 
 
 
@@ -27,8 +29,8 @@ report_biz_rules = rules.get_rules()
 class MaxUsage:
     
     
-   @staticmethod
-   def get_MDU_MCU(start, end, filter_args, product_name):
+    @staticmethod
+    def get_MDU_MCU(start, end, filter_args, product_name):
         count_list = []
         f = filter_args
         delta=timedelta(days=1)
@@ -39,7 +41,7 @@ class MaxUsage:
         mcu_count = []
         date = []
         daily_highest_concurrent_usage = 0
-        contract_quantity = reportTools.get_product_info(f, product_name)
+        contract_quantity = get_product_info(f, product_name)
         daily_contract = []
         
         
@@ -56,8 +58,7 @@ class MaxUsage:
             else:
                 _LOG.error('check rules, unsupported format found != hourly,daily')
                 raise Exception("unsupported calculation")
-            
-            
+
             hour_delta = timedelta(hours=1)
             currentHour = datetime.strptime(currentDate.strftime(constants.day_fmt), constants.day_fmt)
             for h in range(24):
@@ -82,3 +83,82 @@ class MaxUsage:
         return results, mdu_count, mcu_count, daily_contract, date
     
 
+    @staticmethod
+    def get_MCU_Compliant(start, end, filter_args, product_name):
+        compliant = True
+        count_list = []
+        f = filter_args
+        delta=timedelta(days=1)
+        currentDate = start
+        calculation = 'hourly'
+        results = []
+        mdu_count = []
+        mcu_count = []
+        date = []
+        daily_highest_concurrent_usage = 0
+        daily_contract = []
+        contract_quantity = get_product_info(f, product_name)
+        
+        
+        
+        while currentDate < end:
+            hourly_highest_concurrent_usage = 0
+            day = currentDate.strftime(constants.day_fmt)
+            if calculation == 'hourly':
+                mdu_each = ReportData.objects.filter(day=day, **filter_args).distinct("instance_identifier")
+                mdu = len(mdu_each)
+                
+            elif calculation == 'daily':
+                mdu = ReportDataDaily.objects.filter(day=day, **filter_args).count()
+            else:
+                _LOG.error('check rules, unsupported format found != hourly,daily')
+                raise Exception("unsupported calculation")
+            
+            if mdu > contract_quantity:
+
+                hour_delta = timedelta(hours=1)
+                currentHour = datetime.strptime(currentDate.strftime(constants.day_fmt), constants.day_fmt)
+                for h in range(24):
+                    this_hour = currentHour.strftime(constants.hr_fmt)
+                    mcu = ReportData.objects.filter(hour=this_hour, **filter_args).count()
+                    if mcu > hourly_highest_concurrent_usage:
+                        hourly_highest_concurrent_usage = mcu
+                    
+                    currentHour += hour_delta
+                    
+                #The highest number is the count
+                mcu = hourly_highest_concurrent_usage
+                
+                if mcu > contract_quantity:
+                    return False
+
+            
+            currentDate += delta
+        
+        return compliant
+    
+
+
+def get_product_info(filter_args, product_name):
+    contract_num = filter_args['contract_id']
+    rhic_uuid = filter_args['consumer_uuid']
+    eng_product = filter_args['product']
+    sla = filter_args['sla']
+    support = filter_args['support']
+    
+    account_num = RHIC.objects.get(uuid=rhic_uuid).account_id
+    contract_list = Account.objects.filter(account_id=account_num)[0].contracts
+    quantity = 0;
+    count = 0
+    for contract in contract_list:
+        if contract.contract_id == contract_num:
+            list_of_products = contract.products
+            for product in list_of_products:
+                if product.engineering_ids == eng_product and product.sla == sla and \
+                    product.support_level == support and product.name == product_name:
+                    count += 1
+                    quantity = product.quantity
+                    if count > 1:
+                        _LOG.error("too many matches for a product, sla, support_level combination");
+                        raise Exception("too many matches for a product, sla, support_level combination")
+    return quantity

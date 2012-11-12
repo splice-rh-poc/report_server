@@ -798,7 +798,7 @@ function populateReport(rtn) {
             header_row.append($('<th>Support:</th>'));
             header_row.append($('<th>Facts:</th>'));
             header_row.append($('<th>Contracted Use:</th>'));
-            header_row.append($('<th>NAU:</th>'));
+            header_row.append($('<th>Compliant:</th>'));
             
 
 
@@ -828,7 +828,16 @@ function populateReport(rtn) {
                 row.append($('<td>' + product.support + '</td>'));
                 row.append($('<td>' + product.facts + '</td>'));
                 row.append($('<td>' + product.contract_use + '</td>'));
-                row.append($('<td>' + product.checkins + '</td>'));
+                
+                if(product.compliant){
+                	//row.append($('<td bgcolor="#00FF00">' + product.compliant + '</td>'));
+                	row.append($('<td bgcolor="#00FF00">Yes</td>'));
+                }
+                else {
+                	//row.append($('<td bgcolor="#FF0000">' + product.compliant + '</td>'));
+                	row.append($('<td bgcolor="#FF0000">No</td>'));
+                }
+                
                 
                 tbody.append(row);
 
