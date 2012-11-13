@@ -51,7 +51,7 @@ class ProductUsageResource(MongoEngineResource):
             product_usage = [product_usage]
         pu_models = [ProductUsage._from_son(p) for p in product_usage]
         b = time.time()
-        items_not_imported = self.import_hook(pu_models)
+        items_not_imported, start_stop_time = self.import_hook(pu_models)
         c = time.time()
         _LOG.info("ProductUsageResource::post_list() Total Time: %s,  %s seconds to convert %s KB to JSON. "
                   "%s seconds to import %s objects into mongo." % (c-a, b-a, len(request.raw_post_data)/1024.0, c-b, len(pu_models)))
@@ -66,6 +66,7 @@ class ProductUsageResource(MongoEngineResource):
         response = TemplateResponse(request, 'import.html', {'list': results})
         return response
 
+# import hook is overriden in sreport.api
     def import_hook(self, product_usage):
         """
         @param product_usage:

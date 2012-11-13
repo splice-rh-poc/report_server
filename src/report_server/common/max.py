@@ -86,17 +86,10 @@ class MaxUsage:
     @staticmethod
     def get_MCU_Compliant(start, end, filter_args, product_name):
         compliant = True
-        count_list = []
         f = filter_args
         delta=timedelta(days=1)
         currentDate = start
         calculation = 'hourly'
-        results = []
-        mdu_count = []
-        mcu_count = []
-        date = []
-        daily_highest_concurrent_usage = 0
-        daily_contract = []
         contract_quantity = get_product_info(f, product_name)
         
         
@@ -115,7 +108,6 @@ class MaxUsage:
                 raise Exception("unsupported calculation")
             
             if mdu > contract_quantity:
-
                 hour_delta = timedelta(hours=1)
                 currentHour = datetime.strptime(currentDate.strftime(constants.day_fmt), constants.day_fmt)
                 for h in range(24):
@@ -131,8 +123,6 @@ class MaxUsage:
                 
                 if mcu > contract_quantity:
                     return False
-
-            
             currentDate += delta
         
         return compliant

@@ -21,6 +21,6 @@ from report_server.report_import.api import productusage
 class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
-        return import_util.import_data(product_usage)
+        return import_util.import_data(product_usage, force_import=True)
     
     

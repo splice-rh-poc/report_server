@@ -604,7 +604,7 @@ class ReportTestCase(TestCase):
         prod = products_dict[RHEL][0]
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        quarantined, results = import_data(use_bulk_load=False)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -624,7 +624,7 @@ class ReportTestCase(TestCase):
         pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         pu = TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        quarantined, results = import_data(use_bulk_load=False)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -646,7 +646,7 @@ class ReportTestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        quarantined, results = import_data(use_bulk_load=False)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -670,7 +670,7 @@ class ReportTestCase(TestCase):
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        quarantined, results = import_data(use_bulk_load=False)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -694,7 +694,7 @@ class ReportTestCase(TestCase):
         uuid = products_dict[EDU][1]
         TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
-        results = import_data(use_bulk_load=False)
+        quarantined, results = import_data(use_bulk_load=False)
         
         #verify 1 items in db
         lookup = ReportData.objects.all()
@@ -727,7 +727,7 @@ class ReportTestCase(TestCase):
             my_list.append(value)
         
         timer_start = datetime.now()
-        results = import_data(product_usage=my_list, use_bulk_load=use_bulk_load)
+        quarantined, results = import_data(product_usage=my_list, use_bulk_load=use_bulk_load)
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), items_to_load)
         

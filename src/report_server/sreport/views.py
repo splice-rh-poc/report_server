@@ -207,7 +207,7 @@ def index_ui20(request):
 
 def import_ui20(request):
     #response = import_checkin_data(request)
-    results = import_data()
+    quarantined, results = import_data()
     response_data = {}
     response_data['time'] = results
     try:

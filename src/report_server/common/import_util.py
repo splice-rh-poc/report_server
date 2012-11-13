@@ -37,7 +37,8 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
     @rtype dict 
     """
     #config fail/pass on missing rhic
-    results = []
+    start_stop_time = []
+    quarantined = []
     total_import_count = len(product_usage)
     remaining_import_count = total_import_count
 
@@ -52,9 +53,9 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
     last_import =  ImportHistory.objects.filter(date__gt=last_import_threshhold).count()
     if last_import > 0 and force_import == False:
         time['end'] = -1
-        results.append(time)
+        start_stop_time.append(time)
         _LOG.info("import skipped")
-        return results
+        return start_stop_time
     else:
         record = ImportHistory(date=start, splice_server=from_splice_server)
         record.save()
@@ -158,10 +159,9 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                         rd.save(safe=True)
                         _LOG.info('recording: ' + str(product.engineering_ids))
                     except OperationError as oe:
-                        _LOG.info("found dupe:" + str(pu) + "Exception: "+ str(oe))
-                    except:
-                        _LOG.info("Unexpected error:")
-                        raise
+                        _LOG.info("could not import:" + str(pu) + "Exception: "+ str(oe))
+                        quarantined.append(rd)
+     
                         
                 else: 
                     for interval in range(checkin_interval):
@@ -208,16 +208,15 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
                             rd.save(safe=True)
                             _LOG.info('recording: ' + str(product.engineering_ids))
                         except OperationError as oe:
-                            _LOG.info("found dupe:" + str(pu) + "Exception: "+ str(oe))
-                        except:
-                            _LOG.info("Unexpected error:")
-                            raise
+                            _LOG.info("could not import:" + str(pu) + "Exception: "+ str(oe))
+                            quarantined.append(rd)
+
                         
 
     
     end = datetime.utcnow()
     time['end'] = end.strftime(constants.full_format)
-    results.append(time)
+    start_stop_time.append(time)
     _LOG.info('import complete')
     
-    return results
+    return quarantined, start_stop_time
