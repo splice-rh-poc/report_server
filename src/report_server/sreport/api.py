@@ -9,7 +9,7 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from report_server.sreport.models import ProductUsage
+from report_server.sreport.models import ProductUsage, QuarantinedReportData
 from django.contrib.auth.models import User
 from tastypie.authorization import Authorization
 from tastypie import fields
@@ -21,6 +21,12 @@ from report_server.report_import.api import productusage
 class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
-        return import_util.import_data(product_usage, force_import=True)
+        items_not_imported, start_stop_time =  import_util.import_data(product_usage, force_import=True)
+        for i in items_not_imported:
+            thisDict = i.to_dict()
+            thisItem = QuarantinedReportData(**thisDict)
+            thisItem.save()
+            
+        return items_not_imported
     
     

@@ -137,7 +137,7 @@
                                     <li id='report_button'><a href='#'>View Report</a></li>
                                     <li id='max_button'   ><a href="#">MCU</a></li>
                                     <li id='detail_button'><a href='#'>View Detail</a></li>
-                                    <li id='import_button'><a href="#">Import Data</a></li>
+                                    <li id='import_button'><a href="#">Administer</a></li>
                                     
                                 </ul>
                             </div>
@@ -299,13 +299,13 @@
                                     <table style="width: 100%; margin-bottom: 0;">
                                     </table>
                                 </div>
-                                <br></br>
+                                <br>
                                 <div id='instance_details'>
                                     
                                 </div>
                             </div>
                             <div id='max_pane'>
-                                <br></br>
+                                <br>
                                 <div id='max_details'>
                                 
                                 </div>
@@ -313,11 +313,19 @@
                             <div id='import_pane'>
                                 <div>
                                 </div>
-                                <br></br>
+                                <br>
                                 <h2> Demonstration Purposes Only.   Import will not be available to non admin users in a G.A. or production deployment</h2>
-                                <button id='createAnotherReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
+                                <button id='importData' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
                                     <span class='ui-button-text'>Import Data</span>
                                 </button>
+                                <button id='QuarantineReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createQuarantineReport()'>
+                                    <span class='ui-button-text'>Refresh Quarantined Data</span>
+                                </button>
+                                <button id='factCompliance_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createFactComplianceReport()'>
+                                    <span class='ui-button-text'>Refresh Instance Compliance Data</span>
+                                </button>
+                                <div id='admin_report'>
+                                </div>
                             </div>
                         </div>
                     </div>

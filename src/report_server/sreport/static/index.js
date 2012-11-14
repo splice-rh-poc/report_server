@@ -319,7 +319,7 @@ $.download = function(url, data, method){
         });
         //send request
         //alert("url:" + url + "data: " + data);
-        var url = '/report-server/ui20/export/';
+        //var url = '/report-server/ui20/export/';
        //send request
         jQuery('<form action="/report-server/ui20/export/" method="'+ ('get') +'">'+inputs+'</form>')
         .appendTo('body').submit().remove();
@@ -532,6 +532,55 @@ function createInstanceDetail(date, instance, filter_args) {
         populateInstanceDetailReport(rtn);
         openDetail(); // this shouldn't be needed, but no harm in calling it again
         $('#detail_button').on("click", openDetail);
+    }).fail(function(jqXHR) {
+        // TODO: Add error handling here
+    });
+}
+
+function createQuarantineReport() {
+    var data = {};
+
+    $.ajax({
+        url: '/report-server/ui20/quarantine/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: data,
+        crossDomain: false,
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    }).done(function(data) {
+        var rtn = jQuery.parseJSON(data);
+        populateQuarantineReport(rtn);
+        openImport(); // this shouldn't be needed, but no harm in calling it again
+        $('#import_button').on("click", openImport);
+    }).fail(function(jqXHR) {
+        // TODO: Add error handling here
+    });
+}
+
+
+function createFactComplianceReport() {
+    var data = {};
+
+    $.ajax({
+        url: '/report-server/ui20/fact_compliance/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: data,
+        crossDomain: false,
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    }).done(function(data) {
+        var rtn = jQuery.parseJSON(data);
+        populateFactComplianceReport(rtn);
+        openImport(); // this shouldn't be needed, but no harm in calling it again
+        $('#import_button').on("click", openImport);
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });
@@ -857,6 +906,137 @@ function populateReport(rtn) {
 
 
 }
+
+function populateQuarantineReport(rtn) {
+    var top = $('#admin_report');
+    top.empty();
+    top.append('<br><br>');
+    var header = $('<b>Number of Quarantined Instance Checkins: ' + rtn.list.length + '   </b>');
+    if (rtn.list.length > 0) {
+     top.append(header);
+     var show_details = $('<button id=show_quarantine class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+     top.append(show_details);   
+     
+     
+     var mydata = rtn.list;
+        
+        
+        var table = $('<table id=\'quarantine_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+        
+        
+        var header = ($('<tr></tr>'));
+        header.append($('<th>Instance:</th>'));
+        header.append($('<th>Splice Server:</th>'));
+        header.append($('<th>Product Name:</th>'));
+        header.append($("<th>Product ID's:</th>"));
+        header.append($('<th>Time:</th>'));
+
+
+        table.append(header);
+
+        var tbody = $('<tbody></tbody>');
+
+        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+            var instance = rtn.list[instance_index];
+
+            var row = $('<tr></tr>');
+            row.append($('<td>' + instance['instance_identifier'] + '</td>'));
+            row.append($('<td>' + instance['splice_server'] + '</td>'));
+            row.append($('<td>' + instance['product_name'] + '</td>'));
+            row.append($('<td>' + instance['product'] + '</td>'));
+            row.append($('<td>' + instance['hour'] + '</td>'));
+
+            tbody.append(row);
+        }
+       
+        table.append(tbody);
+        table.hide();
+        top.append(table);
+        
+        
+        $("button").click(function (){
+            $('#quarantine_data').toggle("slow");
+            
+          })
+          
+    } else {
+        top.append($('<h3>There is no quarantined data.</h3>'));
+        top.append($('<br></br>'));
+        top.append($('<br></br>'));
+    }
+
+}
+
+function populateFactComplianceReport(rtn) {
+    var top = $('#admin_report');
+    top.empty();
+    top.append('<br><br>');
+    var header = $('<b>Number of Non-Compliant Instances: ' + rtn.list.length + '   </b>');
+    if (rtn.list.length > 0) {
+     top.append(header);
+     var show_compliance = $('<button id=show_compliance class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+     top.append(show_compliance);
+     
+     
+     var mydata = rtn.list;
+        
+        
+        var table = $('<table id=\'factCompliance_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+        
+        
+        var header = ($('<tr></tr>'));
+        header.append($('<th>Instance:</th>'));
+        header.append($('<th>Product Name:</th>'));
+        header.append($('<th>Fact: CPU:</th>'));
+        header.append($('<th>Fact: CPU Sockets:</th>'));
+        header.append($('<th>Fact: Memory:</th>'));
+        header.append($('<th>Rules: CPU</th>'));
+        header.append($('<th>Rules: CPU Socket</th>'));
+        header.append($('<th>Rules: Memory</th>'));
+
+
+        table.append(header);
+
+        var tbody = $('<tbody></tbody>');
+
+        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+            var instance = rtn.list[instance_index][0];
+            var rules = rtn.list[instance_index][1];
+
+            var row = $('<tr></tr>');
+            row.append($('<td>' + instance['instance_identifier'] + '</td>'));
+            row.append($('<td>' + instance['product_name'] + '</td>'));
+            row.append($('<td>' + instance['cpu'] + '</td>'));
+            row.append($('<td>' + instance['cpu_sockets'] + '</td>'));
+            row.append($('<td>' + instance['memtotal'] + '</td>'));
+            row.append($('<td>' + rules['cpu'] + '</td>'));
+            row.append($('<td>' + rules['cpu_sockets'] + '</td>'));
+            row.append($('<td>' + rules['memtotal'] + '</td>'));
+
+
+            tbody.append(row);
+        }
+       
+        table.append(tbody);
+        table.hide();
+        top.append(table);
+        
+        
+        $("button").click(function (){
+            $('#factCompliance_data').toggle("slow");
+            
+          })
+          
+    } else {
+        pane.append($('<h3>There is no instances out of compliance.</h3>'));
+        pane.append($('<br></br>'));
+        pane.append($('<br></br>'));
+    }
+
+}
+
+
+
 
 function populateMaxReport(rtn) {
     var pane = $('#max_pane');

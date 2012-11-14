@@ -44,6 +44,8 @@ urlpatterns = patterns('',
     (r'^report-server/ui20/export/$', 'report_server.sreport.views.export'),
     (r'^report-server/ui20/details/$', 'report_server.sreport.views.detailed_report_ui20'),
     (r'^report-server/ui20/max_report/$', 'report_server.sreport.views.max_report'),
+    (r'^report-server/ui20/quarantine/$', 'report_server.sreport.views.quarantined_report'),
+    (r'^report-server/ui20/fact_compliance/$', 'report_server.sreport.views.systemFactCompliance'),
     (r'^report-server/ui20/instance_details/$', 'report_server.sreport.views.instance_detail_ui20'),
 )
 

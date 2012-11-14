@@ -103,6 +103,7 @@ class ReportData(Document):
                 'product': self.product,
                 'product_name': self.product_name,
                 'date': self.date,
+                'day': self.day,
                 'sla': self.sla,
                 'support': self.support,
                 'contract_id': self.contract_id,
@@ -110,6 +111,7 @@ class ReportData(Document):
                 'hour': self.hour,
                 'memtotal': self.memtotal,
                 'cpu_sockets': self.cpu_sockets,
+                'cpu': self.cpu,
                 'environment': self.environment,
                 'splice_server': self.splice_server,
                 'duplicate': self.duplicate,
@@ -154,4 +156,33 @@ class ImportHistory(Document):
     
     date = DateTimeField(required=True)
     splice_server = StringField(required=True)
+    
+
+class QuarantinedReportData(Document):
+    meta = {
+        'db_alias': 'results', 
+        'allow_inheritance': True, 
+        'indexes': [ ('consumer_uuid', 'instance_identifier', 'hour',
+                      'product'), 
+                     'date'],
+    }
+
+    instance_identifier = StringField(required=True)
+    consumer_uuid = StringField(required=True)
+    consumer = StringField(required=True)
+    product = ListField(required=True)
+    product_name =  StringField(required=True)
+    date = DateTimeField(required=True)
+    sla = StringField(required=True)
+    support = StringField(required=True)
+    contract_id = StringField(required=True)
+    contract_use = StringField(required=True)
+    hour = StringField(required=True)
+    day = StringField(required=True)
+    memtotal = IntField(required=True)
+    cpu_sockets = IntField(required=True)
+    cpu = IntField(required=True)
+    environment = StringField(required=True)
+    splice_server = StringField(required=True)
+    duplicate = IntField()
     

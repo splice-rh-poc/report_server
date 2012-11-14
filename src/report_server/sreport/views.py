@@ -17,7 +17,7 @@ from django.contrib.auth import (login as auth_login,
     logout as auth_logout, authenticate)
 
 from django.template import RequestContext
-from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer
+from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer, QuarantinedReportData
 from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
 from django.template.response import TemplateResponse
 from datetime import datetime, timedelta
@@ -37,6 +37,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 import csv
 from django.template.defaultfilters import slugify
 from django.db.models.loading import get_model
+from report_server.common.custom_count import Rules
 
 
 
@@ -334,8 +335,7 @@ def detailed_report_ui20(request):
     description = request.POST['description']
     date = datetime.strptime(request.POST['date'], constants.just_date)
     day = date.strftime(constants.day_fmt)
-    
-    
+
     results = []
     instances = ReportData.objects.filter(day=day, **filter_args_dict).distinct('instance_identifier')
     for i in instances:
@@ -359,6 +359,33 @@ def detailed_report_ui20(request):
         raise
 
     return response
+
+
+def systemFactCompliance(request):
+    rules = Rules()
+    report_biz_rules = rules.get_rules()
+    
+    
+    results = []
+    instances = ReportData.objects.distinct('instance_identifier')
+    for i in instances:
+        thisInstance = ReportData.objects.filter(instance_identifier=i).first()
+        product_rules = report_biz_rules[thisInstance.product_name]
+        results.append([thisInstance, product_rules])
+        
+    response_data = {}
+    response_data['list'] = results
+    try:
+        response = HttpResponse(to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+
+
 
 def instance_detail_ui20(request):
     user = str(request.user)
@@ -437,6 +464,34 @@ def max_report(request):
         raise
 
     return response
+
+def quarantined_report(request):
+    #user = str(request.user)
+    #account = Account.objects.filter(login=user)[0].account_id
+    #filter_args_dict = json.loads(request.POST['filter_args_dict'])
+    #s = request.POST['start']
+    #e = request.POST['end']
+    #start = get_date_object(s)
+    #end = get_date_object(e)
+    #description = request.POST['description']
+    
+    qobjects = []
+    qobjects = QuarantinedReportData.objects.all()
+    
+    
+    
+    response_data = {}
+    response_data['list'] = qobjects
+    try:
+        response = HttpResponse(to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+    
 
 def export(request):
     if request.method == 'GET':
