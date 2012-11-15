@@ -539,7 +539,7 @@ function createInstanceDetail(date, instance, filter_args) {
 
 function createQuarantineReport() {
     var data = {};
-
+    $('#admin_report').empty()
     $.ajax({
         url: '/report-server/ui20/quarantine/',
         type: 'POST',
@@ -564,6 +564,7 @@ function createQuarantineReport() {
 
 function createFactComplianceReport() {
     var data = {};
+    $('#admin_report').empty()
 
     $.ajax({
         url: '/report-server/ui20/fact_compliance/',
@@ -992,7 +993,7 @@ function populateFactComplianceReport(rtn) {
         header.append($('<th>Fact: Memory:</th>'));
         header.append($('<th>Rules: CPU</th>'));
         header.append($('<th>Rules: CPU Socket</th>'));
-        header.append($('<th>Rules: Memory</th>'));
+        header.append($('<th>Rules: Memory (kb)</th>'));
 
 
         table.append(header);
