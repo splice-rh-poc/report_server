@@ -75,7 +75,7 @@ class Rules:
         
         
         report_biz_rules[GEAR]['cpu']={'low_gt': 0, 'low_lt': 2, 'low_desc': ' 1 cpu', 'high_gt': 1, 'high_lt': 5, 'high_desc': '> 1 cpu', 'rule': '0 > 2; > 1'}
-        report_biz_rules[GEAR]['memtotal']= {'low_gt': 0, 'low_lt': 2097153, 'low_desc': ' <= 2GB', 'high_gt': 2097152, 'high_lt': 8388608, 'high_desc': '> 2GB', 'rule': '0 > 2097153;  2097152 > 8388608'}
+        report_biz_rules[GEAR]['memtotal']= {'low_gt': 0, 'low_lt': 2097153, 'low_desc': ' <= 2GB', 'high_gt': 2097152, 'high_lt': -1, 'high_desc': '> 2GB', 'rule': '0 > 2097153;  2097152 > -1'}
         report_biz_rules[GEAR]['cpu_sockets']=[]
         report_biz_rules[GEAR]['calculation']=interval
         
