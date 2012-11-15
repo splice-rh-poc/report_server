@@ -34,7 +34,7 @@ class RulesTestCase(TestCase):
         r = Rules()
         rules = r.get_rules()
         this_test = rules[RHEL]['memtotal']
-        this_expected_results = [0, 8388608, '< 8GB', 8388608, -1, '> 8GB']
+        this_expected_results = {'low_gt': 0, 'low_lt': 8388608, 'low_desc': '< 8GB', 'high_gt': 8388608, 'high_lt': 83886080, 'high_desc': '> 8GB', 'rule': '0 > 8388608; 8388608 > 83886080'}
         self.assertEqual(this_test, this_expected_results, 'results match')
     '''
     def test_update_rules(self):
