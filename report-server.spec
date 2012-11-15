@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.39
+Version:	0.40
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,16 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Nov 15 2012 Wes Hayutin
+ 0.40-1
+ <whayutin@redhat.com>
+- added finite limit to rules (whayutin@redhat.com)
+- updated product rules, have fact compliance checking working
+  (whayutin@redhat.com)
+- first pass at import quarantine ui, also added a ui for system fact non-
+  compliance (whayutin@redhat.com)
+- api import working against /api/v1/productusage (whayutin@redhat.com)
+
 * Mon Nov 12 2012 Wes Hayutin <whayutin@redhat.com> 0.39-1
 * fixed added NAU back in, fixed graph pointer
 - 
