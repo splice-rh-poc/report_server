@@ -369,9 +369,24 @@ def systemFactCompliance(request):
     results = []
     instances = ReportData.objects.distinct('instance_identifier')
     for i in instances:
-        thisInstance = ReportData.objects.filter(instance_identifier=i).first()
-        product_rules = report_biz_rules[thisInstance.product_name]
-        results.append([thisInstance, product_rules])
+        #we need to find if this instance_identifier has any other products associated w/ it
+        products = ReportData.objects.filter(instance_identifier=i).distinct('product_name')
+        for p in products:
+            inst = ReportData.objects.filter(instance_identifier=i, product_name=p).first()
+            product_rules = report_biz_rules[inst.product_name]
+            if product_rules['cpu']:
+                if product_rules['cpu']['high_gt'] != '-1':
+                    if inst.cpu > product_rules['cpu']['high_gt']:
+                        results.append([inst, product_rules])
+            if product_rules['cpu_sockets']:
+                if product_rules['cpu_sockets']['high_gt'] != '-1':
+                    if inst.cpu_sockets > product_rules['cpu_sockets']['high_gt']:
+                        results.append([inst, product_rules])
+            if product_rules['memtotal']:
+                if product_rules['memtotal']['high_gt'] != '-1':
+                    if inst.memtotal > product_rules['memtotal']['high_gt']:
+                        results.append([inst, product_rules])
+
         
     response_data = {}
     response_data['list'] = results

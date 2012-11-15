@@ -1009,9 +1009,27 @@ function populateFactComplianceReport(rtn) {
             row.append($('<td>' + instance['cpu'] + '</td>'));
             row.append($('<td>' + instance['cpu_sockets'] + '</td>'));
             row.append($('<td>' + instance['memtotal'] + '</td>'));
-            row.append($('<td>' + rules['cpu'] + '</td>'));
-            row.append($('<td>' + rules['cpu_sockets'] + '</td>'));
-            row.append($('<td>' + rules['memtotal'] + '</td>'));
+            
+            if (rules['cpu']['rule']==undefined){
+                row.append($('<td></td>'))
+            }
+            else{
+                row.append($('<td>' + rules['cpu']['rule'] + '</td>'));
+            }
+            
+            if (rules['cpu_sockets']['rule']==undefined){
+                row.append($('<td></td>'))
+            }
+            else{
+               row.append($('<td>' + rules['cpu_sockets']['rule'] + '</td>')); 
+            }
+            
+            if (rules['memtotal']['rule']==undefined){
+                row.append($('<td></td>'))
+            }
+            else{
+                row.append($('<td>' + rules['memtotal']['rule'] + '</td>'));
+            }
 
 
             tbody.append(row);
@@ -1028,9 +1046,8 @@ function populateFactComplianceReport(rtn) {
           })
           
     } else {
-        pane.append($('<h3>There is no instances out of compliance.</h3>'));
-        pane.append($('<br></br>'));
-        pane.append($('<br></br>'));
+        top.append($('<h3>There are no instances out of compliance.</h3>'));
+        top.append($('<br></br>'));
     }
 
 }

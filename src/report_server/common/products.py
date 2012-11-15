@@ -102,16 +102,16 @@ def generic_count(product, rhic, start, end, contract_number,  environment, conf
         if key == 'calculation':
             continue
         if(values):
-            filter_args_low[key + '__gt'] = values[0] 
-            filter_args_low[key + '__lt'] = values[1]
-            facts_low += values[2]
+            filter_args_low[key + '__gt'] = values['low_gt'] 
+            filter_args_low[key + '__lt'] = values['low_lt']
+            facts_low += values['low_desc']
            
-            filter_args_high[key + '__gt'] = values[3]
-            if values[4] == -1:
+            filter_args_high[key + '__gt'] = values['high_gt']
+            if values['high_lt'] == -1:
                 _LOG.debug('-1, parameter will not be added to query')
             else:
-                filter_args_high[key + '__lt'] = values[4]
-            facts_high += values[5]
+                filter_args_high[key + '__lt'] = values['high_lt']
+            facts_high += values['high_desc']
      
     compliant_high = False
     compliant_low = False

@@ -13,7 +13,6 @@ from __future__ import division
 from report_server.sreport.models import  ReportData, ReportDataDaily
 
 import logging
-from report_server.common.custom_count import Rules
 from datetime import datetime, timedelta
 from report_server.common import constants
 from rhic_serve.rhic_rest.models import RHIC
@@ -23,8 +22,6 @@ from rhic_serve.rhic_rest.models import Account
 
 
 _LOG = logging.getLogger(__name__)
-rules = Rules()
-report_biz_rules = rules.get_rules()
 
 class MaxUsage:
     
