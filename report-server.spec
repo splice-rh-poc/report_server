@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.40
+Version:	0.41
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,13 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Nov 15 2012 Wes Hayutin
+ 0.41-1
+ <whayutin@redhat.com>
+- clean up for admin page (whayutin@redhat.com)
+- update rules test (whayutin@redhat.com)
+- removed upper limit on gear memory (whayutin@redhat.com)
+
 * Thu Nov 15 2012 Wes Hayutin
  0.40-1
  <whayutin@redhat.com>
