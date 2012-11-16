@@ -14,14 +14,19 @@ from django.contrib.auth.models import User
 from tastypie.authorization import Authorization
 from tastypie import fields
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
+import logging
 
 from report_server.common import import_util
 from report_server.report_import.api import productusage
 
+_LOG = logging.getLogger("sreport.api")
+
 class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
+        _LOG.debug("in import_hook")
         items_not_imported, start_stop_time =  import_util.import_data(product_usage, force_import=True)
+        _LOG.debug("items_not_imported length: " + str(len(items_not_imported)))
         for i in items_not_imported:
             thisDict = i.to_dict()
             thisItem = QuarantinedReportData(**thisDict)

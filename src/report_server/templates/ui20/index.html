@@ -172,7 +172,7 @@
                                                         
                                                         <b>Custom Range:</b> 
                                                             Start Date: <input type="text" id="startDate" name="startDate">
-                                                            End Date: <input type="text" id="endDate" name="endDate"> </p>
+                                                            End Date: <input type="text" id="endDate" name="endDate"> 
                                                     </div>
                                                 </td>
                                             </tr>
@@ -248,6 +248,7 @@
                                     </form>
                                 </fieldset>
                             </div>
+
                             <div id='report_pane'>
                                 <div>
                                     <h3>This date range contains no usage data.</h3>
@@ -311,22 +312,18 @@
                                 </div>
                             </div>
                             <div id='import_pane'>
-                                <div>
-                                </div>
-                                <br>
-                                <h2> Demonstration Purposes Only.   Import will not be available to non admin users in a G.A. or production deployment</h2>
-                                <button id='importData' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
-                                    <span class='ui-button-text'>Import Data</span>
-                                </button>
-                                <button id='QuarantineReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createQuarantineReport()'>
-                                    <span class='ui-button-text'>Refresh Quarantined Data</span>
-                                </button>
-                                <button id='factCompliance_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createFactComplianceReport()'>
-                                    <span class='ui-button-text'>Refresh Instance Compliance Data</span>
-                                </button>
-                                <div id='admin_report'>
-                                </div>
-                            </div>
+                                 <button id='importData' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
+                                        <span class='ui-button-text'>Import Data</span>
+                                 </button>
+                                 <button id='QuarantineReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createQuarantineReport()'>
+                                        <span class='ui-button-text'>Refresh Quarantined Data</span>
+                                 </button>
+                                 <button id='factCompliance_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createFactComplianceReport()'>
+                                        <span class='ui-button-text'>Refresh Instance Compliance Data</span>
+                                 </button>
+
+                                 <div id='admin_report'> </div>
+                           </div>
                         </div>
                     </div>
                 </div>

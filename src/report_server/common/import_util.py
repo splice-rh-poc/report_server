@@ -55,7 +55,7 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
         time['end'] = -1
         start_stop_time.append(time)
         _LOG.info("import skipped")
-        return start_stop_time
+        return [], start_stop_time
     else:
         record = ImportHistory(date=start, splice_server=from_splice_server)
         record.save()

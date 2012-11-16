@@ -590,9 +590,9 @@ function createFactComplianceReport() {
 function importData() {
     if (logged_in) {
         $('#import_pane > div').empty();
-        $('#import_pane > button').empty();
-        var status = $('<span class=\'ui-button-text\'>Working on it...</span>');
-        $('#import_pane > button').append(status);
+        $('#importData').empty();
+        var status = $('<span class=\'ui-button-text\'>Working on import...</span>');
+        $('#importData').append(status);
 
         $.ajax({
             url: '/report-server/ui20/import/',
@@ -611,18 +611,17 @@ function importData() {
 
             var dt = rtn.time[0];
             if (dt.end < 0){
-            var status = $('<span>Import Skipped, import has been executed in the last 45 minutes<span>');
-            $('#import_pane > div').append(status);
+            var status = $('<br><span>Import Skipped, import has been executed in the last 45 minutes<span>');
+            $('#admin_report').append(status);
             }
-            else { 
+            else {
             $('#import_pane > div').empty();
             var status = $('<span>Import Complete!\nStart Time: ' + dt.start + '\nEnd Time: ' + dt.end + '<span>');
-            $('#import_pane > div').append(status);
+            $('#admin_report').append(status);
             }
-            $('#import_pane > button').empty();
-            var status = $('<span class=\'ui-button-text\'>Import Data</span>');
-            $('#import_pane > button').append(status);
-
+            $('#importData').empty();
+            var button = $('<span class=\'ui-button-text\'>Import Data</span>');
+            $('#importData').append(button);
         }).fail(function(jqXHR) {
             // TODO: Add error handling here
         });
