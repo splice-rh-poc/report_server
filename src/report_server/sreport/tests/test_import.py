@@ -33,7 +33,6 @@ from setup import TestData
 from report_server.common import constants
 
 LOG = getLogger(__name__)
-config.init()
 this_config = config.get_import_info()
 
 ss = SpliceServer
@@ -70,7 +69,7 @@ report_biz_rules = rules.get_rules()
 
 class Report_Import_TestCase(TestCase):
     def setUp(self):
-        db_name = settings.MONGO_DATABASE_NAME_RESULTS
+        db_name = settings.MONGO_DATABASE_NAME
         self.db = connect(db_name)
         ReportData.drop_collection()
         rhel_product = TestData.create_products()

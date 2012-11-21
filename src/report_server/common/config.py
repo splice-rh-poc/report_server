@@ -11,23 +11,11 @@
 
 
 import ConfigParser
-from report_server.common import constants
 import logging
 
-CONFIG = None
+from splice.common.config import CONFIG
+
 _LOG = logging.getLogger(__name__)
-
-def init(config_file=None):
-    global CONFIG
-    if CONFIG:
-        return CONFIG
-    if not config_file:
-        config_file = constants.REPORT_CONFIG_FILE
-        _LOG.info('LOG FILE = ' + constants.REPORT_CONFIG_FILE)
-    CONFIG = ConfigParser.SafeConfigParser()
-    CONFIG.read(config_file)
-    return CONFIG
-
 
 def get_rhic_serve_config_info():
     return {
@@ -49,6 +37,3 @@ def get_nau():
     return {
             'calculation': CONFIG.get('nau', 'calculation')
         }
-    
-    
-    

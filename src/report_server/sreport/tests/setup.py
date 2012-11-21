@@ -40,7 +40,6 @@ from report_server.common import constants
 
 
 LOG = getLogger(__name__)
-config.init()
 this_config = config.get_import_info()
 ss = SpliceServer
 
@@ -63,7 +62,7 @@ Example of running these unit tests from $checkout/src
 '''
 
 class ReportData(ReportData):
-    db_name = settings.MONGO_DATABASE_NAME_RESULTS
+    db_name = settings.MONGO_DATABASE_NAME
     meta = {'queryset_class': MyQuerySet}
 
 class Product(Document):

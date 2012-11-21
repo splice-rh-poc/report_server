@@ -35,7 +35,6 @@ from report_server.common import constants
 import random, string
 
 LOG = getLogger(__name__)
-config.init()
 this_config = config.get_import_info()
 
 
