@@ -17,6 +17,7 @@ from tastypie.api import Api
 
 from report_server.sreport.api import ProductUsageResource
 
+
 v1_api = Api(api_name='v1')
 
 # Resources

@@ -12,6 +12,7 @@ from __future__ import division
 from datetime import datetime, timedelta
 import logging
 import math
+import json
 
 _LOG = logging.getLogger(__name__)
 
@@ -90,3 +91,36 @@ def get_date_object(epoch_int):
     '''
     date = datetime.utcfromtimestamp(int(epoch_int))
     return date
+
+
+#################################################
+# Helper Classes / Methods
+#################################################
+
+class MongoEncoder(json.JSONEncoder):
+    """ JSON Encoder for Mongo Objects """
+    def default(self, obj, **kwargs):
+        from pymongo.objectid import ObjectId
+        import mongoengine
+        import types
+        if isinstance(obj, (mongoengine.Document, mongoengine.EmbeddedDocument)):
+            out = dict(obj._data)
+            for k,v in out.items():
+                if isinstance(v, ObjectId):
+                    _LOG.info("k = %s, v = %s" % (k,v))
+                    out[k] = str(v)
+            return out
+        elif isinstance(obj, mongoengine.queryset.QuerySet):
+            return list(obj)
+        elif isinstance(obj, types.ModuleType):
+            return None
+        elif isinstance(obj, (list,dict)):
+            return obj
+        elif isinstance(obj, datetime):
+            return str(obj)
+        else:
+            return JSONEncoder.default(obj, **kwargs)
+
+    def to_json(self, obj):
+        return json.dumps(obj, cls=MongoEncoder, indent=2)
+

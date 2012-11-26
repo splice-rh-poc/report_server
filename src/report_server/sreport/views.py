@@ -400,6 +400,21 @@ def systemFactCompliance(request):
     return response
 
 
+def unauthorized_pem():
+    results = ReportData.objects.filter()
+    
+    response_data = {}
+    response_data['list'] = results
+    try:
+        response = HttpResponse(to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+    
+
 
 
 def instance_detail_ui20(request):
