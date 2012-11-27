@@ -11,32 +11,33 @@
 
 # Create your views here.
 from __future__ import division
-import logging
 from datetime import datetime, timedelta
-import json, sys, csv
-from django.shortcuts import render_to_response
-from django.contrib.auth import (login as auth_login, 
-    logout as auth_logout, authenticate)
-
-from django.template import RequestContext
-from django.template.response import TemplateResponse
-from django.http import HttpResponseForbidden
+from django.contrib.auth import login as auth_login, logout as auth_logout, \
+    authenticate
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import HttpResponse
 from django.db.models.base import get_absolute_url
-from django.utils.datastructures import MultiValueDictKeyError
-from django.template.defaultfilters import slugify
 from django.db.models.loading import get_model
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.template.defaultfilters import slugify
+from django.template.response import TemplateResponse
+from django.utils.datastructures import MultiValueDictKeyError
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
-from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer, QuarantinedReportData
-from report_server.common import constants
-from report_server.common.utils import get_date_epoch, get_date_object
+from report_server.common import constants, utils
+from report_server.common.custom_count import Rules
+from report_server.common.import_util import import_data
 from report_server.common.max import MaxUsage
 from report_server.common.report import hours_per_consumer
-from report_server.common.import_util import import_data
-from report_server.common.custom_count import Rules
+from report_server.common.utils import get_date_epoch, get_date_object
+from report_server.sreport.models import ProductUsageForm, ReportData, \
+    SpliceServer, QuarantinedReportData
+from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
+import json, sys, csv, logging
+
+
+
 
 
 
@@ -110,48 +111,13 @@ def report(request):
     response_data['end'] = end.strftime(format)
 
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
         raise
 
     return response
-
-
-
-
-
-#################################################
-# Helper Classes / Methods
-#################################################
-
-class MongoEncoder(json.JSONEncoder):
-    """ JSON Encoder for Mongo Objects """
-    def default(self, obj, **kwargs):
-        from pymongo.objectid import ObjectId
-        import mongoengine
-        import types
-        if isinstance(obj, (mongoengine.Document, mongoengine.EmbeddedDocument)):
-            out = dict(obj._data)
-            for k,v in out.items():
-                if isinstance(v, ObjectId):
-                    _LOG.info("k = %s, v = %s" % (k,v))
-                    out[k] = str(v)
-            return out
-        elif isinstance(obj, mongoengine.queryset.QuerySet):
-            return list(obj)
-        elif isinstance(obj, types.ModuleType):
-            return None
-        elif isinstance(obj, (list,dict)):
-            return obj
-        elif isinstance(obj, datetime):
-            return str(obj)
-        else:
-            return JSONEncoder.default(obj, **kwargs)
-
-def to_json(obj):
-    return json.dumps(obj, cls=MongoEncoder, indent=2)
 
 
 #################################################
@@ -183,7 +149,7 @@ def login_ui20(request):
 
             response_data['username'] = username
             response_data['account'] = user.account
-            return HttpResponse(to_json(response_data))
+            return HttpResponse(utils.to_json(response_data))
         else:
             _LOG.error('authentication failed')
             return HttpResponseForbidden()
@@ -211,7 +177,7 @@ def import_ui20(request):
     response_data = {}
     response_data['time'] = results
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -253,7 +219,7 @@ def report_form_ui20(request):
     _LOG.info(response_data)
     
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -319,13 +285,83 @@ def report_ui20(request):
     response_data['end'] = end.strftime(format)
 
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
         raise
 
     return response
+
+def report_api(request):
+    #replaces report(request)
+    '''
+    @param request: http
+    
+    generate the data for the report.
+    data is generated from hours_per_consumer
+    
+    '''
+    _LOG.info("report called by method: %s" % (request.method))
+    
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    data = json.loads(request.raw_post_data)
+    if 'byMonth' in data:
+        month_year = data['byMonth'][0].split(',')
+        month = int(month_year[0]);
+        year = int(month_year[1]);
+        year = datetime.today().year
+        start = datetime(year, month, 1)
+        end =  datetime(year, month + 1, 1) - timedelta (days = 1)
+    else:
+        startDate = data['startDate'].split("/")
+        endDate = data['endDate'].split("/")
+        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    
+    if 'env' in data:
+        environment = data['env'][0]
+    else:
+        environment = "All"
+        
+    list_of_rhics = []
+    if data['rhic'][0] != 'null':
+        my_uuid = data['rhic']
+        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
+        
+    elif data['contract_number'][0] != 'null':
+        contract = data['contract_number'][0]
+        if contract == "All":
+            list_of_rhics = list(RHIC.objects.filter(account_id=account))
+            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
+        else:
+            results = hours_per_consumer(start, end, contract_number=contract, environment=environment)
+    
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
+    
+    format = constants.full_format
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    try:
+        response = HttpResponse(utils.to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+
+
 
 def detailed_report_ui20(request):
     user = str(request.user)
@@ -351,7 +387,7 @@ def detailed_report_ui20(request):
 
 
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -390,7 +426,7 @@ def systemFactCompliance(request):
     response_data = {}
     response_data['list'] = results
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -405,7 +441,7 @@ def unauthorized_pem():
     response_data = {}
     response_data['list'] = results
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -449,7 +485,7 @@ def instance_detail_ui20(request):
     response_data['account'] = account
 
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -486,7 +522,7 @@ def max_report(request):
 
     try:
         #response = HttpResponse(simplejson.dumps(response_data))
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
@@ -512,7 +548,7 @@ def quarantined_report(request):
     response_data = {}
     response_data['list'] = qobjects
     try:
-        response = HttpResponse(to_json(response_data))
+        response = HttpResponse(utils.to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
