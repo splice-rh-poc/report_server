@@ -12,31 +12,30 @@
 # Create your views here.
 from __future__ import division
 import logging
+from datetime import datetime, timedelta
+import json, sys, csv
 from django.shortcuts import render_to_response
 from django.contrib.auth import (login as auth_login, 
     logout as auth_logout, authenticate)
 
 from django.template import RequestContext
-from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer, QuarantinedReportData
-from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
 from django.template.response import TemplateResponse
-from datetime import datetime, timedelta
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from report_server.common.report import hours_per_consumer
-from report_server.common.import_util import import_data
-import sys
 from django.http import HttpResponse
+from django.db.models.base import get_absolute_url
+from django.utils.datastructures import MultiValueDictKeyError
+from django.template.defaultfilters import slugify
+from django.db.models.loading import get_model
+
+from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
+from report_server.sreport.models import  ProductUsageForm, ReportData, SpliceServer, QuarantinedReportData
 from report_server.common import constants
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.common.max import MaxUsage
-import json
-from django.db.models.base import get_absolute_url
-from django.utils.datastructures import MultiValueDictKeyError
-import csv
-from django.template.defaultfilters import slugify
-from django.db.models.loading import get_model
+from report_server.common.report import hours_per_consumer
+from report_server.common.import_util import import_data
 from report_server.common.custom_count import Rules
 
 
@@ -399,6 +398,21 @@ def systemFactCompliance(request):
 
     return response
 
+
+def unauthorized_pem():
+    results = ReportData.objects.filter()
+    
+    response_data = {}
+    response_data['list'] = results
+    try:
+        response = HttpResponse(to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+    
 
 
 

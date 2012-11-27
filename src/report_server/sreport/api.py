@@ -9,12 +9,16 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from report_server.sreport.models import ProductUsage, QuarantinedReportData
+from report_server.sreport.models import ProductUsage, QuarantinedReportData,\
+    ReportData
+from report_server.sreport import views
+from report_server.common import utils
 from django.contrib.auth.models import User
 from tastypie.authorization import Authorization
-from tastypie import fields
-from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
-import logging
+from tastypie.resources import Resource
+from django.http import HttpResponse
+import logging, sys
+
 
 from report_server.common import import_util
 from report_server.report_import.api import productusage
@@ -35,3 +39,46 @@ class ProductUsageResource(productusage.ProductUsageResource):
         return items_not_imported
     
     
+
+
+class QuarantinedDataResource(Resource):
+
+    class Meta:
+        queryset = QuarantinedReportData.objects.all()
+        authorization = Authorization()
+        allowed_methods = ['get']
+
+    
+    
+    def get_list(self, request, **kwargs):
+        _LOG.info("QuarantinedDataResource::get_list() ")
+        
+        results = QuarantinedReportData.objects.all()
+        response_data = {}
+        response_data['list'] = results
+
+        try:
+            response = HttpResponse(utils.to_json(response_data))
+        except:
+            _LOG.error(sys.exc_info()[0])
+            _LOG.error(sys.exc_info()[1])
+            raise
+    
+        return response
+
+class ComplianceDataResource(Resource):
+    
+    class Meta:
+        queryset = ReportData.objects.all()
+        authorization = Authorization()
+        allowed_methods = ['get']
+        
+    def get_list(self, request, **kwargs):
+        
+        _LOG.info("ComplianceDataResource::get_list() ")
+        
+        response = views.systemFactCompliance(request)
+
+        return response
+
+

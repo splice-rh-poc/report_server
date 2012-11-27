@@ -60,11 +60,11 @@ class ProductUsageResource(MongoEngineResource):
         else:
             return http.HttpConflict()
 
-    def get_list(self, request, **kwargs):
-        product_usage = ProductUsage.objects.all()
-        results = self.import_hook(product_usage)
-        response = TemplateResponse(request, 'import.html', {'list': results})
-        return response
+#    def get_list(self, request, **kwargs):
+#        product_usage = ProductUsage.objects.all()
+#        results = self.import_hook(product_usage)
+#        response = TemplateResponse(request, 'import.html', {'list': results})
+#        return response
 
 # import hook is overriden in sreport.api
     def import_hook(self, product_usage):

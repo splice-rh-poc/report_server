@@ -15,7 +15,7 @@
 from django.conf.urls import patterns, include, url
 from tastypie.api import Api
 
-from report_server.report_import.api import productusage
+from report_server.report_import.api import productusage, admin_tools
 
 v1_api = Api(api_name='v1')
 
