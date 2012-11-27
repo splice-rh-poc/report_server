@@ -88,7 +88,7 @@ class InstanceComplianceTest(ResourceTestCase):
     fixtures = ['test_product_usage']
     
     def setUp(self):
-        super(ImportAPITest, self).setUp()
+        super(InstanceComplianceTest, self).setUp()
         self.dropCollections()
 
         
