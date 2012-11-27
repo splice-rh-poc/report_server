@@ -99,6 +99,7 @@ def get_date_object(epoch_int):
 
 class MongoEncoder(json.JSONEncoder):
     """ JSON Encoder for Mongo Objects """
+    
     def default(self, obj, **kwargs):
         from pymongo.objectid import ObjectId
         import mongoengine
@@ -119,8 +120,11 @@ class MongoEncoder(json.JSONEncoder):
         elif isinstance(obj, datetime):
             return str(obj)
         else:
-            return JSONEncoder.default(obj, **kwargs)
+            msg = ('object type not found, can not encode to JSON')
+            _LOG.error(msg)
+            raise Exception(msg)
+    
 
-    def to_json(self, obj):
-        return json.dumps(obj, cls=MongoEncoder, indent=2)
+def to_json(obj):
+    return json.dumps(obj, cls=MongoEncoder, indent=2)
 

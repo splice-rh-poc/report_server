@@ -21,10 +21,8 @@ v1_api = Api(api_name='v1')
 
 # Resources
 productusage_resource = productusage.ProductUsageResource()
-quarantine_resource = admin_tools.QuarantinedDataResource()
 
 v1_api.register(productusage_resource)
-v1_api.register(quarantine_resource)
 
 urlpatterns = patterns('',
 
