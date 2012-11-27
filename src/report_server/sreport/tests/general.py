@@ -247,13 +247,9 @@ class ReportTestCase(TestCase):
         start = datetime.now() - delta
         
         for key, value in products_dict.items():
-            #print(key)
-            p = Product.objects.filter(name=key)[0]
-            #print(p.name)
-
             rhic = RHIC.objects.filter(uuid=value[1])[0]
-            #print(rhic.uuid)
-            #print(rhic.contract)
+            p = Product.objects.filter(name=key, sla=rhic.sla,
+                                       support_level=rhic.support_level)[0]
             results_dicts = Product_Def.get_count(p, rhic, start, end, rhic.contract, "us-east-1", report_biz_rules)
             self.assertEqual(len(results_dicts), 1)
     
