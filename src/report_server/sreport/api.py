@@ -109,7 +109,7 @@ class ReportResource(MongoEngineResource):
     
     class Meta:
         queryset = ReportData.objects.all()
-        #allow_methods = ['post']
+        allow_methods = ['post']
         
         # Make sure we always get back the representation of the resource back
         # on a POST.
@@ -119,14 +119,11 @@ class ReportResource(MongoEngineResource):
         authentication = MultiAuthentication(SessionAuthentication(),
             BasicAuthentication())
         authorization = Authorization()
-        # Use our serializer for all resources
-        #serializer = RestSerializer()
+
         
     def post_list(self, request, **kwargs):
         #data = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
-        print(request.raw_post_data)
         data = json.loads(request.raw_post_data)
-        print(data['byMonth'])
         _LOG.info("ReportResource::post_list() ")
         
         response = views.report_api(request)

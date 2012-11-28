@@ -227,140 +227,6 @@ def report_form_ui20(request):
 
     return response
 
-def report_ui20(request):
-    #replaces report(request)
-    '''
-    @param request: http
-    
-    generate the data for the report.
-    data is generated from hours_per_consumer
-    
-    '''
-    _LOG.info("report called by method: %s" % (request.method))
-    
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
-    if 'byMonth' in request.POST:
-        month_year = request.POST['byMonth'].encode('ascii').split(',')
-        month = int(month_year[0]);
-        year = int(month_year[1]);
-        year = datetime.today().year
-        start = datetime(year, month, 1)
-        end =  datetime(year, month + 1, 1) - timedelta (days = 1)
-    else:
-        startDate = request.POST['startDate'].encode('ascii').split("/")
-        endDate = request.POST['endDate'].encode('ascii').split("/")
-        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-    
-    if 'env' in request.POST:
-        environment = request.POST['env']
-    else:
-        environment = "All"
-        
-    list_of_rhics = []
-    if request.POST['rhic'] != 'null':
-        my_uuid = request.POST['rhic']
-        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
-        
-    elif request.POST['contract_number'] != 'null':
-        contract = request.POST['contract_number']
-        if contract == "All":
-            list_of_rhics = list(RHIC.objects.filter(account_id=account))
-            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
-        else:
-            results = hours_per_consumer(start, end, contract_number=contract, environment=environment)
-    
-    else:
-        list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
-    
-    format = constants.full_format
-
-    response_data = {}
-    response_data['list'] = results
-    response_data['account'] = account
-    response_data['start'] = start.strftime(format)
-    response_data['end'] = end.strftime(format)
-
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
-
-def report_api(request):
-    #replaces report(request)
-    '''
-    @param request: http
-    
-    generate the data for the report.
-    data is generated from hours_per_consumer
-    
-    '''
-    _LOG.info("report called by method: %s" % (request.method))
-    
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
-    data = json.loads(request.raw_post_data)
-    if 'byMonth' in data:
-        month_year = data['byMonth'][0].split(',')
-        month = int(month_year[0]);
-        year = int(month_year[1]);
-        year = datetime.today().year
-        start = datetime(year, month, 1)
-        end =  datetime(year, month + 1, 1) - timedelta (days = 1)
-    else:
-        startDate = data['startDate'].split("/")
-        endDate = data['endDate'].split("/")
-        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-    
-    if 'env' in data:
-        environment = data['env'][0]
-    else:
-        environment = "All"
-        
-    list_of_rhics = []
-    if data['rhic'][0] != 'null':
-        my_uuid = data['rhic']
-        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
-        
-    elif data['contract_number'][0] != 'null':
-        contract = data['contract_number'][0]
-        if contract == "All":
-            list_of_rhics = list(RHIC.objects.filter(account_id=account))
-            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
-        else:
-            results = hours_per_consumer(start, end, contract_number=contract, environment=environment)
-    
-    else:
-        list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
-    
-    format = constants.full_format
-
-    response_data = {}
-    response_data['list'] = results
-    response_data['account'] = account
-    response_data['start'] = start.strftime(format)
-    response_data['end'] = end.strftime(format)
-
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
-
-
 
 
 def detailed_report_ui20(request):
@@ -394,6 +260,89 @@ def detailed_report_ui20(request):
         raise
 
     return response
+
+def report_ui20(request):
+    #replaces report(request)
+    '''
+    @param request: http
+    
+    generate the data for the report.
+    data is generated from hours_per_consumer
+    
+    '''
+    _LOG.info("report called by method: %s" % (request.method))
+    
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    try:
+        api_data = json.loads(request.raw_post_data)
+        data = api_data
+    except Exception:
+        _LOG.debug('report called, request.raw_post_data does not match expected format')
+        try:
+            form_data = json.loads(utils.to_json(request.POST))
+            data = form_data
+            
+        except Exception:
+            _LOG.error('report called, request.raw_post_data and request.POST do not match expected format')
+    
+    if 'byMonth' in data:
+        month_year = data['byMonth'].split(',')
+        month = int(month_year[0]);
+        year = int(month_year[1]);
+        year = datetime.today().year
+        start = datetime(year, month, 1)
+        end =  datetime(year, month + 1, 1) - timedelta (days = 1)
+    if 'startDate' in data:
+        startDate = data['startDate'].split("/")
+        endDate = data['endDate'].split("/")
+        start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    
+    if 'env' in data:
+        environment = data['env']
+    else:
+        environment = "All"
+
+    rhic = data['rhic']
+    contract = data['contract_number']
+    
+        
+    list_of_rhics = []
+    if rhic != 'null':
+        my_uuid = data['rhic']
+        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start, end, list_of_rhics, environment=environment)
+        
+    elif contract != 'null':
+        if contract == "All":
+            list_of_rhics = list(RHIC.objects.filter(account_id=account))
+            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
+        else:
+            results = hours_per_consumer(start, end, contract_number=contract, environment=environment)
+    
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
+    
+    format = constants.full_format
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    try:
+        response = HttpResponse(utils.to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+
 
 
 def systemFactCompliance(request):
