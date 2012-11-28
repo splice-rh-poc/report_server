@@ -36,6 +36,9 @@ connect(MONGO_DATABASE_NAME, alias='results', tz_aware=True,
 register_connection('default', MONGO_DATABASE_NAME_RHICSERVE,
                     host=MONGO_DATABASE_HOST_RHICSERVE)      
 
+# Custom test runner to work with Mongo
+TEST_RUNNER = 'rhic_serve.common.tests.MongoTestRunner'
+
 # Business Rules initialization
 r = Rules()
 r.init()

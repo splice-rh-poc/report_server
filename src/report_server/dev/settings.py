@@ -23,3 +23,5 @@ os.chdir(source_dir)
 
 config_file = os.path.join(curr_dir, 'splice.conf')
 config.init(config_file, reinit=True)
+
+DUMP_DIR = os.path.join(curr_dir, 'db_dump')

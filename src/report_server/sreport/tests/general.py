@@ -10,21 +10,28 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 
-from splice.common.models import ProductUsage
+from subprocess import call, PIPE
+import os
+from datetime import datetime, timedelta
+from logging import getLogger
+
+from django.conf import settings
 from django.test import TestCase
 from mongoengine.connection import connect
-from django.conf import settings
-from logging import getLogger
-from report_server.sreport.models import ReportData
-from report_server.sreport.models import SpliceServer
+from mongoengine import connection, register_connection
+
+from rhic_serve.common.tests import BaseMongoTestCase
 from rhic_serve.rhic_rest.models import RHIC, Account
-from datetime import datetime, timedelta
+from splice.common.models import ProductUsage
+
+from report_server.common.custom_count import Rules
+from report_server.common import config
+from report_server.common import constants
 from report_server.common.products import Product_Def
 from report_server.common.report import hours_per_consumer
-from report_server.common import config
-from report_server.common.custom_count import Rules
-from setup import TestData, Product
-from report_server.common import constants
+from report_server.sreport.models import ReportData
+from report_server.sreport.models import SpliceServer
+from report_server.sreport.tests.setup import TestData, Product
 
 
 LOG = getLogger(__name__)
@@ -61,8 +68,36 @@ products_dict = TestData.PRODUCTS_DICT
 rules = Rules()
 report_biz_rules = rules.get_rules()
 
-class ReportTestCase(TestCase):
+
+MONGO_TEST_DATABASE_NAME = 'test_%s' % settings.MONGO_DATABASE_NAME
+
+class BaseReportTestCase(BaseMongoTestCase):
+
     def setUp(self):
+        super(BaseReportTestCase, self).setUp()
+        self.setup_database()
+
+    def setup_database(self):
+        # Disconnect from the default mongo db, and use a test db instead.
+        self.disconnect_dbs()
+        connection.connect(MONGO_TEST_DATABASE_NAME, 
+            alias=settings.MONGO_DATABASE_NAME, tz_aware=True)
+        register_connection('rhic_serve', MONGO_TEST_DATABASE_NAME)
+        register_connection('checkin', MONGO_TEST_DATABASE_NAME)
+        register_connection('results', MONGO_TEST_DATABASE_NAME)
+        register_connection('default', MONGO_TEST_DATABASE_NAME)
+
+        for collection in ['rhic', 'account']:
+            print 'importing %s collection' % collection
+            call(['mongoimport', '--db', MONGO_TEST_DATABASE_NAME,
+                  '-c', collection, '--file', 
+                  '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
+                 stdout=PIPE, stderr=PIPE)
+
+
+class ReportTestCase(BaseReportTestCase):
+    def setUp(self):
+        super(ReportTestCase, self).setUp()
         db_name = settings.MONGO_DATABASE_NAME
         self.db = connect(db_name)
         ReportData.drop_collection()
@@ -119,14 +154,17 @@ class ReportTestCase(TestCase):
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 3)
         #test for RHEL Match
-        p = Product.objects.filter(name=RHEL)[0]
         rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
+        p = Product.objects.filter(name=RHEL, sla=rhic.sla,
+                                   support_level=rhic.support_level)[0]
         results_dicts = Product_Def.get_count(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 1)
         
         #test for JBoss match
-        p = Product.objects.filter(name=JBoss)[0]
         rhic = RHIC.objects.filter(uuid=products_dict[JBoss][1])[0]
+        p = Product.objects.filter(name=JBoss, sla=rhic.sla,
+                                   support_level=rhic.support_level)[0]
+        results_dicts = Product_Def.get_count(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         results_dicts = Product_Def.get_count(p, rhic, start, end, rhic.contract, environment, report_biz_rules)
         self.assertEqual(len(results_dicts), 2)
     
