@@ -24,7 +24,7 @@ from report_server.common import constants
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, from_splice_server="NA", force_import=False):
+def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", force_import=False):
     """
     @param product_usage
     @type mongoengine cursor 
@@ -37,6 +37,8 @@ def import_data(product_usage=ProductUsage.objects.all(), checkin_interval=1, fr
     @rtype dict 
     """
     #config fail/pass on missing rhic
+    if not product_usage:
+        product_usage = ProductUsage.objects.all()
     start_stop_time = []
     quarantined = []
     total_import_count = len(product_usage)

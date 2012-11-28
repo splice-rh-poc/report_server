@@ -10,6 +10,7 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from report_server.common.custom_count import Rules
+from report_server.sreport.tests.general import BaseReportTestCase
 from django.test import TestCase
 from setup import TestData
 
@@ -23,7 +24,7 @@ EDU = TestData.EDU
 UNLIMITED = TestData.UNLIMITED
 GEAR = TestData.GEAR
 
-class RulesTestCase(TestCase):
+class RulesTestCase(BaseReportTestCase):
     def test_get_rules(self):
         r = Rules()
         rules = r.get_rules

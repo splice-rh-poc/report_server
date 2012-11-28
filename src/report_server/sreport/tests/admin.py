@@ -11,12 +11,11 @@
 
 import datetime
 from django.contrib.auth.models import User
-from tastypie.test import ResourceTestCase
 from report_server.sreport.models import ReportData, QuarantinedReportData
+from report_server.sreport.tests.general import BaseReportTestCase
 
 
-class ImportAPITest(ResourceTestCase):
-    fixtures = ['test_product_usage']
+class ImportAPITest(BaseReportTestCase):
     
     def setUp(self):
         super(ImportAPITest, self).setUp()
@@ -84,8 +83,7 @@ class ImportAPITest(ResourceTestCase):
 
 
 
-class InstanceComplianceTest(ResourceTestCase):
-    fixtures = ['test_product_usage']
+class InstanceComplianceTest(BaseReportTestCase):
     
     def setUp(self):
         super(InstanceComplianceTest, self).setUp()

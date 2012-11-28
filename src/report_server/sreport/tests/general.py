@@ -87,7 +87,7 @@ class BaseReportTestCase(BaseMongoTestCase):
         register_connection('results', MONGO_TEST_DATABASE_NAME)
         register_connection('default', MONGO_TEST_DATABASE_NAME)
 
-        for collection in ['rhic', 'account']:
+        for collection in ['rhic', 'account', 'splice_server']:
             print 'importing %s collection' % collection
             call(['mongoimport', '--db', MONGO_TEST_DATABASE_NAME,
                   '-c', collection, '--file', 

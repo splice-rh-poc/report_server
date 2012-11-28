@@ -33,6 +33,7 @@ from report_server.common.custom_count import Rules
 from setup import TestData
 from report_server.common import constants
 import random, string
+from report_server.sreport.tests.general import BaseReportTestCase
 
 LOG = getLogger(__name__)
 this_config = config.get_import_info()
@@ -71,7 +72,7 @@ rules = Rules()
 report_biz_rules = rules.get_rules()
 
 
-class UI_TestCase(TestCase):
+class UI_TestCase(BaseReportTestCase):
 
     
     def test_import_three(self):

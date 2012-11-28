@@ -31,6 +31,7 @@ from report_server.common import config
 from report_server.common.custom_count import Rules
 from setup import TestData
 from report_server.common import constants
+from report_server.sreport.tests.general import BaseReportTestCase
 
 LOG = getLogger(__name__)
 this_config = config.get_import_info()
@@ -67,28 +68,24 @@ products_dict = TestData.PRODUCTS_DICT
 rules = Rules()
 report_biz_rules = rules.get_rules()
 
-class Report_Import_TestCase(TestCase):
+class Report_Import_TestCase(BaseReportTestCase):
+
     def setUp(self):
-        db_name = settings.MONGO_DATABASE_NAME
-        self.db = connect(db_name)
-        ReportData.drop_collection()
+        super(Report_Import_TestCase, self).setUp()
         rhel_product = TestData.create_products()
         rhel_entry = TestData.create_entry(RHEL, mem_high=True)
         rhel_entry.save()
-        
-        
-         
-    def test_import(self):
-        SpliceServer.drop_collection()
+        self.ss = SpliceServer.objects.get(hostname='test01')
         ProductUsage.drop_collection()
         ReportData.drop_collection()
+         
+    def test_import(self):
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:05", constants.hr_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        pu = TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
         results = import_data(force_import=True)
         
@@ -97,18 +94,14 @@ class Report_Import_TestCase(TestCase):
         self.assertEqual(len(lookup), 1)
  
     def test_import_dup(self):
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        pu = TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        pu = TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        pu = TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
         #run import
         results = import_data(force_import=True)
         
@@ -117,20 +110,16 @@ class Report_Import_TestCase(TestCase):
         self.assertEqual(len(lookup), 1)
     
     def test_import_three(self):
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
         time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
         results = import_data(force_import=True)
         
@@ -140,21 +129,17 @@ class Report_Import_TestCase(TestCase):
     
     def test_import_four(self):
         
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
         time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
         results = import_data(force_import=True)
         
@@ -163,22 +148,18 @@ class Report_Import_TestCase(TestCase):
         self.assertEqual(len(lookup), 3)
     
     def test_import_change_rhics(self):
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0631", constants.mn_fmt)
         time3 = datetime.strptime("10102012:0531", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         uuid = products_dict[EDU][1]
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
         #run import
         results = import_data(force_import=True)
         
@@ -186,10 +167,7 @@ class Report_Import_TestCase(TestCase):
         lookup = ReportData.objects.all()
         self.assertEqual(len(lookup), 3)
     
-    def import_bulk_load_base(self, items_to_load, ):
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
+    def import_bulk_load_base(self, items_to_load):
         #turn off bulk load option
        
         
@@ -200,12 +178,11 @@ class Report_Import_TestCase(TestCase):
         uuid = products_dict[RHEL][1]
         instance='mac01'
         products = products_dict[RHEL][0]
-        ss = TestData.create_splice_server("test01", "east")
         bulk_load = {}
         for i in range(items_to_load):
             time += timedelt
             this_hash = hash(str(uuid) + str(instance) + str(time) +  str(products))
-            td = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance=instance, products=products, save=False)
+            td = TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance=instance, products=products, save=False)
             bulk_load[this_hash]=td
         #print(len(bulk_load))
         my_list = []
@@ -223,16 +200,12 @@ class Report_Import_TestCase(TestCase):
     
 
     def test_import_interval_2(self):
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:05", constants.hr_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        pu = TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        pu = TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
         #run import
         results = import_data( checkin_interval=2, force_import=True)
         
@@ -248,21 +221,17 @@ class Report_Import_TestCase(TestCase):
         #A second real checkin occurs but is a dupe.
         
         
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0539", constants.mn_fmt)
 
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         #run import
         results = import_data( checkin_interval=2, force_import=True)
         
@@ -277,21 +246,17 @@ class Report_Import_TestCase(TestCase):
         #A second real checkin occurs but one hour of each checkin is a dupe.
         #Total should be six
         
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0639", constants.mn_fmt)
 
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac02', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac02', products=prod)
         #run import
         results = import_data( checkin_interval=2, force_import=True)
         
@@ -301,21 +266,17 @@ class Report_Import_TestCase(TestCase):
         
     def test_import_interval_2_with_real_dupe02(self):
         
-        SpliceServer.drop_collection()
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
         fact1 = {"memory_dot_memtotal": "604836", "lscpu_dot_cpu_socket(s)": "1", "lscpu_dot_cpu(s)": "1"}
         
-        ss = TestData.create_splice_server("test01", "east")
         time = datetime.strptime("10102012:0530", constants.mn_fmt)
         time2 = datetime.strptime("10102012:0731", constants.mn_fmt)
         time3 = datetime.strptime("10102012:0831", constants.mn_fmt)
         uuid = products_dict[RHEL][1]
         prod = products_dict[RHEL][0]
-        TestData.create_product_usage(ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
-        TestData.create_product_usage(ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time2, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac01', products=prod)
+        TestData.create_product_usage(self.ss, fact1, time3, consumer=uuid, instance='mac02', products=prod)
         #run import
         results = import_data( checkin_interval=2, force_import=True)
         
