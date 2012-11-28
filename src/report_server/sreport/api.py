@@ -15,15 +15,37 @@ from report_server.sreport import views
 from report_server.common import utils
 from django.contrib.auth.models import User
 from tastypie.authorization import Authorization
+from tastypie.authentication import (BasicAuthentication, 
+    MultiAuthentication, SessionAuthentication)
+from tastypie_mongoengine.resources import MongoEngineResource
+from tastypie.serializers import Serializer
 from tastypie.resources import Resource
 from django.http import HttpResponse
-import logging, sys
+import logging, sys, json
+from bson import json_util
 
 
 from report_server.common import import_util
 from report_server.report_import.api import productusage
 
 _LOG = logging.getLogger("sreport.api")
+
+
+class RestSerializer(Serializer):
+    """
+    Class for overriding various aspects of the default Tastypie Serializer
+    class.
+    """
+
+    def format_datetime(self, data):
+        """
+        By default, Tastypie's serializer serializes all datetime objects as
+        naive (no timezone info).  I'm not sure why this is the case.
+
+        There's a patch, but it has not been merged into master Tastypie:
+        https://github.com/toastdriven/django-tastypie/commit/542d365d7d975a90c64c4c375257e5bc4b3b220a
+        """
+        return data.isoformat()
 
 class ProductUsageResource(productusage.ProductUsageResource):
 
@@ -77,8 +99,38 @@ class ComplianceDataResource(Resource):
         
         _LOG.info("ComplianceDataResource::get_list() ")
         
+
         response = views.systemFactCompliance(request)
 
+        return response
+    
+
+class ReportResource(MongoEngineResource):
+    
+    class Meta:
+        queryset = ReportData.objects.all()
+        #allow_methods = ['post']
+        
+        # Make sure we always get back the representation of the resource back
+        # on a POST.
+        #always_return_data = True
+
+        # All Resources require basic authentication (for now).
+        authentication = MultiAuthentication(SessionAuthentication(),
+            BasicAuthentication())
+        authorization = Authorization()
+        # Use our serializer for all resources
+        #serializer = RestSerializer()
+        
+    def post_list(self, request, **kwargs):
+        #data = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
+        print(request.raw_post_data)
+        data = json.loads(request.raw_post_data)
+        print(data['byMonth'])
+        _LOG.info("ReportResource::post_list() ")
+        
+        response = views.report_api(request)
+        
         return response
 
 

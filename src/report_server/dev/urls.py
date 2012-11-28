@@ -15,7 +15,8 @@ from django.views.generic import list_detail
 
 from tastypie.api import Api
 
-from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource, ComplianceDataResource
+from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource, ComplianceDataResource, \
+                                    ReportResource
 
 v1_api = Api(api_name='v1')
 
@@ -23,9 +24,11 @@ v1_api = Api(api_name='v1')
 productusage_resource = ProductUsageResource()
 quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
+report_resource = ReportResource()
 v1_api.register(productusage_resource)
 v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
+v1_api.register(report_resource)
 
 urlpatterns = patterns('',
     # Examples:
