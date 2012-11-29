@@ -126,7 +126,7 @@ class ReportResource(MongoEngineResource):
         data = json.loads(request.raw_post_data)
         _LOG.info("ReportResource::post_list() ")
         
-        response = views.report_api(request)
+        response = views.report_ui20(request)
         
         return response
 
