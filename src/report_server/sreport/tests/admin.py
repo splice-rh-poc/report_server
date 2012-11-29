@@ -13,6 +13,7 @@ import datetime
 from django.contrib.auth.models import User
 from report_server.sreport.models import ReportData, QuarantinedReportData
 from report_server.sreport.tests.general import BaseReportTestCase
+from tastypie.test import *
 
 
 class ImportAPITest(BaseReportTestCase):
@@ -120,8 +121,17 @@ class InstanceComplianceTest(BaseReportTestCase):
         return entry
         
     def test_getlist(self):
-        resp = self.api_client.post('/api/v1/quarantine/', format='json')
+        resp0 = self.api_client.post('/api/v1/productusage/', format='json', data=self.createJSON(instance_identifier='00:11'))
+        self.assertEqual(202, resp0.status_code, 'http status code is expected')
+        resp1 = self.api_client.post('/api/v1/productusage/', format='json', data=self.createJSON(instance_identifier='00:11'))
+        self.assertEqual(409, resp1.status_code, 'http status code is expected')
+        resp = self.api_client.get('/api/v1/quarantineddata/', format='json')
         self.assertEqual(200, resp.status_code, 'http status code is expected')
+        
+        
+        
+        
+        
         
 
 

@@ -73,3 +73,5 @@ INSTALLED_APPS = (
 )
 
 
+
+TEMPLATE_DEBUG = True
