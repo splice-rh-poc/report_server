@@ -29,3 +29,6 @@ DUMP_DIR = os.path.join(curr_dir, 'db_dump')
 TEMPLATE_DIRS = (
     os.path.join(source_dir, 'templates')
 )
+
+TEMPLATE_DEBUG = True
+

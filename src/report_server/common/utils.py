@@ -101,15 +101,16 @@ class MongoEncoder(json.JSONEncoder):
     """ JSON Encoder for Mongo Objects """
     
     def default(self, obj, **kwargs):
-        from pymongo.objectid import ObjectId
+        #ObjectId works w/ fedora17 but fails w/ RHEL6
+        #from pymongo.objectid import ObjectId
         import mongoengine
         import types
         if isinstance(obj, (mongoengine.Document, mongoengine.EmbeddedDocument)):
             out = dict(obj._data)
             for k,v in out.items():
-                if isinstance(v, ObjectId):
-                    _LOG.info("k = %s, v = %s" % (k,v))
-                    out[k] = str(v)
+                #if isinstance(v, ObjectId):
+                _LOG.info("k = %s, v = %s" % (k,v))
+                out[k] = str(v)
             return out
         elif isinstance(obj, mongoengine.queryset.QuerySet):
             return list(obj)

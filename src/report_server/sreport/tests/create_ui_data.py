@@ -36,7 +36,7 @@ import random, string
 from report_server.sreport.tests.general import BaseReportTestCase
 
 LOG = getLogger(__name__)
-this_config = config.get_import_info()
+#this_config = config.get_import_info()
 
 
 

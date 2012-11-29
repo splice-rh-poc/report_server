@@ -10,4 +10,7 @@ src/debug/*
 src/sreport/test
 etc/splice/report.json
 selinux/*.pp.targetted
+*.idea
+src/report_server/report_server.wpr
+src/report_server/report_server.wpu
 

@@ -40,7 +40,7 @@ from report_server.common import constants
 
 
 LOG = getLogger(__name__)
-this_config = config.get_import_info()
+#this_config = config.get_import_info()
 ss = SpliceServer
 
     

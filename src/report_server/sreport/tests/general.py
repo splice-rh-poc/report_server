@@ -35,7 +35,7 @@ from report_server.sreport.tests.setup import TestData, Product
 
 
 LOG = getLogger(__name__)
-this_config = config.get_import_info()
+#this_config = config.get_import_info()
 ss = SpliceServer
 
 '''
