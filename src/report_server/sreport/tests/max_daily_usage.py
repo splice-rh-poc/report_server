@@ -9,20 +9,17 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-
-from dev.custom_count import Rules
-from django.test import TestCase
-from sreport.models import ReportDataDaily, ProductUsage
-from common.import_util import import_data
-from sreport.models import SpliceServer
-from rhic_serve.rhic_rest.models import RHIC, Account
-from datetime import datetime, timedelta
+from common import constants
 from common.products import Product_Def
 from common.report import hours_per_consumer
-from dev.custom_count import Rules
+from common.import_util import import_data
+from datetime import datetime, timedelta
+from report_server.dev.custom_count import Rules
+from django.test import TestCase
+from rhic_serve.rhic_rest.models import RHIC, Account
 from setup import TestData, Product
-from common import constants
-
+from sreport.models import ReportDataDaily, ProductUsage
+from sreport.models import SpliceServer
 
 RHEL = TestData.RHEL
 HA = TestData.HA

@@ -9,24 +9,24 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from report_server.sreport.models import ProductUsage, QuarantinedReportData,\
-    ReportData
+
+from django.http import HttpResponse
+from report_server.sreport.models import QuarantinedReportData
+from report_server.sreport.models import ReportData
 from report_server.sreport import views
 from report_server.common import utils
-from django.contrib.auth.models import User
+from report_server.common import import_util
+from report_server.report_import.api import productusage
 from tastypie.authorization import Authorization
-from tastypie.authentication import (BasicAuthentication, 
-    MultiAuthentication, SessionAuthentication)
+from tastypie.authentication import BasicAuthentication, MultiAuthentication
+from tastypie.authentication import SessionAuthentication
 from tastypie_mongoengine.resources import MongoEngineResource
 from tastypie.serializers import Serializer
 from tastypie.resources import Resource
-from django.http import HttpResponse
-import logging, sys, json
-from bson import json_util
+import logging
+import json
+import sys
 
-
-from report_server.common import import_util
-from report_server.report_import.api import productusage
 
 _LOG = logging.getLogger("sreport.api")
 
@@ -47,20 +47,21 @@ class RestSerializer(Serializer):
         """
         return data.isoformat()
 
+
 class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
         _LOG.debug("in import_hook")
-        items_not_imported, start_stop_time =  import_util.import_data(product_usage, force_import=True)
-        _LOG.debug("items_not_imported length: " + str(len(items_not_imported)))
+        items_not_imported, start_stop_time = import_util.import_data(
+            product_usage, force_import=True)
+        _LOG.debug(
+            "items_not_imported length: " + str(len(items_not_imported)))
         for i in items_not_imported:
             thisDict = i.to_dict()
             thisItem = QuarantinedReportData(**thisDict)
             thisItem.save()
-            
+
         return items_not_imported
-    
-    
 
 
 class QuarantinedDataResource(Resource):
@@ -70,11 +71,9 @@ class QuarantinedDataResource(Resource):
         authorization = Authorization()
         allowed_methods = ['get']
 
-    
-    
     def get_list(self, request, **kwargs):
         _LOG.info("QuarantinedDataResource::get_list() ")
-        
+
         results = QuarantinedReportData.objects.all()
         response_data = {}
         response_data['list'] = results
@@ -85,49 +84,47 @@ class QuarantinedDataResource(Resource):
             _LOG.error(sys.exc_info()[0])
             _LOG.error(sys.exc_info()[1])
             raise
-    
+
         return response
 
+
 class ComplianceDataResource(Resource):
-    
+
     class Meta:
         queryset = ReportData.objects.all()
         authorization = Authorization()
         allowed_methods = ['get']
-        
+
     def get_list(self, request, **kwargs):
-        
+
         _LOG.info("ComplianceDataResource::get_list() ")
-        
 
         response = views.systemFactCompliance(request)
 
         return response
-    
+
 
 class ReportResource(MongoEngineResource):
-    
+
     class Meta:
         queryset = ReportData.objects.all()
         allow_methods = ['post']
-        
+
         # Make sure we always get back the representation of the resource back
         # on a POST.
-        #always_return_data = True
+        # always_return_data = True
 
         # All Resources require basic authentication (for now).
         authentication = MultiAuthentication(SessionAuthentication(),
-            BasicAuthentication())
+                                             BasicAuthentication())
         authorization = Authorization()
 
-        
     def post_list(self, request, **kwargs):
-        #data = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
-        data = json.loads(request.raw_post_data)
+        # data = json.loads(request.raw_post_data,
+        # object_hook=json_util.object_hook)
+        #data = json.loads(request.raw_post_data)
         _LOG.info("ReportResource::post_list() ")
-        
+
         response = views.report_ui20(request)
-        
+
         return response
-
-

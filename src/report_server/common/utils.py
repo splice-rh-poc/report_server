@@ -109,7 +109,7 @@ class MongoEncoder(json.JSONEncoder):
             out = dict(obj._data)
             for k,v in out.items():
                 #if isinstance(v, ObjectId):
-                _LOG.info("k = %s, v = %s" % (k,v))
+                _LOG.debug("k = %s, v = %s" % (k,v))
                 out[k] = str(v)
             return out
         elif isinstance(obj, mongoengine.queryset.QuerySet):

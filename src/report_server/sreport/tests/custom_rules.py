@@ -9,9 +9,9 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+from django.test import TestCase
 from report_server.common.custom_count import Rules
 from report_server.sreport.tests.general import BaseReportTestCase
-from django.test import TestCase
 from setup import TestData
 
 
@@ -24,18 +24,21 @@ EDU = TestData.EDU
 UNLIMITED = TestData.UNLIMITED
 GEAR = TestData.GEAR
 
+
 class RulesTestCase(BaseReportTestCase):
     def test_get_rules(self):
         r = Rules()
         rules = r.get_rules
         self.assertTrue(rules)
-        
-    
+
     def test_rules_rhel(self):
         r = Rules()
         rules = r.get_rules()
         this_test = rules[RHEL]['memtotal']
-        this_expected_results = {'low_gt': 0, 'low_lt': 8388608, 'low_desc': '< 8GB', 'high_gt': 8388608, 'high_lt': 83886080, 'high_desc': '> 8GB', 'rule': '0 > 8388608; 8388608 > 83886080'}
+        this_expected_results = {'low_gt': 0, 'low_lt': 8388608, 
+                                 'low_desc': '< 8GB', 'high_gt': 8388608, 
+                                 'high_lt': 83886080, 'high_desc': '> 8GB', 
+                                 'rule': '0 > 8388608; 8388608 > 83886080'}
         self.assertEqual(this_test, this_expected_results, 'results match')
     '''
     def test_update_rules(self):

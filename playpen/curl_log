@@ -1,0 +1,84 @@
+== Info: About to connect() to basementdoe port 8000 (#0)
+== Info:   Trying 192.168.1.72...
+== Info: connected
+== Info: Connected to basementdoe (192.168.1.72) port 8000 (#0)
+== Info: Server auth using Basic with user 'shadowman@redhat.com'
+=> Send header, 335 bytes (0x14f)
+0000: POST /api/v1/report/ HTTP/1.1
+001f: Authorization: Basic c2hhZG93bWFuQHJlZGhhdC5jb206c2hhZG93bWFuQHJ
+005f: lZGhhdC5jb20=
+006e: User-Agent: curl/7.24.0 (x86_64-redhat-linux-gnu) libcurl/7.24.0
+00ae:  NSS/3.13.5.0 zlib/1.2.5 libidn/1.24 libssh2/1.4.1
+00e2: Host: basementdoe:8000
+00fa: Accept: */*
+0107: Content-Length: 110
+011c: Content-Type: application/x-www-form-urlencoded
+014d: 
+=> Send data, 110 bytes (0x6e)
+0000: {"user": "shadowman@redhat.com", "byMonth": "11,2012", "contract
+0040: _number": "All", "rhic": "null", "env": "All"}
+== Info: upload completely sent off: 110 out of 110 bytes
+== Info: HTTP 1.0, assume close after body
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.0 200 OK
+<= Recv header, 37 bytes (0x25)
+0000: Date: Fri, 30 Nov 2012 21:15:30 GMT
+<= Recv header, 37 bytes (0x25)
+0000: Server: WSGIServer/0.1 Python/2.7.3
+<= Recv header, 14 bytes (0xe)
+0000: Vary: Accept
+<= Recv header, 40 bytes (0x28)
+0000: Content-Type: text/html; charset=utf-8
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 3091 bytes (0xc13)
+0000: {.  "start": "Thu Nov 01 00:00:00 2012", .  "account": "1190457"
+0040: , .  "end": "Fri Nov 30 00:00:00 2012", .  "list": [.    [.     
+0080:  {.        "count": 168, .        "end": 1354251600, .        "c
+00c0: ontract_id": "3116649", .        "contract_use": 20, .        "s
+0100: upport": "l1-l3", .        "sla": "prem", .        "start": 1351
+0140: 742400, .        "compliant": false, .        "filter_args_dict"
+0180: : "{\"memtotal__gt\": 0, \"product\": [\"69\"], \"contract_id\":
+01c0:  \"3116649\", \"support\": \"l1-l3\", \"memtotal__lt\": 8388608,
+0200:  \"consumer_uuid\": \"fea363f5-af37-4a23-a2fd-bea8d1fff9e8\", \"
+0240: sla\": \"prem\"}", .        "engineering_id": "[u'69']", .      
+0280:   "facts": "< 8GB", .        "product_config": "{\"calculation\"
+02c0: : \"hourly\", \"memtotal\": {\"low_gt\": 0, \"low_lt\": 8388608,
+0300:  \"rule\": \"0 > 8388608; 8388608 > 83886080\", \"high_desc\": \
+0340: "> 8GB\", \"high_gt\": 8388608, \"high_lt\": 83886080, \"low_des
+0380: c\": \"< 8GB\"}, \"cpu\": [], \"cpu_sockets\": []}", .        "s
+03c0: ub_hours": 696, .        "checkins": "1", .        "product_name
+0400: ": "RHEL Server", .        "rhic": "rhel-server-jboss-1190457-31
+0440: 16649-prem-l1-l3".      }, .      {.        "count": 96, .      
+0480:   "end": 1354251600, .        "contract_id": "3116649", .       
+04c0:  "contract_use": 10, .        "support": "l1-l3", .        "sla"
+0500: : "prem", .        "start": 1351742400, .        "compliant": fa
+0540: lse, .        "filter_args_dict": "{\"product\": [\"183\"], \"co
+0580: ntract_id\": \"3116649\", \"cpu_sockets__lt\": 5, \"support\": \
+05c0: "l1-l3\", \"cpu_sockets__gt\": 0, \"consumer_uuid\": \"fea363f5-
+0600: af37-4a23-a2fd-bea8d1fff9e8\", \"sla\": \"prem\"}", .        "en
+0640: gineering_id": "[u'183']", .        "facts": "<= 4 Sockets", .  
+0680:       "product_config": "{\"calculation\": \"hourly\", \"memtota
+06c0: l\": [], \"cpu\": [], \"cpu_sockets\": {\"low_gt\": 0, \"low_lt\
+0700: ": 5, \"rule\": \"<= 4 ; 4 > 6\", \"high_desc\": \"> 4 Sockets\"
+0740: , \"high_gt\": 4, \"high_lt\": 6, \"low_desc\": \"<= 4 Sockets\"
+0780: }}", .        "sub_hours": 696, .        "checkins": "1", .     
+07c0:    "product_name": "JBoss EAP", .        "rhic": "rhel-server-jb
+0800: oss-1190457-3116649-prem-l1-l3".      }.    ], .    [.      {.  
+0840:       "count": 168, .        "end": 1354251600, .        "contra
+0880: ct_id": "3116649", .        "contract_use": 20, .        "suppor
+08c0: t": "l1-l3", .        "sla": "prem", .        "start": 135174240
+0900: 0, .        "compliant": false, .        "filter_args_dict": "{\
+0940: "memtotal__gt\": 0, \"product\": [\"83\"], \"contract_id\": \"31
+0980: 16649\", \"support\": \"l1-l3\", \"memtotal__lt\": 8388608, \"co
+09c0: nsumer_uuid\": \"fbbd06c6-ebed-4892-87a3-2bf17c864444\", \"sla\"
+0a00: : \"prem\"}", .        "engineering_id": "[u'83']", .        "fa
+0a40: cts": "< 8GB", .        "product_config": "{\"calculation\": \"h
+0a80: ourly\", \"memtotal\": {\"low_gt\": 0, \"low_lt\": 8388608, \"ru
+0ac0: le\": \"0 > 8388608; 8388608 > 83886080\", \"high_desc\": \"> 8G
+0b00: B\", \"high_gt\": 8388608, \"high_lt\": 83886080, \"low_desc\": 
+0b40: \"< 8GB\"}, \"cpu\": [], \"cpu_sockets\": []}", .        "sub_ho
+0b80: urs": 696, .        "checkins": "1", .        "product_name": "R
+0bc0: HEL HA", .        "rhic": "rhel-ha-1190457-3874444-na-standard".
+0c00:       }.    ].  ].}
+== Info: Closing connection #0
