@@ -9,63 +9,95 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+#__future__ import must be first
 from __future__ import division
-from report_server.sreport.models import  ReportData, ReportDataDaily
-
-import logging
+from report_server.sreport.models import ReportData, ReportDataDaily
 from report_server.common.utils import datespan
-import json
 from report_server.common.utils import subscription_calc, get_datespan
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.common.max import MaxUsage
-
+import logging
+import json
 
 
 _LOG = logging.getLogger(__name__)
 
+
 class Product_Def:
-    
+
     @staticmethod
-    def get_count(product, rhic, start, end, contract_number, environment, config):
+    def get_count(product,
+                  rhic,
+                  start,
+                  end,
+                  contract_number,
+                  environment,
+                  config):
         count_list = []
-        #generic_count(product, rhic, start, end, contract_number,  environment, config):
-        #count, filter_args_dict = generic_count(product, rhic, start, end, contract_number, environment, config)
         product_config = config[product.name]
         
-        results = generic_count(product, rhic, start, end, contract_number, environment, product_config)
+        results = generic_count(product,
+                                rhic,
+                                start,
+                                end,
+                                contract_number,
+                                environment,
+                                product_config)
 
         if(results['high_count']):
             count = results['high_count']
             compliant = results['compliant_high']
             filter_args_dict = results['filter_args_high']
-            result_dict = build_result(product, rhic, start, end, contract_number, count, environment, product_config, compliant)
+            result_dict = build_result(product,
+                                       rhic,
+                                       start,
+                                       end,
+                                       contract_number,
+                                       count,
+                                       environment,
+                                       product_config,
+                                       compliant)
             result_dict['facts'] = results['facts_high']
-            result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+            result_dict['filter_args_dict'] = json.dumps(filter_args_dict)
             count_list.append(result_dict)
         
         if(results['low_count']):
             count = results['low_count']
             compliant = results['compliant_low']
             filter_args_dict = results['filter_args_low']
-            result_dict = build_result(product, rhic, start, end, contract_number, count, environment, product_config, compliant)
+            result_dict = build_result(product,
+                                       rhic,
+                                       start,
+                                       end,
+                                       contract_number,
+                                       count,
+                                       environment,
+                                       product_config,
+                                       compliant)
             result_dict['facts'] = results['facts_low']
-            result_dict['filter_args_dict']=json.dumps(filter_args_dict)
+            result_dict['filter_args_dict'] = json.dumps(filter_args_dict)
             
             count_list.append(result_dict)
         
         return count_list
     
-   
-         
 
-def build_result(product, rhic, start, end, contract_number, count, environment, product_config, compliant):
+def build_result(product,
+                 rhic,
+                 start,
+                 end,
+                 contract_number,
+                 count,
+                 environment,
+                 product_config,
+                 compliant):
     result_dict = {}
     hours_for_sub = get_datespan(start, end, product_config)
     nau = subscription_calc(count, start, end, product_config)
     
     result_dict['count'] = count
     result_dict['compliant'] = compliant
-    result_dict['checkins'] = "{0:.0f}".format(nau)
+    result_dict['nau'] = "{0:.0f}".format(nau)
     result_dict['rhic'] = str(rhic.name)
     result_dict['product_name'] = product.name
     result_dict['engineering_id'] = str(product.engineering_ids)
@@ -76,19 +108,26 @@ def build_result(product, rhic, start, end, contract_number, count, environment,
     result_dict['start'] = get_date_epoch(start)
     result_dict['end'] = get_date_epoch(end)
     result_dict['sub_hours'] = hours_for_sub
-    result_dict['product_config']=json.dumps(product_config)
+    result_dict['product_config'] = json.dumps(product_config)
     
     return result_dict
     
 
-def generic_count(product, rhic, start, end, contract_number,  environment, config):
+def generic_count(product,
+                  rhic,
+                  start,
+                  end,
+                  contract_number,
+                  environment,
+                  config):
     product_config = config
         
     # Generic parameters to filter on
-    filter_args_dict={}
-    filter_args_dict={ 'consumer_uuid': str(rhic.uuid), \
-                      'product': product.engineering_ids, \
-                      'sla': product.sla, 'support': product.support_level, 'contract_id': contract_number}
+    filter_args_dict = {'consumer_uuid': str(rhic.uuid), 
+                        'product': product.engineering_ids,
+                        'sla': product.sla,
+                        'support': product.support_level,
+                        'contract_id': contract_number}
     if environment != "All":
         filter_args_dict['environment'] = environment
     
@@ -117,25 +156,50 @@ def generic_count(product, rhic, start, end, contract_number,  environment, conf
     compliant_low = False
     if product_config['calculation'] == 'hourly':
        
-        high = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_high).count()
-        low = ReportData.objects.filter(date__gt=start, date__lt=end, **filter_args_low).count()
+        high = ReportData.objects.filter(date__gt=start,
+                                         date__lt=end,
+                                         **filter_args_high).count()
+        low = ReportData.objects.filter(date__gt=start,
+                                        date__lt=end,
+                                        **filter_args_low).count()
         if high:
-            compliant_high =  MaxUsage.get_MCU_Compliant(start, end, filter_args_high, product.name)
+            compliant_high = MaxUsage.get_MCU_Compliant(start,
+                                                         end,
+                                                         filter_args_high,
+                                                         product.name)
             
         if low:
-            compliant_low =  MaxUsage.get_MCU_Compliant(start, end, filter_args_low, product.name)
+            compliant_low = MaxUsage.get_MCU_Compliant(start,
+                                                        end,
+                                                        filter_args_low,
+                                                        product.name)
         #Add compliance here
     elif product_config['calculation'] == 'daily':
-        high = ReportDataDaily.objects.filter(date__gt=start, date__lt=end, **filter_args_high).count()
-        low = ReportDataDaily.objects.filter(date__gt=start, date__lt=end, **filter_args_low).count()
+        high = ReportDataDaily.objects.filter(date__gt=start,
+                                              date__lt=end,
+                                              **filter_args_high).count()
+        low = ReportDataDaily.objects.filter(date__gt=start,
+                                             date__lt=end,
+                                             **filter_args_low).count()
         #Add compliance here
         if high:
-            compliant_high =  MaxUsage.get_MCU_Compliant(start, end, filter_args_high, product.name)
+            compliant_high =  MaxUsage.get_MCU_Compliant(start,
+                                                         end,
+                                                         filter_args_high,
+                                                         product.name)
         if low:
-            compliant_low =  MaxUsage.get_MCU_Compliant(start, end, filter_args_low, product.name)
+            compliant_low =  MaxUsage.get_MCU_Compliant(start,
+                                                        end,
+                                                        filter_args_low,
+                                                        product.name)
     
-    results = {'high_count': high, 'facts_high': facts_high, 'filter_args_high': filter_args_high, 'compliant_high': compliant_high,  \
-               'low_count': low, 'facts_low': facts_low, 'filter_args_low': filter_args_low, 'compliant_low': compliant_low }
+    results = {'high_count': high,
+               'facts_high': facts_high,
+               'filter_args_high': filter_args_high,
+               'compliant_high': compliant_high,
+               'low_count': low,
+               'facts_low': facts_low,
+               'filter_args_low': filter_args_low,
+               'compliant_low': compliant_low }
                                 
     return results
-    

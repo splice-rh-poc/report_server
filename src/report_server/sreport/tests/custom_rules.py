@@ -10,7 +10,7 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from django.test import TestCase
-from report_server.common.custom_count import Rules
+from report_server.common.biz_rules import Rules
 from report_server.sreport.tests.general import BaseReportTestCase
 from setup import TestData
 

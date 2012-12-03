@@ -26,7 +26,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from report_server.common import constants, utils
-from report_server.common.custom_count import Rules
+from report_server.common.biz_rules import Rules
 from report_server.common.import_util import import_data
 from report_server.common.max import MaxUsage
 from report_server.common.report import hours_per_consumer
@@ -48,7 +48,7 @@ def template_response(request, template_name):
 
 
 def report(request):
-    '''
+    """
     This is now used by "Export Report" and should be the "GET" equiv
     of report_ui20
 
@@ -56,8 +56,12 @@ def report(request):
 
     generate the data for the report.
     data is generated from hours_per_consumer
+    
+    Returns:
+    Content-Disposition:attachment; filename=reportdata.csv
+    Content-Type:text/csv
 
-    '''
+    """
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
@@ -129,9 +133,16 @@ def ui20(request):
 
 @ensure_csrf_cookie
 def login_ui20(request):
-    '''
-    login, available at host:port/ui/ui20
-    '''
+    """
+    login, available at host:
+    
+    Returns:
+        {
+          "username": "user@host.com", 
+          "account": "1190457", 
+          "is_admin": true
+        }
+    """
     username = request.POST['username']
     password = request.POST['password']
     response_data = {}
@@ -161,21 +172,38 @@ def login_ui20(request):
 
 @ensure_csrf_cookie
 def logout_ui20(request):
-    '''
+    """
     logout avail at host:port/ui/logout
-    '''
+    """
     auth_logout(request)
     return HttpResponse('Worked!')
 
 
 @ensure_csrf_cookie
 def index_ui20(request):
+    """
+    index page, setups up UI and javascript calls report_form_ui20
+    """
     _LOG.info("index called by method: %s" % (request.method))
 
     return template_response(request, 'ui20/index.html')
 
 
 def import_ui20(request):
+    """
+    The primary method for import should be done via the api
+    This is mainly for demo and test purposes atm
+    
+    Returns:
+      {
+       "time": [
+         {
+           "start": "Mon Dec 03 19:55:38 2012", 
+           "end": "Mon Dec 03 19:55:58 2012"
+         }
+       ]
+     }
+    """
     # response = import_checkin_data(request)
     quarantined, results = import_data()
     response_data = {}
@@ -192,6 +220,33 @@ def import_ui20(request):
 
 @login_required
 def report_form_ui20(request):
+    """
+    Build the report form. Discovers the associated contracts, rhics and 
+    populates the form.
+    
+    @param request: http
+    @param request.user: the currently logged in user
+    
+    Returns:
+       A json doc w/ contracts, user, environment, list_of_rhics
+       Example:
+       {
+        "contracts": [
+          "3116649", 
+          "3879847"
+        ], 
+        "user": "user@host.com", 
+        "environments": [
+          "east"
+        ], 
+        "list_of_rhics": [
+          [
+            "8d401b5e-2fa5-4cb6-be64-5f57386fda86", 
+            "rhel-server-1190457-3116649-prem-l1-l3"
+          ], 
+        ]
+      }
+    """
     # replaces create_report()
     _LOG.info("report_form_ui20 called by method: %s" % (request.method))
 
@@ -271,13 +326,59 @@ def detailed_report_ui20(request):
 
 def report_ui20(request):
     # replaces report(request)
-    '''
-    @param request: http
-
+    """
+            
     generate the data for the report.
     data is generated from hours_per_consumer
+    
+    @param request: http
+    Args:
+        {
+            u'byMonth': u'11,2012', (optional)
+            u'contract_number': u'All',
+            u'env': u'All',
+            u'rhic': u'null'
+            u'startDate': u'11/01/2012' (optional)
+            u'endDate': u'11/30/2012', (optional)
+        }
 
-    '''
+    Returns:
+    {
+        "start": "Thu Nov 01 00:00:00 2012", 
+        "account": "1190457", 
+        "end": "Fri Nov 30 00:00:00 2012", 
+        "list": [
+          [
+            {
+              "count": 168, 
+              "end": 1354251600, 
+              "contract_id": "3116649", 
+              "contract_use": 20, 
+              "support": "l1-l3", 
+              "sla": "prem", 
+              "start": 1351742400, 
+              "compliant": false, 
+              "filter_args_dict": "{\"memtotal__gt\": 0, \"product\": [\"69\"],
+                \"contract_id\": \"3116649\", \"support\": \"l1-l3\",
+                \"memtotal__lt\": 8388608, \"consumer_uuid\":
+                \"fea363f5-af37-4a23-a2fd-bea8d1fff9e8\", \"sla\": \"prem\"}", 
+              "engineering_id": "[u'69']", 
+              "nau": "1", 
+              "facts": "< 8GB", 
+              "product_config": "{\"calculation\": \"hourly\",
+                \"memtotal\": {\"low_gt\": 0, \"low_lt\": 8388608, 
+                \"rule\": \"0 > 8388608; 8388608 > 83886080\", 
+                \"high_desc\": \"> 8GB\", \"high_gt\": 8388608, 
+                \"high_lt\": 83886080, \"low_desc\": \"< 8GB\"}, 
+                \"cpu\": [], \"cpu_sockets\": []}", 
+              "sub_hours": 696, 
+              "product_name": "RHEL Server", 
+              "rhic": "rhel-server-jboss-1190457-3116649-prem-l1-l3"
+            } 
+        ]
+      }
+
+    """
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
@@ -356,6 +457,10 @@ def report_ui20(request):
 
 
 def systemFactCompliance(request):
+    """
+    Search through ReportData.objects and find any objects that do not meet the
+    criteria in the business rules as defined in 
+    """
     rules = Rules()
     report_biz_rules = rules.get_rules()
 

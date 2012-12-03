@@ -24,7 +24,7 @@ from rhic_serve.common.tests import BaseMongoTestCase
 from rhic_serve.rhic_rest.models import RHIC, Account
 from splice.common.models import ProductUsage
 
-from report_server.common.custom_count import Rules
+from report_server.common.biz_rules import Rules
 from report_server.common import config
 from report_server.common import constants
 from report_server.common.products import Product_Def
@@ -312,7 +312,7 @@ class ReportTestCase(BaseReportTestCase):
         self.assertEqual(len(results), (len(products_dict) -1 ), "correct number of results returned")
         results_product_list = []
         for r in results:
-            self.assertEqual(r[0]['checkins'], '1', "number of checkins is accurate")
+            self.assertEqual(r[0]['nau'], '1', "number of checkins is accurate")
             results_product_list.append(r[0]['product_name'])
         
         intersect = set(results_product_list).intersection(products_dict.keys())

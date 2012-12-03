@@ -9,34 +9,39 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-
+#future import must be first
 from __future__ import division
-import logging
+
+from datetime import datetime, timedelta
+from mongoengine import OperationError
+from report_server.common import config
+from report_server.common import constants
 from report_server.sreport.models import ReportData, ReportDataDaily, ImportHistory
 from report_server.sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
-from datetime import datetime, timedelta
-from mongoengine import OperationError
 from sets import Set
-from report_server.common import config
-from report_server.common import constants
+import logging
 
 _LOG = logging.getLogger("sreport.import_util")
 
-def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", force_import=False):
+
+def import_data(product_usage=[],
+                checkin_interval=1,
+                from_splice_server="NA",
+                force_import=False):
     """
     @param product_usage
-    @type mongoengine cursor 
-    
+    @type mongoengine cursor
+
     @param checkin_interval
     @type int
     @description the interval between client checkins range 1-23, 24=daily
-    
+
     @return dict w/ keys start, end to measure how long the import took
-    @rtype dict 
+    @rtype dict
     """
-    #config fail/pass on missing rhic
+    # config fail/pass on missing rhic
     if not product_usage:
         product_usage = ProductUsage.objects.all()
     start_stop_time = []
@@ -44,15 +49,16 @@ def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", f
     total_import_count = len(product_usage)
     remaining_import_count = total_import_count
 
-    #debug
+    # debug
     start = datetime.utcnow()
-    
+
     time = {}
     time['start'] = start.strftime(constants.full_format)
-    
+
     time_now = datetime.utcnow()
     last_import_threshhold = time_now - timedelta(minutes=45)
-    last_import =  ImportHistory.objects.filter(date__gt=last_import_threshhold).count()
+    last_import = ImportHistory.objects.filter(
+        date__gt=last_import_threshhold).count()
     if last_import > 0 and force_import == False:
         time['end'] = -1
         start_stop_time.append(time)
@@ -61,7 +67,6 @@ def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", f
     else:
         record = ImportHistory(date=start, splice_server=from_splice_server)
         record.save()
-        
 
     # committing every 100 records instead of every 1 record saves about 5
     # seconds.
@@ -69,7 +74,7 @@ def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", f
     cached_rhics = {}
     cached_contracts = {}
     rds = {}
-    
+
     for pu in product_usage:
         uuid = pu.consumer
 
@@ -83,7 +88,7 @@ def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", f
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
                 continue
-            
+
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()
 
@@ -105,8 +110,8 @@ def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", f
         # of ReportData
         for product in contract.products:
             # Match on sla and support level
-            if not (product.sla == rhic.sla and 
-               product.support_level == rhic.support_level):
+            if not (product.sla == rhic.sla and
+                    product.support_level == rhic.support_level):
                 continue
 
             # Set of engineering ids for this product.
@@ -119,106 +124,96 @@ def import_data(product_usage=[], checkin_interval=1, from_splice_server="NA", f
                 # This line isn't technically necessary, but it improves
                 # performance by making the set we need to search smaller each
                 # time.
-                product_set.difference_update(product_eng_id_set) 
+                product_set.difference_update(product_eng_id_set)
                 splice_server = SpliceServer.objects.get(uuid=pu.splice_server)
-                
-                
-                #Daily checkins for Max Consumption
-                #If there is at least one checkin.. product is considered consumed for the day
+
+                # Daily checkins for Max Consumption
+                # If there is at least one checkin.. product is considered
+                # consumed for the day
                 if checkin_interval == 24:
-                    rd = ReportDataDaily(instance_identifier = str(pu.instance_identifier),
-                                    consumer = rhic.name, 
-                                    consumer_uuid = uuid,
-                                    product = product.engineering_ids,
-                                    product_name = product.name,
-                                    date = pu.date,
-                                    day = pu.date.strftime(constants.day_fmt),
-                                    sla = product.sla,
-                                    support = product.support_level,
-                                    contract_id = rhic.contract,
-                                    contract_use = str(product.quantity),
-                                    memtotal = int(pu.facts['memory_dot_memtotal']),
-                                    cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                                    cpu = int(pu.facts['lscpu_dot_cpu(s)']),
-                                    environment = str(splice_server.environment),
-                                    splice_server = str(splice_server.hostname),
-                                    record_identifier = rhic.name + str(pu.instance_identifier) + pu.date.strftime(constants.hr_fmt) + product.name
-                                    )
-                    '''
-                    # If there's a dupe, log it instead of saving a new record.
-                    dupe = ReportDataDaily.objects.filter(
-                        consumer_uuid=str(rhic.uuid), 
+                    rd = ReportDataDaily(
                         instance_identifier=str(pu.instance_identifier),
+                        consumer=rhic.name,
+                        consumer_uuid=uuid,
+                        product=product.engineering_ids,
+                        product_name=product.name,
+                        date=pu.date,
                         day=pu.date.strftime(constants.day_fmt),
-                        product= product.engineering_ids)
-                    if dupe:
-                        _LOG.info("found dupe:" + str(pu))
-                    else:
-                        _LOG.info('recording: ' + str(product.engineering_ids))
-                        rd.save()
-                    '''
+                        sla=product.sla,
+                        support=product.support_level,
+                        contract_id=rhic.contract,
+                        contract_use=str(product.quantity),
+                        memtotal=int(
+                            pu.facts['memory_dot_memtotal']),
+                        cpu_sockets=int(
+                            pu.facts['lscpu_dot_cpu_socket(s)']),
+                        cpu=int(pu.facts['lscpu_dot_cpu(s)']),
+                        environment=str(
+                            splice_server.environment),
+                        splice_server=str(
+                            splice_server.hostname),
+                        record_identifier=rhic.name + 
+                            str(pu.instance_identifier) + 
+                            pu.date.strftime(constants.hr_fmt) +
+                            product.name
+                    )
+
                     try:
                         rd.save(safe=True)
                         _LOG.info('recording: ' + str(product.engineering_ids))
                     except OperationError as oe:
-                        _LOG.info("could not import:" + str(pu) + "Exception: "+ str(oe))
+                        _LOG.info("could not import:" +
+                                  str(pu) + "Exception: " + str(oe))
                         quarantined.append(rd)
-     
-                        
-                else: 
+
+                else:
                     for interval in range(checkin_interval):
                         td = timedelta(hours=interval)
                         this_time = pu.date + td
-                        rd = ReportData(instance_identifier = str(pu.instance_identifier),
-                                        consumer = rhic.name, 
-                                        consumer_uuid = uuid,
-                                        product = product.engineering_ids,
-                                        product_name = product.name,
-                                        date = this_time,
-                                        hour = this_time.strftime(constants.hr_fmt),
-                                        day = pu.date.strftime(constants.day_fmt),
-                                        sla = product.sla,
-                                        support = product.support_level,
-                                        contract_id = rhic.contract,
-                                        contract_use = str(product.quantity),
-                                        memtotal = int(pu.facts['memory_dot_memtotal']),
-                                        cpu_sockets = int(pu.facts['lscpu_dot_cpu_socket(s)']),
-                                        cpu = int(pu.facts['lscpu_dot_cpu(s)']),
-                                        environment = str(splice_server.environment),
-                                        splice_server = str(splice_server.hostname),
-                                        duplicate = interval,
-                                        record_identifier = rhic.name + str(pu.instance_identifier) + pu.date.strftime(constants.day_fmt) + product.name
-                                        )
-                        '''
-                        # If there's a dupe, log it instead of saving a new record.
-                        dupe = ReportData.objects.filter(
-                            consumer_uuid=str(rhic.uuid), 
+                        rd = ReportData(
                             instance_identifier=str(pu.instance_identifier),
-                            hour=this_time.strftime(constants.hr_fmt),
-                            product= product.engineering_ids)
-                        if dupe:
-                            _LOG.info("found dupe:" + str(pu))
-                            if interval == 0 and dupe[0].duplicate > 0:
-                                _LOG.info("The duplicate is superseded by a real checkin :" + str(pu))
-                                dupe.delete()
-                                rd.save()
-                        else:
-                            _LOG.info('recording: ' + str(product.engineering_ids))
-                            rd.save()
-                        '''
+                            consumer=rhic.name,
+                            consumer_uuid=uuid,
+                            product=product.engineering_ids,
+                            product_name=product.name,
+                            date=this_time,
+                            hour=this_time.strftime(
+                                constants.hr_fmt),
+                            day=pu.date.strftime(
+                                constants.day_fmt),
+                            sla=product.sla,
+                            support=product.support_level,
+                            contract_id=rhic.contract,
+                            contract_use=str(product.quantity),
+                            memtotal=int(
+                                pu.facts['memory_dot_memtotal']),
+                            cpu_sockets=int(
+                                pu.facts['lscpu_dot_cpu_socket(s)']),
+                            cpu=int(
+                                pu.facts['lscpu_dot_cpu(s)']),
+                            environment=str(
+                                splice_server.environment),
+                            splice_server=str(
+                                splice_server.hostname),
+                            duplicate=interval,
+                            record_identifier=rhic.name + 
+                                str(pu.instance_identifier) +
+                                pu.date.strftime(constants.day_fmt) +
+                                product.name
+                        )
+
                         try:
                             rd.save(safe=True)
-                            _LOG.info('recording: ' + str(product.engineering_ids))
+                            _LOG.info(
+                                'recording: ' + str(product.engineering_ids))
                         except OperationError as oe:
-                            _LOG.info("could not import:" + str(pu) + "Exception: "+ str(oe))
+                            _LOG.info("could not import:" +
+                                      str(pu) + "Exception: " + str(oe))
                             quarantined.append(rd)
 
-                        
-
-    
     end = datetime.utcnow()
     time['end'] = end.strftime(constants.full_format)
     start_stop_time.append(time)
     _LOG.info('import complete')
-    
+
     return quarantined, start_stop_time

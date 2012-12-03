@@ -25,7 +25,7 @@ from mongoengine.connection import connect, disconnect
 from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField,\
     IntField
-from report_server.common.custom_count import Rules
+from report_server.common.biz_rules import Rules
 from report_server.common import constants
 from report_server.common.products import Product_Def
 from report_server.common.utils import datespan

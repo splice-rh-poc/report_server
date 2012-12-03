@@ -9,13 +9,13 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-
+from splice.common.config import CONFIG
 import ConfigParser
 import logging
 
-from splice.common.config import CONFIG
 
 _LOG = logging.getLogger(__name__)
+
 
 def get_rhic_serve_config_info():
     return {
@@ -24,16 +24,18 @@ def get_rhic_serve_config_info():
         "user": CONFIG.get("rhic_serve", "username"),
         "passwd": CONFIG.get("rhic_serve", "password")
     }
-    
+
+
 def get_import_info():
     if CONFIG.get("import", "continue_on_error") is None:
         CONFIG.set("import", "continue_on_error", "0")
     return {
         "continue_on_error": CONFIG.get('import', 'continue_on_error'),
-        'bulk_load': CONFIG.get('import', 'bulk_load')    
-        }
+        'bulk_load': CONFIG.get('import', 'bulk_load')
+    }
+
 
 def get_nau():
     return {
-            'calculation': CONFIG.get('nau', 'calculation')
-        }
+        'calculation': CONFIG.get('nau', 'calculation')
+    }

@@ -10,18 +10,20 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from __future__ import division
-import logging
-
+from report_server.common.products import Product_Def
+from report_server.common.biz_rules import Rules
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
-from report_server.common.products import Product_Def
-from report_server.common.custom_count import Rules
-
+import logging
 
 _LOG = logging.getLogger(__name__)
 
 
-def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, environment="All"):
+def hours_per_consumer(start,
+                       end,
+                       list_of_rhics=None,
+                       contract_number=None,
+                       environment="All"):
     results = []
     
     rules = Rules()
@@ -48,14 +50,18 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
         list_of_products = get_list_of_products(account_num, contract_num)
         products_contract = [(prod.name) for prod in list_of_products]
         
-        
         intersect = set(products_contract).intersection(set(rhic.products))
         
-
         for p in (p for p in list_of_products if p.name in intersect): 
             # _LOG.info(p.name, p.sla, p.support_level)
             results_dicts = []
-            results_dicts = Product_Def.get_count(p, rhic, start, end, contract_num, environment, report_biz_rules)
+            results_dicts = Product_Def.get_count(p,
+                                                  rhic,
+                                                  start,
+                                                  end,
+                                                  contract_num,
+                                                  environment,
+                                                  report_biz_rules)
             if results_dicts:
                 for result in results_dicts:
                     rhic_list.append(result)
@@ -64,7 +70,7 @@ def hours_per_consumer(start, end, list_of_rhics=None, contract_number=None, env
     return results
 
 
-def get_list_of_products(account_num, contract_num ):
+def get_list_of_products(account_num, contract_num):
     contract_list = Account.objects.filter(account_id=account_num)[0].contracts
     for contract in contract_list:
         if contract.contract_id == contract_num:

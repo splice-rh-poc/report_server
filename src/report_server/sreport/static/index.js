@@ -878,7 +878,7 @@ function populateReport(rtn) {
                 row.append($('<td>' + product.support + '</td>'));
                 row.append($('<td>' + product.facts + '</td>'));
                 row.append($('<td>' + product.contract_use + '</td>'));
-                row.append($('<td>' + product.checkins + '</td>'));
+                row.append($('<td>' + product.nau + '</td>'));
                 
                 if(product.compliant){
                 	//row.append($('<td bgcolor="#00FF00">' + product.compliant + '</td>'));

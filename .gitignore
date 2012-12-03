@@ -13,4 +13,5 @@ selinux/*.pp.targetted
 *.idea
 src/report_server/report_server.wpr
 src/report_server/report_server.wpu
+playpen/curl_log
 

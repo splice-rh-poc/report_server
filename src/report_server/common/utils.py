@@ -8,6 +8,8 @@
 # NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+
 from __future__ import division
 from datetime import datetime, timedelta
 import logging
@@ -17,24 +19,20 @@ import json
 _LOG = logging.getLogger(__name__)
 
 
-
-def find_item(f, seq):
-    """Return first item in sequence where f(item) == True."""
-    for item in seq:
-        if f(item): 
-            return item
-
 def datespan_by_hour(startDate, endDate):
     return datespan(startDate, endDate)
 
+
 def datespan_by_day(startDate, endDate):
     return datespan(startDate, endDate, delta=timedelta(days=1))
+
 
 def get_datespan(startDate, endDate, product_config):
     if product_config['calculation'] == 'hourly':
         return datespan_by_hour(startDate, endDate)
     if product_config['calculation'] == 'daily':
         return datespan_by_day(startDate, endDate)
+        
         
 def datespan(startDate, endDate, delta=timedelta(hours=1)):
     currentDate = startDate
@@ -45,7 +43,7 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
     while currentDate < endDate:
         hours_for_sub[currentDate.month] = {}
         hours_for_sub[currentDate.month]['start'] = startDate
-        if (currentDate + delta).month > currentDate.month :
+        if (currentDate + delta).month > currentDate.month:
             sub = count 
             
             hours_for_sub[currentDate.month]['hours_for_sub'] = sub
@@ -67,23 +65,26 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
     _LOG.debug('total hours:', total_hours)
     return total_hours
 
+
 def subscription_calc(count, start, end, product_config):
     if product_config['calculation'] == 'hourly':
         hours_for_sub = datespan_by_hour(start, end) 
     if product_config['calculation'] == 'daily':
         hours_for_sub = datespan_by_day(start, end) 
     
-    nau = count/hours_for_sub
+    nau = count / hours_for_sub
     nau = math.ceil(nau)
     return nau
+
 
 def get_date_epoch(date):
     '''
     return python epoch time * 1000 for javascript 
     '''
     
-    epoch =  (int(date.strftime("%s")))
+    epoch = (int(date.strftime("%s")))
     return epoch
+
 
 def get_date_object(epoch_int):
     '''
@@ -116,7 +117,7 @@ class MongoEncoder(json.JSONEncoder):
             return list(obj)
         elif isinstance(obj, types.ModuleType):
             return None
-        elif isinstance(obj, (list,dict)):
+        elif isinstance(obj, (list, dict)):
             return obj
         elif isinstance(obj, datetime):
             return str(obj)
@@ -128,4 +129,3 @@ class MongoEncoder(json.JSONEncoder):
 
 def to_json(obj):
     return json.dumps(obj, cls=MongoEncoder, indent=2)
-

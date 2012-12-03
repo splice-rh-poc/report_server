@@ -25,7 +25,7 @@ from report_server.sreport.models import ReportData
 from report_server.sreport.models import SpliceServer, ProductUsage
 from report_server.common.import_util import import_data
 from report_server.common import config
-from report_server.common.custom_count import Rules
+from report_server.common.biz_rules import Rules
 from report_server.common import constants
 from report_server.sreport.tests.general import BaseReportTestCase
 from rhic_serve.rhic_rest.models import RHIC, Account

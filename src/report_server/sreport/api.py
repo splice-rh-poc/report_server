@@ -53,7 +53,9 @@ class ProductUsageResource(productusage.ProductUsageResource):
     def import_hook(self, product_usage):
         _LOG.debug("in import_hook")
         items_not_imported, start_stop_time = import_util.import_data(
-            product_usage, force_import=True)
+            product_usage,
+            force_import=True
+        )
         _LOG.debug(
             "items_not_imported length: " + str(len(items_not_imported)))
         for i in items_not_imported:

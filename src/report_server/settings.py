@@ -17,7 +17,7 @@ from mongoengine.connection import register_connection
 from splice.common import config
 from splice.common.settings import *
 
-from report_server.common.custom_count import Rules
+from report_server.common.biz_rules import Rules
 
 MONGO_DATABASE_NAME = config.CONFIG.get('report_server', 'db_name')
 MONGO_DATABASE_HOST = config.CONFIG.get('report_server', 'db_host')
