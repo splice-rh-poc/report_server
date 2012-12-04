@@ -31,4 +31,3 @@ TEMPLATE_DIRS = (
 )
 
 TEMPLATE_DEBUG = True
-

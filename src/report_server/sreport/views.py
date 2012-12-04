@@ -422,21 +422,30 @@ def report_ui20(request):
     if rhic != 'null':
         my_uuid = data['rhic']
         list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(
-            start, end, list_of_rhics, environment=environment)
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
 
     elif contract != 'null':
         if contract == "All":
             list_of_rhics = list(RHIC.objects.filter(account_id=account))
-            results = hours_per_consumer(start, end, list_of_rhics=list_of_rhics, environment=environment)
+            results = hours_per_consumer(start,
+                                         end, 
+                                         list_of_rhics=list_of_rhics,
+                                         environment=environment)
         else:
-            results = hours_per_consumer(
-                start, end, contract_number=contract, environment=environment)
+            results = hours_per_consumer(start,
+                                         end,
+                                         contract_number=contract,
+                                         environment=environment)
 
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(
-            start, end, list_of_rhics=list_of_rhics, environment=environment)
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
 
     format = constants.full_format
 

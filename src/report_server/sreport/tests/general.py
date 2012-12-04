@@ -20,7 +20,7 @@ from django.test import TestCase
 from mongoengine.connection import connect
 from mongoengine import connection, register_connection
 
-from rhic_serve.common.tests import BaseMongoTestCase
+from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
 from rhic_serve.rhic_rest.models import RHIC, Account
 from splice.common.models import ProductUsage
 
@@ -93,6 +93,15 @@ class BaseReportTestCase(BaseMongoTestCase):
                   '-c', collection, '--file', 
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)
+
+class BaseMongoApiTestCase(MongoApiTestCase):
+    def setUp(self):
+        username = 'shadowman@redhat.com'
+        password = 'shadowman@redhat.com'
+        self.login()
+
+    def login(self):
+        self.client.login(username=self.username, password=self.password)
 
 
 class ReportTestCase(BaseReportTestCase):

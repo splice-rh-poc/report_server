@@ -272,3 +272,26 @@ class TestData():
         if save:
             pu.save(cascade=True)
         return pu
+    
+    @staticmethod
+    def create_product_usage_json(
+                                instance_identifier='00:11',
+                                product_pem='69',
+                                cpu='1',
+                                socket='1',
+                                memory='604836'
+                                ):
+        entry = {
+            "_types": ["ProductUsage", "ProductUsage.ProductUsage"],
+            "splice_server": "test01",
+            "allowed_product_info": [product_pem],
+            "unallowed_product_info": [],
+            "date": {"$date": 1352424600000},
+            "_cls": "ProductUsage.ProductUsage",
+            "instance_identifier": instance_identifier,
+            "facts": {"lscpu_dot_cpu(s)": cpu,
+                      "memory_dot_memtotal": memory,
+                      "lscpu_dot_cpu_socket(s)": socket},
+            "consumer": "fea363f5-af37-4a23-a2fd-bea8d1fff9e8"
+        }
+        return entry
