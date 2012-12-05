@@ -25,10 +25,11 @@ class MaxUsage:
 
     @staticmethod
     def get_MDU_MCU(start, end, filter_args, product_name):
+        currentDate = start
         count_list = []
         f = filter_args
         delta = timedelta(days=1)
-        currentDate = start
+        
         calculation = 'hourly'
         results = []
         mdu_count = []
@@ -79,7 +80,13 @@ class MaxUsage:
 
             currentDate += delta
 
-        return results, mdu_count, mcu_count, daily_contract, date
+        payload = {"list": results,
+                   "mdu": mdu_count,
+                   "mcu": mcu_count,
+                   "daily_contract": daily_contract,
+                   "date": date
+                   }
+        return payload
 
     @staticmethod
     def get_MCU_Compliant(start, end, filter_args, product_name):

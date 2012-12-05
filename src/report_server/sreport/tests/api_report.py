@@ -50,6 +50,7 @@ class ReportDataTest(BaseMongoApiTestCase):
                                     data=query,
                                     format='json')
         self.assertEqual(200, resp.status_code, 'http status code is expected')
-        self.assertContains(resp, '"instance_identifier": "00:11"',\
+        self.assertContains(resp,
+                            '"instance_identifier": "00:11"',
                             count=1, status_code=200) 
 """

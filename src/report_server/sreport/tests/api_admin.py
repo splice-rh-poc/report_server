@@ -69,6 +69,9 @@ class ImportAPITest(BaseReportTestCase):
                          'product_usuage successfully imported')
         self.assertEqual(0, QuarantinedReportData.objects.all().count(),
                          'asserted 1 product usuage quarantined')
+        
+        
+        
 
 
 class QuarantinedDataTest(BaseReportTestCase):

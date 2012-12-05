@@ -22,6 +22,7 @@ from django.test import TestCase
 from django.conf import settings
 from logging import getLogger
 from mongoengine.connection import connect, disconnect
+from mongoengine import connection, register_connection
 from mongoengine.queryset import QuerySet
 from mongoengine import Document, StringField, ListField, DateTimeField,\
     IntField
@@ -35,11 +36,13 @@ from report_server.common import config
 from report_server.sreport.models import ReportData, ReportDataDaily, MyQuerySet
 from report_server.sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
+from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
 from splice.common.models import ProductUsage
 
 
 LOG = getLogger(__name__)
 # this_config = config.get_import_info()
+
 
 '''
 Currently the unit tests required that the rhic_serve database has been
@@ -57,7 +60,6 @@ Example of running these unit tests from $checkout/src
 #python manage.py test sreport --settings=dev.settings -v 3
 
 '''
-
 
 class ReportData(ReportData):
     db_name = settings.MONGO_DATABASE_NAME
@@ -141,7 +143,12 @@ class TestData():
     PRODUCTS_DICT = PRODUCTS_DICT
 
     @staticmethod
-    def create_entry(product, mem_high=True, date=None, socket=4, cpu=4):
+    def create_entry(product,
+                     mem_high=True,
+                     date=None,
+                     socket=4,
+                     cpu=4,
+                     instance_identifier="12:31:3D:08:49:00"):
         rules = Rules()
         report_biz_rules = rules.get_rules()
         if not date:
@@ -153,7 +160,7 @@ class TestData():
 
         if interval == 'hourly':
             row = ReportData(
-                instance_identifier="12:31:3D:08:49:00",
+                instance_identifier=instance_identifier,
                 date=date,
                 hour=this_hour,
                 day=this_day,
@@ -162,7 +169,7 @@ class TestData():
             )
         elif interval == 'daily':
             row = ReportDataDaily(
-                instance_identifier="12:31:3D:08:49:00",
+                instance_identifier=instance_identifier,
                 date=date,
                 day=this_day,
                 environment="us-east-1",
@@ -182,7 +189,7 @@ class TestData():
                 row['contract_use'] = "20"
                 row['cpu_sockets'] = socket
                 row['cpu'] = cpu
-                row['record_identifier'] = str(value[2]) + "12:31:3D:08:49:00"\
+                row['record_identifier'] = str(value[2]) + instance_identifier\
                     + str(date) + str(value[0])
 
         if mem_high:

@@ -580,20 +580,12 @@ def max_report(request):
     description = request.POST['description']
     product_name = description.split(',')[0].split(':')[1].strip()
 
-    results, mdu, mcu, daily_contract, date = MaxUsage.get_MDU_MCU(
-        start, end, filter_args_dict, product_name)
-
-    response_data = {}
-    response_data['list'] = results
-    response_data['start'] = get_date_epoch(
-        start)  # start.int(date.strftime("%s")) * 1000
+    response_data = MaxUsage.get_MDU_MCU(start, end, filter_args_dict, product_name)
+    
+    # start.int(date.strftime("%s")) * 1000
+    response_data['start'] = get_date_epoch(start) 
     response_data['end'] = get_date_epoch(end)
-                                          # end.int(date.strftime("%s")) * 1000
-    response_data['mdu'] = mdu
-    response_data['mcu'] = mcu
-    response_data['date'] = date
     response_data['description'] = description
-    response_data['daily_contract'] = daily_contract
     response_data['filter_args'] = json.dumps(filter_args_dict)
 
     try:
