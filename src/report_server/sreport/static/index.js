@@ -42,7 +42,7 @@ $(document).ready(function() {
     });
 
     $('#rhic').change(function() {
-        $('#contract').val('null').trigger('liszt:updated');
+        //$('#contract').val('null').trigger('liszt:updated');
     });
 
     $("#byMonth").change(function() {
@@ -62,6 +62,10 @@ $(document).ready(function() {
         $('#import_button').addClass('disabled');
         $('#import_button').off("click");
     }
+
+    $("#contract").button().change(function () {
+        updateListOfRHICS();
+    });
 
     /*
     $("#export").button().click(function() {
@@ -218,6 +222,41 @@ function setupCreateForm() {
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });
+}
+
+function updateListOfRHICS() {
+
+    // Have to stop url from changing so disable default event
+    event.preventDefault();
+    $('#rhic').attr('disabled', false);
+
+    // validating the form is no longer required
+    //if (logged_in && validateForm()) {
+    if (logged_in) {
+        // Build up var
+        var data = {};
+        data['contract_number'] = $('#contract').val();
+
+    $.ajax({
+        url: '/report-server/ui20/report_form_rhics/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: data,
+        crossDomain: false,
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    }).done(function(data) {
+            change_rhic_form(JSON.parse(data));
+            $('#rhic').chosen();
+            $('#rhic').trigger("liszt:updated");
+
+        }).fail(function(jqXHR) {
+            // TODO: Add error handling here
+        });
+    }
 }
 
 
@@ -539,7 +578,7 @@ function createInstanceDetail(date, instance, filter_args) {
 
 function createQuarantineReport() {
     var data = {};
-    $('#admin_report').empty()
+    $('#admin_report').empty();
     $.ajax({
         url: '/report-server/ui20/quarantine/',
         type: 'POST',
@@ -564,7 +603,7 @@ function createQuarantineReport() {
 
 function createFactComplianceReport() {
     var data = {};
-    $('#admin_report').empty()
+    $('#admin_report').empty();
 
     $.ajax({
         url: '/report-server/ui20/fact_compliance/',
@@ -707,6 +746,15 @@ function setupLoginForm() {
     });
 }
 
+function change_rhic_form(data){
+    $('#rhic').empty();
+    $('#rhic').append($('<option selected value=null></option>'));
+    $('#rhic').append($('<option selected value=All>All</option>'));
+    jQuery.each(data.list_of_rhics, function(index, ele) {
+        $('#rhic').append($('<option value=' + ele[0] + '>' + ele[1] + '</option>'));
+    });
+}
+
 function fill_create_report_form(data) {
     // Clear outdated elements
 	$('#byMonth').empty();
@@ -738,7 +786,7 @@ function fill_create_report_form(data) {
 
     var d = new Date();
     var n = d.getMonth() + 1;
-    var year = d.getFullYear()
+    var year = d.getFullYear();
     var month=new Array();
     month[1]="Jan";
     month[2]="Feb";
@@ -831,8 +879,8 @@ function populateReport(rtn) {
     // cleanup first
     pane.empty();
     
-    pane.append('<h3>Date Range: ' + rtn.start.substr(0,10) + ' ----> ' + rtn.end.substr(0,10) + '</h3>')
-    pane.append('<br><br>')
+    pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
+    pane.append('<br><br>');
 
     if (rtn.list.length > 0) {
         for (var rhic_index in rtn.list) {
@@ -1087,10 +1135,10 @@ function populateMaxReport(rtn) {
         var date = rtn.date;
         var mdu = rtn.mdu;
         var mcu = rtn.mcu;
-        var contract = rtn.daily_contract
-        var filter_args = rtn.filter_args
+        var contract = rtn.daily_contract;
+        var filter_args = rtn.filter_args;
         
-        var date_length = date.length
+        var date_length = date.length;
         
         
         //var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
@@ -1161,12 +1209,12 @@ function populateMaxReport(rtn) {
         pane.append('<b>Maximum Concurrent Usage (MCU)</b><br>');
         pane.append('<b>Contracted Use: This is the number of concurrent entitlements purchased in the contract</b>');
         
-        pane.append('<br><br>')
+        pane.append('<br><br>');
         //pane.append('<h3>Details:</h3>');
         
         //pane.append('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
         var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-        pane.append(show_details)
+        pane.append(show_details);
         //pane.append('<button id=hide_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Hide Details</button>');
         //var hide_details = $('<button id=hide_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Hide Details</button>');
         var mydata = rtn.list;

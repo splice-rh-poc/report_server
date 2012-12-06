@@ -72,7 +72,10 @@ def report(request):
         year = int(month_year[1])
         year = datetime.today().year
         start = datetime(year, month, 1)
-        end = datetime(year, month + 1, 1) - timedelta(days=1)
+        if month == 12:
+            end = datetime(year, 1, 1) - timedelta(days=1)
+        else:
+            end = datetime(year, month + 1, 1) - timedelta(days=1)
     else:
 
         startDate = request.GET['startDate'].encode('ascii').split("%2F")
@@ -85,29 +88,35 @@ def report(request):
         environment = request.GET['env']
     else:
         environment = "All"
-
+        
+    rhic = request.GET['rhic']
+    contract = request.GET['contract_number']    
     list_of_rhics = []
-    if request.GET['rhic'] != 'null':
-        my_uuid = request.GET['rhic']
-        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(
-            start, end, list_of_rhics, environment=environment)
+    
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
 
-    elif 'contract_number' in request.GET:
-        contract = request.GET['contract_number']
-        if contract == "All":
-            list_of_rhics = list(RHIC.objects.filter(account_id=account))
-            results = hours_per_consumer(start, end,
-                                         list_of_rhics=list_of_rhics,
-                                         environment=environment)
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
         else:
-            results = hours_per_consumer(
-                start, end, contract_number=contract, environment=environment)
+            my_uuid = rhic
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
 
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(
-            start, end, list_of_rhics=list_of_rhics, environment=environment)
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
 
     format = constants.full_format
 
@@ -289,6 +298,55 @@ def report_form_ui20(request):
     return response
 
 
+@login_required
+def report_form_rhics(request):
+    """
+    Update the rhic select box based on the selection of the contract
+
+    @param request: http
+    """
+
+    _LOG.info("report_form_rhics called by method: %s" % (request.method))
+
+    if request.method == 'POST':
+        form = ProductUsageForm(request.POST)
+        if form.is_valid():
+            pass
+        else:
+            form = ProductUsageForm()
+
+            
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    if request.POST['contract_number'] == "All":
+            list_of_rhics = list(RHIC.objects.filter(account_id=account))    
+    else:
+        contract_number = json.loads(request.POST['contract_number'])
+        list_of_rhics = list(RHIC.objects.filter(contract=str(contract_number)))
+        
+    #list_of_rhics = list(RHIC.objects.all())
+
+
+    # since some item(s) are not json-serializable,
+    # extract info we need and pass it along
+    # i.e. r.uuid
+
+    response_data = {}
+    response_data['list_of_rhics'] = [(str(r.uuid), r.name)
+                                      for r in list_of_rhics]
+
+    _LOG.info(response_data)
+
+    try:
+        response = HttpResponse(utils.to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+
 def detailed_report_ui20(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
@@ -402,7 +460,10 @@ def report_ui20(request):
         year = int(month_year[1])
         year = datetime.today().year
         start = datetime(year, month, 1)
-        end = datetime(year, month + 1, 1) - timedelta(days=1)
+        if month == 12:
+            end = datetime(year, 1, 1) - timedelta(days=1)
+        else:
+            end = datetime(year, month + 1, 1) - timedelta(days=1)
     if 'startDate' in data:
         startDate = data['startDate'].split("/")
         endDate = data['endDate'].split("/")
@@ -417,28 +478,25 @@ def report_ui20(request):
 
     rhic = data['rhic']
     contract = data['contract_number']
-
     list_of_rhics = []
-    if rhic != 'null':
-        my_uuid = data['rhic']
-        list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+    
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = data['rhic']
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
         results = hours_per_consumer(start,
                                      end,
                                      list_of_rhics,
                                      environment=environment)
-
-    elif contract != 'null':
-        if contract == "All":
-            list_of_rhics = list(RHIC.objects.filter(account_id=account))
-            results = hours_per_consumer(start,
-                                         end, 
-                                         list_of_rhics=list_of_rhics,
-                                         environment=environment)
-        else:
-            results = hours_per_consumer(start,
-                                         end,
-                                         contract_number=contract,
-                                         environment=environment)
 
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
