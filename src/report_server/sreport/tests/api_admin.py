@@ -25,6 +25,8 @@ class ImportAPITest(BaseReportTestCase):
         QuarantinedReportData.drop_collection()
 
     def test_post_202(self):
+        self.assertEqual(0, ReportData.objects.all().count(),
+                                 'product_usuage successfully imported')        
         entry = TestData.create_product_usage_json()
         resp = self.api_client.post(
             '/api/v1/productusage/', format='json', data=entry)

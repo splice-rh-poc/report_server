@@ -16,15 +16,19 @@ from report_server.sreport.tests.general import BaseReportTestCase
 from report_server.sreport.tests.general import BaseMongoApiTestCase
 from setup import TestData
 
-"""
-class ReportDataTest(BaseMongoApiTestCase):
+
+class ReportDataTest(BaseReportTestCase):
+    username="shadowman@redhat.com"
+    password="shadowman@redhat.com"
+    
     def setUp(self):
         super(ReportDataTest, self).setUp()
         self.drop_collections()
         
         
     def get_credentials(self):
-        return self.create_basic(username=self.username, password=self.password)    
+        cred =  self.create_basic(username=self.username, password=self.password)
+        return cred
         
 
     def drop_collections(self):
@@ -36,8 +40,8 @@ class ReportDataTest(BaseMongoApiTestCase):
     def test_getlist(self):        
         
         #create json here, a valid entry
-        entry = TestData.create_product_usage_json()
-        resp = self.client.post('/api/v1/productusage/', 
+        entry = TestData.create_product_usage_json(instance_identifier="00:11")
+        resp = self.api_client.post('/api/v1/productusage/', 
                                      format='json',
                                      data=entry)
         self.assertEqual(202, resp.status_code, 'http status code is expected')
@@ -45,12 +49,12 @@ class ReportDataTest(BaseMongoApiTestCase):
         query = {"user": "shadowman@redhat.com", "byMonth": "11,2012",\
                   "contract_number": "All", "rhic": "null", "env": "All"}
         
-        resp = self.client.post('/api/v1/report/', 
-                                    authentication=self.get_default_user(),
+        resp = self.api_client.post('/api/v1/report/?username=shadowman@redhat.com', 
+                                    authentication=self.get_credentials(),
                                     data=query,
-                                    format='json')
+                                    format='json',
+                                    )
         self.assertEqual(200, resp.status_code, 'http status code is expected')
         self.assertContains(resp,
-                            '"instance_identifier": "00:11"',
+                            '"count": 1',
                             count=1, status_code=200) 
-"""
