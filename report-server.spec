@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.41
+Version:	0.42
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,37 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 12 2012 wes hayutin <whayutin@redhat.com> 0.42-1
+- horrible hack for report api test (whayutin@redhat.com)
+- updated report form to cascade changes from contract, fixed dec date bug, and
+  some clean up (whayutin@redhat.com)
+- added mdu/mcu tests (whayutin@redhat.com)
+- adding more api tests (whayutin@redhat.com)
+- refactor / clean up (whayutin@redhat.com)
+- pep8 clean up (whayutin@redhat.com)
+- clean up for pep8 compliance (whayutin@redhat.com)
+- minor fix (whayutin@redhat.com)
+- fixing unit tests.. failing due to pymongo ObjectId on RHEL6
+  (whayutin@redhat.com)
+- minor updates to tests (whayutin@redhat.com)
+- clean up views and api (whayutin@redhat.com)
+- more tests fixes (jslagle@redhat.com)
+- test refactorings (jslagle@redhat.com)
+- Merge branch 'master' into splice-common (jslagle@redhat.com)
+- tests refactorings and fixes (jslagle@redhat.com)
+- basic report returned via api (whayutin@redhat.com)
+- Merge branch 'master' into splice-common (jslagle@redhat.com)
+- Fix broken test (jslagle@redhat.com)
+- Fix broken test (jslagle@redhat.com)
+- Merge branch 'master' into splice-common (jslagle@redhat.com)
+- Remove tests.py now that there is a tests/ (jslagle@redhat.com)
+- Merge branch 'master' into splice-common (jslagle@redhat.com)
+- able to add some api calls (whayutin@redhat.com)
+- adding tests for admin work (whayutin@redhat.com)
+- updates (jslagle@redhat.com)
+- splice-common refactorings (jslagle@redhat.com)
+- Move dev directory under report_server source (jslagle@redhat.com)
+
 * Thu Nov 15 2012 Wes Hayutin
  0.41-1
  <whayutin@redhat.com>
