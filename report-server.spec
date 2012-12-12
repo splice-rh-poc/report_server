@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.42
+Version:	0.43
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -239,6 +239,13 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 12 2012 wes hayutin <whayutin@redhat.com> 0.43-1
+- Automatic commit of package [report-server] release [0.42-1].
+  (whayutin@redhat.com)
+- Moved "SpliceServerResource" back into splice server code base
+  (jmatthews@redhat.com)
+- Add API for Splice Server metadata (jmatthews@redhat.com)
+
 * Wed Dec 12 2012 wes hayutin <whayutin@redhat.com> 0.42-1
 - horrible hack for report api test (whayutin@redhat.com)
 - updated report form to cascade changes from contract, fixed dec date bug, and
