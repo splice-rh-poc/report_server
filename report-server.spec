@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.43
+Version:	0.44
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -236,6 +236,11 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.44-1
+- changed rhic deps to only rhic-serve-rest (whayutin@redhat.com)
+- fixed some new years bugs (whayutin@redhat.com)
+- modified wsgi param for django settings (whayutin@redhat.com)
+
 * Wed Dec 12 2012 wes hayutin <whayutin@redhat.com> 0.43-1
 - Automatic commit of package [report-server] release [0.42-1].
   (whayutin@redhat.com)
