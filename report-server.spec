@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.45
+Version:	0.46
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -238,6 +238,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.46-1
+- try to fix selinux issue (whayutin@redhat.com)
+
 * Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.45-1
 -added rhic-rcs rpm dep
 - 
