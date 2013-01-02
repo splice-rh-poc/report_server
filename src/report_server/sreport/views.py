@@ -714,3 +714,9 @@ def export(request):
             writer.writerow(row)
     # Return CSV file to browser as download
     return response
+
+#####################################################################
+# UI 30 Prototype work
+#####################################################################
+def ui30(request):
+    return template_response(request, 'ui30/index.html')
