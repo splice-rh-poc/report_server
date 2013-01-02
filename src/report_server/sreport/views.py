@@ -458,10 +458,10 @@ def report_ui20(request):
         month_year = data['byMonth'].split(',')
         month = int(month_year[0])
         year = int(month_year[1])
-        year = datetime.today().year
+        #year = datetime.today().year
         start = datetime(year, month, 1)
         if month == 12:
-            end = datetime(year, 1, 1) - timedelta(days=1)
+            end = datetime((year + 1), 1, 1) - timedelta(days=1)
         else:
             end = datetime(year, month + 1, 1) - timedelta(days=1)
     if 'startDate' in data:

@@ -45,7 +45,6 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
         hours_for_sub[currentDate.month]['start'] = startDate
         if (currentDate + delta).month > currentDate.month:
             sub = count 
-            
             hours_for_sub[currentDate.month]['hours_for_sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
             count = 0
@@ -56,13 +55,24 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
             sub = last_month_days 
             hours_for_sub[currentDate.month]['hours_for_sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
+        
+        if (currentDate + delta).month == 1 and currentDate.month == 12:
+            _LOG.debug('plus delta= ' + str((currentDate + delta).month) + ', currentDate = ' + str(currentDate.month))
+            sub = count 
+            hours_for_sub[currentDate.month]['hours_for_sub'] = sub
+            hours_for_sub[currentDate.month]['end'] = currentDate
+            count = 0
+            startDate = currentDate + delta
             
         count += 1
         currentDate += delta
+    
+    _LOG.debug(str(hours_for_sub))  
     for key, value in hours_for_sub.items():
-        _LOG.debug(key, value['start'], value['end'], value['hours_for_sub'])
+        #if 'hours_for_sub' in value:
+            #_LOG.debug(str(key) +  str(value['start']) + str(value['end']) +  str(value['hours_for_sub']))
         total_hours += value['hours_for_sub']
-    _LOG.debug('total hours:', total_hours)
+    _LOG.debug('total hours: ' + str(total_hours))
     return total_hours
 
 
