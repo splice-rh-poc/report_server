@@ -827,8 +827,8 @@ function fill_create_report_form(data) {
     
     $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
     $('#byMonth').append($('<option selected value=' + n + ',' + year +  '>' + month[n] + ' ' + year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_a_month) + ',' + year + '>' + month[date_a_month] + ' ' + date_a_year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_b_month) + ',' + year + '>' + month[date_b_month] + ' '+ date_b_year +'</option>'));
+    $('#byMonth').append($('<option  value=' + (date_a_month) + ',' + date_a_year + '>' + month[date_a_month] + ' ' + date_a_year + '</option>'));
+    $('#byMonth').append($('<option  value=' + (date_b_month) + ',' + date_b_year + '>' + month[date_b_month] + ' '+ date_b_year +'</option>'));
     
     
 }

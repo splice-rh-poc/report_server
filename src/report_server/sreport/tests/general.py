@@ -88,7 +88,7 @@ class BaseReportTestCase(BaseMongoTestCase):
         register_connection('default', MONGO_TEST_DATABASE_NAME)
 
         for collection in ['rhic', 'account', 'splice_server']:
-            print 'importing %s collection' % collection
+            #print 'importing %s collection' % collection
             call(['mongoimport', '--db', MONGO_TEST_DATABASE_NAME,
                   '-c', collection, '--file', 
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
@@ -252,6 +252,29 @@ class ReportTestCase(BaseReportTestCase):
         self.assertEqual(len(results_dicts), 1)
         #dictionary should contain the count of checkins
         self.assertEqual(results_dicts[0]['count'], 2)
+    
+    def test_rhel_data_range_results_60day(self):
+        contract_num = "3116649"
+        environment = "us-east-1"
+        search_date_start = datetime.now() - timedelta(days=60)
+        search_date_end = datetime.now()
+                                                     
+        delta = timedelta(days=10)
+        rhel = TestData.create_entry(RHEL, mem_high=True, date=(datetime.now() - delta))
+        rhel.save()
+        
+        lookup = ReportData.objects.all()
+        self.assertEqual(len(lookup), 2)
+        
+        #test that there are now two objects in the database
+        p = Product.objects.filter(name=RHEL)[0]
+        rhic = RHIC.objects.filter(uuid=products_dict[RHEL][1])[0]
+        results_dicts = Product_Def.get_count(p, rhic, search_date_start, search_date_end, contract_num, environment, report_biz_rules)
+        #lenth of list should be one per product
+        self.assertEqual(len(results_dicts), 1)
+        #dictionary should contain the count of checkins
+        self.assertEqual(results_dicts[0]['count'], 2)
+        
         
     def test_rhel_memory_results(self):
         contract_num = "3116649"
