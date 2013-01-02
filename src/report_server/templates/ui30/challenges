@@ -1,0 +1,2 @@
+How to handle login/logout events?
+  - Can this be handled using RestAPI? If so what do we do with all the old cookie magic from ui20?
