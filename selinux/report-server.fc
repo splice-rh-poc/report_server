@@ -1,7 +1,6 @@
-/etc/splice(/.*)? gen_context(system_u:object_r:httpd_sys_content_t,s0)
 /etc/init.rd/report-server gen_context(system_u:object_r:httpd_initrc_exec_t,s0)
-/srv/report-server/webservices.wsgi gen_context(system_u:object_r:httpd_sys_content_t,s0)
 
+/srv/report-server/webservices.wsgi gen_context(system_u:object_r:httpd_sys_content_t,s0)
 
 # Splice uses python logging to handle logrotate, this requires
 # write/unlink and httpd_log_t only allows httpd_t to append
