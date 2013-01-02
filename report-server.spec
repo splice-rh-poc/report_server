@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.44
+Version:	0.45
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -32,6 +32,8 @@ Requires:   %{name}-import = %{version}-%{release}
 Requires:   %{name}-selinux = %{version}-%{release}
 Requires:   splice-common
 Requires:   rhic-serve-rest
+Requires:   rhic-serve-rcs
+Requires:   rhic-serve-common
 
 
 %description
@@ -236,6 +238,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.45-1
+-added rhic-rcs rpm dep
+- 
+
 * Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.44-1
 - changed rhic deps to only rhic-serve-rest (whayutin@redhat.com)
 - fixed some new years bugs (whayutin@redhat.com)
