@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # Copyright  2012 Red Hat, Inc.
 #
 # This software is licensed to you under the GNU General Public
@@ -16,12 +17,21 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+from mongoengine.connection import register_connection
+import mongoengine
+
+MONGO_DATABASE_NAME = 'results'
+MONGO_DATABASE_NAME_CHECKIN = 'checkin_service'
+MONGO_DATABASE_NAME_RHICSERVE = 'rhic_serve'
+
+# Connect to the mongo databases.
+mongoengine.connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin_service', tz_aware=True)
+mongoengine.connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic_serve', tz_aware=True)
+mongoengine.connect(MONGO_DATABASE_NAME, alias='results', tz_aware=True)
+register_connection('default', MONGO_DATABASE_NAME_RHICSERVE)  
 
 from datetime import datetime, timedelta
-#from django.test import TestCase
-#from django.conf import settings
 from logging import getLogger
-from mongoengine.connection import register_connection
 
 from report_server.common.import_util import import_data
 from report_server.common import config
@@ -31,11 +41,10 @@ from report_server.sreport.tests.general import BaseReportTestCase
 from report_server.sreport.models import ReportData
 from report_server.sreport.models import SpliceServer, ProductUsage
 from rhic_serve.rhic_rest.models import RHIC, Account
-
 from setup import TestData
 from splice.common.models import ProductUsage
 
-import mongoengine
+
 import random
 import string
 import time
@@ -62,15 +71,7 @@ Example of running these unit tests from $checkout/src
 
 '''
 
-MONGO_DATABASE_NAME = 'report_server'
-MONGO_DATABASE_NAME_CHECKIN = 'checkin_service'
-MONGO_DATABASE_NAME_RHICSERVE = 'rhic_serve'
 
-# Connect to the mongo databases.
-mongoengine.connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin_service', tz_aware=True)
-mongoengine.connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic_serve', tz_aware=True)
-mongoengine.connect(MONGO_DATABASE_NAME, alias='results', tz_aware=True)
-register_connection('default', MONGO_DATABASE_NAME_RHICSERVE)  
 
 RHEL = TestData.RHEL
 HA = TestData.HA
@@ -176,6 +177,7 @@ def main():
     now = datetime.now()
     delta_day = timedelta(days=4)
     delta_hour = timedelta(days=3)
+    
     
     for i in range(1, 10):
         this_time = now - (delta_hour * i)

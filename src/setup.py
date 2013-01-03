@@ -15,7 +15,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='RHIC Reporting Server',
+    name='Reporting Server',
     version='0.1',
     license='GPLv2+',
     author='Splice Team - Red Hat',
