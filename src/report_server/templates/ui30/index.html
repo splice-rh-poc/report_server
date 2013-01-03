@@ -1,5 +1,9 @@
 <html>
-	<head></head>
+	<head>
+		<link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
+		<link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet"/>
+		<link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
+	</head>
 	<body>
 		<h1>Report Server 3.0</h1>
 		<script type="text/x-handlebars" data-template-name="application">
@@ -9,6 +13,154 @@
 		<script type="text/x-handlebars" data-template-name="foo-template">
 		</script>
 
+		<div id="outer-wrapper" class="wrapo">
+			<div id="wrapper" class="wrapo">
+				<div id="header-wrap" class="wrapi">
+					<div id="header">
+						<div id="brand">
+							<a id="rhLogo" href="http://www.redhat.com/" title="Go to redhat.com">
+								<img src="https://access.redhat.com/chrome_themes/umbra/g/logo_redhat.png" alt="Red Hat logo">
+							</a>
+						</div>
+
+						<div id="utility">
+							<div id="utility-links">
+								<div id="account-links" class="account-links" style="display:block">
+									<span style="color: #FFFFFF;">
+										<div style="padding: 4 2;">
+											<!-- Login Button -->
+											<button id="login-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Login</span></button>
+											<!-- Logout Button -->
+											<button id="logout-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Logout</span></button>
+											<script type="text/x-handlebars" data-template-name="login_information">
+												{{#if user}}
+													Welcome <b>{{user.username}}</b> Account #<b>{{user.account_num}}</b>
+												{{else}}
+													You are not logged in.
+												{{/if}}
+											</script>
+										</div>
+									</span>
+							</div>
+						</div>
+					</div>
+					<div id='navWrap' class='clearWrap'>
+						<div id='navPrimary'>
+							<ul>
+								<!--
+										Create a much more generic way of attaching and
+										exercising onclick events.
+								-->
+								<li id='create_button' class='active'><a href="#">Create Report</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id='main-wrap' class='wrapu'>
+				<div id='main-top'></div>
+					<div class='wrapi'>
+						<div id='container' class='clearWrap'>
+							<!--
+							<div id='create_pane'>
+							<fieldset>
+								<form id="report_form">
+									<h2>Filter by Date:</h2>
+									<br>
+									<table>
+										<tr>
+											<td width="10%">
+												<div style='display: inline-block'>
+
+													<b style='padding-top: 1em'> Month:</b>
+													<select name=byMonth id="byMonth" class='chosen' style="width:100px;" disabled="false">
+
+													</select>
+												</div>
+											</td>
+										</tr>
+
+										<tr>
+											<td width="50%">
+												<div style='display: inline-block'>
+
+													<b>Custom Range:</b>
+													Start Date: <input type="text" id="startDate" name="startDate">
+													End Date: <input type="text" id="endDate" name="endDate">
+												</div>
+											</td>
+										</tr>
+									</table>
+
+									<h2>Filter by Customer Data:</h2>
+									<br>
+										<table>
+											<tr>
+												<td width="5%">
+													<b> Contract: </b> </td>
+												<td width="40%">
+													<select id="contract" name=contract_number class='chosen'  style="width:150px;" disabled="false">
+													</select>
+												</td>
+										</tr>
+										<tr>
+											<td width="5%">
+												<b> RHIC: </b></td>
+												<td width="40%">
+													<select id="rhic" name="rhic" class='chosen' style="width:400px;" disabled="false">
+													</select>
+												</td>
+											</tr>
+										</table>
+										<h2>Filter by Reporting Domain:</h2>
+										<br>
+										<table width=50%>
+											<tr>
+												<td width="15%"><b>Reporting Domain: </b></td>
+													<td width="51%">
+														<select id='env' name="env" class='chosen'  style="width:150px;" disabled="false">
+														</select>
+													</td>
+												</td>
+											</tr>
+										</table>
+										<table id=buttons width=50%>
+											<br><br><br>
+											<tr>
+												<td width="2%">
+													<button id='report-submit' name='report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
+														<span class='ui-button-text'>Run Report</span>
+													</button>
+												</td>
+												<td width="2%">
+													<button id='export' name='export' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='exportReport(event)'>
+														<span class='ui-button-text'>Export Report</span>
+													</button>
+												</td>
+												<td width="2%">
+													<button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
+														<div id='original'>
+															<span class='ui-button-text original' style='float:left'>Reset Form</span>
+														</div>
+														<div id='choices' hidden>
+															<span class='ui-button-text' style='float:left'>Yes</span>
+															<span class='ui-button-text' style='float:left'>No</span>
+														</div>
+													</button>
+												</td>
+											</tr>
+										</table>
+										<div id='form_error'>
+										</div>
+									</form>
+								</fieldset>
+							</div>
+							-->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="{{ STATIC_URL }}/jquery.min.js"></script>
 		<script src="{{ STATIC_URL }}/ui30_resources/handlebars-1.0.rc.1.js"></script>
 		<script src="{{ STATIC_URL }}/ui30_resources/ember.min.js"></script>
