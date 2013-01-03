@@ -6,19 +6,12 @@ App.ApplicationView = Ember.View.extend({
 
 App.ApplicationController = Ember.Controller.extend();
 
-App.FooController = Ember.ObjectController.extend();
-App.FooView = Ember.View.extend({
-	templateName: 'foo-template'
-})
+App.Router.map(function(match) {
+  match('/').to('index');
+});
 
-App.Router = Ember.Router.extend({
-	enableLoggin: true,
-	root: Ember.Route.extend({
-		index: Ember.Route.extend({
-			route: '/',
-			connectOutlets: function(router) {
-				router.get('applicationController').connectOutlet('foo');
-			}
-		})
-	})
+App.IndexRoute = Ember.Route.extend({
+  renderTemplates: function() {
+    this.render('foo-template');
+  }
 });
