@@ -18,8 +18,6 @@ Replace this with more appropriate tests for your application.
 
 import collections
 from datetime import datetime, timedelta
-from django.test import TestCase
-from django.conf import settings
 from logging import getLogger
 from mongoengine.connection import connect, disconnect
 from mongoengine import connection, register_connection
@@ -34,10 +32,10 @@ from report_server.common.report import get_list_of_products, hours_per_consumer
 from report_server.common.import_util import import_data
 from report_server.common import config
 from report_server.sreport.models import ReportData, ReportDataDaily, MyQuerySet
-from report_server.sreport.models import ProductUsage, SpliceServer
+from report_server.sreport.models import  SpliceServer, ProductUsage
 from rhic_serve.rhic_rest.models import RHIC, Account
 from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
-#from splice.common.models import ProductUsage
+
 
 
 LOG = getLogger(__name__)
@@ -62,7 +60,8 @@ Example of running these unit tests from $checkout/src
 '''
 
 class ReportData(ReportData):
-    db_name = settings.MONGO_DATABASE_NAME
+    MONGO_DATABASE_NAME = 'report_server'
+    db_name = MONGO_DATABASE_NAME
     meta = {'queryset_class': MyQuerySet}
 
 
@@ -278,6 +277,7 @@ class TestData():
         )
         if save:
             pu.save(cascade=True)
+            #pu.save()
         return pu
     
     @staticmethod
