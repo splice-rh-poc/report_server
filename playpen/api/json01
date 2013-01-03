@@ -1,0 +1,2 @@
+{ "_types" : [ "ProductUsage", "ProductUsage.ProductUsage" ], "splice_server" : "splice_server_uuid-1", "allowed_product_info" : [ "69" ], "unallowed_product_info" : [], "date" : { "$date" : 1352424600000 }, "_cls" : "ProductUsage.ProductUsage", "instance_identifier" : "01:24:7E:69:5C:57-03:54:Eps24H1Y7K5", "facts" : { "lscpu_dot_cpu(s)" : "1", "memory_dot_memtotal" : "604836", "lscpu_dot_cpu_socket(s)" : "1" }, "consumer" : "fea363f5-af37-4a23-a2fd-bea8d1fff9e8" }
+
