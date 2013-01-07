@@ -38,6 +38,7 @@ import csv
 import logging
 import json
 import sys
+import os
 
 _LOG = logging.getLogger(__name__)
 
@@ -719,4 +720,13 @@ def export(request):
 # UI 30 Prototype work
 #####################################################################
 def ui30(request):
-    return template_response(request, 'ui30/index.html')
+    mod_name = os.getenv('DJANGO_SETTINGS_MODULE')
+    mod = __import__(mod_name, globals(), locals(), [], -1)
+    for tmpl_paths in mod.settings.TEMPLATE_DIRS:
+        file_path = "%s/ui30/index.html" % tmpl_paths
+        if os.path.exists(file_path):
+            template_file = open(file_path)
+            html_content = template_file.read()
+            template_file.close()
+            return HttpResponse(html_content)
+    raise IOError("index.html file not found. Template paths: " + mod.settings.TEMPLATE_DIRS)
