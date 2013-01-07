@@ -119,7 +119,7 @@ class ReportResource(MongoEngineResource):
         # always_return_data = True
 
         # All Resources require basic authentication (for now).
-        #authentication = MultiAuthentication(BasicAuthentication())
+        authentication = BasicAuthentication()
         authorization = Authorization()
 
     def post_list(self, request, **kwargs):
@@ -136,12 +136,8 @@ class ReportResource(MongoEngineResource):
         As it stands any authorized, but unauthenticated request will use the
         shadowman@redhat.com User
         """
-        user = User(request.user)
-        if user.is_anonymous:
-            new_user = User()
-            new_user.username = "shadowman@redhat.com"
-            new_user.is_superuser = False
-            request.user = new_user
+
+        user = request.user
 
         response = views.report_ui20(request)
 
