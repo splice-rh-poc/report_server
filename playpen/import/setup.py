@@ -236,21 +236,7 @@ class TestData():
                     )
                     row.save()
 
-    @staticmethod
-    def create_rhic():
-        rhic = {
-            'uuid': '1001',
-                    'name': 'test_rhic',
-                    'account_id': '1001',
-                    'contract': '1',
-                    'support_level': 'l1-l3',
-                    'sla': 'prem',
-                    'products': [RHEL, HA, EDU, EUS, LB, JBoss, GEAR],
-                    'engineering_ids': ["69", "83", "70", "85", "183"]
-        }
-
-        RHIC.objects.get_or_create(rhic)
-
+    
     @staticmethod
     def create_splice_server(hostname='splice01.example.com',
                              environment="east"):
