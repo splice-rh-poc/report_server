@@ -127,15 +127,6 @@ class ReportResource(MongoEngineResource):
         # object_hook=json_util.object_hook)
         #data = json.loads(request.raw_post_data)
         _LOG.info("ReportResource::post_list() ")
-        
-        """
-        Horrible hack for now just to validate that the test and api are 
-        working as designed.  I think one way to move forward in the proper way
-        is to use a tastypie api key to get the appropriate user.
-        
-        As it stands any authorized, but unauthenticated request will use the
-        shadowman@redhat.com User
-        """
 
         user = request.user
 
