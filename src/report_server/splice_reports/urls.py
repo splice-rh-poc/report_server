@@ -49,11 +49,12 @@ urlpatterns = patterns('',
     (r'^ui20/report_form/$', 'report_server.sreport.views.report_form_ui20'),
     (r'^ui20/report_form_rhics/$', 'report_server.sreport.views.report_form_rhics'),
     (r'^ui20/report/$', 'report_server.sreport.views.report_ui20'),
+    (r'^ui20/default_report/$', 'report_server.sreport.views.default_report'),
     (r'^ui20/export/$', 'report_server.sreport.views.export'),
     (r'^ui20/details/$', 'report_server.sreport.views.detailed_report_ui20'),
     (r'^ui20/max_report/$', 'report_server.sreport.views.max_report'),
     (r'^ui20/quarantine/$', 'report_server.sreport.views.quarantined_report'),
-    (r'^ui20/fact_compliance/$', 'report_server.sreport.views.systemFactCompliance'),
+    (r'^ui20/fact_compliance/$', 'report_server.sreport.views.system_fact_compliance'),
     (r'^ui20/instance_details/$', 'report_server.sreport.views.instance_detail_ui20'),
 )
 

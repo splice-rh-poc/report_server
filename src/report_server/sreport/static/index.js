@@ -181,6 +181,44 @@ function setupNavButtons() {
     $('#max_button').on("click", openMax);
 }
 
+function form_filter_link_show(){
+	document.getElementById("filter_toggle").style.display = "block";
+	document.getElementById("default-report-submit").style.display = "block";
+	toggle_report_form()
+}
+
+function form_filter_link_hide(){
+	document.getElementById("filter_toggle").style.display = "none";
+	//document.getElementById("default-report-submit").style.display = "none";
+	toggle_report_form()
+}
+
+function toggle_report_form() {
+    $('#default_report_results').empty();
+    $('#default_report_results_ui').empty();
+    
+    //var but = document.getElementById("default-report-submit")
+    var ele = document.getElementById("create_pane");
+    var report = document.getElementById("report_form");
+    var text = document.getElementById("filter_toggle");
+    var default_report_button = document.getElementById("default-report-submit");
+    
+    //DEFAULT, just show create_report
+    if(ele.style.display == "block") {
+        ele.style.display = "none";
+        report.style.display = "none";
+        text.innerHTML = "show advanced filter";
+        default_report_button.style.display = "block";
+    }
+    //show report filter options
+    else {
+        ele.style.display = "block";
+        report.style.display = "block";
+        text.innerHTML = "hide advanced filter";
+        default_report_button.style.display = "none";
+    }
+}
+
 function setupCreateForm() {
     $('#report_form').each(function() {
         this.reset();
@@ -269,6 +307,9 @@ function setupCreateFormButtons() {
 }
 
 function createReport(event) {
+	form_filter_link_show();
+
+	
     // Have to stop url from changing so disable default event
     event.preventDefault();
     
@@ -308,7 +349,9 @@ function createReport(event) {
             }
         }).done(function(data) {
             var rtn = jQuery.parseJSON(data);
-            populateReport(rtn);
+            $('#report_pane > div').empty();
+            var pane = '#report_pane > div';
+            populateReport(rtn, pane );
             openReport();
             // Attach the event handler back on
             $('#report_button').on("click", openReport);
@@ -317,6 +360,66 @@ function createReport(event) {
         });
     }
 }
+
+function create_default_report(){
+    document.getElementById("report_form").style.display = "none"
+    $('#default_report_results_ui').empty();
+    $('#default_report_results').empty();
+    
+    event.preventDefault();
+    var num
+    if (logged_in) {
+        var data = {};
+        
+        data['startDate'] = "11/01/2012"
+        data['endDate'] = "1/02/2013"
+        data['contract_number'] = "All"
+        data['rhic'] = "null"
+        data['env'] = "All"
+        
+        $.ajax({
+            url: '/report-server/ui20/default_report/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: data,
+            crossDomain: false,
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        }).done(function(data) {
+            var rtn = jQuery.parseJSON(data);
+            $('#default_report_results').append("<br><br><br><br><br><br><br><br><br>")
+            num = populateReport(rtn, "#default_report_results");
+            fact = populateFactComplianceReport(rtn.biz_list, "#default_report_results");
+            console.log(num)
+            console.log(fact)            
+            
+            if (num+fact > 0){
+                console.log('fail')
+                result_ui = $('#default_report_results_ui');
+                var table = $('<table width=\"60%\" align=\"right\"></table>');
+                table.append('<img border=0 src="/static/fail.png") alt="fail" width="100" height="100">');
+                result_ui.append(table);
+            }
+            else{
+                console.log('pass')
+                result_ui = $('#default_report_results_ui');
+                var table = $('<table width=\"60%\" align=\"right\"></table>');
+                table.append('<img border=0 src="/static/pass.jpg") alt="fail" width="100" height="100">');
+                result_ui.append(table);
+            }
+            
+            
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // TODO: Add error handling here
+        });
+        
+       
+    }
+}
+
 
 function exportReport(event) {
  //Have to stop url from changing so disable default event
@@ -401,6 +504,7 @@ function resetReportForm(event) {
 function openCreate() {
     removeActiveNav();
     $('#create_button').addClass('active');
+    form_filter_link_show();
 
     if (logged_in) {
         $('#create_pane').show();
@@ -414,6 +518,7 @@ function openCreate() {
 
 function openReport() {
     $('#report_button').removeClass('disabled');
+    form_filter_link_hide();
     removeActiveNav();
     $('#report_button').addClass('active');;
     $('#create_pane').hide();
@@ -427,6 +532,7 @@ function openReport() {
 
 function openDetail() {
     $('#detail_button').removeClass('disabled');
+    form_filter_link_hide();
     removeActiveNav();
     $('#detail_button').addClass('active');
     $('#create_pane').hide();
@@ -447,6 +553,7 @@ function closeDetail() {
 }
 
 function openMax() {
+	form_filter_link_hide();
     $('#max_button').removeClass('disabled');
     removeActiveNav();
     $('#max_button').addClass('active');
@@ -469,6 +576,7 @@ function closeMax() {
 }
 
 function openImport() {
+	form_filter_link_hide();
     removeActiveNav();
     $('#import_button').addClass('active');
 
@@ -481,6 +589,8 @@ function openImport() {
 
     }
 }
+
+
 
 function createDetail(date, description,  filter_args) {
     var data = {
@@ -618,7 +728,7 @@ function createFactComplianceReport() {
         }
     }).done(function(data) {
         var rtn = jQuery.parseJSON(data);
-        populateFactComplianceReport(rtn);
+        populateFactComplianceReport(rtn.list, '#admin_report');
         openImport(); // this shouldn't be needed, but no harm in calling it again
         $('#import_button').on("click", openImport);
     }).fail(function(jqXHR) {
@@ -845,6 +955,7 @@ function enableButton(btn) {
 
 function loadContent() {
     if (!logged_in) {
+    	$('#main-wrap').hide();
         $('#create_pane').hide();
         $('#report_pane').hide();
         $('#detail_pane').hide();
@@ -853,6 +964,7 @@ function loadContent() {
 
         $('#navWrap').hide();
     } else {
+    	$('#main-wrap').show();
         $('#navWrap').show();
         openCreate();
         setupCreateForm();
@@ -872,12 +984,12 @@ function removeActiveNav() {
 }
 
 
-function populateReport(rtn) {
-    var pane = $('#report_pane > div');
+function populateReport(rtn, pane) {
+    var pane = $(pane);
     
 
     // cleanup first
-    pane.empty();
+    //pane.empty();
     
     pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
     pane.append('<br><br>');
@@ -952,7 +1064,7 @@ function populateReport(rtn) {
         }
     }
 
-
+return rtn.list.length
 }
 
 function populateQuarantineReport(rtn) {
@@ -1015,18 +1127,18 @@ function populateQuarantineReport(rtn) {
 
 }
 
-function populateFactComplianceReport(rtn) {
-    var top = $('#admin_report');
-    top.empty();
+function populateFactComplianceReport(rtn, pane) {
+    var top = $(pane);
+    //top.empty();
     top.append('<br><br>');
-    var header = $('<b>Number of Non-Compliant Instances: ' + rtn.list.length + '   </b>');
-    if (rtn.list.length > 0) {
+    var header = $('<b>Number of Non-Compliant Instances: ' + rtn.length + '   </b>');
+    if (rtn.length > 0) {
      top.append(header);
      var show_compliance = $('<button id=show_compliance class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
      top.append(show_compliance);
      
      
-     var mydata = rtn.list;
+     var mydata = rtn;
         
         
         var table = $('<table id=\'factCompliance_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
@@ -1047,9 +1159,9 @@ function populateFactComplianceReport(rtn) {
 
         var tbody = $('<tbody></tbody>');
 
-        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-            var instance = rtn.list[instance_index][0];
-            var rules = rtn.list[instance_index][1];
+        for (var instance_index=0; instance_index <  rtn.length; instance_index++) {
+            var instance = rtn[instance_index][0];
+            var rules = rtn[instance_index][1];
 
             var row = $('<tr></tr>');
             row.append($('<td>' + instance['instance_identifier'] + '</td>'));
@@ -1097,7 +1209,7 @@ function populateFactComplianceReport(rtn) {
         top.append($('<h3>There are no instances out of compliance.</h3>'));
         top.append($('<br></br>'));
     }
-
+return rtn.length
 }
 
 
