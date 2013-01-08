@@ -132,7 +132,6 @@ mkdir -p %{buildroot}/%{_var}/log/%{name}
 mkdir -p %{buildroot}/%{_usr}/lib/report_server
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
 mkdir -p %{buildroot}/%{_sysconfdir}/rc.d/init.d
-mkdir -p /var/log/%{name}
 
 
 # Install source
