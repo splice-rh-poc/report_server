@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.48
+Version:	0.49
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 09 2013 Wes Hayutin <whayutin@redhat.com> 0.49-1
+- fixed bug in javascript w/ show/hide button (whayutin@redhat.com)
+
 * Wed Jan 09 2013 Wes Hayutin <whayutin@redhat.com> 0.48-1
 - Merge branch 'master' of github.com:splice/report_server
   (whayutin@redhat.com)
