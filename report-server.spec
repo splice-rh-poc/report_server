@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.47
+Version:	0.48
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,11 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 09 2013 Wes Hayutin <whayutin@redhat.com> 0.48-1
+- Merge branch 'master' of github.com:splice/report_server
+  (whayutin@redhat.com)
+- simple report, hide/show details (whayutin@redhat.com)
+
 * Tue Jan 08 2013 John Matthews <jmatthews@redhat.com> 0.47-1
 - Removed "mkdir /var/log/report-server" line from spec (jmatthews@redhat.com)
 - added a default minimalistic report for satellite (whayutin@redhat.com)
