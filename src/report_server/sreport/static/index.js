@@ -361,7 +361,7 @@ function createReport(event) {
     }
 }
 
-function create_default_report(){
+function create_default_report(event){
     document.getElementById("report_form").style.display = "none"
     $('#default_report_results_ui').empty();
     $('#default_report_results').empty();
@@ -392,9 +392,7 @@ function create_default_report(){
             var rtn = jQuery.parseJSON(data);
             $('#default_report_results').append("<br><br><br><br><br><br><br><br><br>")
             num = populateReport(rtn, "#default_report_results");
-            fact = populateFactComplianceReport(rtn.biz_list, "#default_report_results");
-            console.log(num)
-            console.log(fact)            
+            fact = populateFactComplianceReport(rtn.biz_list, "#default_report_results");  
             
             if (num+fact > 0){
                 console.log('fail')
@@ -986,15 +984,18 @@ function removeActiveNav() {
 
 function populateReport(rtn, pane) {
     var pane = $(pane);
-    
+    var this_div = $('<div this_rhic_table>')
 
-    // cleanup first
-    //pane.empty();
-    
     pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
     pane.append('<br><br>');
+    
+    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+    pane.append(show_details); 
 
     if (rtn.list.length > 0) {
+    	pane.append('<b>Number of Non-Compliant RHIC\'s:  ' + rtn.list.length + '</b> ')
+    	pane.append('<br><br>')
+    	
         for (var rhic_index in rtn.list) {
             var rhic = rtn.list[rhic_index];
 
@@ -1023,7 +1024,7 @@ function populateReport(rtn, pane) {
 
                 // insert something if it's the first item
                 if (product_index == 0) {
-                    pane.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
+                    this_div.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
                 }
                 
 
@@ -1055,15 +1056,18 @@ function populateReport(rtn, pane) {
             }
 
             table.append(tbody);
-
-            pane.append(table);
-
-            pane.append($('<br></br>'));
-
-
+			this_div.append(table);
+			this_div.append($('<br></br>'))
+            pane.append(this_div)
+			this_div.hide()
+			
         }
     }
-
+    
+show_details.click(function (){
+		this_div.toggle("slow");
+		
+	  })
 return rtn.list.length
 }
 
@@ -1073,74 +1077,71 @@ function populateQuarantineReport(rtn) {
     top.append('<br><br>');
     var header = $('<b>Number of Quarantined Instance Checkins: ' + rtn.list.length + '   </b>');
     if (rtn.list.length > 0) {
-     top.append(header);
-     var show_details = $('<button id=show_quarantine class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-     top.append(show_details);   
+    top.append(header);
+    var show_details = $('<button id=show_quarantine class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+    top.append(show_details);   
      
-     
-     var mydata = rtn.list;
-        
-        
-        var table = $('<table id=\'quarantine_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-        
-        
-        var header = ($('<tr></tr>'));
-        header.append($('<th>Instance:</th>'));
-        header.append($('<th>Splice Server:</th>'));
-        header.append($('<th>Product Name:</th>'));
-        header.append($("<th>Product ID's:</th>"));
-        header.append($('<th>Time:</th>'));
+
+	var table = $('<table id=\'quarantine_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+	
+	
+	var header = ($('<tr></tr>'));
+	header.append($('<th>Instance:</th>'));
+	header.append($('<th>Splice Server:</th>'));
+	header.append($('<th>Product Name:</th>'));
+	header.append($("<th>Product ID's:</th>"));
+	header.append($('<th>Time:</th>'));
 
 
-        table.append(header);
+	table.append(header);
 
-        var tbody = $('<tbody></tbody>');
+	var tbody = $('<tbody></tbody>');
 
-        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-            var instance = rtn.list[instance_index];
+	for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+		var instance = rtn.list[instance_index];
 
-            var row = $('<tr></tr>');
-            row.append($('<td>' + instance['instance_identifier'] + '</td>'));
-            row.append($('<td>' + instance['splice_server'] + '</td>'));
-            row.append($('<td>' + instance['product_name'] + '</td>'));
-            row.append($('<td>' + instance['product'] + '</td>'));
-            row.append($('<td>' + instance['hour'] + '</td>'));
+		var row = $('<tr></tr>');
+		row.append($('<td>' + instance['instance_identifier'] + '</td>'));
+		row.append($('<td>' + instance['splice_server'] + '</td>'));
+		row.append($('<td>' + instance['product_name'] + '</td>'));
+		row.append($('<td>' + instance['product'] + '</td>'));
+		row.append($('<td>' + instance['hour'] + '</td>'));
 
-            tbody.append(row);
-        }
-       
-        table.append(tbody);
-        table.hide();
-        top.append(table);
-        
-        
-        $("button").click(function (){
-            $('#quarantine_data').toggle("slow");
-            
-          })
-          
-    } else {
-        top.append($('<h3>There is no quarantined data.</h3>'));
-        top.append($('<br></br>'));
-        top.append($('<br></br>'));
-    }
+		tbody.append(row);
+	}
+   
+	table.append(tbody);
+	table.hide();
+	top.append(table);
+	
+	
+	show_details.click(function (){
+		$('#quarantine_data').toggle("slow");
+		
+	  })
+	  
+} else {
+	top.append($('<h3>There is no quarantined data.</h3>'));
+	top.append($('<br></br>'));
+	top.append($('<br></br>'));
+}
 
 }
 
 function populateFactComplianceReport(rtn, pane) {
     var top = $(pane);
+    var this_div = $('<div this_fact_table>')
     //top.empty();
     top.append('<br><br>');
     var header = $('<b>Number of Non-Compliant Instances: ' + rtn.length + '   </b>');
     if (rtn.length > 0) {
-     top.append(header);
-     var show_compliance = $('<button id=show_compliance class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-     top.append(show_compliance);
-     
-     
-     var mydata = rtn;
-        
-        
+      top.append(header);
+  	  
+  	  var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+      top.append(show_details); 
+      top.append('<br><br>')
+  	 
+      var mydata = rtn;   
         var table = $('<table id=\'factCompliance_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
         
         
@@ -1156,6 +1157,7 @@ function populateFactComplianceReport(rtn, pane) {
 
 
         table.append(header);
+        
 
         var tbody = $('<tbody></tbody>');
 
@@ -1196,19 +1198,22 @@ function populateFactComplianceReport(rtn, pane) {
         }
        
         table.append(tbody);
-        table.hide();
-        top.append(table);
+        //table.hide();
+        this_div.append(table)
+        //top.append(table);
+        top.append(this_div)
+        this_div.hide()
         
         
-        $("button").click(function (){
-            $('#factCompliance_data').toggle("slow");
-            
-          })
+        //show_compliance.click(function (){
+        //    $('#factCompliance_data').toggle("slow");
+        //  })
           
-    } else {
-        top.append($('<h3>There are no instances out of compliance.</h3>'));
-        top.append($('<br></br>'));
-    }
+    } 
+show_details.click(function (){
+		this_div.toggle("slow");
+		
+	  })
 return rtn.length
 }
 
