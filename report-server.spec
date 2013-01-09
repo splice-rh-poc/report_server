@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.46
+Version:	0.47
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -132,7 +132,6 @@ mkdir -p %{buildroot}/%{_var}/log/%{name}
 mkdir -p %{buildroot}/%{_usr}/lib/report_server
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
 mkdir -p %{buildroot}/%{_sysconfdir}/rc.d/init.d
-mkdir -p /var/log/%{name}
 
 
 # Install source
@@ -238,6 +237,14 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Jan 08 2013 John Matthews <jmatthews@redhat.com> 0.47-1
+- Removed "mkdir /var/log/report-server" line from spec (jmatthews@redhat.com)
+- added a default minimalistic report for satellite (whayutin@redhat.com)
+- added authentication to ReportResource deleted redundant code
+  (dgao@redhat.com)
+- broke out data load tool.. slightly (whayutin@redhat.com)
+- broke out a data loading tool from unit tests (whayutin@redhat.com)
+
 * Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.46-1
 - try to fix selinux issue (whayutin@redhat.com)
 
