@@ -1131,13 +1131,14 @@ function populateQuarantineReport(rtn) {
 function populateFactComplianceReport(rtn, pane) {
     var top = $(pane);
     var this_div = $('<div this_fact_table>')
+    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     //top.empty();
     top.append('<br><br>');
     var header = $('<b>Number of Non-Compliant Instances: ' + rtn.length + '   </b>');
     if (rtn.length > 0) {
       top.append(header);
   	  
-  	  var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+  	  
       top.append(show_details); 
       top.append('<br><br>')
   	 
