@@ -1,21 +1,24 @@
 #!/usr/bin/python
 
 from datetime import timedelta
+from pymongo import Connection
+
 import datetime 
 import json
 import os
 import requests
+import time
 import timeit
 
-START_DATETIME = '20120701T00:00Z'
-END_DATETIME = '20120930T00:00Z'
+c = Connection()
 
-
+#SETUP
 report_query = """
       import requests;
       import json;
       query_data=json.dumps({"user": "shadowman@redhat.com",
-                 "byMonth": "12,2012",
+                 "startDate": "10/01/2012",
+                 "endDate": "01/10/2013",
                  "contract_number": "All",
                  "rhic": "null",
                  "env": "All"});
@@ -25,8 +28,44 @@ report_query = """
                     'shadowman@redhat.com'));
        """
 
+product_usage_post_test = """
+                  { "_id" : { "$oid" : "50eedde4a585a61915000003" },
+                  "_types" : [ "ProductUsage" ],
+                  "splice_server" : "splice_server_uuid-1",
+                  "allowed_product_info" : [ "69" ],
+                  "unallowed_product_info" : [],
+                  "facts" :
+                     { "lscpu_dot_cpu(s)" : "1",
+                     "memory_dot_memtotal" : "604836",
+                     "lscpu_dot_cpu_socket(s)" : "1" },
+                  "_cls" : "ProductUsage",
+                  "instance_identifier" : "12:31:3D:08:40:00",
+                  "date" : { "$date" : 1351296000000 },
+                  "consumer" : "8d401b5e-2fa5-4cb6-be64-5f57386fda86" }
+                  """
 
-def api_check():
+def product_usage_post(num):
+    filename = 'pu.'  + str(num)  
+    path = os.getcwd() + '/pu/'
+    fullpath = os.path.join(path, filename)    
+ 
+    stmt = """
+    
+    import requests;
+    import json;
+    
+    raw_file = open('""" + fullpath + """' , 'rb')
+    data = raw_file.read()
+    
+    requests.post('http://localhost:8000/api/v1/productusage/', data=data)
+
+    """
+    return stmt
+
+def api_report_check():
+    """
+    Quick check to verify the api is working as expected
+    """
     query_data=json.dumps({"user": "shadowman@redhat.com",
                      "byMonth": "12,2012",
                      "contract_number": "All",
@@ -40,160 +79,78 @@ def api_check():
     else:
         return False
 
+def api_import_check():
+    """
+    Quick check to verify the api is working as expected
+    """    
+    product_usage_drop()
+    product_usage_setup()
+    response = requests.post('http://localhost:8000/api/v1/productusage/',
+                             data=product_usage_post_test)
+    if(response.status_code == 202):
+            return True
+    else:
+        return False    
 
+#DB's
+def report_data_drop():
+    #print('sleep 5 seconds')
+    #time.sleep(5) 
+    c.drop_database('results')
+    
+def report_data_import(num):
+    os.system('mongoimport -d results --collection report_data report_export_' + str(num))
+
+def product_usage_drop():
+    c.drop_database('checkin_service')
+
+def product_usage_setup():
+    os.system('mongoimport -d checkin_service --collection splice_server ' + (os.path.join(os.getcwd(), 'splice_server.json')))
+    
+#TESTS
 def execute_test(stmt, rows_in_report_data):
+    #print(stmt)
     time =  timeit.timeit(stmt=stmt, number=1)
     print(time)
     return time
 
-def report_data_drop():
-    os.system('mongo results --eval "db.dropDatabase()"')
-
-def report_data_import(number):
-    os.system('mongoimport -d results --collection report_data report_export_' + str(number))
-
-def test(num):
-    report_data_drop()
-    report_data_import(num)
+def test_report(num):
     return execute_test(report_query, num)
 
-def main():
-    if api_check:
-        results = []
-        print('ok')
-        for i in ["1", "100", "1000"]:
-            results.append([i, test(i)])
-        for i in results:
-            print(i)    
+def test_import(num):
+    product_usage_drop()
+    report_data_drop()
+    product_usage_setup()
+    return execute_test(product_usage_post(num), num)
 
-def create_json_db_file(number_of_rows):
-    """
-    create a json file to be used a db import for test
-    it will be default use the report_1000 file as the base, so 
-    number_of_rows should be in multiples of 1000
-    """
+def main_report(num):
     
-    #if number_of_rows%1000 == 0:
-    #    print('ok')
-    #else:
-    #    print('number of rows must be a multple of 1000')
-    #    exit()
+    print('ok')
+    print('*' * 10 + ' TESTING REPORT ' + num) 
+    result = (["report", num, test_report(num)])
+
+    return result
+
+def main_import(num):
+    #if api_import_check():
+     
+    print('*' * 10 + ' TESTING IMPORT ' + num) 
+    result = (["import", num, test_import(num)])
+    os.system('mongoexport -d results -c report_data --out report_export_' + num + ' --jsonArray')
+    os.system('ls report_export_' + num)
+        
+    return result
     
-    file_to_write = os.path.join(os.getcwd(), 'report_export_' + str(number_of_rows))
-    if os.path.exists(file_to_write):
-        print('file exists, removing')
-        os.system('rm -Rf ' + file_to_write)
-    else:
-        file_to_write = open(file_to_write, 'w')
-    
-    counter = 0    
-    for line in open(os.path.join(os.getcwd(), 'report_export_1000'), 'r'):
-        counter += 1
-        json_line = json.loads(line)
-        print(json_line)
-        json_line['instance_identifier'] = json_line['instance_identifier'] + 'wes'
-        string_line = json.dumps(json_line)
-        
-        if counter <= number_of_rows:
-            file_to_write.write(string_line)
-        
-        else:
-            file_to_write.close()
-            exit()
-        
-def create_product_usage(pu_number):
-    #rhic_file = open(os.path.join(os.getcwd(), 'rhic.json'), r)
-    #splice_file = open(os.path.join(os.getcwd(), 'splice_server.json'), r)
-    facts = """
-            "facts" : { "lscpu_dot_cpu(s)" : "1",
-            "memory_dot_memtotal" : "604836",
-            "lscpu_dot_cpu_socket(s)" : "1" }
-            """
-            
-    rhics = []
-    splice = []
-    for line in open(os.path.join(os.getcwd(), 'rhic.json'), r):
-        json_line = json.loads(line)
-        rhics.append(json_line)
-    for line in open(os.path.join(os.getcwd(), 'splice_server.json'), r):
-        json_line = json.loads(line)
-        rhics.append(json_line)    
-    
-    for number in pu_number():
-        pu = {}
-        pu['splice_server']=splice[0].hostname
-        pu['allowed_prodcut_info']=rhic[0].engineering_ids
-        pu['unallowed_product_info']=[]
-        pu['data']=
-
-
-        
-class ReportDataGenerator(object):
-    """
-    Report data generator class.
-
-    1. Generates RHICS
-    2. Generates Splice Servers
-    3. Generates product usage for RHICS
-    """
-
-    def __init__(self):
-        self.interval = timedelta(hours=1)
-        self.splice_servers = []
-        self.rhics = []
-
-    def generate(self):
-        """
-        Generate all the data.
-        """
-        self.generate_splice_servers()
-        self.generate_rhics()
-        num_generated = self.generate_usage()
-        return num_generated
-
-    def generate_usage(self):
-        """
-        Generate actual usage.
-
-        The basic pattern is:
-        For each hour between start and end time:
-            For each rhic:
-                For each instance associated with the rhic:
-                    Record Product Usage for the instance
-        """
-        # Generate usage for each RHIC
-        num_generated = 0
-        usage_datetime = self.start_datetime
-        while usage_datetime < self.end_datetime:
-            if usage_datetime.hour % 24 == 0:
-                logger.info('Generating data for %s' % usage_datetime)
-                logger.info('%s records generated so far' % num_generated)
-            for rhic in self.rhics:
-                # Generate usage for each instance associated with the RHIC.
-                for inst_index in range(rhic.num_instances):
-                    # TODO: figure out how we want to distribute across splice
-                    # servers
-                    splice_server = self.splice_servers[0]
-                    self.record_rhic_usage(rhic, inst_index, usage_datetime,
-                                           splice_server.uuid)
-                    num_generated += 1
-            usage_datetime += self.interval
-
-        return num_generated
-
-    def record_rhic_usage(self, rhic, inst_index, usage_datetime, 
-                          splice_server):
-        """
-        Record one record of a RHIC usage.
-        """
-        pu = ProductUsage(
-            consumer=rhic.uuid, splice_server=splice_server,
-            instance_identifier=rhic.instance_identifiers[inst_index], 
-            allowed_product_info=rhic.engineering_ids,
-            facts=rhic.instance_facts[inst_index], date=usage_datetime)
-        pu.save()
 
 if __name__ == "__main__":
-    #create_json_db_file(1)
-    main()
+    results = []
+    #for num in ["100", "1000", "2000", "20000", "40000", "100000" ]:
+    for num in ["100", "1000" ]:
+        i = main_import(num)
+        r = main_report(num)
+        results.append( [i, r])
+    print('='* 30)
+    print('final-results:')
+    for r in results:
+        print(r)
     
