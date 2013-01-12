@@ -169,7 +169,17 @@ def login_ui20(request):
                 response_data['is_admin'] = False
 
             response_data['username'] = username
-            response_data['account'] = user.account
+            if hasattr(user, 'account'):
+                response_data['account'] = user.account
+            else:
+                """
+                work around for current rhic_serve deployment in the 
+                stakeholder env.  The user objects in the stakeholder env do 
+                not have the attribute account
+                
+                """
+                setattr(user, 'account', '55555')
+                response_data['account'] = user.account
             return HttpResponse(utils.to_json(response_data))
         else:
             _LOG.error('authentication failed')
