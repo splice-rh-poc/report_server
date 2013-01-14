@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.49
+Version:	0.50
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,15 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Jan 14 2013 Wes Hayutin <whayutin@redhat.com> 0.50-1
+- changed verbage around rhic/biz rule reports (whayutin@redhat.com)
+- made default report a dynamic three months (whayutin@redhat.com)
+- fix extra show details bug and csv export issue (whayutin@redhat.com)
+- work around for User objects in stakeholder env (whayutin@redhat.com)
+- clean up (whayutin@redhat.com)
+- report_server perf testing scripts (whayutin@redhat.com)
+- first pass at perf tests (whayutin@redhat.com)
+
 * Wed Jan 09 2013 Wes Hayutin <whayutin@redhat.com> 0.49-1
 - fixed bug in javascript w/ show/hide button (whayutin@redhat.com)
 
