@@ -370,9 +370,11 @@ function create_default_report(event){
     var num
     if (logged_in) {
         var data = {};
-        
-        data['startDate'] = "11/01/2012"
-        data['endDate'] = "1/02/2013"
+        var dtoday = Date.today();
+        console.log(dtoday);
+        //data in mm/dd/yyyy format
+        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
+        data['endDate'] = Date.today().toString("M/d/yyyy");
         data['contract_number'] = "All"
         data['rhic'] = "null"
         data['env'] = "All"
