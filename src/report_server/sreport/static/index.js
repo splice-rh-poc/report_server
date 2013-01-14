@@ -990,9 +990,10 @@ function populateReport(rtn, pane) {
     pane.append('<br><br>');
     
     var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-    pane.append(show_details); 
+    
 
     if (rtn.list.length > 0) {
+        pane.append(show_details); 
     	pane.append('<b>Number of Non-Compliant RHIC\'s:  ' + rtn.list.length + '</b> ')
     	pane.append('<br><br>')
     	
