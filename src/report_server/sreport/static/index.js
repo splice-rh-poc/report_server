@@ -996,7 +996,7 @@ function populateReport(rtn, pane) {
 
     if (rtn.list.length > 0) {
         pane.append(show_details); 
-    	pane.append('<b>Number of Non-Compliant RHIC\'s:  ' + rtn.list.length + '</b> ')
+    	pane.append('<b>Number of RHIC\'s:  ' + rtn.list.length + '</b> ')
     	pane.append('<br><br>')
     	
         for (var rhic_index in rtn.list) {
@@ -1137,7 +1137,7 @@ function populateFactComplianceReport(rtn, pane) {
     var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     //top.empty();
     top.append('<br><br>');
-    var header = $('<b>Number of Non-Compliant Instances: ' + rtn.length + '   </b>');
+    var header = $('<b>Number of Instances: ' + rtn.length + '   </b>');
     if (rtn.length > 0) {
       top.append(header);
   	  
