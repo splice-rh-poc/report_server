@@ -894,52 +894,15 @@ function fill_create_report_form(data) {
             $('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
             });	
 
-    var d = new Date();
-    var n = d.getMonth() + 1;
-    var year = d.getFullYear();
-    var month=new Array();
-    month[1]="Jan";
-    month[2]="Feb";
-    month[3]="Mar";
-    month[4]="Apr";
-    month[5]="May";
-    month[6]="Jun";
-    month[7]="Jul";
-    month[8]="Aug";
-    month[9]="Sep";
-    month[10]="Oct";
-    month[11]="Nov";
-    month[12]="Dec";
-    
-
-    //having trouble finding an equiv of python's timedelta for javascript
-    // hacking for demo
-    if (n == 2){
-    	date_b_month = 12;
-    	date_b_year = year - 1;
-    }
-    else if (n == 1){
-    	date_a_month = 11;
-    	date_a_year = (year - 1);
-    	date_b_month = 12;
-    	date_b_year = (year - 1);
-    }
-    else {
-    	//get previous two months
-        var date_a = new Date(year, (n), 0);
-        var date_b = new Date(year, (n - 1), 0);
-        
-    	var date_a_month = date_a.getMonth();
-        var date_b_month = date_b.getMonth();
-        var date_a_year = date_a.getFullYear();
-        var date_b_year = date_b.getFullYear();
-    }
+   
+    date_0 = Date.today();
+    date_1 = (1).months().ago();
+    date_2 = (2).months().ago();
     
     $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
-    $('#byMonth').append($('<option selected value=' + n + ',' + year +  '>' + month[n] + ' ' + year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_a_month) + ',' + date_a_year + '>' + month[date_a_month] + ' ' + date_a_year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_b_month) + ',' + date_b_year + '>' + month[date_b_month] + ' '+ date_b_year +'</option>'));
-    
+    $('#byMonth').append($('<option selected value=' + date_0.toString("M") + ',' + date_0.toString("yyyy") +  '>' + date_0.toString("MMM") + ' ' + date_0.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
     
 }
 
