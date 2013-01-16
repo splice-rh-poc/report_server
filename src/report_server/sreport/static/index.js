@@ -370,9 +370,11 @@ function create_default_report(event){
     var num
     if (logged_in) {
         var data = {};
-        
-        data['startDate'] = "11/01/2012"
-        data['endDate'] = "1/02/2013"
+        var dtoday = Date.today();
+        console.log(dtoday);
+        //data in mm/dd/yyyy format
+        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
+        data['endDate'] = Date.today().toString("M/d/yyyy");
         data['contract_number'] = "All"
         data['rhic'] = "null"
         data['env'] = "All"
@@ -892,52 +894,15 @@ function fill_create_report_form(data) {
             $('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
             });	
 
-    var d = new Date();
-    var n = d.getMonth() + 1;
-    var year = d.getFullYear();
-    var month=new Array();
-    month[1]="Jan";
-    month[2]="Feb";
-    month[3]="Mar";
-    month[4]="Apr";
-    month[5]="May";
-    month[6]="Jun";
-    month[7]="Jul";
-    month[8]="Aug";
-    month[9]="Sep";
-    month[10]="Oct";
-    month[11]="Nov";
-    month[12]="Dec";
-    
-
-    //having trouble finding an equiv of python's timedelta for javascript
-    // hacking for demo
-    if (n == 2){
-    	date_b_month = 12;
-    	date_b_year = year - 1;
-    }
-    else if (n == 1){
-    	date_a_month = 11;
-    	date_a_year = (year - 1);
-    	date_b_month = 12;
-    	date_b_year = (year - 1);
-    }
-    else {
-    	//get previous two months
-        var date_a = new Date(year, (n), 0);
-        var date_b = new Date(year, (n - 1), 0);
-        
-    	var date_a_month = date_a.getMonth();
-        var date_b_month = date_b.getMonth();
-        var date_a_year = date_a.getFullYear();
-        var date_b_year = date_b.getFullYear();
-    }
+   
+    date_0 = Date.today();
+    date_1 = (1).months().ago();
+    date_2 = (2).months().ago();
     
     $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
-    $('#byMonth').append($('<option selected value=' + n + ',' + year +  '>' + month[n] + ' ' + year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_a_month) + ',' + date_a_year + '>' + month[date_a_month] + ' ' + date_a_year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_b_month) + ',' + date_b_year + '>' + month[date_b_month] + ' '+ date_b_year +'</option>'));
-    
+    $('#byMonth').append($('<option selected value=' + date_0.toString("M") + ',' + date_0.toString("yyyy") +  '>' + date_0.toString("MMM") + ' ' + date_0.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
     
 }
 
@@ -990,10 +955,11 @@ function populateReport(rtn, pane) {
     pane.append('<br><br>');
     
     var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-    pane.append(show_details); 
+    
 
     if (rtn.list.length > 0) {
-    	pane.append('<b>Number of Non-Compliant RHIC\'s:  ' + rtn.list.length + '</b> ')
+        pane.append(show_details); 
+    	pane.append('<b>Number of RHIC\'s:  ' + rtn.list.length + '</b> ')
     	pane.append('<br><br>')
     	
         for (var rhic_index in rtn.list) {
@@ -1134,7 +1100,7 @@ function populateFactComplianceReport(rtn, pane) {
     var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     //top.empty();
     top.append('<br><br>');
-    var header = $('<b>Number of Non-Compliant Instances: ' + rtn.length + '   </b>');
+    var header = $('<b>Number of Instances: ' + rtn.length + '   </b>');
     if (rtn.length > 0) {
       top.append(header);
   	  
