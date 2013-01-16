@@ -1121,6 +1121,7 @@ function populateFactComplianceReport(rtn, pane) {
         header.append($('<th>Rules: CPU</th>'));
         header.append($('<th>Rules: CPU Socket</th>'));
         header.append($('<th>Rules: Memory (kb)</th>'));
+        header.append($('<th>Violation Summary</th>'));
 
 
         table.append(header);
@@ -1131,6 +1132,7 @@ function populateFactComplianceReport(rtn, pane) {
         for (var instance_index=0; instance_index <  rtn.length; instance_index++) {
             var instance = rtn[instance_index][0];
             var rules = rtn[instance_index][1];
+            var summary = rtn[instance_index][2];
 
             var row = $('<tr></tr>');
             row.append($('<td>' + instance['instance_identifier'] + '</td>'));
@@ -1138,6 +1140,7 @@ function populateFactComplianceReport(rtn, pane) {
             row.append($('<td>' + instance['cpu'] + '</td>'));
             row.append($('<td>' + instance['cpu_sockets'] + '</td>'));
             row.append($('<td>' + instance['memtotal'] + '</td>'));
+            
             
             if (rules['cpu']['rule']==undefined){
                 row.append($('<td></td>'))
@@ -1159,6 +1162,8 @@ function populateFactComplianceReport(rtn, pane) {
             else{
                 row.append($('<td>' + rules['memtotal']['rule'] + '</td>'));
             }
+            
+            row.append($('<td>' + summary +  '</td>'));
 
 
             tbody.append(row);

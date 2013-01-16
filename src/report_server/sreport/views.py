@@ -619,11 +619,12 @@ def system_fact_compliance_list(account):
         #instances = ReportData.objects.distinct(consumer=rhic.name)
         for i in instances:    
             list_of_instances.append(i.instance_identifier)
-
+    unique_list = set(list_of_instances)
     results = []
-    for i in list_of_instances:
+    for i in unique_list:
         # we need to find if this instance_identifier has any other products
         # associated w/ it
+
         products = ReportData.objects.filter(
             instance_identifier=i).distinct('product_name')
         for p in products:
@@ -631,17 +632,17 @@ def system_fact_compliance_list(account):
                 instance_identifier=i, product_name=p).first()
             product_rules = report_biz_rules[inst.product_name]
             if product_rules['cpu']:
-                if product_rules['cpu']['high_gt'] != '-1':
-                    if inst.cpu > product_rules['cpu']['high_gt']:
-                        results.append([inst, product_rules])
+                if product_rules['cpu']['high_lt'] != -1:
+                    if inst.cpu > product_rules['cpu']['high_lt']:
+                        results.append([inst, product_rules, 'violates cpu'])
             if product_rules['cpu_sockets']:
-                if product_rules['cpu_sockets']['high_gt'] != '-1':
-                    if inst.cpu_sockets > product_rules['cpu_sockets']['high_gt']:
-                        results.append([inst, product_rules])
+                if product_rules['cpu_sockets']['high_lt'] != -1:
+                    if inst.cpu_sockets > product_rules['cpu_sockets']['high_lt']:
+                        results.append([inst, product_rules, 'violates cpu_sockets'])
             if product_rules['memtotal']:
-                if product_rules['memtotal']['high_gt'] != '-1':
-                    if inst.memtotal > product_rules['memtotal']['high_gt']:
-                        results.append([inst, product_rules])   
+                if product_rules['memtotal']['high_lt'] != -1:
+                    if inst.memtotal > product_rules['memtotal']['high_lt']:
+                        results.append([inst, product_rules, 'violates memory'])   
     return results
 
 def unauthorized_pem():

@@ -102,8 +102,8 @@ class Rules:
             'low_desc': ' 1 cpu',
             'high_gt': 1,
             'high_lt': 5,
-            'high_desc': '> 1 cpu',
-            'rule': '0 > 2; > 1'
+            'high_desc': '1 > 5 cpu',
+            'rule': '0 > 2; 1 > 5'
         }
         report_biz_rules[GEAR]['memtotal'] = {
             'low_gt': 0,
