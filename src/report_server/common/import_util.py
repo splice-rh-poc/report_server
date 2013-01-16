@@ -23,7 +23,7 @@ from rhic_serve.rhic_rest.models import Account
 from sets import Set
 import logging
 
-_LOG = logging.getLogger("sreport.import_util")
+_LOG = logging.getLogger(__name__)
 
 
 def import_data(product_usage=[],
@@ -77,7 +77,20 @@ def import_data(product_usage=[],
 
     for pu in product_usage:
         uuid = pu.consumer
-
+        
+        #BEGIN SANITIZE THE PU DATA 
+        if not pu.allowed_product_info:
+            _LOG.critical('product usuage object does not have any allowed products (engineering ids)')
+            continue
+                
+        try:
+            splice_server = SpliceServer.objects.get(uuid=pu.splice_server)
+            _LOG.info('splice server = ' + splice_server.hostname)
+        except Exception:
+            _LOG.critical('splice server' + str(pu.splice_server) + ' not found')
+            continue        
+        
+        
         if uuid in cached_rhics:
             rhic = cached_rhics[uuid]
         else:
@@ -87,7 +100,10 @@ def import_data(product_usage=[],
                 cached_rhics[uuid] = rhic
             except IndexError:
                 _LOG.critical('rhic not found @ import: ' + uuid)
+                _LOG.critical('product usuage object will NOT be imported')
                 continue
+        
+        #END SANITIZE THE PU DATA 
 
         account = Account.objects(
             account_id=rhic.account_id).only('contracts').first()
@@ -104,6 +120,7 @@ def import_data(product_usage=[],
 
         # Set of used engineering ids for this checkin
         product_set = Set(pu.allowed_product_info)
+        
 
         # Iterate over each product in the contract, see if it matches sla and
         # support level, and consumed engineering ids.  If so, save an instance
