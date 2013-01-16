@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.50
+Version:	0.51
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,13 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 16 2013 wes hayutin <whayutin@redhat.com> 0.51-1
+- Merge branch 'master' of github.com:splice/report_server
+  (whayutin@redhat.com)
+- fixed logging for dev setup (whayutin@redhat.com)
+- data sanitize for imports (whayutin@redhat.com)
+- fixed terrible date hack (whayutin@redhat.com)
+
 * Mon Jan 14 2013 Wes Hayutin <whayutin@redhat.com> 0.50-1
 - changed verbage around rhic/biz rule reports (whayutin@redhat.com)
 - made default report a dynamic three months (whayutin@redhat.com)
