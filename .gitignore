@@ -13,6 +13,6 @@ selinux/*.pp.targetted
 *.idea
 src/report_server/report_server.wpr
 src/report_server/report_server.wpu
-playpen/curl_log
 /home/whayutin/workspace/report_server/src/report_server/dev/perf/pu
+playpen/api/curl_log
 
