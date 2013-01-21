@@ -36,35 +36,30 @@ class ProductUsageResource(MongoEngineResource):
 
 
     def post_list(self, request, **kwargs):
-        _LOG.info("ProductUsageResource::post_list() processing %s KB." % (len(request.raw_post_data)/1024.0))
-
-        #deserialized = self.deserialize(
-        #    request, request.raw_post_data,
-        #    format=request.META.get('CONTENT_TYPE', 'application/json'))
-        #deserialized = self.alter_deserialized_detail_data(
-        #    request, deserialized)
-        #bundle = self.build_bundle(data=deserialized, request=request)
-        #_LOG.info("bundle = %s" % (bundle))
-        a = time.time()
-        product_usage = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
-        if isinstance(product_usage, dict):
-            product_usage = [product_usage]
-        pu_models = [ProductUsage._from_son(p) for p in product_usage]
-        b = time.time()
-        items_not_imported = self.import_hook(pu_models)
-        c = time.time()
-        _LOG.info("ProductUsageResource::post_list() Total Time: %s,  %s seconds to convert %s KB to JSON. "
-                  "%s seconds to import %s objects into mongo." % (c-a, b-a, len(request.raw_post_data)/1024.0, c-b, len(pu_models)))
-        if not items_not_imported:
-            return http.HttpAccepted()
-        else:
-            return http.HttpConflict()
-
-#    def get_list(self, request, **kwargs):
-#        product_usage = ProductUsage.objects.all()
-#        results = self.import_hook(product_usage)
-#        response = TemplateResponse(request, 'import.html', {'list': results})
-#        return response
+        if not request.raw_post_data:
+            _LOG.info("Empty body in request")
+            return http.HttpBadRequest("Empty body in request")
+        try:
+            _LOG.info("ProductUsageResource::post_list() processing %s KB." % (len(request.raw_post_data)/1024.0))
+            a = time.time()
+            product_usage = json.loads(request.raw_post_data, object_hook=json_util.object_hook)
+            if isinstance(product_usage, dict):
+                product_usage = [product_usage]
+            pu_models = [ProductUsage._from_son(p) for p in product_usage]
+            b = time.time()
+            items_not_imported = self.import_hook(pu_models)
+            c = time.time()
+            _LOG.info("ProductUsageResource::post_list() Total Time: %s,  %s seconds to convert %s KB to JSON. "
+                  "%s seconds to import %s objects into mongo with %s errors." % (c-a, b-a,
+                        len(request.raw_post_data)/1024.0, c-b, len(pu_models), items_not_imported))
+            if not items_not_imported:
+                return http.HttpAccepted("%s entries imported" % (len(pu_models)))
+            else:
+                return http.HttpConflict("%s entries imported, %s entries not imported or error" % \
+                                         (len(pu_models - len(items_not_imported)), items_not_imported))
+        except Exception, e:
+            _LOG.exception("Unable to process request with %s bytes in body" % (len(request.raw_post_data)))
+            return http.HttpBadRequest(e)
 
 # import hook is overriden in sreport.api
     def import_hook(self, product_usage):
