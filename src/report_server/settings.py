@@ -10,9 +10,11 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 # Django settings for report_server project.
+#hey
 
 from mongoengine import connect
 from mongoengine.connection import register_connection
+
 
 from splice.common import config
 from splice.common.settings import *
@@ -37,6 +39,23 @@ connect(MONGO_DATABASE_NAME, alias='results', tz_aware=True,
         host=MONGO_DATABASE_HOST)
 register_connection('default', MONGO_DATABASE_NAME_RHICSERVE,
                     host=MONGO_DATABASE_HOST_RHICSERVE)      
+
+
+
+DATABASES = {
+   'default': {
+            'ENGINE': 'django.db.backends.oracle', 
+            'NAME': 'xe',                      
+            'USER': 'spacewalk',               
+            'PASSWORD': 'spacewalk',           
+            'HOST': 'ec2-23-23-35-227.compute-1.amazonaws.com',
+            'PORT': '1521',     
+        }
+}
+
+
+
+
 
 # Custom test runner to work with Mongo
 TEST_RUNNER = 'rhic_serve.common.tests.MongoTestRunner'

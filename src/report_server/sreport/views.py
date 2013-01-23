@@ -25,6 +25,9 @@ from django.template.response import TemplateResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from mongoengine.django.auth import User
+from passlib.hash import md5_crypt
+
 from report_server.common import constants, utils
 from report_server.common.biz_rules import Rules
 from report_server.common.import_util import import_data
@@ -33,7 +36,11 @@ from report_server.common.report import hours_per_consumer
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.sreport.models import ProductUsageForm, ReportData
 from report_server.sreport.models import SpliceServer, QuarantinedReportData
-from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
+from report_server.sreport.models import WebContact, WebCustomer
+from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
+from rhic_serve.rhic_rest.models import RHIC
+
+
 import csv
 import logging
 import json
@@ -154,8 +161,28 @@ def login_ui20(request):
     username = request.POST['username']
     password = request.POST['password']
     response_data = {}
-    user = authenticate(username=username, password=password)
+    
+    oracle_user = WebContact.objects.filter(login=username)[0]
+    print(oracle_user.password)
+    passwd_to_match = oracle_user.password
+    salt = oracle_user.password.split("$")[2]
+    passwd_hash = md5_crypt.encrypt(password, salt=salt)
+    
+    if passwd_to_match == passwd_hash:
+        print('passwd hash matches')
+        user, created = SpliceUserProfile.objects.get_or_create(username=username)
+        if created:
+            print('in create user')
+            user.set_password(password)
+            user.is_staff = False
+            user.is_superuser = False
+            user.save()
+        else:
+            print('user already created')
+            user = authenticate(username=username, password=password)
+    
     if user is not None:
+        print('if user is not none')
         if user.is_active:
             auth_login(request, user)
             _LOG.info('successfully authenticated')

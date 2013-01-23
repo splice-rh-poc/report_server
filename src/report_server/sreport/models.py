@@ -10,6 +10,8 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from django import forms
+from django.db import models
+from django.contrib.auth.models import User
 from mongoengine import DateTimeField, Document, ListField, StringField, IntField
 from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
@@ -182,3 +184,48 @@ class QuarantinedReportData(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     duplicate = IntField()
+
+class WebCustomer(models.Model):
+    
+    id = models.DecimalField(primary_key=True, unique=True, decimal_places=0, max_digits=100)
+    name = models.CharField(unique=True, max_length=128)
+    staging_content_enabled = models.CharField(max_length=1)
+    created = models.DateTimeField()
+    modified = models.DateTimeField()
+    class Meta:
+        db_table = u'web_customer'
+
+class WebContact(models.Model):
+                
+    id = models.DecimalField(primary_key=True, decimal_places=0, max_digits=100)
+    org = models.ForeignKey(WebCustomer)
+    login = models.CharField(max_length=64)
+    login_uc = models.CharField(unique=True, max_length=64)
+    password = models.CharField(max_length=38)
+    old_password = models.CharField(max_length=38, blank=True)
+    created = models.DateTimeField()
+    modified = models.DateTimeField()
+    oracle_contact_id = models.DecimalField(unique=True, null=True, max_digits=100, decimal_places=0, blank=True)
+    ignore_flag = models.CharField(max_length=1)
+    class Meta:
+        db_table = u'web_contact'
+        
+
+class Account(models.Model):
+
+    # Unique account identifier
+    account_id = StringField(unique=True, required=True)
+    # Human readable account name
+    login = StringField(unique=True, required=True)
+    # List of contracts associated with the account.
+
+class SpliceUserProfile(User):
+    
+    account = StringField(unique=True, required=True)
+
+class SpliceAdminGroup(Document):
+    
+    name = StringField(unique=True, required=True)
+    members = ListField()
+    permissions = ListField()
+
