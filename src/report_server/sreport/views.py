@@ -174,7 +174,7 @@ def login_ui20(request):
         if passwd_to_match == passwd_hash:
             print('passwd hash matches')
 
-            #account, acc_created = Account.objects.get_or_create(login=username, account_id=oracle_user_id)
+            account, acc_created = Account.objects.get_or_create(login=username, account_id=str(oracle_user_id))
             u, created = User.objects.get_or_create(username=username)
             if created:
                 print('in create user')
@@ -201,16 +201,12 @@ def login_ui20(request):
 
             _LOG.info('successfully authenticated')
             username = str(request.user)
-            admin_grp = SpliceAdminGroup.objects.filter(
-                name='Splice Admins')[0]
-            if user in admin_grp.members and user.is_staff and user.is_superuser:
-                response_data['is_admin'] = True
-            else:
-                response_data['is_admin'] = False
+            
+            response_data['is_admin'] = False
 
             response_data['username'] = username
             if hasattr(user, 'account'):
-                response_data['account'] = user.account
+                response_data['account'] = account.account_id
             else:
                 """
                 work around for current rhic_serve deployment in the 
@@ -319,11 +315,11 @@ def report_form_ui20(request):
     contracts = []
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-    list_of_contracts = Account.objects.filter(account_id=account)[0].contracts
+    list_of_contracts = ['0'] #Account.objects.filter(account_id=account)[0].contracts
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
     environments = SpliceServer.objects.distinct("environment")
-    for c in list_of_contracts:
-        contracts.append(c.contract_id)
+    #for c in list_of_contracts:
+    #    contracts.append(c.contract_id)
 
     # since some item(s) are not json-serializable,
     # extract info we need and pass it along

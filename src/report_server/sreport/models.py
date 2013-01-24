@@ -212,24 +212,34 @@ class WebContact(models.Model):
     class Meta:
         db_table = u'web_contact'
         
+        
+class Account(Document):
 
-class Account(models.Model):
+    meta = {
+        'db_alias': 'results'
+    }
 
     # Unique account identifier
     account_id = StringField(unique=True, required=True)
     # Human readable account name
     login = StringField(unique=True, required=True)
     # List of contracts associated with the account.
-
+    #contracts = ListField(EmbeddedDocumentField(Contract))
 
 class SpliceUserProfile(User):
-    
+    meta = {
+        'db_alias': 'results'
+    }
     account = StringField(unique=True, required=True)
 
-
 class SpliceAdminGroup(Document):
-    
+    meta = {
+        'db_alias': 'results'
+    }
     name = StringField(unique=True, required=True)
     members = ListField()
     permissions = ListField()
+
+        
+
 
