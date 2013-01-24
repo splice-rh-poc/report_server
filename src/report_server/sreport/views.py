@@ -26,7 +26,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.contrib.auth.models import User
-from passlib.hash import md5_crypt
+
 
 from report_server.common import constants, utils
 from report_server.common.biz_rules import Rules
@@ -36,7 +36,6 @@ from report_server.common.report import hours_per_consumer
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.sreport.models import ProductUsageForm, ReportData
 from report_server.sreport.models import SpliceServer, QuarantinedReportData
-from report_server.sreport.models import WebContact, WebCustomer
 from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
 from rhic_serve.rhic_rest.models import RHIC
 
@@ -158,40 +157,12 @@ def login_ui20(request):
           "is_admin": true
         }
     """
+   
     username = request.POST['username']
     password = request.POST['password']
     response_data = {}
-    user = None
-    try:
-        oracle_user = WebContact.objects.filter(login=username)[0]
-        print(oracle_user.password)
-        oracle_user_id = oracle_user.id
-        passwd_to_match = oracle_user.password
-        salt = oracle_user.password.split("$")[2]
-        passwd_hash = md5_crypt.encrypt(password, salt=salt)
-         
-        
-        if passwd_to_match == passwd_hash:
-            print('passwd hash matches')
+    user = authenticate(username=username, password=password)
 
-            account, acc_created = Account.objects.get_or_create(login=username, account_id=str(oracle_user_id))
-            u, created = User.objects.get_or_create(username=username)
-            if created:
-                print('in create user')
-                u.set_password(password)
-                u.account_id = "55555"
-                u.is_staff = False
-                u.is_superuser = False
-                u.save()
-            else:
-                print('user already created')
-                print(u.username)
-                user = authenticate(username=username, password=password)
-                #user =  User.objects.filter(username=username)[0]
-            
-    except IndexError:
-        _LOG.error('authentication failed, user does not exist')
-        return HttpResponseForbidden()
 
     if user is not None:
         print('if user is not none')
