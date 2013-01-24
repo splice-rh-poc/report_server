@@ -795,6 +795,18 @@ function getCookie(name) {
     return cookieValue;
 }
 
+
+function getSession() {
+	//var name = 'sessionid';
+	var name = 'csrftoken';
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+       
+    }
+    alert(cookies)
+}
+
 function setupLoginForm() {
     // Login form
     $('#login-form').dialog({

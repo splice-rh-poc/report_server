@@ -44,13 +44,13 @@ register_connection('default', MONGO_DATABASE_NAME_RHICSERVE,
 
 DATABASES = {
    'default': {
-            'ENGINE': 'django.db.backends.oracle', 
-            'NAME': 'xe',                      
-            'USER': 'spacewalk',               
-            'PASSWORD': 'spacewalk',           
-            'HOST': 'ec2-23-23-35-227.compute-1.amazonaws.com',
-            'PORT': '1521',     
-        }
+              'ENGINE': 'django.db.backends.oracle', 
+              'NAME': 'xe',                      
+              'USER': 'spacewalk',               
+              'PASSWORD': 'spacewalk',           
+              'HOST': 'ec2-23-23-35-227.compute-1.amazonaws.com',
+              'PORT': '1521',     
+          }   
 }
 
 
@@ -93,6 +93,18 @@ INSTALLED_APPS = (
     'report_server.report_import'
 )
 
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    # Uncomment the next line for simple clickjacking protection:
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
 
+AUTHENTICATION_BACKENDS = (
+   'django.contrib.auth.backends.ModelBackend',
+)
 
 TEMPLATE_DEBUG = True

@@ -25,7 +25,7 @@ from django.template.response import TemplateResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from mongoengine.django.auth import User
+from django.contrib.auth.models import User
 from passlib.hash import md5_crypt
 
 from report_server.common import constants, utils
@@ -161,30 +161,44 @@ def login_ui20(request):
     username = request.POST['username']
     password = request.POST['password']
     response_data = {}
-    
-    oracle_user = WebContact.objects.filter(login=username)[0]
-    print(oracle_user.password)
-    passwd_to_match = oracle_user.password
-    salt = oracle_user.password.split("$")[2]
-    passwd_hash = md5_crypt.encrypt(password, salt=salt)
-    
-    if passwd_to_match == passwd_hash:
-        print('passwd hash matches')
-        user, created = SpliceUserProfile.objects.get_or_create(username=username)
-        if created:
-            print('in create user')
-            user.set_password(password)
-            user.is_staff = False
-            user.is_superuser = False
-            user.save()
-        else:
-            print('user already created')
-            user = authenticate(username=username, password=password)
-    
+    user = None
+    try:
+        oracle_user = WebContact.objects.filter(login=username)[0]
+        print(oracle_user.password)
+        oracle_user_id = oracle_user.id
+        passwd_to_match = oracle_user.password
+        salt = oracle_user.password.split("$")[2]
+        passwd_hash = md5_crypt.encrypt(password, salt=salt)
+         
+        
+        if passwd_to_match == passwd_hash:
+            print('passwd hash matches')
+
+            #account, acc_created = Account.objects.get_or_create(login=username, account_id=oracle_user_id)
+            u, created = User.objects.get_or_create(username=username)
+            if created:
+                print('in create user')
+                u.set_password(password)
+                u.account_id = "55555"
+                u.is_staff = False
+                u.is_superuser = False
+                u.save()
+            else:
+                print('user already created')
+                print(u.username)
+                user = authenticate(username=username, password=password)
+                #user =  User.objects.filter(username=username)[0]
+            
+    except IndexError:
+        _LOG.error('authentication failed, user does not exist')
+        return HttpResponseForbidden()
+
     if user is not None:
         print('if user is not none')
         if user.is_active:
+            
             auth_login(request, user)
+
             _LOG.info('successfully authenticated')
             username = str(request.user)
             admin_grp = SpliceAdminGroup.objects.filter(
