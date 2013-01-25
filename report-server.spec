@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.53
+Version:	0.54
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jan 25 2013 John Matthews <jmatthews@redhat.com> 0.54-1
+- Fix for non-gzipped import of ProductUsage data (jmatthews@redhat.com)
+
 * Wed Jan 23 2013 John Matthews <jmatthews@redhat.com> 0.53-1
 - Added support for gzip compression for body of request in ProductUsage import
   (jmatthews@redhat.com)
