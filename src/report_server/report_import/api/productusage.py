@@ -43,7 +43,7 @@ class ProductUsageResource(MongoEngineResource):
         try:
             raw_post_data = request.raw_post_data
             _LOG.info("ProductUsageResource::post_list() processing %s KB." % (len(request.raw_post_data)/1024.0))
-            if request.META["HTTP_CONTENT_ENCODING"] == "gzip":
+            if request.META.has_key("HTTP_CONTENT_ENCODING") and request.META["HTTP_CONTENT_ENCODING"] == "gzip":
                 start_unzip = time.time()
                 data = StringIO.StringIO(raw_post_data)
                 gzipper = gzip.GzipFile(fileobj=data)
