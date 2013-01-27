@@ -154,7 +154,7 @@ def ui20(request):
     return template_response(request, 'ui20/index.html')
 
 
-@ensure_csrf_cookie
+#@ensure_csrf_cookie
 def login_ui20(request):
     """
     login, available at host:
@@ -230,7 +230,7 @@ def logout_ui20(request):
     return HttpResponse('Worked!')
 
 
-@ensure_csrf_cookie
+#@ensure_csrf_cookie
 def index_ui20(request):
     """
     index page, setups up UI and javascript calls report_form_ui20

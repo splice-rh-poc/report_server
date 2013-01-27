@@ -1,8 +1,17 @@
-from datetime import datetime
-from datetime import timedelta
-from django.contrib.sessions.backends.base import SessionBase
-from report_server.sreport.models import Pxtsessions as Session
+import base64
+import time
+from datetime import datetime, timedelta
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
+from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
+from django.utils.crypto import constant_time_compare
+from django.utils.crypto import get_random_string
+from django.utils.crypto import salted_hmac
+from django.utils import timezone
 
 class CreateError(Exception):
     """
@@ -11,22 +20,105 @@ class CreateError(Exception):
     """
     pass
 
-class SessionBase(SessionBase):
+class SessionBase(object):
     """
     Base class for all Session classes.
     """
     TEST_COOKIE_NAME = 'testcookie'
     TEST_COOKIE_VALUE = 'worked'
 
-    def __init__(self, session_id=None):
-        self._session_id = session_id
+    def __init__(self, session_key=None):
+        self._session_key = session_key
         self.accessed = False
         self.modified = False
+
+    def __contains__(self, key):
+        return key in self._session
+
+    def __getitem__(self, key):
+        return self._session[key]
+
+    def __setitem__(self, key, value):
+        self._session[key] = value
+        self.modified = True
+
+    def __delitem__(self, key):
+        del self._session[key]
+        self.modified = True
+
+    def get(self, key, default=None):
+        return self._session.get(key, default)
+
+    def pop(self, key, *args):
+        self.modified = self.modified or key in self._session
+        return self._session.pop(key, *args)
+
+    def setdefault(self, key, value):
+        if key in self._session:
+            return self._session[key]
+        else:
+            self.modified = True
+            self._session[key] = value
+            return value
+
+    def set_test_cookie(self):
+        self[self.TEST_COOKIE_NAME] = self.TEST_COOKIE_VALUE
+
+    def test_cookie_worked(self):
+        return self.get(self.TEST_COOKIE_NAME) == self.TEST_COOKIE_VALUE
+
+    def delete_test_cookie(self):
+        del self[self.TEST_COOKIE_NAME]
+
+    def _hash(self, value):
+        key_salt = "django.contrib.sessions" + self.__class__.__name__
+        return salted_hmac(key_salt, value).hexdigest()
+
+    def encode(self, session_dict):
+        "Returns the given session dictionary pickled and encoded as a string."
+        pickled = pickle.dumps(session_dict, pickle.HIGHEST_PROTOCOL)
+        hash = self._hash(pickled)
+        return base64.encodestring(hash + ":" + pickled)
+
+    def decode(self, session_data):
+        encoded_data = base64.decodestring(session_data)
+        try:
+            # could produce ValueError if there is no ':'
+            hash, pickled = encoded_data.split(':', 1)
+            expected_hash = self._hash(pickled)
+            if not constant_time_compare(hash, expected_hash):
+                raise SuspiciousOperation("Session data corrupted")
+            else:
+                return pickle.loads(pickled)
+        except Exception:
+            # ValueError, SuspiciousOperation, unpickling exceptions. If any of
+            # these happen, just return an empty dictionary (an empty session).
+            return {}
 
     def update(self, dict_):
         self._session.update(dict_)
         self.modified = True
 
+    def has_key(self, key):
+        return key in self._session
+
+    def keys(self):
+        return self._session.keys()
+
+    def values(self):
+        return self._session.values()
+
+    def items(self):
+        return self._session.items()
+
+    def iterkeys(self):
+        return self._session.iterkeys()
+
+    def itervalues(self):
+        return self._session.itervalues()
+
+    def iteritems(self):
+        return self._session.iteritems()
 
     def clear(self):
         # To avoid unnecessary persistent storage accesses, we set up the
@@ -36,22 +128,27 @@ class SessionBase(SessionBase):
         self.accessed = True
         self.modified = True
 
-    def _get_new_session_key(self, web_user):
+    def _get_new_session_key(self):
         "Returns session key that isn't being used."
-        d = datetime.now + timedelta(day=1)        
-        s = Session(web_user=web_user, expires=d.strftime('%s'))
-        s.save()
-        return s.id
+        # Todo: move to 0-9a-z charset in 1.5
+        hex_chars = '1234567890abcdef'
+        # session_key should not be case sensitive because some backends
+        # can store it on case insensitive file systems.
+        while True:
+            session_key = get_random_string(32, hex_chars)
+            if not self.exists(session_key):
+                break
+        return session_key
 
-    def _get_or_create_session_key(self, web_user):
-        if self._session_id is None:
-            self._session_id = self._get_new_session_key(web_user)
-        return self._session_id
+    def _get_or_create_session_key(self):
+        if self._session_key is None:
+            self._session_key = self._get_new_session_key()
+        return self._session_key
 
     def _get_session_key(self):
-        return self._session_id
+        return self._session_key
 
-    session_key = property(_get_session_id)
+    session_key = property(_get_session_key)
 
     def _get_session(self, no_load=False):
         """
@@ -62,7 +159,7 @@ class SessionBase(SessionBase):
         try:
             return self._session_cache
         except AttributeError:
-            if self.session_id is None or no_load:
+            if self.session_key is None or no_load:
                 self._session_cache = {}
             else:
                 self._session_cache = self.load()
@@ -140,14 +237,14 @@ class SessionBase(SessionBase):
         Creates a new session key, whilst retaining the current session data.
         """
         data = self._session_cache
-        key = self.session_id
+        key = self.session_key
         self.create()
         self._session_cache = data
-        self.delete(id)
+        self.delete(key)
 
     # Methods that child classes must implement.
 
-    def exists(self, session_id):
+    def exists(self, session_key):
         """
         Returns True if the given session_key already exists.
         """

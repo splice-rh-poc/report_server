@@ -1,8 +1,8 @@
 var first_logged_in = false;
 var logged_in = false;
 var is_admin = true;
-var csrftoken = '';
-var pxt = '';
+var csrftoken = null;
+var pxt = null;
 var page_size = 10; // default value
 
 $(document).ready(function() {
@@ -17,8 +17,22 @@ $(document).ready(function() {
 	}).bind("ajaxError", function() {
 		$(this).hide();
 	});
-    
-    setupLoginForm();
+	
+	console.log(pxt);
+	    
+    if (pxt !=null && logged_in==false){
+    	console.log('inside cookie');
+    	setupLoginFormCookie();
+    	console.log('logged in: ' + logged_in);
+    	loadContent();
+    	console.log('logged in: ' + logged_in);
+	
+    }
+    else {
+    	console.log('regular setupLogin')
+    	setupLoginForm();
+    	console.log('logged in: ' + logged_in);
+    }
     setupLLButtons();
     //setupNavButtons(); // obsolete?
     setupCreateForm();
@@ -243,10 +257,10 @@ function setupCreateForm() {
 
     $.ajax({
         url: '/report-server/ui20/report_form/',
-        type: 'GET',
+        type: 'POST',
         contentType: 'application/json',
         data: {},
-        crossDomain: false,
+        crossDomain: false, 
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type)) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -260,7 +274,7 @@ function setupCreateForm() {
         $('#byMonth').chosen();
         $('#env').chosen();
     }).fail(function(jqXHR) {
-        // TODO: Add error handling here
+        console.log("setup create form failed");
     });
 }
 
@@ -810,22 +824,25 @@ function getSession() {
 }
 
 function setupLoginForm() {
-	
     // Login form
-    //$('#login-form').dialog({
-    //    autoOpen: false,
-    //    height: 300,
-    //    width: 350,
-   //     modal: true,
-    //    buttons: {
-    //    "Login": function() {
-         
+    $('#login-form').dialog({
+        autoOpen: false,
+        height: 300,
+        width: 350,
+        modal: true,
+        buttons: {
+        "Login": function() {
+            var data = {
+                "username": $('#username').val(),
+                "password": $('#password').val()
+            };
+
             // Login button in form clicked 
             $.ajax({
                 url: '/report-server/ui20/login/',
                 type: 'POST',
                 contentType: 'application/json',
-                data: {"ssession": pxt },
+                data: data,
                 crossDomain: false,
                 beforeSend: function(xhr, settings) {
                     if (!csrfSafeMethod(settings.type)) {
@@ -858,14 +875,79 @@ function setupLoginForm() {
                 }).fail(function(jqXHR) {
                    $('#login-error').show();
                 });
+            },
+            "Cancel": function() {
+                $('#login-error').hide();
+                $('#login-form').dialog('close');
+            }
+        }
+    });
+}
+
+
+
+function setupLoginFormCookie() {
+    // Login form
+    //$('#login-form').dialog({
+     //   autoOpen: false,
+    //    height: 300,
+    //    width: 350,
+    //    modal: true,
+    //    buttons: {
+       // "Login": function() {
+            var data = {
+                "ssession": pxt,
+            };
+
+            // Login button in form clicked 
+            $.ajax({
+                url: '/report-server/ui20/login/',
+                type: 'POST',
+                contentType: 'application/json',
+                data: data,
+                crossDomain: false,
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type)) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+                }).done(function(data) {
+                    var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
+
+                    $('#login-error').hide();
+                    $('#login-form').dialog('close');
+
+                    // Gray out "Login" button
+                    enableButton($('#logout-button'));
+                    disableButton($('#login-button'));
+
+                    // Check for admin permission
+                    if (rtn.is_admin === true) {
+                        $('#import_button').removeClass('disabled');
+                        $('#import_button').on("click", openImport);
+                    }
+
+                    // alter msg
+                    $('#account-links > span > p').text(rtn.username + " account #" + rtn.account);
+
+                    logged_in = true;
+
+                    loadContent();
+
+                }).fail(function(jqXHR) {
+                	console.log("This request failed");
+                	console.log(jqXHR);
+                   $('#login-error').show();
+                });
             //},
             //"Cancel": function() {
             //    $('#login-error').hide();
-           //     $('#login-form').dialog('close');
-           // }
-     //   }
-    //});
+            //    $('#login-form').dialog('close');
+            //}
+        //}
+   // });
 }
+
 
 function change_rhic_form(data){
     $('#rhic').empty();
