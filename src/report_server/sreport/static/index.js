@@ -2,10 +2,12 @@ var first_logged_in = false;
 var logged_in = false;
 var is_admin = true;
 var csrftoken = '';
+var pxt = '';
 var page_size = 10; // default value
 
 $(document).ready(function() {
     csrftoken = getCookie('csrftoken');
+    pxt = getCookie('report-session');
     
     $("#spinner").bind("ajaxSend", function() {
 		$(this).show();
@@ -798,35 +800,32 @@ function getCookie(name) {
 
 function getSession() {
 	//var name = 'sessionid';
-	var name = 'csrftoken';
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
+	//var name = 'csrftoken';
+    //var cookieValue = null;
+    //if (document.cookie && document.cookie != '') {
+    var cookies = document.cookie.split(';');
        
-    }
-    alert(cookies)
+    //}
+    alert(document.cookie)
 }
 
 function setupLoginForm() {
+	
     // Login form
-    $('#login-form').dialog({
-        autoOpen: false,
-        height: 300,
-        width: 350,
-        modal: true,
-        buttons: {
-        "Login": function() {
-            var data = {
-                "username": $('#username').val(),
-                "password": $('#password').val()
-            };
-
+    //$('#login-form').dialog({
+    //    autoOpen: false,
+    //    height: 300,
+    //    width: 350,
+   //     modal: true,
+    //    buttons: {
+    //    "Login": function() {
+         
             // Login button in form clicked 
             $.ajax({
                 url: '/report-server/ui20/login/',
                 type: 'POST',
                 contentType: 'application/json',
-                data: data,
+                data: {"ssession": pxt },
                 crossDomain: false,
                 beforeSend: function(xhr, settings) {
                     if (!csrfSafeMethod(settings.type)) {
@@ -859,13 +858,13 @@ function setupLoginForm() {
                 }).fail(function(jqXHR) {
                    $('#login-error').show();
                 });
-            },
-            "Cancel": function() {
-                $('#login-error').hide();
-                $('#login-form').dialog('close');
-            }
-        }
-    });
+            //},
+            //"Cancel": function() {
+            //    $('#login-error').hide();
+           //     $('#login-form').dialog('close');
+           // }
+     //   }
+    //});
 }
 
 function change_rhic_form(data){

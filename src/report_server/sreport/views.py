@@ -142,6 +142,15 @@ def report(request):
 
 
 def ui20(request):
+    cookies = request.COOKIES
+    for key, value in cookies.items():
+        if key == "pxt-session-cookie":
+            _LOG.debug('found ' + key + ":" + value)
+            user = authenticate(pxt_session=value)
+            if user:
+                _LOG.debug('user = ' + user.username)
+            else:
+                _LOG.debug('No user for the session was found')    
     return template_response(request, 'ui20/index.html')
 
 
@@ -157,13 +166,29 @@ def login_ui20(request):
           "is_admin": true
         }
     """
-   
-    username = request.POST['username']
-    password = request.POST['password']
-    response_data = {}
-    user = authenticate(username=username, password=password)
+    """
+    cookies = request.COOKIES
+    for key, value in cookies.items():
+        if key == "pxt-session-cookie":
+            _LOG.debug('found ' + key + ":" + value)
+            user = authenticate(pxt_session=value)
+            if user:
+                _LOG.debug('user = ' + user.username)
+            else:
+                _LOG.debug('No user for the session was found')
+    """
+    if (request.POST.__contains__("ssession")):
+        ssession = request.POST['ssession']
+        user = authenticate(pxt_session=ssession)
+        _LOG.info("ssession: " + ssession)
+    else:
+        _LOG.info("no other sessions found")
+        username = request.POST['username']
+        password = request.POST['password']
+        response_data = {}
+        user = authenticate(username=username, password=password)
 
-
+    response_data = {}    
     if user is not None:
         print('if user is not none')
         if user.is_active:

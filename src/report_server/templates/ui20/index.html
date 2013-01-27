@@ -351,6 +351,9 @@
                     <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
                 </fieldset>
             </form>
+            <div id="login-form-cookie" title="Login">
+            <form>{% csrf_token %}
+            </form>
             <div id="login-error" class="ui-state-error">
                 <div class="ui-state-error-text">
                     <p>Invalid Username or Password.</p>
