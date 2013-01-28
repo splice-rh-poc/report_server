@@ -213,9 +213,9 @@ class WebContact(models.Model):
         db_table = u'web_contact'
         
 class Pxtsessions(models.Model):
-    id = models.DecimalField(max_digits=0, decimal_places=-127, primary_key=True)
+    id = models.DecimalField(max_digits=10, decimal_places=10, primary_key=True)
     web_user = models.ForeignKey(WebContact, null=True, blank=True)
-    expires = models.DecimalField(max_digits=0, decimal_places=-127)
+    expires = models.DecimalField(max_digits=10, decimal_places=10)
     value = models.CharField(max_length=4000)
     class Meta:
         db_table = u'pxtsessions'

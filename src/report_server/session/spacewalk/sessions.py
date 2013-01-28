@@ -1,4 +1,4 @@
-
+"""
 from report_server.sreport.models import WebContact, WebCustomer
 
 Class SpacewalkBackend(object):
@@ -11,3 +11,4 @@ Class SpacewalkBackend(object):
             if key == "pxt-session-cookie":
                 PXT_SESSION = value
                 _LOG.info('found pxt-session')
+"""
