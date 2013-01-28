@@ -95,13 +95,17 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    #'django.contrib.sessions.middleware.SessionMiddleware',
+    'report_server.session.spacewalk.middleware.SpacewalkSessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+SESSION_ENGINE = 'report_server.session.spacewalk.db'
+#SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 AUTHENTICATION_BACKENDS = (
    'report_server.auth.spacewalk.backends.SpacewalkBackend',

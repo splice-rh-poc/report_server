@@ -185,40 +185,9 @@ class QuarantinedReportData(Document):
     splice_server = StringField(required=True)
     duplicate = IntField()
 
-class WebCustomer(models.Model): 
-    
-    id = models.DecimalField(primary_key=True, unique=True, decimal_places=0, max_digits=10)
-    name = models.CharField(unique=True, max_length=128)
-    staging_content_enabled = models.CharField(max_length=1)
-    created = models.DateTimeField()
-    modified = models.DateTimeField()
-    class Meta:
-       db_table = u'web_customer'
 
-
-class WebContact(models.Model):
-    
-                
-    id = models.DecimalField(primary_key=True, decimal_places=0, max_digits=10)
-    org = models.ForeignKey(WebCustomer)
-    login = models.CharField(max_length=64)
-    login_uc = models.CharField(unique=True, max_length=64)
-    password = models.CharField(max_length=38)
-    old_password = models.CharField(max_length=38, blank=True)
-    created = models.DateTimeField()
-    modified = models.DateTimeField()
-    oracle_contact_id = models.DecimalField(unique=True, null=True, max_digits=10, decimal_places=0, blank=True)
-    ignore_flag = models.CharField(max_length=1)
-    class Meta:
-        db_table = u'web_contact'
         
-class Pxtsessions(models.Model):
-    id = models.DecimalField(max_digits=10, decimal_places=10, primary_key=True)
-    web_user = models.ForeignKey(WebContact, null=True, blank=True)
-    expires = models.DecimalField(max_digits=10, decimal_places=10)
-    value = models.CharField(max_length=4000)
-    class Meta:
-        db_table = u'pxtsessions'
+
 
         
         

@@ -1,10 +1,3 @@
-from django.conf import settings
-from django.contrib.auth.models import User, check_password
-from report_server.sreport.models import WebContact, WebCustomer
-from report_server.sreport.models import Pxtsessions as Session
-from passlib.hash import md5_crypt
-from datetime import datetime
-
 from django.contrib.sessions.backends.base import SessionBase, CreateError
 from django.core.exceptions import SuspiciousOperation
 from django.db import IntegrityError, transaction, router
@@ -16,26 +9,26 @@ class SessionStore(SessionBase):
     """
     Implements database session store.
     """
-    def __init__(self, session_id=None):
-        super(SessionStore, self).__init__(session_id)
+    def __init__(self, session_key=None):
+        super(SessionStore, self).__init__(session_key)
 
     def load(self):
         try:
             s = Session.objects.get(
-                session_id = self.session_id,
-                expires__gt=datetime.now().strftime('%s')
+                session_key = self.session_key,
+                expire_date__gt=timezone.now()
             )
-            return s.web_user
+            return self.decode(force_unicode(s.session_data))
         except (Session.DoesNotExist, SuspiciousOperation):
             self.create()
             return {}
 
-    def exists(self, session_id):
-        return Session.objects.filter(session_id=session_id).exists()
+    def exists(self, session_key):
+        return Session.objects.filter(session_key=session_key).exists()
 
-    def create(self, web_user):
+    def create(self):
         while True:
-            self._session_id = self._get_new_session_key(web_user)
+            self._session_key = self._get_new_session_key()
             try:
                 # Save immediately to ensure we have a unique entry in the
                 # database.
