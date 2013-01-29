@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User, check_password
-from report_server.sreport.models import WebContact, WebCustomer
-from report_server.sreport.models import Pxtsessions as Session
+from report_server.session.spacewalk.models import WebContact, WebCustomer, Session
+from report_server.session.spacewalk.models import Pxtsessions
 from passlib.hash import md5_crypt
 
 import logging
@@ -48,7 +48,7 @@ class SpacewalkBackend(object):
     def authenticate(self, pxt_session=None):
         pxt = pxt_session.split("x")[0]
         
-        mysession =  Session.objects.filter(id=int(pxt))[0]
+        mysession =  Pxtsessions.objects.filter(id=int(pxt))[0]
         _LOG.debug('spacewalk user login: ' + mysession.web_user.login)
         
         #return User.objects.get(username='westest01')        

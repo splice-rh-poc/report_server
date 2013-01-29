@@ -16,6 +16,31 @@ class SessionManager(models.Manager):
         else:
             s.delete() # Clear sessions with no data.
         return s
+    
+class WebCustomer(models.Model): 
+    
+    id = models.DecimalField(primary_key=True, unique=True, decimal_places=0, max_digits=10)
+    name = models.CharField(unique=True, max_length=128)
+    staging_content_enabled = models.CharField(max_length=1)
+    created = models.DateTimeField()
+    modified = models.DateTimeField()
+    class Meta:
+        db_table = u'web_customer'
+
+class WebContact(models.Model):
+    
+    id = models.DecimalField(primary_key=True, decimal_places=0, max_digits=10)
+    org = models.ForeignKey(WebCustomer)
+    login = models.CharField(max_length=64)
+    login_uc = models.CharField(unique=True, max_length=64)
+    password = models.CharField(max_length=38)
+    old_password = models.CharField(max_length=38, blank=True)
+    created = models.DateTimeField()
+    modified = models.DateTimeField()
+    oracle_contact_id = models.DecimalField(unique=True, null=True, max_digits=10, decimal_places=0, blank=True)
+    ignore_flag = models.CharField(max_length=1)
+    class Meta:
+        db_table = u'web_contact'
 
 
 class Session(models.Model):
@@ -39,6 +64,7 @@ class Session(models.Model):
                                    primary_key=True)
     session_data = models.TextField(_('session data'))
     expire_date = models.DateTimeField(_('expire date'), db_index=True)
+    web_user = models.ForeignKey(WebContact, null=True, blank=True)
     objects = SessionManager()
 
     class Meta:
@@ -49,31 +75,9 @@ class Session(models.Model):
     def get_decoded(self):
         return SessionStore().decode(self.session_data)
     
-class WebCustomer(models.Model): 
-    
-    id = models.DecimalField(primary_key=True, unique=True, decimal_places=0, max_digits=10)
-    name = models.CharField(unique=True, max_length=128)
-    staging_content_enabled = models.CharField(max_length=1)
-    created = models.DateTimeField()
-    modified = models.DateTimeField()
-    class Meta:
-       db_table = u'web_customer'
 
 
-class WebContact(models.Model):
-    
-    id = models.DecimalField(primary_key=True, decimal_places=0, max_digits=10)
-    org = models.ForeignKey(WebCustomer)
-    login = models.CharField(max_length=64)
-    login_uc = models.CharField(unique=True, max_length=64)
-    password = models.CharField(max_length=38)
-    old_password = models.CharField(max_length=38, blank=True)
-    created = models.DateTimeField()
-    modified = models.DateTimeField()
-    oracle_contact_id = models.DecimalField(unique=True, null=True, max_digits=10, decimal_places=0, blank=True)
-    ignore_flag = models.CharField(max_length=1)
-    class Meta:
-        db_table = u'web_contact'
+
     
 class Pxtsessions(models.Model):
     id = models.DecimalField(max_digits=10, decimal_places=10, primary_key=True)
@@ -88,4 +92,4 @@ class Pxtsessions(models.Model):
 
 # At bottom to avoid circular import
 # this may need to be enabled and fixed.. not sure yet
-#from report_server.session.spacewalk.db import SessionStore
+from report_server.session.spacewalk.db import SessionStore

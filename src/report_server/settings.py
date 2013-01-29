@@ -57,6 +57,8 @@ DATABASES = {
 
 
 
+
+
 # Custom test runner to work with Mongo
 TEST_RUNNER = 'rhic_serve.common.tests.MongoTestRunner'
 

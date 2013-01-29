@@ -177,16 +177,16 @@ def login_ui20(request):
             else:
                 _LOG.debug('No user for the session was found')
     """
-    if (request.POST.__contains__("ssession")):
-        ssession = request.POST['ssession']
-        user = authenticate(pxt_session=ssession)
-        _LOG.info("ssession: " + ssession)
-    else:
-        _LOG.info("no other sessions found")
-        username = request.POST['username']
-        password = request.POST['password']
-        response_data = {}
-        user = authenticate(username=username, password=password)
+    #if (request.session.__contains__("ssession")):
+    #    ssession = request.session['ssession']
+    #    user = authenticate(pxt_session=ssession)
+    #    _LOG.info("ssession: " + ssession)
+    #else:
+    _LOG.info("no other sessions found")
+    username = request.POST['username']
+    password = request.POST['password']
+    response_data = {}
+    user = authenticate(username=username, password=password)
 
     response_data = {}    
     if user is not None:

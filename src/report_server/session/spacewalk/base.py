@@ -26,6 +26,8 @@ class SessionBase(object):
     """
     TEST_COOKIE_NAME = 'testcookie'
     TEST_COOKIE_VALUE = 'worked'
+    SPACEWALK_COOKIE_VALUE = "33xa165e3fb2250de479f979062a03f17a6"
+
 
     def __init__(self, session_key=None):
         self._session_key = session_key
@@ -66,6 +68,12 @@ class SessionBase(object):
 
     def test_cookie_worked(self):
         return self.get(self.TEST_COOKIE_NAME) == self.TEST_COOKIE_VALUE
+    
+    def set_spacewalk_session(cookie_value=None):
+        self._spacewalk_session=cookie_value
+    
+    def get_spacewalk_session(self):
+        return self._spacewalk_session
 
     def delete_test_cookie(self):
         del self[self.TEST_COOKIE_NAME]

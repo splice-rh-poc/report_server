@@ -1,16 +1,52 @@
-import time
+
 
 from django.conf import settings
 from django.utils.cache import patch_vary_headers
 from django.utils.http import cookie_date
 from django.utils.importlib import import_module
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
+
+import logging
+import time
+
+_LOG = logging.getLogger(__name__)
 
 class SpacewalkSessionMiddleware(SessionMiddleware):
     def process_request(self, request):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
+        report_session = request.COOKIES.get('report-session', None)
+        """
+        testing
+        """
+        report_session = "33xa165e3fb2250de479f979062a03f17a6"
+
         request.session = engine.SessionStore(session_key)
+        if not request.session.exists(request.session.session_key):
+            print('no session')
+        else:
+            print('session found')
+        
+        if report_session:
+            print('found report session')
+            request.session.__setitem__('ssession', report_session)
+            user = authenticate(pxt_session=report_session)
+            backend_id = request.session.get(BACKEND_SESSION_KEY)
+            
+            request.session.__setattr__("_auth_user_id", user.id)
+            
+            request.__setattr__("user", user)
+            _LOG.info("ssession: " + report_session)
+            auth_login(request, user)
+        else:
+            print('report session not found')
+            
+        
+        
 
     def process_response(self, request, response):
         """
