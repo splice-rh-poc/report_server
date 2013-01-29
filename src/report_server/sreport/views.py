@@ -177,45 +177,47 @@ def login_ui20(request):
             else:
                 _LOG.debug('No user for the session was found')
     """
-    #if (request.session.__contains__("ssession")):
-    #    ssession = request.session['ssession']
-    #    user = authenticate(pxt_session=ssession)
-    #    _LOG.info("ssession: " + ssession)
-    #else:
-    _LOG.info("no other sessions found")
-    username = request.POST['username']
-    password = request.POST['password']
-    response_data = {}
-    user = authenticate(username=username, password=password)
+    if (request.session.__contains__("ssession")):
+        #ssession = request.session['ssession']
+        #user = authenticate(pxt_session=ssession)
+        userid = request.session._auth_user_id
+        user = User.objects.get(id=userid)
+        _LOG.info("ssession: " + request.session["ssession"])
+    elif (request.POST.__contains__('username')):
+        _LOG.info("no other sessions found")
+        username = request.POST['username']
+        password = request.POST['password']
+        response_data = {}
+        user = authenticate(username=username, password=password)
+        if user.is_active:      
+            auth_login(request, user)
+            _LOG.info('successfully authenticated')
+    else:
+            _LOG.error('authentication failed, user does not exist')
+            return HttpResponseForbidden()    
+                
 
     response_data = {}    
     if user is not None:
-        print('if user is not none')
-        if user.is_active:
-            
-            auth_login(request, user)
-
-            _LOG.info('successfully authenticated')
-            username = str(request.user)
-            
-            response_data['is_admin'] = False
-
-            response_data['username'] = username
-            if hasattr(user, 'account'):
-                response_data['account'] = account.account_id
-            else:
-                """
-                work around for current rhic_serve deployment in the 
-                stakeholder env.  The user objects in the stakeholder env do 
-                not have the attribute account
-                
-                """
-                setattr(user, 'account', '55555')
-                response_data['account'] = user.account
-            return HttpResponse(utils.to_json(response_data))
+        print('in user is not none ' + user.username)
+        username = str(request.user)    
+        response_data['is_admin'] = False
+        response_data['username'] = username
+        if hasattr(user, 'account'):
+            response_data['account'] = account.account_id
         else:
-            _LOG.error('authentication failed')
-            return HttpResponseForbidden()
+            """
+            work around for current rhic_serve deployment in the 
+            stakeholder env.  The user objects in the stakeholder env do 
+            not have the attribute account
+            
+            """
+            setattr(user, 'account', '55555')
+            response_data['account'] = user.account
+        return HttpResponse(utils.to_json(response_data))
+        #else:
+        #    _LOG.error('authentication failed')
+        #    return HttpResponseForbidden()
     else:
         _LOG.error('authentication failed, user does not exist')
         return HttpResponseForbidden()

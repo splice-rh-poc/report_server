@@ -22,17 +22,12 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
         report_session = request.COOKIES.get('report-session', None)
         """
         testing
-        """
         report_session = "33xa165e3fb2250de479f979062a03f17a6"
-
+        """
         request.session = engine.SessionStore(session_key)
-        if not request.session.exists(request.session.session_key):
-            print('no session')
-        else:
-            print('session found')
         
         if report_session:
-            print('found report session')
+            _LOG.debug('found report session')
             request.session.__setitem__('ssession', report_session)
             user = authenticate(pxt_session=report_session)
             backend_id = request.session.get(BACKEND_SESSION_KEY)
@@ -43,10 +38,8 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
             _LOG.info("ssession: " + report_session)
             auth_login(request, user)
         else:
-            print('report session not found')
+            _LOG.debug('report session not found')
             
-        
-        
 
     def process_response(self, request, response):
         """
