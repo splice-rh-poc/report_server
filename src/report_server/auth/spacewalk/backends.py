@@ -63,8 +63,9 @@ class SpacewalkBackend(object):
             return None
           
 
-    def get_user(self, username):
+    def get_user(self, user_id):
         try:
-            return User.objects.get(username=username)
+            #the user_id = request.session[SESSION_KEY] is getting sent here
+            return User.objects.get(id=user_id)
         except User.DoesNotExist:
             return None

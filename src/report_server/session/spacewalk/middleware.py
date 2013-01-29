@@ -26,6 +26,8 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
         """
         request.session = engine.SessionStore(session_key)
         
+        if hasattr(request, 'user'):
+            _LOG.info('request.user' + str(request.user))
         if report_session:
             _LOG.debug('found report session')
             request.session.__setitem__('ssession', report_session)
@@ -34,7 +36,8 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
             
             request.session.__setattr__("_auth_user_id", user.id)
             
-            request.__setattr__("user", user)
+            #need to add the user attribute to be set in auth_login
+            request.__setattr__("user", None)
             _LOG.info("ssession: " + report_session)
             auth_login(request, user)
         else:

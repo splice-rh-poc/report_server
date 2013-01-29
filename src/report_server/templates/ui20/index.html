@@ -153,9 +153,7 @@
                               <button id='default-report-submit' name='default-report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='create_default_report(event)'>
                                 <span class='ui-button-text'>Run Report</span>
                               </button>
-                              <button id='show_cookie' name='show_cookie' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='getSession()'>
-                                <span class='ui-button-text'>Show cookie sessionid</span>
-                              </button>
+
 
                             </div>
                             <div id='default_report_results_ui'> </div>	
@@ -343,18 +341,11 @@
         </div>
             <!-- Login Form -->
         <div id="login-form" title="Login">
-            <form>{% csrf_token %}
-                <fieldset>
-                    <label for="username">Username</label><br>
-                    <input type="text" name="username" id="username" class="text ui-widget-content ui-corner-all" /><br>
-                    <label for="password">Password</label><br>
-                    <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
-                </fieldset>
-            </form>
+        
             <div id="login-error" class="ui-state-error">
                 <div class="ui-state-error-text">
-                    <p>Invalid Username or Password.</p>
-                    <p>Please try again.</p>
+                    <p>Satellite session has expired</p>
+                    <p>Please log into RHN Satellite.</p>
                 </div>
             </div>
             <div id="relogin" class="ui-helper-hidden">

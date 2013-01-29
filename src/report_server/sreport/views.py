@@ -177,7 +177,7 @@ def login_ui20(request):
             else:
                 _LOG.debug('No user for the session was found')
     """
-    if (request.session.__contains__("ssession")):
+    if hasattr(request.session, "_auth_user_id"):
         #ssession = request.session['ssession']
         #user = authenticate(pxt_session=ssession)
         userid = request.session._auth_user_id
@@ -194,6 +194,7 @@ def login_ui20(request):
             _LOG.info('successfully authenticated')
     else:
             _LOG.error('authentication failed, user does not exist')
+            logout_ui20(request)
             return HttpResponseForbidden()    
                 
 
@@ -201,13 +202,9 @@ def login_ui20(request):
     if user is not None:
         #not sure why request.user is not persisting through the middleware
         username = str(request.user)
-        print('in user is not none ' + username)
-        _LOG.info('in user is not none ' + username)
-        
-        username = user.username
-        print('in user is not none ' + username)
-        _LOG.info('in user is not none ' + username)        
-        
+        print('request.user ' + username)
+        _LOG.info('request.user ' + username)
+                 
         response_data['is_admin'] = False
         response_data['username'] = username
         if hasattr(user, 'account'):
@@ -319,9 +316,9 @@ def report_form_ui20(request):
 
     contracts = []
     user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    account = '555555'#Account.objects.filter(login=user)[0].account_id
     list_of_contracts = ['0'] #Account.objects.filter(account_id=account)[0].contracts
-    list_of_rhics = list(RHIC.objects.filter(account_id=account))
+    list_of_rhics = ['0', '1']#list(RHIC.objects.filter(account_id=account))
     environments = SpliceServer.objects.distinct("environment")
     #for c in list_of_contracts:
     #    contracts.append(c.contract_id)
@@ -333,8 +330,7 @@ def report_form_ui20(request):
     response_data = {}
     response_data['contracts'] = contracts
     response_data['user'] = user
-    response_data['list_of_rhics'] = [(str(r.uuid), r.name)
-                                      for r in list_of_rhics]
+    response_data['list_of_rhics'] = list_of_rhics
     response_data['environments'] = environments
 
     _LOG.info(response_data)
@@ -491,7 +487,7 @@ def report_ui20(request):
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    account = '55555'#Account.objects.filter(login=user)[0].account_id
     try:
         api_data = json.loads(request.raw_post_data)
         data = api_data
@@ -579,7 +575,7 @@ def default_report(request):
     _LOG.info("default_report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
+    account = 55555#Account.objects.filter(login=user)[0].account_id
     try:
         api_data = json.loads(request.raw_post_data)
         data = api_data
