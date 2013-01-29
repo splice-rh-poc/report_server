@@ -60,8 +60,15 @@ class SpacewalkBackend(object):
             _LOG.info('report server username: ' + user.username)
             return user
         except User.DoesNotExist:
-            return None
-          
+            # Create a new user. Note that we can set password
+            # to anything, because it won't be checked; the password
+            
+            user = User(username=username, password="default")
+            user.is_staff = False
+            user.is_superuser = False
+            user.save()
+        return user
+  
 
     def get_user(self, user_id):
         try:
