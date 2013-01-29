@@ -341,20 +341,7 @@
         </div>
             <!-- Login Form -->
         <div id="login-form" title="Login">
-            <form>{% csrf_token %}
-                <fieldset>
-                    <label for="username">Username</label><br>
-                    <input type="text" name="username" id="username" class="text ui-widget-content ui-corner-all" /><br>
-                    <label for="password">Password</label><br>
-                    <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
-                </fieldset>
-            </form>
-            <div id="login-error" class="ui-state-error">
-                <div class="ui-state-error-text">
-                    <p>Invalid Username or Password.</p>
-                    <p>Please try again.</p>
-                </div>
-            </div>
+        
             <div id="login-error" class="ui-state-error">
                 <div class="ui-state-error-text">
                     <p>Satellite session has expired</p>
