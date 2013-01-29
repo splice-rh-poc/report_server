@@ -32,16 +32,22 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
             _LOG.debug('found report session')
             request.session.__setitem__('ssession', report_session)
             user = authenticate(pxt_session=report_session)
-            backend_id = request.session.get(BACKEND_SESSION_KEY)
-            
-            request.session.__setattr__("_auth_user_id", user.id)
-            
-            #need to add the user attribute to be set in auth_login
-            request.__setattr__("user", None)
-            _LOG.info("ssession: " + report_session)
-            auth_login(request, user)
+            if user:
+                backend_id = request.session.get(BACKEND_SESSION_KEY)
+                
+                request.session.__setattr__("_auth_user_id", user.id)
+                
+                #need to add the user attribute to be set in auth_login
+                request.__setattr__("user", None)
+                _LOG.info("ssession: " + report_session)
+                auth_login(request, user)
+            else:
+                _LOG.debug('satellite session may have expired')
+                request.session.flush()
+                
         else:
             _LOG.debug('report session not found')
+            request.session.flush()
             
 
     def process_response(self, request, response):

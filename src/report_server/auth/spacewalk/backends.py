@@ -47,8 +47,12 @@ class SpacewalkBackend(object):
         
     def authenticate(self, pxt_session=None):
         pxt = pxt_session.split("x")[0]
-        
         mysession =  Pxtsessions.objects.filter(id=int(pxt))[0]
+        if not hasattr(mysession.web_user, "login"):
+            _LOG.error('spacewalk session has expired')
+            return None
+        
+        
         _LOG.debug('spacewalk user login: ' + mysession.web_user.login)
         
         #return User.objects.get(username='westest01')        
@@ -58,12 +62,11 @@ class SpacewalkBackend(object):
         try:
             user = User.objects.get(username=oracle_user_login)
             _LOG.info('report server username: ' + user.username)
-            return user
         except User.DoesNotExist:
             # Create a new user. Note that we can set password
             # to anything, because it won't be checked; the password
             
-            user = User(username=username, password="default")
+            user = User(username=mysession.web_user.login, password="default")
             user.is_staff = False
             user.is_superuser = False
             user.save()
