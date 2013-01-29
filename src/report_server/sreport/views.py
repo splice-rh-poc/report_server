@@ -199,8 +199,15 @@ def login_ui20(request):
 
     response_data = {}    
     if user is not None:
-        print('in user is not none ' + user.username)
-        username = str(request.user)    
+        #not sure why request.user is not persisting through the middleware
+        username = str(request.user)
+        print('in user is not none ' + username)
+        _LOG.info('in user is not none ' + username)
+        
+        username = user.username
+        print('in user is not none ' + username)
+        _LOG.info('in user is not none ' + username)        
+        
         response_data['is_admin'] = False
         response_data['username'] = username
         if hasattr(user, 'account'):
