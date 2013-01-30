@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.54
+Version:	0.55
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jan 30 2013 John Matthews <jmatthews@redhat.com> 0.55-1
+- Adding upload if 'SpliceServer' API (jmatthews@redhat.com)
+
 * Fri Jan 25 2013 John Matthews <jmatthews@redhat.com> 0.54-1
 - Fix for non-gzipped import of ProductUsage data (jmatthews@redhat.com)
 
