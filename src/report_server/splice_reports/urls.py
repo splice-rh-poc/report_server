@@ -16,7 +16,7 @@ from report_server.sreport.api import ProductUsageResource, \
     QuarantinedDataResource, ComplianceDataResource, ReportResource
 from tastypie.api import Api
 
-
+from splice.common.api import SpliceServerResource
 
 v1_api = Api(api_name='v1')
 
@@ -29,6 +29,7 @@ v1_api.register(productusage_resource)
 v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
 v1_api.register(report_resource)
+v1_api.register(SpliceServerResource())
 
 urlpatterns = patterns('',
     # Examples:
