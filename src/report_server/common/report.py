@@ -23,7 +23,8 @@ def hours_per_consumer(start,
                        end,
                        list_of_rhics=None,
                        contract_number=None,
-                       environment="All"):
+                       environment="All",
+                       return_failed_only=False):
     results = []
     
     rules = Rules()
@@ -64,7 +65,11 @@ def hours_per_consumer(start,
                                                   report_biz_rules)
             if results_dicts:
                 for result in results_dicts:
-                    rhic_list.append(result)
+                    if not return_failed_only:
+                        rhic_list.append(result)
+                    else:
+                        if result['compliant'] == False:
+                            rhic_list.append(result)
         if rhic_list:
             results.append(rhic_list)
     return results
@@ -76,8 +81,3 @@ def get_list_of_products(account_num, contract_num):
         if contract.contract_id == contract_num:
             list_of_products = contract.products
     return list_of_products
-
-
-
-                        
-    

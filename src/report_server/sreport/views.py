@@ -71,10 +71,9 @@ def report(request):
         month_year = request.GET['byMonth'].encode('ascii').split('%2C')
         month = int(month_year[0])
         year = int(month_year[1])
-        year = datetime.today().year
         start = datetime(year, month, 1)
         if month == 12:
-            end = datetime(year, 1, 1) - timedelta(days=1)
+            end = datetime(year + 1, 1, 1) - timedelta(days=1)
         else:
             end = datetime(year, month + 1, 1) - timedelta(days=1)
     else:
@@ -170,7 +169,17 @@ def login_ui20(request):
                 response_data['is_admin'] = False
 
             response_data['username'] = username
-            response_data['account'] = user.account
+            if hasattr(user, 'account'):
+                response_data['account'] = user.account
+            else:
+                """
+                work around for current rhic_serve deployment in the 
+                stakeholder env.  The user objects in the stakeholder env do 
+                not have the attribute account
+                
+                """
+                setattr(user, 'account', '55555')
+                response_data['account'] = user.account
             return HttpResponse(utils.to_json(response_data))
         else:
             _LOG.error('authentication failed')
@@ -382,7 +391,7 @@ def detailed_report_ui20(request):
 
     return response
 
-
+@login_required
 def report_ui20(request):
     # replaces report(request)
     """
@@ -523,41 +532,55 @@ def report_ui20(request):
 
     return response
 
+@login_required
+def default_report(request):
+    
+    _LOG.info("default_report called by method: %s" % (request.method))
 
-def systemFactCompliance(request):
-    """
-    Search through ReportData.objects and find any objects that do not meet the
-    criteria in the business rules as defined in 
-    """
-    rules = Rules()
-    report_biz_rules = rules.get_rules()
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    try:
+        api_data = json.loads(request.raw_post_data)
+        data = api_data
+    except Exception:
+        _LOG.debug('report called, request.raw_post_data does not match expected format')
+        try:
+            form_data = json.loads(utils.to_json(request.POST))
+            data = form_data
 
-    results = []
-    instances = ReportData.objects.distinct('instance_identifier')
-    for i in instances:
-        # we need to find if this instance_identifier has any other products
-        # associated w/ it
-        products = ReportData.objects.filter(
-            instance_identifier=i).distinct('product_name')
-        for p in products:
-            inst = ReportData.objects.filter(
-                instance_identifier=i, product_name=p).first()
-            product_rules = report_biz_rules[inst.product_name]
-            if product_rules['cpu']:
-                if product_rules['cpu']['high_gt'] != '-1':
-                    if inst.cpu > product_rules['cpu']['high_gt']:
-                        results.append([inst, product_rules])
-            if product_rules['cpu_sockets']:
-                if product_rules['cpu_sockets']['high_gt'] != '-1':
-                    if inst.cpu_sockets > product_rules['cpu_sockets']['high_gt']:
-                        results.append([inst, product_rules])
-            if product_rules['memtotal']:
-                if product_rules['memtotal']['high_gt'] != '-1':
-                    if inst.memtotal > product_rules['memtotal']['high_gt']:
-                        results.append([inst, product_rules])
+        except Exception:
+            _LOG.error('report called, request.raw_post_data and '
+                       'request.POST do not match expected format')
+
+
+    startDate = data['startDate'].split("/")
+    endDate = data['endDate'].split("/")
+    start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
+    end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    environment = data['env']
+    rhic = data['rhic']
+    contract = data['contract_number']
+    list_of_rhics = []
+    
+ 
+    list_of_rhics = list(RHIC.objects.filter(account_id=account))
+    usuage_compliance = hours_per_consumer(start,
+                                 end, 
+                                 list_of_rhics=list_of_rhics,
+                                 environment=environment,
+                                 return_failed_only=True)
+    
+    fact_compliance = system_fact_compliance_list(account)
+
+    format = constants.full_format
 
     response_data = {}
-    response_data['list'] = results
+    response_data['list'] = usuage_compliance
+    response_data['biz_list'] = fact_compliance
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
     try:
         response = HttpResponse(utils.to_json(response_data))
     except:
@@ -567,6 +590,61 @@ def systemFactCompliance(request):
 
     return response
 
+
+def system_fact_compliance(request):
+    """
+    Search through ReportData.objects and find any objects that do not meet the
+    criteria in the business rules as defined in 
+    """
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id    
+    response_data = {}
+    response_data['list'] = system_fact_compliance_list(account)
+    try:
+        response = HttpResponse(utils.to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
+    return response
+
+
+def system_fact_compliance_list(account):
+    list_of_instances=[]
+    rules = Rules()
+    report_biz_rules = rules.get_rules()
+    list_of_rhics = list(RHIC.objects.filter(account_id=account))
+    for rhic in list_of_rhics:
+        instances = ReportData.objects.filter(consumer=rhic.name)
+        #instances = ReportData.objects.distinct(consumer=rhic.name)
+        for i in instances:    
+            list_of_instances.append(i.instance_identifier)
+    unique_list = set(list_of_instances)
+    results = []
+    for i in unique_list:
+        # we need to find if this instance_identifier has any other products
+        # associated w/ it
+
+        products = ReportData.objects.filter(
+            instance_identifier=i).distinct('product_name')
+        for p in products:
+            inst = ReportData.objects.filter(
+                instance_identifier=i, product_name=p).first()
+            product_rules = report_biz_rules[inst.product_name]
+            if product_rules['cpu']:
+                if product_rules['cpu']['high_lt'] != -1:
+                    if inst.cpu > product_rules['cpu']['high_lt']:
+                        results.append([inst, product_rules, 'violates cpu'])
+            if product_rules['cpu_sockets']:
+                if product_rules['cpu_sockets']['high_lt'] != -1:
+                    if inst.cpu_sockets > product_rules['cpu_sockets']['high_lt']:
+                        results.append([inst, product_rules, 'violates cpu_sockets'])
+            if product_rules['memtotal']:
+                if product_rules['memtotal']['high_lt'] != -1:
+                    if inst.memtotal > product_rules['memtotal']['high_lt']:
+                        results.append([inst, product_rules, 'violates memory'])   
+    return results
 
 def unauthorized_pem():
     results = ReportData.objects.filter()

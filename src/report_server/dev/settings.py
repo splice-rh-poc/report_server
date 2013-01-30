@@ -12,7 +12,7 @@
 
 import os
 
-from splice.common import config
+#from splice.common import config
 from report_server.settings import *
 
 ROOT_URLCONF = 'dev.urls'
@@ -20,9 +20,6 @@ ROOT_URLCONF = 'dev.urls'
 curr_dir = os.path.dirname(__file__)
 source_dir = os.path.join(curr_dir, '..')
 os.chdir(source_dir)
-
-config_file = os.path.join(curr_dir, 'splice.conf')
-config.init(config_file, reinit=True)
 
 DUMP_DIR = os.path.join(curr_dir, 'db_dump')
 

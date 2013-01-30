@@ -21,8 +21,10 @@ from report_server.common.biz_rules import Rules
 
 MONGO_DATABASE_NAME = config.CONFIG.get('report_server', 'db_name')
 MONGO_DATABASE_HOST = config.CONFIG.get('report_server', 'db_host')
-MONGO_DATABASE_NAME_CHECKIN = config.CONFIG.get('server', 'db_name')
-MONGO_DATABASE_HOST_CHECKIN = config.CONFIG.get('server', 'db_host')
+#MONGO_DATABASE_NAME_CHECKIN = config.CONFIG.get('server', 'db_name')
+MONGO_DATABASE_NAME_CHECKIN = 'checkin_service'
+#MONGO_DATABASE_HOST_CHECKIN = config.CONFIG.get('server', 'db_host')
+MONGO_DATABASE_HOST_CHECKIN = MONGO_DATABASE_HOST
 MONGO_DATABASE_NAME_RHICSERVE = config.CONFIG.get('rhic_serve', 'db_name')
 MONGO_DATABASE_HOST_RHICSERVE = config.CONFIG.get('rhic_serve', 'db_host')
 

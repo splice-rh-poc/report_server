@@ -19,6 +19,27 @@ table#basic_report {
 }
 
 
+table#factCompliance_data {
+    border-collapse: collapse;   
+}
+#factCompliance_data tr {
+    background-color: #eee;
+    border-top: 1px solid #eee;
+}
+#factCompliance_data tr:hover {
+    background-color: #ccc;
+}
+#factCompliance_data th {
+    background-color: #eee;
+}
+#factCompliance_data th, #factCompliance_data td {
+    padding: 3px 5px;
+}
+#factCompliance_data td:hover {
+    cursor: pointer;
+}
+
+
 table#max_data {
     border-collapse: collapse;   
 }

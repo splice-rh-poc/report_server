@@ -181,6 +181,44 @@ function setupNavButtons() {
     $('#max_button').on("click", openMax);
 }
 
+function form_filter_link_show(){
+	document.getElementById("filter_toggle").style.display = "block";
+	document.getElementById("default-report-submit").style.display = "block";
+	toggle_report_form()
+}
+
+function form_filter_link_hide(){
+	document.getElementById("filter_toggle").style.display = "none";
+	//document.getElementById("default-report-submit").style.display = "none";
+	toggle_report_form()
+}
+
+function toggle_report_form() {
+    $('#default_report_results').empty();
+    $('#default_report_results_ui').empty();
+    
+    //var but = document.getElementById("default-report-submit")
+    var ele = document.getElementById("create_pane");
+    var report = document.getElementById("report_form");
+    var text = document.getElementById("filter_toggle");
+    var default_report_button = document.getElementById("default-report-submit");
+    
+    //DEFAULT, just show create_report
+    if(ele.style.display == "block") {
+        ele.style.display = "none";
+        report.style.display = "none";
+        text.innerHTML = "show advanced filter";
+        default_report_button.style.display = "block";
+    }
+    //show report filter options
+    else {
+        ele.style.display = "block";
+        report.style.display = "block";
+        text.innerHTML = "hide advanced filter";
+        default_report_button.style.display = "none";
+    }
+}
+
 function setupCreateForm() {
     $('#report_form').each(function() {
         this.reset();
@@ -269,6 +307,9 @@ function setupCreateFormButtons() {
 }
 
 function createReport(event) {
+	form_filter_link_show();
+
+	
     // Have to stop url from changing so disable default event
     event.preventDefault();
     
@@ -308,7 +349,9 @@ function createReport(event) {
             }
         }).done(function(data) {
             var rtn = jQuery.parseJSON(data);
-            populateReport(rtn);
+            $('#report_pane > div').empty();
+            var pane = '#report_pane > div';
+            populateReport(rtn, pane );
             openReport();
             // Attach the event handler back on
             $('#report_button').on("click", openReport);
@@ -317,6 +360,66 @@ function createReport(event) {
         });
     }
 }
+
+function create_default_report(event){
+    document.getElementById("report_form").style.display = "none"
+    $('#default_report_results_ui').empty();
+    $('#default_report_results').empty();
+    
+    event.preventDefault();
+    var num
+    if (logged_in) {
+        var data = {};
+        var dtoday = Date.today();
+        console.log(dtoday);
+        //data in mm/dd/yyyy format
+        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
+        data['endDate'] = Date.today().toString("M/d/yyyy");
+        data['contract_number'] = "All"
+        data['rhic'] = "null"
+        data['env'] = "All"
+        
+        $.ajax({
+            url: '/report-server/ui20/default_report/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: data,
+            crossDomain: false,
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        }).done(function(data) {
+            var rtn = jQuery.parseJSON(data);
+            $('#default_report_results').append("<br><br><br><br><br><br><br><br><br>")
+            num = populateReport(rtn, "#default_report_results");
+            fact = populateFactComplianceReport(rtn.biz_list, "#default_report_results");  
+            
+            if (num+fact > 0){
+                console.log('fail')
+                result_ui = $('#default_report_results_ui');
+                var table = $('<table width=\"60%\" align=\"right\"></table>');
+                table.append('<img border=0 src="/static/fail.png") alt="fail" width="100" height="100">');
+                result_ui.append(table);
+            }
+            else{
+                console.log('pass')
+                result_ui = $('#default_report_results_ui');
+                var table = $('<table width=\"60%\" align=\"right\"></table>');
+                table.append('<img border=0 src="/static/pass.jpg") alt="fail" width="100" height="100">');
+                result_ui.append(table);
+            }
+            
+            
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            // TODO: Add error handling here
+        });
+        
+       
+    }
+}
+
 
 function exportReport(event) {
  //Have to stop url from changing so disable default event
@@ -401,6 +504,7 @@ function resetReportForm(event) {
 function openCreate() {
     removeActiveNav();
     $('#create_button').addClass('active');
+    form_filter_link_show();
 
     if (logged_in) {
         $('#create_pane').show();
@@ -414,6 +518,7 @@ function openCreate() {
 
 function openReport() {
     $('#report_button').removeClass('disabled');
+    form_filter_link_hide();
     removeActiveNav();
     $('#report_button').addClass('active');;
     $('#create_pane').hide();
@@ -427,6 +532,7 @@ function openReport() {
 
 function openDetail() {
     $('#detail_button').removeClass('disabled');
+    form_filter_link_hide();
     removeActiveNav();
     $('#detail_button').addClass('active');
     $('#create_pane').hide();
@@ -447,6 +553,7 @@ function closeDetail() {
 }
 
 function openMax() {
+	form_filter_link_hide();
     $('#max_button').removeClass('disabled');
     removeActiveNav();
     $('#max_button').addClass('active');
@@ -469,6 +576,7 @@ function closeMax() {
 }
 
 function openImport() {
+	form_filter_link_hide();
     removeActiveNav();
     $('#import_button').addClass('active');
 
@@ -481,6 +589,8 @@ function openImport() {
 
     }
 }
+
+
 
 function createDetail(date, description,  filter_args) {
     var data = {
@@ -618,7 +728,7 @@ function createFactComplianceReport() {
         }
     }).done(function(data) {
         var rtn = jQuery.parseJSON(data);
-        populateFactComplianceReport(rtn);
+        populateFactComplianceReport(rtn.list, '#admin_report');
         openImport(); // this shouldn't be needed, but no harm in calling it again
         $('#import_button').on("click", openImport);
     }).fail(function(jqXHR) {
@@ -784,52 +894,15 @@ function fill_create_report_form(data) {
             $('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
             });	
 
-    var d = new Date();
-    var n = d.getMonth() + 1;
-    var year = d.getFullYear();
-    var month=new Array();
-    month[1]="Jan";
-    month[2]="Feb";
-    month[3]="Mar";
-    month[4]="Apr";
-    month[5]="May";
-    month[6]="Jun";
-    month[7]="Jul";
-    month[8]="Aug";
-    month[9]="Sep";
-    month[10]="Oct";
-    month[11]="Nov";
-    month[12]="Dec";
-    
-
-    //having trouble finding an equiv of python's timedelta for javascript
-    // hacking for demo
-    if (n == 2){
-    	date_b_month = 12;
-    	date_b_year = year - 1;
-    }
-    else if (n == 1){
-    	date_a_month = 11;
-    	date_a_year = (year - 1);
-    	date_b_month = 12;
-    	date_b_year = (year - 1);
-    }
-    else {
-    	//get previous two months
-        var date_a = new Date(year, (n), 0);
-        var date_b = new Date(year, (n - 1), 0);
-        
-    	var date_a_month = date_a.getMonth();
-        var date_b_month = date_b.getMonth();
-        var date_a_year = date_a.getFullYear();
-        var date_b_year = date_b.getFullYear();
-    }
+   
+    date_0 = Date.today();
+    date_1 = (1).months().ago();
+    date_2 = (2).months().ago();
     
     $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
-    $('#byMonth').append($('<option selected value=' + n + ',' + year +  '>' + month[n] + ' ' + year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_a_month) + ',' + date_a_year + '>' + month[date_a_month] + ' ' + date_a_year + '</option>'));
-    $('#byMonth').append($('<option  value=' + (date_b_month) + ',' + date_b_year + '>' + month[date_b_month] + ' '+ date_b_year +'</option>'));
-    
+    $('#byMonth').append($('<option selected value=' + date_0.toString("M") + ',' + date_0.toString("yyyy") +  '>' + date_0.toString("MMM") + ' ' + date_0.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
     
 }
 
@@ -845,6 +918,7 @@ function enableButton(btn) {
 
 function loadContent() {
     if (!logged_in) {
+    	$('#main-wrap').hide();
         $('#create_pane').hide();
         $('#report_pane').hide();
         $('#detail_pane').hide();
@@ -853,6 +927,7 @@ function loadContent() {
 
         $('#navWrap').hide();
     } else {
+    	$('#main-wrap').show();
         $('#navWrap').show();
         openCreate();
         setupCreateForm();
@@ -872,17 +947,21 @@ function removeActiveNav() {
 }
 
 
-function populateReport(rtn) {
-    var pane = $('#report_pane > div');
-    
+function populateReport(rtn, pane) {
+    var pane = $(pane);
+    var this_div = $('<div this_rhic_table>')
 
-    // cleanup first
-    pane.empty();
-    
     pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
     pane.append('<br><br>');
+    
+    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+    
 
     if (rtn.list.length > 0) {
+        pane.append(show_details); 
+    	pane.append('<b>Number of RHIC\'s:  ' + rtn.list.length + '</b> ')
+    	pane.append('<br><br>')
+    	
         for (var rhic_index in rtn.list) {
             var rhic = rtn.list[rhic_index];
 
@@ -911,7 +990,7 @@ function populateReport(rtn) {
 
                 // insert something if it's the first item
                 if (product_index == 0) {
-                    pane.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
+                    this_div.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
                 }
                 
 
@@ -943,16 +1022,19 @@ function populateReport(rtn) {
             }
 
             table.append(tbody);
-
-            pane.append(table);
-
-            pane.append($('<br></br>'));
-
-
+			this_div.append(table);
+			this_div.append($('<br></br>'))
+            pane.append(this_div)
+			this_div.hide()
+			
         }
     }
-
-
+    
+show_details.click(function (){
+		this_div.toggle("slow");
+		
+	  })
+return rtn.list.length
 }
 
 function populateQuarantineReport(rtn) {
@@ -961,74 +1043,72 @@ function populateQuarantineReport(rtn) {
     top.append('<br><br>');
     var header = $('<b>Number of Quarantined Instance Checkins: ' + rtn.list.length + '   </b>');
     if (rtn.list.length > 0) {
-     top.append(header);
-     var show_details = $('<button id=show_quarantine class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-     top.append(show_details);   
+    top.append(header);
+    var show_details = $('<button id=show_quarantine class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+    top.append(show_details);   
      
-     
-     var mydata = rtn.list;
-        
-        
-        var table = $('<table id=\'quarantine_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-        
-        
-        var header = ($('<tr></tr>'));
-        header.append($('<th>Instance:</th>'));
-        header.append($('<th>Splice Server:</th>'));
-        header.append($('<th>Product Name:</th>'));
-        header.append($("<th>Product ID's:</th>"));
-        header.append($('<th>Time:</th>'));
+
+	var table = $('<table id=\'quarantine_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
+	
+	
+	var header = ($('<tr></tr>'));
+	header.append($('<th>Instance:</th>'));
+	header.append($('<th>Splice Server:</th>'));
+	header.append($('<th>Product Name:</th>'));
+	header.append($("<th>Product ID's:</th>"));
+	header.append($('<th>Time:</th>'));
 
 
-        table.append(header);
+	table.append(header);
 
-        var tbody = $('<tbody></tbody>');
+	var tbody = $('<tbody></tbody>');
 
-        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-            var instance = rtn.list[instance_index];
+	for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
+		var instance = rtn.list[instance_index];
 
-            var row = $('<tr></tr>');
-            row.append($('<td>' + instance['instance_identifier'] + '</td>'));
-            row.append($('<td>' + instance['splice_server'] + '</td>'));
-            row.append($('<td>' + instance['product_name'] + '</td>'));
-            row.append($('<td>' + instance['product'] + '</td>'));
-            row.append($('<td>' + instance['hour'] + '</td>'));
+		var row = $('<tr></tr>');
+		row.append($('<td>' + instance['instance_identifier'] + '</td>'));
+		row.append($('<td>' + instance['splice_server'] + '</td>'));
+		row.append($('<td>' + instance['product_name'] + '</td>'));
+		row.append($('<td>' + instance['product'] + '</td>'));
+		row.append($('<td>' + instance['hour'] + '</td>'));
 
-            tbody.append(row);
-        }
-       
-        table.append(tbody);
-        table.hide();
-        top.append(table);
-        
-        
-        $("button").click(function (){
-            $('#quarantine_data').toggle("slow");
-            
-          })
-          
-    } else {
-        top.append($('<h3>There is no quarantined data.</h3>'));
-        top.append($('<br></br>'));
-        top.append($('<br></br>'));
-    }
+		tbody.append(row);
+	}
+   
+	table.append(tbody);
+	table.hide();
+	top.append(table);
+	
+	
+	show_details.click(function (){
+		$('#quarantine_data').toggle("slow");
+		
+	  })
+	  
+} else {
+	top.append($('<h3>There is no quarantined data.</h3>'));
+	top.append($('<br></br>'));
+	top.append($('<br></br>'));
+}
 
 }
 
-function populateFactComplianceReport(rtn) {
-    var top = $('#admin_report');
-    top.empty();
+function populateFactComplianceReport(rtn, pane) {
+    var top = $(pane);
+    var this_div = $('<div this_fact_table>')
+    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+    //top.empty();
     top.append('<br><br>');
-    var header = $('<b>Number of Non-Compliant Instances: ' + rtn.list.length + '   </b>');
-    if (rtn.list.length > 0) {
-     top.append(header);
-     var show_compliance = $('<button id=show_compliance class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-     top.append(show_compliance);
-     
-     
-     var mydata = rtn.list;
-        
-        
+    var header = $('<b>Number of Instances: ' + rtn.length + '   </b>');
+    if (rtn.length > 0) {
+      top.append(header);
+  	  
+  	  
+      top.append(show_details); 
+      top.append('<br><br>')
+  	 
+      var mydata = rtn;   
         var table = $('<table id=\'factCompliance_data\' class=\'display\' style=\'display: table\' width=\'100%\'></table>');
         
         
@@ -1041,15 +1121,18 @@ function populateFactComplianceReport(rtn) {
         header.append($('<th>Rules: CPU</th>'));
         header.append($('<th>Rules: CPU Socket</th>'));
         header.append($('<th>Rules: Memory (kb)</th>'));
+        header.append($('<th>Violation Summary</th>'));
 
 
         table.append(header);
+        
 
         var tbody = $('<tbody></tbody>');
 
-        for (var instance_index=0; instance_index <  rtn.list.length; instance_index++) {
-            var instance = rtn.list[instance_index][0];
-            var rules = rtn.list[instance_index][1];
+        for (var instance_index=0; instance_index <  rtn.length; instance_index++) {
+            var instance = rtn[instance_index][0];
+            var rules = rtn[instance_index][1];
+            var summary = rtn[instance_index][2];
 
             var row = $('<tr></tr>');
             row.append($('<td>' + instance['instance_identifier'] + '</td>'));
@@ -1057,6 +1140,7 @@ function populateFactComplianceReport(rtn) {
             row.append($('<td>' + instance['cpu'] + '</td>'));
             row.append($('<td>' + instance['cpu_sockets'] + '</td>'));
             row.append($('<td>' + instance['memtotal'] + '</td>'));
+            
             
             if (rules['cpu']['rule']==undefined){
                 row.append($('<td></td>'))
@@ -1078,26 +1162,31 @@ function populateFactComplianceReport(rtn) {
             else{
                 row.append($('<td>' + rules['memtotal']['rule'] + '</td>'));
             }
+            
+            row.append($('<td>' + summary +  '</td>'));
 
 
             tbody.append(row);
         }
        
         table.append(tbody);
-        table.hide();
-        top.append(table);
+        //table.hide();
+        this_div.append(table)
+        //top.append(table);
+        top.append(this_div)
+        this_div.hide()
         
         
-        $("button").click(function (){
-            $('#factCompliance_data').toggle("slow");
-            
-          })
+        //show_compliance.click(function (){
+        //    $('#factCompliance_data').toggle("slow");
+        //  })
           
-    } else {
-        top.append($('<h3>There are no instances out of compliance.</h3>'));
-        top.append($('<br></br>'));
-    }
-
+    } 
+show_details.click(function (){
+		this_div.toggle("slow");
+		
+	  })
+return rtn.length
 }
 
 

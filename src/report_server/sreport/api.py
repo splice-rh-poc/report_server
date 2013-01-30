@@ -103,7 +103,7 @@ class ComplianceDataResource(Resource):
 
         _LOG.info("ComplianceDataResource::get_list() ")
 
-        response = views.systemFactCompliance(request)
+        response = views.system_fact_compliance(request)
 
         return response
 

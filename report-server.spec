@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.46
+Version:	0.54
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -132,7 +132,6 @@ mkdir -p %{buildroot}/%{_var}/log/%{name}
 mkdir -p %{buildroot}/%{_usr}/lib/report_server
 mkdir -p %{buildroot}/%{_localstatedir}/www/html/report_server/
 mkdir -p %{buildroot}/%{_sysconfdir}/rc.d/init.d
-mkdir -p /var/log/%{name}
 
 
 # Install source
@@ -238,6 +237,51 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jan 25 2013 John Matthews <jmatthews@redhat.com> 0.54-1
+- Fix for non-gzipped import of ProductUsage data (jmatthews@redhat.com)
+
+* Wed Jan 23 2013 John Matthews <jmatthews@redhat.com> 0.53-1
+- Added support for gzip compression for body of request in ProductUsage import
+  (jmatthews@redhat.com)
+- blanking out config (whayutin@redhat.com)
+- Fix ISE on upload of ProductUsage data with an empty body
+  (jmatthews@redhat.com)
+
+* Wed Jan 16 2013 wes hayutin <whayutin@redhat.com> 0.52-1
+- fixed some issues w/ biz rule report (whayutin@redhat.com)
+
+* Wed Jan 16 2013 wes hayutin <whayutin@redhat.com> 0.51-1
+- Merge branch 'master' of github.com:splice/report_server
+  (whayutin@redhat.com)
+- fixed logging for dev setup (whayutin@redhat.com)
+- data sanitize for imports (whayutin@redhat.com)
+- fixed terrible date hack (whayutin@redhat.com)
+
+* Mon Jan 14 2013 Wes Hayutin <whayutin@redhat.com> 0.50-1
+- changed verbage around rhic/biz rule reports (whayutin@redhat.com)
+- made default report a dynamic three months (whayutin@redhat.com)
+- fix extra show details bug and csv export issue (whayutin@redhat.com)
+- work around for User objects in stakeholder env (whayutin@redhat.com)
+- clean up (whayutin@redhat.com)
+- report_server perf testing scripts (whayutin@redhat.com)
+- first pass at perf tests (whayutin@redhat.com)
+
+* Wed Jan 09 2013 Wes Hayutin <whayutin@redhat.com> 0.49-1
+- fixed bug in javascript w/ show/hide button (whayutin@redhat.com)
+
+* Wed Jan 09 2013 Wes Hayutin <whayutin@redhat.com> 0.48-1
+- Merge branch 'master' of github.com:splice/report_server
+  (whayutin@redhat.com)
+- simple report, hide/show details (whayutin@redhat.com)
+
+* Tue Jan 08 2013 John Matthews <jmatthews@redhat.com> 0.47-1
+- Removed "mkdir /var/log/report-server" line from spec (jmatthews@redhat.com)
+- added a default minimalistic report for satellite (whayutin@redhat.com)
+- added authentication to ReportResource deleted redundant code
+  (dgao@redhat.com)
+- broke out data load tool.. slightly (whayutin@redhat.com)
+- broke out a data loading tool from unit tests (whayutin@redhat.com)
+
 * Wed Jan 02 2013 Wes Hayutin <whayutin@redhat.com> 0.46-1
 - try to fix selinux issue (whayutin@redhat.com)
 

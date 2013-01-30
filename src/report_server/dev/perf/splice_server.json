@@ -1,0 +1,1 @@
+{ "_id" : { "$oid" : "50b5395cd046c85fa6000696" }, "_types" : [ "SpliceServer", "SpliceServer.SpliceServer" ], "description" : "splice_server_uuid-1", "hostname" : "splice_server_uuid-1", "environment" : "east", "_cls" : "SpliceServer.SpliceServer", "uuid" : "splice_server_uuid-1" }
