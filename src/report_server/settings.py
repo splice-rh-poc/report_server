@@ -110,7 +110,8 @@ SESSION_ENGINE = 'report_server.session.spacewalk.db'
 #SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 AUTHENTICATION_BACKENDS = (
-   'report_server.auth.spacewalk.backends.SpacewalkBackend',
+   'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
+   'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
    #'django.contrib.auth.backends.ModelBackend',
 )
 

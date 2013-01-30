@@ -188,14 +188,15 @@ def login_ui20(request):
         username = request.POST['username']
         password = request.POST['password']
         response_data = {}
-        user = authenticate(username=username, password=password)
-        if user.is_active:      
+        user = authenticate(request=request, username=username, password=password)
+        if user:
             auth_login(request, user)
-            _LOG.info('successfully authenticated')
-    else:
-            _LOG.error('authentication failed, user does not exist')
-            logout_ui20(request)
+        else:
             return HttpResponseForbidden()    
+    else:
+        _LOG.error('authentication failed, user does not exist')
+        logout_ui20(request)
+        return HttpResponseForbidden()    
                 
 
     response_data = {}    

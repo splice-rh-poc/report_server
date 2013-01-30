@@ -28,14 +28,17 @@ $(document).ready(function() {
     	console.log('logged in: ' + logged_in);
 	
     }
-    else if (logged_in==false){
-    	console.log('regular setupLogin')
-    	setupLoginForm();
-    	console.log('logged in: ' + logged_in);
-    }
     else {
     	console.log('in else');
     }
+    //if (pxt==null){
+   // 	console.log('regular setupLogin')
+    //	setupLoginForm();
+    //	console.log('logged in: ' + logged_in);
+    //	loadContent();
+    //	console.log('logged in: ' + logged_in);
+   // }
+    
     setupLLButtons();
     //setupNavButtons(); // obsolete?
     setupCreateForm();
@@ -119,7 +122,9 @@ $(document).ready(function() {
 
 
 function login() {
-    $('#login-form').dialog('open');
+	setupLoginForm();
+	$('#login-form').dialog('open');
+      
 }
 
 function logout() {
@@ -256,7 +261,7 @@ function setupCreateForm() {
     $('#startDate').datepicker();
     $('#endDate').datepicker();
 
-    setupCreateFormButtons();
+    //setupCreateFormButtons();
 
     $.ajax({
         url: '/report-server/ui20/report_form/',
@@ -900,9 +905,10 @@ function setupLoginForm() {
         modal: true,
         buttons: {
         "Login": function() {
-            var data = {
-                "ssession": pxt,
-            };
+        	var data = {
+                    "username": $('#username').val(),
+                    "password": $('#password').val()
+                };
 
             // Login button in form clicked 
             $.ajax({
