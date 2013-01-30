@@ -122,11 +122,6 @@ function login() {
     $('#login-form').dialog('open');
 }
 
-function del_cookie(name)
-{
-    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
-
 function logout() {
     $.ajax({
         url: '/report-server/ui20/logout/',
@@ -146,7 +141,6 @@ function logout() {
         $('#account-links > span > p').text('You are not logged in.');
 
         logged_in = false;
-        del_cookie("report-session");
 
         // Disable appropriate nav tabs 
         $('#report_button').addClass('disabled');
