@@ -1,0 +1,171 @@
+<project name="build-props">
+  <property name="rhn-home" location="." />
+
+  <property environment="env" />
+  
+  <property file="${user.home}/.rhn.properties" />
+  <property name="custom.log4j" location="${user.home}/.log4j.properties" />
+  <property name="src.dir" location="${rhn-home}/code" />
+  <property name="build.dir" location="${rhn-home}/build" />
+  <property name="lib.dir" location="${rhn-home}/lib" />
+  <property name="build.lib.dir" location="${build.dir}/build-lib" />
+
+  <property name="run.lib.dir" location="${build.dir}/run-lib" />
+  <property name="run-external.lib.dir" location="${build.dir}/run-lib/external" />
+  <property name="test.lib.dir" location="${build.dir}/test-lib" />
+  <property name="boot.lib.dir" location="${build.dir}/boot-lib" />
+  <property name="report.dir" location="${build.dir}/reports" />
+  <property name="javadoc.deploydir" location="/usr/share/javadoc/rhn-java" />
+  <property name="build.instrument.dir" location="${build.dir}/instrumented" />
+
+  <property name="eclipse.lib.dirs" location="${lib.dir}" />
+
+  <property name="log4j.threshold" value="warn" />
+  <property name="rhn.checkout.dir" value="" />
+  <property name="halt-tests-on-failure" value="false" />
+  <property name="checkstyle.header.file" value="${rhn-home}/buildconf/LICENSE.txt" />
+  <property name="checkstyle.cache.src" value="${rhn-home}/build/checkstyle.cache.src" />
+  <property name="checkstyle.cache.test" value="${rhn-home}/build/checkstyle.cache.test" />
+  <property name="coverage.out.file" value="${rhn-home}/coverage.ec" />
+  <property name="javadoc.lazy" value="false" />
+  <property name="deprecation" value="off" />
+  <property name="nowarn" value="!${deprecation}" />
+  <property name="includehelp" value="true" />
+
+  <!-- IVY Properties -->
+  <property name="ivyserver" value="http://sherr.fedorapeople.org" />
+  <property name="ivy.log.module.when.found" value="false"/>
+  <property name="ivy.log.resolved.revision" value="false"/>  
+
+  <!-- END IVY Properties -->
+  <property name="rhn.war" value="${build.dir}/webapp/rhnjava.war"/>
+  <property name="megajar.jar" value="${run.lib.dir}/rhn.jar" />
+  <property name="testjar.jar" value="${run.lib.dir}/rhn-test.jar" />
+
+  <property name="build.rhn.conf" value="${basedir}/conf/rhn/rhn.conf"/>
+  <property name="build.webapp.conf" value="${basedir}/conf/httpd/webapp.conf"/>
+  <property name="git.home" location="${basedir}/../"/>
+
+  <!-- =================== jar dependencies ======================= -->
+
+  <condition property="asm" value="asm/asm" else="asm">
+    <available file="/usr/share/java/asm/asm.jar" />
+  </condition>
+
+  <condition property="jfreechart" value="jfreechart/jfreechart" else="jfreechart">
+    <available file="/usr/share/java/jfreechart/jfreechart.jar" />
+  </condition>
+
+  <property name="boot.jar.dependencies" value="ivy" />
+
+  <property name="common.jar.dependencies"
+      value="bcel cglib commons-beanutils commons-cli commons-codec
+             commons-collections commons-digester commons-discovery
+             commons-el commons-fileupload commons-io commons-lang commons-logging commons-validator hibernate3
+             mailapi smtp jdom jpam  jmock jmock-cglib
+             log4j oro redstone-xmlrpc-client redstone-xmlrpc ${struts-jars} ${tomcat-jars}
+             bcprov bcpg jcommon stringtree-json postgresql-jdbc
+             ${jfreechart} taglibs-core logdriver quartz dwr slf4j-api slf4j-log4j12
+             concurrent velocity simple-core  mockobjects mockobjects-core mockobjects-jdk1.4-j2ee1.3 strutstest" />
+
+  <!-- deps needed for testing, but required to build -->
+  <property name="test.build.jar.dependencies"
+      value="junit
+             log4j
+             regexp jmock jmock-cglib postgresql-jdbc" />
+
+  <property name="test.jar.dependencies"
+      value="antlr checkstyle dom4j emma emma_ant jdom jta junit
+             log4j 
+             regexp jmock jmock-cglib ${jfreechart}
+             postgresql-jdbc" />
+
+  <condition property="ant-contrib.path" value="ant/ant-contrib" else="ant-contrib">
+      <available file="/usr/share/java/ant/ant-contrib.jar"/>
+  </condition>
+
+  <property name="build.jar.dependencies"
+      value="ant ant-junit ${ant-contrib.path} antlr  ${test.build.jar.dependenciess}
+      ${common.jar.dependencies} tanukiwrapper ${tomcat-jars} ${jasper-jars}
+       concurrent xalan-j2" />
+
+  <property name="run.jar.dependencies"
+      value="antlr ${asm} cglib c3p0 commons-discovery dom4j jaf jta
+             ojdbc14 oscache sitemesh taglibs-standard xalan-j2 xerces-j2
+             xml-commons-apis ${common.jar.dependencies}" />
+
+  <!-- =================== RPM build, use jpackage syntax ======================= -->
+  <!-- property name="install.test.jar.dependencies"
+      value="antlr checkstyle dom4j emma emma_ant jdom jta junit
+             log4j mockobjects mockobjects-core mockobjects-jdk1.4-j2ee1.3
+             regexp jmock jmock-cglib strutstest" / -->
+
+  <property name="install.build.jar.dependencies"
+      value="ant ant/ant-junit ${ant-contrib.path} antlr ${jasper-jars} ${test.build.jar.dependencies}
+      ${install.common.jar.dependencies} tanukiwrapper" />
+
+  <property name="install.run.jar.dependencies"
+      value="antlr ${asm} cglib c3p0 commons-discovery dom4j jaf jta
+             oscache sitemesh taglibs-standard xalan-j2 xerces-j2
+             xml-commons-apis ${install.common.jar.dependencies}" />
+
+  <property name="install.common.jar.dependencies"
+      value="bcel cglib commons-beanutils commons-cli commons-codec 
+             commons-collections commons-digester commons-discovery
+             commons-el commons-fileupload commons-io commons-lang commons-logging commons-validator hibernate3
+             ${tomcat-jars} javamail jdom jpam
+             log4j oro redstone-xmlrpc-client redstone-xmlrpc ${struts-jars}
+             jcommon stringtree-json postgresql-jdbc
+             ${jfreechart} taglibs-core quartz
+             concurrent simple-core simple-xml susestudio-java-client" />
+
+  <property name="dist.jar.dependencies"
+      value="antlr ${asm} bcel c3p0 cglib
+             commons-collections commons-beanutils commons-cli commons-codec
+             commons-digester commons-discovery commons-el commons-fileupload commons-io
+             commons-lang commons-logging
+             commons-validator concurrent dom4j hibernate3 jta
+             jaf ${jasper-jars} javamail jcommon jdom ${other-jars}
+             ${jfreechart} ${tomcat-jars} jpam log4j redstone-xmlrpc-client redstone-xmlrpc
+             oro oscache quartz stringtree-json sitemesh ${struts-jars} taglibs-core
+             taglibs-standard tanukiwrapper postgresql-jdbc simple-xml susestudio-java-client
+             xalan-j2 xerces-j2 xml-commons-apis simple-core" />
+
+  <path id="bootjars">
+    <fileset dir="${boot.lib.dir}" includes="*.jar" />
+  </path>
+
+  <path id="testjars">
+    <fileset dir="${test.lib.dir}" includes="*.jar" />
+  </path>
+
+  <path id="runjars">
+    <fileset dir="${run.lib.dir}" includes="**/*.jar" />
+  </path>
+
+  <path id="buildjars">
+    <path refid="testjars" />
+    <fileset dir="${build.lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+	<pathelement location="${build.dir}/classes/"/>
+  </path>
+
+  <path id="alljars">
+    <path refid="buildjars" />
+    <path refid="runjars" />
+  </path>
+
+  <!-- =================== Deployment Properties ======================= -->
+  <!-- Used for war deployment -->
+  <property name="catalina.hostname" value="localhost" />
+  <property name="catalina.port"     value="8080" />
+  <property name="catalina.username" value="rhndev" />
+  <property name="catalina.password" value="spacewalk" />
+  <property name="rhnapp"            value="rhn" />
+  <!-- Used for local dir deployment -->
+  <property name="webapp.basedir"    value="${rhn-home}" />
+  <property name="webapp.name"       value="rhnwebapp" />
+  <property name="webapp.dir"        value="${webapp.basedir}/${webapp.name}" />
+
+</project>

@@ -1,0 +1,76 @@
+<rl:listset name="groupSet" legend="xccdf">
+	<rhn:csrf />
+
+	<rl:list emptykey="system.audit.listscap.jsp.noscans">
+		<rl:decorator name="ElaborationDecorator"/>
+
+		<rl:column headerkey="system.audit.listscap.jsp.testresult">
+			<c:choose>
+			<c:when test="${not empty current.comparableId}">
+				<a href="/rhn/audit/scap/DiffSubmit.do?first=${current.comparableId}&second=${current.xid}&view=changed">
+					<img src="/img/rhn-listicon-${current.diffIcon}.gif"
+					alt="<bean:message key="scapdiff.jsp.i.${current.diffIcon}"/>"
+					title="<bean:message key="scapdiff.jsp.i.${current.diffIcon}"/>"/></a>
+			</c:when>
+			<c:otherwise>
+				<img src="/img/icon_checkin.gif"
+					alt="<bean:message key="system.audit.xccdfdetails.jsp.nodiff"/>"
+					title="<bean:message key="system.audit.xccdfdetails.jsp.nodiff"/>"/>
+			</c:otherwise>
+			</c:choose>&nbsp;
+
+			<a href="/rhn/systems/details/audit/XccdfDetails.do?sid=${param.sid}&xid=${current.xid}">
+				${current.testResult}
+			</a>
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.completed">
+			${current.completed}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.percentage">
+			<c:choose>
+				<c:when test="${current.sum - current.notselected - current.informational == 0}">
+					<bean:message key="system.audit.listscap.jsp.na"/>
+				</c:when>
+				<c:otherwise>
+					<fmt:formatNumber maxFractionDigits="0"
+						value="${current.pass * 100 / (current.sum - current.notselected - current.informational)}"/>
+					%
+				</c:otherwise>
+			</c:choose>
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.pass.abb">
+			${current.pass}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.fail.abb">
+			${current.fail}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.error.abb">
+			${current.error}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.unknown.abb">
+			${current.unknown}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.notapplicable.abb">
+			${current.notapplicable}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.notchecked.abb">
+			${current.notchecked}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.notselected.abb">
+			${current.notselected}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.informational.abb">
+			${current.informational}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.fixed.abb">
+			${current.fixed}
+		</rl:column>
+		<rl:column headerkey="system.audit.listscap.jsp.total">
+			${current.sum}
+		</rl:column>
+	</rl:list>
+	<rl:csv name="groupSet"
+	exportColumns="xid,testResult,completed,pass,fail,error,unknown,notapplicable,notchecked,notselected,informational,fixed,sum"/>
+</rl:listset>
+
+<rhn:tooltip><bean:message key="system.audit.listscap.jsp.tooltip"/></rhn:tooltip>

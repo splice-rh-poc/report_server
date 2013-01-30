@@ -22,16 +22,19 @@ $(document).ready(function() {
 	    
     if (pxt !=null && logged_in==false){
     	console.log('inside cookie');
-    	setupLoginForm();
+    	setupLoginFormCookie();
     	console.log('logged in: ' + logged_in);
     	loadContent();
     	console.log('logged in: ' + logged_in);
 	
     }
-    else {
+    else if (logged_in==false){
     	console.log('regular setupLogin')
     	setupLoginForm();
     	console.log('logged in: ' + logged_in);
+    }
+    else {
+    	console.log('in else');
     }
     setupLLButtons();
     //setupNavButtons(); // obsolete?
@@ -826,7 +829,7 @@ function getSession() {
 
 
 
-function setupLoginForm() {
+function setupLoginFormCookie() {
     // Login form
     //$('#login-form').dialog({
      //   autoOpen: false,
@@ -886,6 +889,68 @@ function setupLoginForm() {
             //}
         //}
    // });
+}
+
+function setupLoginForm() {
+     //Login form
+     $('#login-form').dialog({
+        autoOpen: false,
+        height: 300,
+        width: 350,
+        modal: true,
+        buttons: {
+        "Login": function() {
+            var data = {
+                "ssession": pxt,
+            };
+
+            // Login button in form clicked 
+            $.ajax({
+                url: '/report-server/ui20/login/',
+                type: 'POST',
+                contentType: 'application/json',
+                data: data,
+                crossDomain: false,
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type)) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+                }).done(function(data) {
+                    var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
+
+                    $('#login-error').hide();
+                    $('#login-form').dialog('close');
+
+                    // Gray out "Login" button
+                    enableButton($('#logout-button'));
+                    disableButton($('#login-button'));
+
+                    // Check for admin permission
+                    if (rtn.is_admin === true) {
+                        $('#import_button').removeClass('disabled');
+                        $('#import_button').on("click", openImport);
+                    }
+
+                    // alter msg
+                    $('#account-links > span > p').text(rtn.username + " account #" + rtn.account);
+
+                    logged_in = true;
+
+                    loadContent();
+
+                }).fail(function(jqXHR) {
+                	console.log("This request failed");
+                	console.log(jqXHR);
+                   $('#login-error').show();
+                });
+            },
+            "Cancel": function() {
+                $('#login-error').hide();
+                $('#login-form').dialog('close');
+            }
+        }
+    });
 }
 
 

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping
+PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.redhat.rhn.domain.org.Org"
+           table="WEB_CUSTOMER">
+        <id name="id" type="long" column="id">
+            <meta attribute="scope-set">protected</meta>
+            <generator class="sequence">
+                <param name="sequence">web_customer_id_seq</param>
+            </generator>
+        </id>
+        <property name="name" type="string" />
+        <property name="stagingContentEnabled" column="staging_content_enabled" type="yes_no" not-null="true"/>
+        <property name="created" type="timestamp" insert="false" update="false" />
+        <property name="modified" type="timestamp" insert="false" update="false" />
+
+        <set table="rhnUserGroup" lazy="true" cascade="all" name="userGroups" >
+            <key column="org_id" />
+            <one-to-many class="com.redhat.rhn.domain.org.usergroup.UserGroupImpl" />
+        </set>
+
+        <set name="entitlements" lazy="true" outer-join="true" table="rhnOrgEntitlements">
+            <key column="org_id" />
+            <many-to-many column="entitlement_id" outer-join="true"
+                class="com.redhat.rhn.domain.org.OrgEntitlementType" />
+        </set>
+
+        <set name="ownedChannels" table="rhnChannel" cascade="all" lazy="true"
+            inverse="true">
+            <key column="org_id" />
+            <one-to-many class="com.redhat.rhn.domain.channel.Channel" />
+        </set>
+
+        <set name="customDataKeys" cascade="all">
+            <key column="org_id" />
+            <one-to-many class="com.redhat.rhn.domain.org.CustomDataKey" />
+        </set>
+
+        <set name="monitoringScouts" lazy="true" cascade="none"  >
+            <key column="customer_id" />
+            <one-to-many class="com.redhat.rhn.domain.monitoring.satcluster.SatCluster" />
+        </set>
+
+        <set name="contactGroups" lazy="true" cascade="all"  >
+            <key column="customer_id" />
+            <one-to-many class="com.redhat.rhn.domain.monitoring.notification.ContactGroup" />
+        </set>
+
+        <set name="trustedOrgs" access="field" table="rhnTrustedOrgs" outer-join="true" cascade="all" lazy="true">
+          <key column="org_id" />
+          <many-to-many column="org_trust_id" outer-join="true" class="com.redhat.rhn.domain.org.Org" />
+        </set>
+
+        <join table="rhnRegTokenOrgDefault" optional="true">
+        	<key column="org_id"/>
+        	<many-to-one name="token" column="reg_token_id" not-null="true" unique="true"/>
+        </join>
+
+    </class>
+
+    <query name="Org.findByName">
+        <![CDATA[from com.redhat.rhn.domain.org.Org as o where o.name = :name]]>
+    </query>
+
+    <query name="Org.findAll">
+        <![CDATA[from com.redhat.rhn.domain.org.Org as o]]>
+    </query>
+
+    <sql-query name="Org.accessibleChannels">
+        <![CDATA[SELECT  {c.*}
+                   FROM  rhnChannel {c}
+                   LEFT JOIN rhnChannelCloned c_1_
+                     ON c.id = c_1_.original_id
+                   JOIN rhnAvailableChannels cfp
+                     ON c.id = cfp.channel_id
+                  WHERE cfp.org_id = :org_id]]>
+        <return alias="c" class="com.redhat.rhn.domain.channel.Channel" />
+    </sql-query>
+	<sql-query name="Org.numOfOrgAdmins">
+        <return-scalar type="long" column="user_id"/>
+    SELECT ugm.user_id
+     FROM rhnUserGroupMembers ugm
+    WHERE ugm.user_group_id = (SELECT id
+                                 FROM rhnUserGroup
+                                WHERE org_id = :org_id
+                                  AND group_type = (SELECT id FROM
+          rhnUserGroupType WHERE label = 'org_admin'))
+      AND exists (select wc.id
+                    from rhnwebcontactenabled wc
+                   where wc.id = ugm.user_id)
+ 	ORDER BY ugm.user_id
+    </sql-query>
+    <sql-query name="Org.numOfActiveUsers">
+        <return-scalar type="long" column="users"/>
+        SELECT count(u.id) as users
+        FROM   web_contact u
+        WHERE  1=1
+        AND    u.org_id = :org_id
+    </sql-query>
+    <sql-query name="Org.numOfSystems">
+        <return-scalar type="long" column="systems"/>
+        SELECT count(s.id) as systems
+        FROM   rhnServer s
+        WHERE  1=1
+        AND    s.org_id = :org_id
+    </sql-query>
+    <sql-query name="Org.getMigratedSystems">
+        <return-scalar type="long" column="systems"/>
+        SELECT count(s.server_id) as systems
+        FROM   rhnSystemMigrations s
+        WHERE  1=1
+        AND    s.org_id_from = :org_from_id
+        AND    s.org_id_to = :org_to_id
+    </sql-query>
+    <sql-query name="Org.getSharedSubscribedSys">
+        <return-scalar type="long" column="channels"/>
+        SELECT count(distinct(c.id)) as channels
+        FROM   rhnServer s,
+               rhnChannel c,
+               rhnServerChannel sc
+        WHERE  c.id = sc.channel_id
+        AND    s.id = sc.server_id
+        AND    c.org_id = :org_id
+        AND    s.org_id = :org_trust_id
+    </sql-query>
+
+    <sql-query name="Org.getSharedChannels">
+        <return-scalar type="long" column="id"/>
+        SELECT count(s.id) as id
+        FROM   rhnSharedChannelView s
+        WHERE  1=1
+        AND    s.org_id = :org_id
+        AND    s.org_trust_id = :org_trust_id
+    </sql-query>
+    <sql-query name="Org.getTrustedSince">
+        <return-scalar type="timestamp" column="created"/>
+        SELECT created
+        FROM   rhnTrustedOrgs rto
+        WHERE  1=1
+        AND    rto.org_id = :org_id
+        AND    rto.org_trust_id = :trusted_org_id
+    </sql-query>
+    <sql-query name="Org.numOfServerGroups">
+        <return-scalar type="long" column="groups"/>
+        SELECT count(g.id) as groups
+        FROM   rhnServerGroup g
+        WHERE  1=1
+        AND    g.org_id = :org_id
+        AND group_type is null
+    </sql-query>
+    <sql-query name="Org.numOfConfigChannels">
+        <return-scalar type="long" column="channels"/>
+        SELECT  count(CC.id) AS channels
+        FROM  rhnConfigChannel CC, rhnConfigChannelType CCT
+        WHERE 1=1
+        AND  CC.org_id = :org_id
+        AND  CC.confchan_type_id = CCT.id
+        AND  CCT.label = 'normal'
+    </sql-query>
+    <sql-query name="Org.numOfOrgs">
+        <return-scalar type="long" column="org_count"/>
+        SELECT  count(wc.id) AS org_count FROM  WEB_CUSTOMER wc
+    </sql-query>
+    <query name="Org.findOrgsWithSystemsInChannelFamily"><![CDATA[
+        select o from
+            com.redhat.rhn.domain.org.Org as o
+            where exists (
+                from com.redhat.rhn.domain.server.Server s where
+                    s.org = o and exists (
+                        from com.redhat.rhn.domain.channel.Channel c where
+                            c member of s.channels and
+                            :cf member of c.channelFamilies
+                    )
+            )
+    ]]></query>
+</hibernate-mapping>
+
