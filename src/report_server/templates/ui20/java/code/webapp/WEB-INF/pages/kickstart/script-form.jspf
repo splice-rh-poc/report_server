@@ -1,0 +1,74 @@
+      <table class="details">
+          <tr>
+            <td colspan="2">
+              <h2><bean:message key="kickstart.script.langheader"/></h2>
+            </td>
+          </tr>
+          <tr>
+              <th>
+                  <bean:message key="kickstart.script.language"/>
+              </th>
+              <td>
+                  <html:text property="language" maxlength="40" size="20" /><br/>
+                  <bean:message key="kickstart.script.tip1"/><br/>
+                  <bean:message key="kickstart.script.tip2"/><br/>
+              </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <h2><bean:message key="kickstart.script.scriptheader"/></h2>
+            </td>
+          </tr>
+          <tr>
+              <th>
+                  <rhn:required-field key="kickstart.script.scriptname"/>
+              </th>
+              <td>
+                  <html:text property="script_name" maxlength="40" size="20" /><br/>
+              </td>
+          </tr>
+          <tr>
+              <th>
+                  <rhn:required-field key="kickstart.script.contents"/>
+              </th>
+              <td>
+                  <textarea name="contents" rows="24" cols="80" id="contents"><bean:write name="kickstartScriptForm" property="contents" /></textarea><br />
+              </td>
+          </tr>
+          <tr>
+              <th>
+                  <rhn:required-field key="kickstart.script.type"/>
+              </th>
+              <td>
+                <html:select property="type">
+                  <html:options collection="types"
+                            property="value"
+                            labelProperty="label" />
+                </html:select>
+                <br/>
+                <bean:message key="kickstart.script.tip3"/><br/>
+                <br/>
+              </td>
+          </tr>
+          <tr>
+              <th>
+                  <bean:message key="kickstart.script.nochroot"/>
+              </th>
+              <td>
+                  <html:checkbox  property="nochroot"  />
+              </td>
+          </tr>
+          <tr>
+              <th>
+                  <bean:message key="kickstart.script.template"/>
+              </th>
+              <td>
+                  <html:checkbox  property="template"  /><br/>
+                  <rhn:tooltip key="kickstart.script.template.tip"/>
+                  <br/>
+              </td>
+          </tr>
+          <tr>
+            <td align="right" colspan="2"><html:submit><bean:message key="kickstartdetails.jsp.updatekickstart"/></html:submit></td>
+          </tr>
+      </table>
