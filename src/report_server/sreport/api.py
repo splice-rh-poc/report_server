@@ -35,17 +35,6 @@ import types
 
 _LOG = logging.getLogger("sreport.api")
 
-class SpliceServerResourceMod(SpliceServerResource):
-    class Meta:
-        # Overriding queryset from base so that our db_alias and other settings are honored
-        # from ReportServer
-        resource_name = "spliceserver"
-        queryset = SpliceServer.objects.all()
-        authorization = Authorization()
-        authentication = X509CertificateAuthentication(verification_ca=certs.get_splice_server_identity_ca_pem())
-        list_allowed_methods = ['get', 'post']
-        detail_allowed_methods = ['get']
-
 class RestSerializer(Serializer):
     """
     Class for overriding various aspects of the default Tastypie Serializer
@@ -62,6 +51,31 @@ class RestSerializer(Serializer):
         """
         return data.isoformat()
 
+class SpliceServerResourceMod(SpliceServerResource):
+    #
+    # This feels a little ugly, unsure of better solution
+    # ReportServer needs ability to set a db_alias setting on the SpliceServer model
+    # We need Tastypie to use the ReportServer's version of SpliceServer so it respects db_alias if it's used
+    # Tried to just override 'queryset', wasn't able to...then ran into next problem of the query for find_by_uuid()
+    # needs to use same db_alias
+    #
+    class Meta:
+        # Overriding queryset from base so that our db_alias and other settings are honored
+        # from ReportServer
+        resource_name = "spliceserver"
+        queryset = SpliceServer.objects.all()
+        authorization = Authorization()
+        authentication = X509CertificateAuthentication(verification_ca=certs.get_splice_server_identity_ca_pem())
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+
+    def find_by_uuid(self, uuid):
+        #
+        # Need to be sure we are querrying same SpliceServer model instance as queryset above
+        # Careful that SpliceServer here refers to report_server.sreport.models.SpliceServer and not
+        # splice.common.models.SpliceServer
+        #
+        return SpliceServer.objects(uuid=uuid).first()
 
 class ProductUsageResource(productusage.ProductUsageResource):
 
