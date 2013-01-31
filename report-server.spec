@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.57
+Version:	0.58
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.58-1
+- Fix so SpliceServer API uses same db_alias for looking up if a SpliceServer
+  object exists (jwmatthews@gmail.com)
+
 * Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.57-1
 - Fix so SpliceServer data sent through API will be written to the db_alias
   defined in ReportServer's SpliceServer model (jwmatthews@gmail.com)
