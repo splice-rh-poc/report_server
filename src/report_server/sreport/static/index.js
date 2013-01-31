@@ -67,39 +67,7 @@ $(document).ready(function() {
         $('#import_button').off("click");
     }
 
-    $("#contract").button().change(function () {
-        updateListOfRHICS();
-    });
-
-    /*
-    $("#export").button().click(function() {
-      // Have to stop url from changing so disable default event
-        event.preventDefault();
-            // Build up var
-            var data = {}; 
        
-            // Date section
-            if($.trim($('#byMonth').val()) != "-1") {
-                data['byMonth'] = $('#byMonth').val();
-            }
-            if($.trim($('#startDate').val()) != "") {
-                data['startDate'] = $('#startDate').val();
-                data['endDate'] = $('#endDate').val();
-            }
-            if($.trim($('#contract').val()) != "") {
-                data['contract_number'] = $('#contract').val();
-            }
-            if($.trim($('#rhic').val()) != "") {
-                data['rhic'] = $('#rhic').val();
-            }
-
-            data['env'] = $('#env').val();
-           
-            $.download('/report-server/ui20/export', data, 'get');
-
-    })
-    */
-    
 });
 
 
@@ -140,13 +108,6 @@ function logout() {
         $('#max_button').off("click");
         $('#import_button').off("click");
 
-        $('#contract').change(function() {
-            $('#rhic').val('').trigger('liszt:updated');
-        });
-
-        $('#rhic').change(function() {
-            $('#contract').val('').trigger('liszt:updated');
-        });
 
         $("#byMonth").change(function() {
             $("#startDate").val('').trigger('liszt:updated');
@@ -233,7 +194,7 @@ function setupCreateForm() {
     $('#startDate').attr('disabled', false);
     $('#endDate').attr('disabled', false);
     $('#rhic').attr('disabled', false);
-    $('#contract').attr('disabled', false);
+    
     $("#startDate").attr('disabled', false);
     $("#endDate").attr('disabled', false);
     $("#byMonth").attr('disabled', false);
@@ -259,7 +220,7 @@ function setupCreateForm() {
     }).done(function(data) {
         fill_create_report_form(JSON.parse(data));
         //fill_create_report_rhic_form(JSON.parse(data));
-        $('#contract').chosen();
+        
         $('#rhic').chosen();
         $('#byMonth').chosen();
         $('#env').chosen();
@@ -268,40 +229,6 @@ function setupCreateForm() {
     });
 }
 
-function updateListOfRHICS() {
-
-    // Have to stop url from changing so disable default event
-    event.preventDefault();
-    $('#rhic').attr('disabled', false);
-
-    // validating the form is no longer required
-    //if (logged_in && validateForm()) {
-    if (logged_in) {
-        // Build up var
-        var data = {};
-        data['contract_number'] = $('#contract').val();
-
-    $.ajax({
-        url: '/report-server/ui20/report_form_rhics/',
-        type: 'POST',
-        contentType: 'application/json',
-        data: data,
-        crossDomain: false,
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    }).done(function(data) {
-            change_rhic_form(JSON.parse(data));
-            $('#rhic').chosen();
-            $('#rhic').trigger("liszt:updated");
-
-        }).fail(function(jqXHR) {
-            // TODO: Add error handling here
-        });
-    }
-}
 
 
 function setupCreateFormButtons() {
@@ -333,12 +260,7 @@ function createReport(event) {
             data['startDate'] = $('#startDate').val();
             data['endDate'] = $('#endDate').val();
         }
-        if($.trim($('#contract').val()) != "") {
-            data['contract_number'] = $('#contract').val();
-        }
-        if($.trim($('#rhic').val()) != "") {
-            data['rhic'] = $('#rhic').val();
-        }
+      
 
         data['env'] = $('#env').val();
 
@@ -357,7 +279,6 @@ function createReport(event) {
             var rtn = jQuery.parseJSON(data);
             $('#report_pane > div').empty();
             var pane = '#report_pane > div';
-            populateReport(rtn, pane );
             openReport();
             // Attach the event handler back on
             $('#report_button').on("click", openReport);
@@ -381,8 +302,6 @@ function create_default_report(event){
         //data in mm/dd/yyyy format
         data['startDate'] = (3).months().ago().toString("M/d/yyyy");
         data['endDate'] = Date.today().toString("M/d/yyyy");
-        data['contract_number'] = "All"
-        data['rhic'] = "null"
         data['env'] = "All"
         
         $.ajax({
@@ -397,25 +316,6 @@ function create_default_report(event){
                 }
             }
         }).done(function(data) {
-            var rtn = jQuery.parseJSON(data);
-            $('#default_report_results').append("<br><br><br><br><br><br><br><br><br>")
-            num = populateReport(rtn, "#default_report_results");
-            fact = populateFactComplianceReport(rtn.biz_list, "#default_report_results");  
-            
-            if (num+fact > 0){
-                console.log('fail')
-                result_ui = $('#default_report_results_ui');
-                var table = $('<table width=\"60%\" align=\"right\"></table>');
-                table.append('<img border=0 src="/static/fail.png") alt="fail" width="100" height="100">');
-                result_ui.append(table);
-            }
-            else{
-                console.log('pass')
-                result_ui = $('#default_report_results_ui');
-                var table = $('<table width=\"60%\" align=\"right\"></table>');
-                table.append('<img border=0 src="/static/pass.jpg") alt="fail" width="100" height="100">');
-                result_ui.append(table);
-            }
             
             
         }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -440,12 +340,6 @@ function exportReport(event) {
      if($.trim($('#startDate').val()) != "") {
          data['startDate'] = $('#startDate').val();
          data['endDate'] = $('#endDate').val();
-     }
-     if($.trim($('#contract').val()) != "") {
-         data['contract_number'] = $('#contract').val();
-     }
-      if($.trim($('#rhic').val()) != "") {
-         data['rhic'] = $('#rhic').val();
      }
 
      data['env'] = $('#env').val();
@@ -476,12 +370,6 @@ $.download = function(url, data, method){
 };
 
 
-
-
-function turnOnAdminFeatures() {
-    $('#import_button').removeClass('disabled');
-    $('#import_button').on("click", openImport);
-}
 
 
 function resetReportForm(event) {
@@ -890,26 +778,12 @@ function change_rhic_form(data){
 function fill_create_report_form(data) {
     // Clear outdated elements
 	$('#byMonth').empty();
-    $('#contract').empty();
-    $('#rhic').empty();
     $('#env').empty();
     //$('#byMonth').empty();
 
-    // Add defaults
-    $('#contract').append($('<option value=null></option>'));
-    $('#contract').append($('<option selected value=All>All</option>'));
-    
 
 
     // Add remainder elements from data
-    jQuery.each(data.contracts, function(index, ele) {
-            $('#contract').append($('<option value=' + ele + '>' + ele + '</option>'));
-            });	
-
-    $('#rhic').append($('<option selected value=null></option>'));
-    jQuery.each(data.list_of_rhics, function(index, ele) {
-            $('#rhic').append($('<option value=' + ele[0] + '>' + ele[1] + '</option>'));
-            });	
 
     $('#env').append($('<option value=All>All</option>'));
     jQuery.each(data.environments, function(index, ele) {
@@ -969,95 +843,7 @@ function removeActiveNav() {
 }
 
 
-function populateReport(rtn, pane) {
-    var pane = $(pane);
-    var this_div = $('<div this_rhic_table>')
 
-    pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
-    pane.append('<br><br>');
-    
-    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-    
-
-    if (rtn.list.length > 0) {
-        pane.append(show_details); 
-    	pane.append('<b>Number of RHIC\'s:  ' + rtn.list.length + '</b> ')
-    	pane.append('<br><br>')
-    	
-        for (var rhic_index in rtn.list) {
-            var rhic = rtn.list[rhic_index];
-
-            var table = $('<table id=basic_report class=\'display\' style=\'display: table\' width=\'100%\'></table>');
-
-            var header = $('<thead></thead>');
-            var header_row = $('<tr></tr>');
-            header_row.append($('<th>Product:</th>'));
-            header_row.append($('<th>SLA:</th>'));
-            header_row.append($('<th>Support:</th>'));
-            header_row.append($('<th>Facts:</th>'));
-            header_row.append($('<th>Contracted Use:</th>'));
-            header_row.append($('<th>NAU:</th>'));
-            header_row.append($('<th>Compliant:</th>'));
-            
-
-
-            header.append(header_row);
-
-            table.append(header);
-
-            var tbody = $('<tbody></tbody>');
-
-            for (var product_index in rhic) {
-                var product = rhic[product_index]; 
-
-                // insert something if it's the first item
-                if (product_index == 0) {
-                    this_div.append($('<b>RHIC: ' + product.rhic + ', Contract: ' + product.contract_id + '</b>'));
-                }
-                
-
-                var description = 'Product: '+ product.product_name + ', SLA:' + product.sla + ', Support: ' + product.support + ' Facts: ' + product.facts ;
-                //json attempt
-                //var description = {"Product": product.product_name, "SLA": product.sla , "Support": product.support, "Facts": product.facts };
-                //var description = '';
-                var row = $('<tr onclick="createMax(\'' + product.start + '\',\'' + product.end + '\',\'' + description + '\', \'' + escape(new String(product.filter_args_dict))
-                        +  '\') "></tr>');
-                row.append($('<td>' + product.product_name + '</td>'));
-                row.append($('<td>' + product.sla + '</td>'));
-                row.append($('<td>' + product.support + '</td>'));
-                row.append($('<td>' + product.facts + '</td>'));
-                row.append($('<td>' + product.contract_use + '</td>'));
-                row.append($('<td>' + product.nau + '</td>'));
-                
-                if(product.compliant){
-                	//row.append($('<td bgcolor="#00FF00">' + product.compliant + '</td>'));
-                	row.append($('<td bgcolor="#00FF00">Yes</td>'));
-                }
-                else {
-                	//row.append($('<td bgcolor="#FF0000">' + product.compliant + '</td>'));
-                	row.append($('<td bgcolor="#FF0000">No</td>'));
-                }
-                
-                
-                tbody.append(row);
-
-            }
-
-            table.append(tbody);
-			this_div.append(table);
-			this_div.append($('<br></br>'))
-            pane.append(this_div)
-			this_div.hide()
-			
-        }
-    }
-    
-show_details.click(function (){
-		this_div.toggle("slow");
-		
-	  })
-return rtn.list.length
-}
 
 function populateQuarantineReport(rtn) {
     var top = $('#admin_report');
@@ -1474,32 +1260,7 @@ function populateInstanceDetailReport(rtn) {
     }
 }
 
-/*
- * Form Validation is no longer required
- * 
-function validateForm() {
-    var rtn = true;
 
-    $('#form_error').empty();
-
-    if ($('#byMonth').val() || ($('#startDate').val() && $('#endDate').val())) {
-        // pass
-    } else {
-        $('#form_error').append($('<b>Please enter a valid date range or select a month.</b>'));
-        $('#form_error').append($('<br></br>'));
-        rtn = false;
-    }
-
-    if ($('#contract').attr('disabled') && $('#rhic').attr('disabled')) {
-        $('#form_error').append($('<b>Please select a Contract or RHIC.</b>'));
-        $('#form_error').append($('<br></br>'));
-        rtn = false;
-    } else {
-        // pass
-    }
-    return rtn;
-}
-*/
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection

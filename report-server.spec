@@ -26,6 +26,7 @@ Requires:   python-django-tastypie
 Requires:   python-django-tastypie-mongoengine
 Requires:   python-mongoengine
 Requires:   python-mongodbforms
+Requires:   python-passlib
 Requires:   pymongo-gridfs
 Requires:   %{name}-common = %{version}-%{release}
 Requires:   %{name}-import = %{version}-%{release}
