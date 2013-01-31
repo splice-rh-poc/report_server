@@ -75,6 +75,7 @@ class SpliceServerResourceMod(SpliceServerResource):
         # Careful that SpliceServer here refers to report_server.sreport.models.SpliceServer and not
         # splice.common.models.SpliceServer
         #
+        _LOG.info("report_server.sreport.api.SpliceServerResource::find_by_uuid(%s) SpliceServer=%s" % (uuid, SpliceServer))
         return SpliceServer.objects(uuid=uuid).first()
 
 class ProductUsageResource(productusage.ProductUsageResource):
