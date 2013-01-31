@@ -13,11 +13,14 @@
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from report_server.sreport.models import QuarantinedReportData
-from report_server.sreport.models import ReportData
+from report_server.sreport.models import ReportData, SpliceServer
 from report_server.sreport import views
 from report_server.common import utils
 from report_server.common import import_util
 from report_server.report_import.api import productusage
+from splice.common.api import SpliceServerResource
+from splice.common.auth import X509CertificateAuthentication
+from splice.common import certs
 from tastypie.authorization import Authorization
 from tastypie.authentication import BasicAuthentication, MultiAuthentication
 from tastypie.authentication import SessionAuthentication
@@ -32,6 +35,16 @@ import types
 
 _LOG = logging.getLogger("sreport.api")
 
+class SpliceServerResourceMod(SpliceServerResource):
+    class Meta:
+        # Overriding queryset from base so that our db_alias and other settings are honored
+        # from ReportServer
+        resource_name = "spliceserver"
+        queryset = SpliceServer.objects.all()
+        authorization = Authorization()
+        authentication = X509CertificateAuthentication(verification_ca=certs.get_splice_server_identity_ca_pem())
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
 
 class RestSerializer(Serializer):
     """
