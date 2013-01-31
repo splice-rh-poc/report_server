@@ -71,7 +71,7 @@ def report(request):
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
+    account = Account.objects.filter(login=user)[0].account_id
     if 'byMonth' in request.GET:
         month_year = request.GET['byMonth'].encode('ascii').split('%2C')
         month = int(month_year[0])
@@ -94,12 +94,39 @@ def report(request):
     else:
         environment = "All"
         
+    rhic = request.GET['rhic']
+    contract = request.GET['contract_number']    
+    list_of_rhics = []
     
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = rhic
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
+
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
 
     format = constants.full_format
 
     response_data = {}
-    response_data['list'] = []
+    response_data['list'] = results
     response_data['account'] = account
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
@@ -461,7 +488,7 @@ def report_ui20(request):
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
+    account = '55555'#Account.objects.filter(login=user)[0].account_id
     try:
         api_data = json.loads(request.raw_post_data)
         data = api_data
@@ -497,11 +524,39 @@ def report_ui20(request):
     else:
         environment = "All"
 
+    rhic = data['rhic']
+    contract = data['contract_number']
+    list_of_rhics = []
     
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = data['rhic']
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
+
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
     format = constants.full_format
 
     response_data = {}
-    response_data['list'] = []
+    response_data['list'] = results
     response_data['account'] = account
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
@@ -521,7 +576,7 @@ def default_report(request):
     _LOG.info("default_report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
+    account = 55555#Account.objects.filter(login=user)[0].account_id
     try:
         api_data = json.loads(request.raw_post_data)
         data = api_data
@@ -541,10 +596,9 @@ def default_report(request):
     start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
     end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
     environment = data['env']
-    """
-    #rhic = data['rhic']
-    #contract = data['contract_number']
-    #list_of_rhics = []
+    rhic = data['rhic']
+    contract = data['contract_number']
+    list_of_rhics = []
     
  
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
@@ -555,12 +609,12 @@ def default_report(request):
                                  return_failed_only=True)
     
     fact_compliance = system_fact_compliance_list(account)
-    """
+
     format = constants.full_format
 
     response_data = {}
-    response_data['list'] = []
-    response_data['biz_list'] = []
+    response_data['list'] = usuage_compliance
+    response_data['biz_list'] = fact_compliance
     response_data['account'] = account
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
