@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.55
+Version:	0.56
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.56-1
+- Add timezone aware for 'default' (jwmatthews@gmail.com)
+
 * Wed Jan 30 2013 John Matthews <jmatthews@redhat.com> 0.55-1
 - Adding upload if 'SpliceServer' API (jmatthews@redhat.com)
 
