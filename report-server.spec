@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.59
+Version:	0.60
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -237,6 +237,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Feb 01 2013 John Matthews <jwmatthews@gmail.com> 0.60-1
+- Fix to ensure 'date' of ProductUsage is always converted to datetime instance
+  prior to import_hook being called (jwmatthews@gmail.com)
+
 * Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.59-1
 - Adding debug info to track down issue with SpliceServer upload
   (jwmatthews@gmail.com)
