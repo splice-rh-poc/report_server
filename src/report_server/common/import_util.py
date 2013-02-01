@@ -13,7 +13,7 @@
 from __future__ import division
 
 from datetime import datetime, timedelta
-from mongoengine import OperationError
+from mongoengine import OperationError, NotUniqueError
 from report_server.common import config
 from report_server.common import constants
 from report_server.sreport.models import ReportData, ReportDataDaily, ImportHistory
@@ -178,6 +178,8 @@ def import_data(product_usage=[],
                     try:
                         rd.save(safe=True)
                         _LOG.info('recording: ' + str(product.engineering_ids))
+                    except NotUniqueError:
+                        _LOG.info("Ignorning NotUniqueError for: %s" % (rd))
                     except OperationError as oe:
                         _LOG.info("could not import:" +
                                   str(pu) + "Exception: " + str(oe))
@@ -223,6 +225,8 @@ def import_data(product_usage=[],
                             rd.save(safe=True)
                             _LOG.info(
                                 'recording: ' + str(product.engineering_ids))
+                        except NotUniqueError:
+                            _LOG.info("Ignorning NotUniqueError for: %s" % (rd))
                         except OperationError as oe:
                             _LOG.info("could not import:" +
                                       str(pu) + "Exception: " + str(oe))
