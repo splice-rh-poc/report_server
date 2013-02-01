@@ -47,6 +47,7 @@ urlpatterns = patterns('',
     (r'^ui20/login/$', 'report_server.sreport.views.login_ui20'),
     (r'^ui20/logout/$', 'report_server.sreport.views.logout_ui20'),
     (r'^ui20/report_form/$', 'report_server.sreport.views.report_form_ui20'),
+    (r'^ui20/space_form/$', 'report_server.sreport.views.space_form'),
     (r'^ui20/report_form_rhics/$', 'report_server.sreport.views.report_form_rhics'),
     (r'^ui20/report/$', 'report_server.sreport.views.report_ui20'),
     (r'^ui20/default_report/$', 'report_server.sreport.views.default_report'),
@@ -56,6 +57,9 @@ urlpatterns = patterns('',
     (r'^ui20/quarantine/$', 'report_server.sreport.views.quarantined_report'),
     (r'^ui20/fact_compliance/$', 'report_server.sreport.views.system_fact_compliance'),
     (r'^ui20/instance_details/$', 'report_server.sreport.views.instance_detail_ui20'),
+    
+    (r'^space/$', 'report_server.sreport.views.ui20'),
+    (r'^space/report_form/$', 'report_server.sreport.spacewalk.views.report_form'),
 )
 
 urlpatterns += (

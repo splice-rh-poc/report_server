@@ -11,20 +11,16 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-import logging
-import time
-
+from bson import json_util
 from django.template.response import TemplateResponse
-
 from tastypie.authorization import Authorization
 from tastypie import http
 from tastypie_mongoengine.resources import MongoEngineResource
-
-
-import json
-from bson import json_util
-
 from splice.common.models import ProductUsage
+
+import logging
+import json
+import time
 
 _LOG = logging.getLogger(__name__)
 

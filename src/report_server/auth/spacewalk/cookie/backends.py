@@ -1,8 +1,18 @@
-from django.conf import settings
+# Copyright  2012 Red Hat, Inc.
+#
+# This software is licensed to you under the GNU General Public
+# License as published by the Free Software Foundation; either version
+# 2 of the License (GPLv2) or (at your option) any later version.
+# There is NO WARRANTY for this software, express or implied,
+# including the implied warranties of MERCHANTABILITY,
+# NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+# have received a copy of GPLv2 along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
 from django.contrib.auth.models import User, check_password
+from passlib.hash import md5_crypt
 from report_server.session.spacewalk.models import WebContact, WebCustomer, Session
 from report_server.session.spacewalk.models import Pxtsessions
-from passlib.hash import md5_crypt
 
 import logging
 
@@ -25,10 +35,8 @@ class SpacewalkBackend(object):
             _LOG.error('spacewalk session has expired')
             return None
         
-        
         _LOG.debug('spacewalk user login: ' + mysession.web_user.login)
-        
-        #return User.objects.get(username='westest01')        
+                
         oracle_user_login = mysession.web_user.login
         _LOG.info('ORACLE USER: ' +  oracle_user_login)
 
@@ -38,6 +46,7 @@ class SpacewalkBackend(object):
         except User.DoesNotExist:
             # Create a new user. Note that we can set password
             # to anything, because it won't be checked; the password
+            # Another option is to decode the spacewalk user passwd
             
             user = User(username=mysession.web_user.login, password="default")
             user.is_active = True

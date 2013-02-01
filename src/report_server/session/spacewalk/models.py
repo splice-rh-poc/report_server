@@ -1,21 +1,18 @@
+# Copyright  2012 Red Hat, Inc.
+#
+# This software is licensed to you under the GNU General Public
+# License as published by the Free Software Foundation; either version
+# 2 of the License (GPLv2) or (at your option) any later version.
+# There is NO WARRANTY for this software, express or implied,
+# including the implied warranties of MERCHANTABILITY,
+# NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+# have received a copy of GPLv2 along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.sessions.models import SessionManager
 
-
-class SessionManager(models.Manager):
-    def encode(self, session_dict):
-        """
-        Returns the given session dictionary pickled and encoded as a string.
-        """
-        return SessionStore().encode(session_dict)
-
-    def save(self, session_key, session_dict, expire_date):
-        s = self.model(session_key, self.encode(session_dict), expire_date)
-        if session_dict:
-            s.save()
-        else:
-            s.delete() # Clear sessions with no data.
-        return s
     
 class WebCustomer(models.Model): 
     
@@ -88,8 +85,7 @@ class Pxtsessions(models.Model):
         db_table = u'pxtsessions'
         
 
-
-
 # At bottom to avoid circular import
 # this may need to be enabled and fixed.. not sure yet
-from report_server.session.spacewalk.db import SessionStore
+#from report_server.session.spacewalk.db import SessionStore
+from django.contrib.sessions.backends.db import SessionStore

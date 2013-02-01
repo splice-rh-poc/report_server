@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models.base import get_absolute_url
 from django.db.models.loading import get_model
 from django.http import HttpResponse, HttpResponseForbidden
@@ -25,9 +26,6 @@ from django.template.response import TemplateResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from django.contrib.auth.models import User
-
-
 from report_server.common import constants, utils
 from report_server.common.biz_rules import Rules
 from report_server.common.import_util import import_data
@@ -36,8 +34,8 @@ from report_server.common.report import hours_per_consumer
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.sreport.models import ProductUsageForm, ReportData
 from report_server.sreport.models import SpliceServer, QuarantinedReportData
-from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
-from rhic_serve.rhic_rest.models import RHIC
+#from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
+from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
 
 
 import csv
@@ -71,7 +69,7 @@ def report(request):
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
+    account = Account.objects.filter(login=user)[0].account_id
     if 'byMonth' in request.GET:
         month_year = request.GET['byMonth'].encode('ascii').split('%2C')
         month = int(month_year[0])
@@ -94,12 +92,39 @@ def report(request):
     else:
         environment = "All"
         
+    rhic = request.GET['rhic']
+    contract = request.GET['contract_number']    
+    list_of_rhics = []
     
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = rhic
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
+
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
 
     format = constants.full_format
 
     response_data = {}
-    response_data['list'] = []
+    response_data['list'] = results
     response_data['account'] = account
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
@@ -115,19 +140,10 @@ def report(request):
 
 
 def ui20(request):
-    cookies = request.COOKIES
-    for key, value in cookies.items():
-        if key == "pxt-session-cookie":
-            _LOG.debug('found ' + key + ":" + value)
-            user = authenticate(pxt_session=value)
-            if user:
-                _LOG.debug('user = ' + user.username)
-            else:
-                _LOG.debug('No user for the session was found')    
     return template_response(request, 'ui20/index.html')
 
 
-#@ensure_csrf_cookie
+@ensure_csrf_cookie
 def login_ui20(request):
     """
     login, available at host:
@@ -151,13 +167,11 @@ def login_ui20(request):
                 _LOG.debug('No user for the session was found')
     """
     if hasattr(request.session, "_auth_user_id"):
-        #ssession = request.session['ssession']
-        #user = authenticate(pxt_session=ssession)
         userid = request.session._auth_user_id
         user = User.objects.get(id=userid)
         _LOG.info("ssession: " + request.session["ssession"])
     elif (request.POST.__contains__('username')):
-        _LOG.info("no other sessions found")
+        _LOG.info("no other sessions found, using credentials")
         username = request.POST['username']
         password = request.POST['password']
         response_data = {}
@@ -170,32 +184,23 @@ def login_ui20(request):
         _LOG.error('authentication failed, user does not exist')
         logout_ui20(request)
         return HttpResponseForbidden()    
-                
 
     response_data = {}    
     if user is not None:
         #not sure why request.user is not persisting through the middleware
         username = str(request.user)
-        print('request.user ' + username)
         _LOG.info('request.user ' + username)
-                 
         response_data['is_admin'] = False
         response_data['username'] = username
+        
         if hasattr(user, 'account'):
             response_data['account'] = account.account_id
         else:
-            """
-            work around for current rhic_serve deployment in the 
-            stakeholder env.  The user objects in the stakeholder env do 
-            not have the attribute account
-            
-            """
-            setattr(user, 'account', '55555')
+            #in some environments an account number may not be available
+            setattr(user, 'account', user.id)
             response_data['account'] = user.account
         return HttpResponse(utils.to_json(response_data))
-        #else:
-        #    _LOG.error('authentication failed')
-        #    return HttpResponseForbidden()
+        
     else:
         _LOG.error('authentication failed, user does not exist')
         return HttpResponseForbidden()
@@ -207,10 +212,10 @@ def logout_ui20(request):
     logout avail at host:port/ui/logout
     """
     auth_logout(request)
-    return HttpResponse('Worked!')
+    return HttpResponse('Log out')
 
 
-#@ensure_csrf_cookie
+@ensure_csrf_cookie
 def index_ui20(request):
     """
     index page, setups up UI and javascript calls report_form_ui20
@@ -249,74 +254,8 @@ def import_ui20(request):
     return response
 
 
-@login_required
-def report_form_ui20(request):
-    """
-    Build the report form. Discovers the associated contracts, rhics and 
-    populates the form.
-    
-    @param request: http
-    @param request.user: the currently logged in user
-    
-    Returns:
-       A json doc w/ contracts, user, environment, list_of_rhics
-       Example:
-       {
-        "contracts": [
-          "3116649", 
-          "3879847"
-        ], 
-        "user": "user@host.com", 
-        "environments": [
-          "east"
-        ], 
-        "list_of_rhics": [
-          [
-            "8d401b5e-2fa5-4cb6-be64-5f57386fda86", 
-            "rhel-server-1190457-3116649-prem-l1-l3"
-          ], 
-        ]
-      }
-    """
-    # replaces create_report()
-    _LOG.info("report_form_ui20 called by method: %s" % (request.method))
 
-    if request.method == 'POST':
-        form = ProductUsageForm(request.POST)
-        if form.is_valid():
-            pass
-        else:
-            form = ProductUsageForm()
 
-    contracts = []
-    user = str(request.user)
-    account = '555555'#Account.objects.filter(login=user)[0].account_id
-    list_of_contracts = ['0'] #Account.objects.filter(account_id=account)[0].contracts
-    list_of_rhics = ['0', '1']#list(RHIC.objects.filter(account_id=account))
-    environments = SpliceServer.objects.distinct("environment")
-    #for c in list_of_contracts:
-    #    contracts.append(c.contract_id)
-
-    # since some item(s) are not json-serializable,
-    # extract info we need and pass it along
-    # i.e. r.uuid
-
-    response_data = {}
-    response_data['contracts'] = contracts
-    response_data['user'] = user
-    response_data['list_of_rhics'] = list_of_rhics
-    response_data['environments'] = environments
-
-    _LOG.info(response_data)
-
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
 
 
 @login_required
@@ -344,13 +283,6 @@ def report_form_rhics(request):
     else:
         contract_number = json.loads(request.POST['contract_number'])
         list_of_rhics = list(RHIC.objects.filter(contract=str(contract_number)))
-        
-    #list_of_rhics = list(RHIC.objects.all())
-
-
-    # since some item(s) are not json-serializable,
-    # extract info we need and pass it along
-    # i.e. r.uuid
 
     response_data = {}
     response_data['list_of_rhics'] = [(str(r.uuid), r.name)
@@ -461,7 +393,7 @@ def report_ui20(request):
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
+    account = Account.objects.filter(login=user)[0].account_id
     try:
         api_data = json.loads(request.raw_post_data)
         data = api_data
@@ -497,11 +429,39 @@ def report_ui20(request):
     else:
         environment = "All"
 
+    rhic = data['rhic']
+    contract = data['contract_number']
+    list_of_rhics = []
     
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = data['rhic']
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
+
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
     format = constants.full_format
 
     response_data = {}
-    response_data['list'] = []
+    response_data['list'] = results
     response_data['account'] = account
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
@@ -521,7 +481,7 @@ def default_report(request):
     _LOG.info("default_report called by method: %s" % (request.method))
 
     user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
+    account = Account.objects.filter(login=user)[0].account_id
     try:
         api_data = json.loads(request.raw_post_data)
         data = api_data
@@ -541,10 +501,9 @@ def default_report(request):
     start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
     end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
     environment = data['env']
-    """
-    #rhic = data['rhic']
-    #contract = data['contract_number']
-    #list_of_rhics = []
+    rhic = data['rhic']
+    contract = data['contract_number']
+    list_of_rhics = []
     
  
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
@@ -555,12 +514,12 @@ def default_report(request):
                                  return_failed_only=True)
     
     fact_compliance = system_fact_compliance_list(account)
-    """
+
     format = constants.full_format
 
     response_data = {}
-    response_data['list'] = []
-    response_data['biz_list'] = []
+    response_data['list'] = usuage_compliance
+    response_data['biz_list'] = fact_compliance
     response_data['account'] = account
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
@@ -653,26 +612,6 @@ def instance_detail_ui20(request):
     date = get_date_object(request.POST['date'])
     day = date.strftime(constants.day_fmt)
 
-    # try:
-    #    page = request.POST['page']
-    #    page_size = request.POST['page_size']
-    # except MultiValueDictKeyError:
-    #    page = None
-    #    page_size = None
-    # except:
-    #    _LOG.error(sys.exc_info()[0])
-    #    _LOG.error(sys.exc_info()[1])
-
-    # if page is not None and page_size is not None:
-    #    left = (request.POST['page'] - 1) * request.POST['page_size']
-    #    right = left + request.POST['page_size']
-    #    _LOG.info("Fetching instance detail objects [%s:%s]" % (left, right))
-    #    results = ReportData.objects[left:right].filter(instance_identifier=instance,
-    #                          date__gt=start, date__lt=end, **filter_args_dict)
-    # else:
-    #    _LOG.info("Fetching all instance detail objects.")
-    # results = ReportData.objects.filter(instance_identifier=instance,
-    # date__gt=start, date__lt=end, **filter_args_dict)
     results = ReportData.objects.filter(
         instance_identifier=instance, day=day, **filter_args_dict)
 
@@ -721,15 +660,6 @@ def max_report(request):
 
 
 def quarantined_report(request):
-    # user = str(request.user)
-    # account = Account.objects.filter(login=user)[0].account_id
-    # filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    # s = request.POST['start']
-    # e = request.POST['end']
-    # start = get_date_object(s)
-    # end = get_date_object(e)
-    # description = request.POST['description']
-
     qobjects = []
     qobjects = QuarantinedReportData.objects.all()
 

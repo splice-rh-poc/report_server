@@ -18,27 +18,8 @@ $(document).ready(function() {
 		$(this).hide();
 	});
 	
-	console.log(pxt);
-	    
-    if (pxt !=null && logged_in==false){
-    	console.log('inside cookie');
-    	setupLoginFormCookie();
-    	console.log('logged in: ' + logged_in);
-    	loadContent();
-    	console.log('logged in: ' + logged_in);
-	
-    }
-    else {
-    	console.log('in else');
-    }
-    //if (pxt==null){
-   // 	console.log('regular setupLogin')
-    //	setupLoginForm();
-    //	console.log('logged in: ' + logged_in);
-    //	loadContent();
-    //	console.log('logged in: ' + logged_in);
-   // }
-    
+	setupLoginForm();
+    loadContent();
     setupLLButtons();
     //setupNavButtons(); // obsolete?
     setupCreateForm();
@@ -209,10 +190,7 @@ function setupCreateForm() {
         this.reset();
     });
 
-    $('#startDate').attr('disabled', false);
-    $('#endDate').attr('disabled', false);
-    $('#rhic').attr('disabled', false);
-    
+
     $("#startDate").attr('disabled', false);
     $("#endDate").attr('disabled', false);
     $("#byMonth").attr('disabled', false);
@@ -225,7 +203,7 @@ function setupCreateForm() {
     //setupCreateFormButtons();
 
     $.ajax({
-        url: '/report-server/ui20/report_form/',
+        url: '/report-server/space/report_form/',
         type: 'POST',
         contentType: 'application/json',
         data: {},
@@ -237,9 +215,7 @@ function setupCreateForm() {
         }
     }).done(function(data) {
         fill_create_report_form(JSON.parse(data));
-        //fill_create_report_rhic_form(JSON.parse(data));
         
-        $('#rhic').chosen();
         $('#byMonth').chosen();
         $('#env').chosen();
     }).fail(function(jqXHR) {
@@ -861,7 +837,6 @@ function fill_create_report_form(data) {
     // Clear outdated elements
 	$('#byMonth').empty();
     $('#env').empty();
-    //$('#byMonth').empty();
 
 
 
