@@ -27,6 +27,7 @@ import json
 from bson import json_util
 
 from splice.common.models import ProductUsage
+from splice.common import utils
 
 _LOG = logging.getLogger(__name__)
 
@@ -57,6 +58,10 @@ class ProductUsageResource(MongoEngineResource):
             if isinstance(product_usage, dict):
                 product_usage = [product_usage]
             pu_models = [ProductUsage._from_son(p) for p in product_usage]
+            for pu in pu_models:
+                if isinstance(pu.date, basestring):
+                    # We must convert from str to datetime for ReportServer to be able to process this data
+                    pu.date = utils.convert_to_datetime(pu.date)
             b = time.time()
             items_not_imported = self.import_hook(pu_models)
             c = time.time()
