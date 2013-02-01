@@ -15,4 +15,5 @@ src/report_server/report_server.wpr
 src/report_server/report_server.wpu
 /home/whayutin/workspace/report_server/src/report_server/dev/perf/pu
 playpen/api/curl_log
+src/report_server/default
 

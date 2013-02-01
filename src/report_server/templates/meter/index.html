@@ -34,7 +34,7 @@
         <script src="{{ STATIC_URL }}jquery.dataTables.min.js"></script> 
         <script src="{{ STATIC_URL }}TableTools.min.js"></script>
         <script src="{{ STATIC_URL }}date.js"></script>
-        <script src="{{ STATIC_URL }}index.js"></script>
+        <script src="{{ STATIC_URL }}indexMeter.js"></script>
 
 
         <style>
@@ -153,8 +153,6 @@
                               <button id='default-report-submit' name='default-report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='create_default_report(event)'>
                                 <span class='ui-button-text'>Run Report</span>
                               </button>
-
-
                             </div>
                             <div id='default_report_results_ui'> </div>	
                             <div id='default_report_results'> </div>
@@ -187,7 +185,7 @@
                                                 </td>
                                             </tr>
                                         </table>
-        								<!--
+        
                                         <h2>Filter by Customer Data:</h2> 
                                         <br>
                                         <table>
@@ -213,7 +211,6 @@
                                                 </td>
                                             </tr>
                                         </table>
-                                        -->
                                         <h2>Filter by Reporting Domain:</h2> 
                                         <br>
                                         <table width=50%>
@@ -244,6 +241,10 @@
                                                     <button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
                                                         <div id='original'>
                                                             <span class='ui-button-text original' style='float:left'>Reset Form</span>
+                                                        </div>
+                                                        <div id='choices'>
+                                                            <span class='ui-button-text' style='float:left'>Yes</span>
+                                                            <span class='ui-button-text' style='float:left'>No</span>
                                                         </div>
                                                     </button>
                                                 </td>
@@ -336,7 +337,6 @@
                 </div>
             </div>
         </div>
-            <!-- Login Form -->
         <!-- Login Form -->
         <div id="login-form" title="Login">
             <form>{% csrf_token %}

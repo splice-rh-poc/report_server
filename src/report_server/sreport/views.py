@@ -51,100 +51,15 @@ def template_response(request, template_name):
                               context_instance=RequestContext(request))
 
 
-def report(request):
-    """
-    This is now used by "Export Report" and should be the "GET" equiv
-    of report_ui20
+def start_meter(request):
+    return template_response(request, 'meter/index.html')
 
-    @param request: http
-
-    generate the data for the report.
-    data is generated from hours_per_consumer
-    
-    Returns:
-    Content-Disposition:attachment; filename=reportdata.csv
-    Content-Type:text/csv
-
-    """
-    _LOG.info("report called by method: %s" % (request.method))
-
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
-    if 'byMonth' in request.GET:
-        month_year = request.GET['byMonth'].encode('ascii').split('%2C')
-        month = int(month_year[0])
-        year = int(month_year[1])
-        start = datetime(year, month, 1)
-        if month == 12:
-            end = datetime(year + 1, 1, 1) - timedelta(days=1)
-        else:
-            end = datetime(year, month + 1, 1) - timedelta(days=1)
-    else:
-
-        startDate = request.GET['startDate'].encode('ascii').split("%2F")
-        endDate = request.GET['endDate'].encode('ascii').split("%2F")
-        start = datetime(
-            int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-
-    if 'env' in request.GET:
-        environment = request.GET['env']
-    else:
-        environment = "All"
-        
-    rhic = request.GET['rhic']
-    contract = request.GET['contract_number']    
-    list_of_rhics = []
-    
-    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
-        list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start,
-                                     end, 
-                                     list_of_rhics=list_of_rhics,
-                                     environment=environment)
-
-    elif rhic != 'null':
-        if rhic == "All":
-            list_of_rhics = list(RHIC.objects.filter(contract=contract))
-        else:
-            my_uuid = rhic
-            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(start,
-                                     end,
-                                     list_of_rhics,
-                                     environment=environment)
-
-    else:
-        list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start,
-                                     end,
-                                     list_of_rhics=list_of_rhics,
-                                     environment=environment)
-
-    format = constants.full_format
-
-    response_data = {}
-    response_data['list'] = results
-    response_data['account'] = account
-    response_data['start'] = start.strftime(format)
-    response_data['end'] = end.strftime(format)
-
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
-
-
-def ui20(request):
-    return template_response(request, 'ui20/index.html')
+def start_space(request):
+    return template_response(request, 'space/index.html')
 
 
 @ensure_csrf_cookie
-def login_ui20(request):
+def login(request):
     """
     login, available at host:
     
@@ -175,14 +90,19 @@ def login_ui20(request):
         username = request.POST['username']
         password = request.POST['password']
         response_data = {}
-        user = authenticate(request=request, username=username, password=password)
-        if user:
-            auth_login(request, user)
-        else:
-            return HttpResponseForbidden()    
+       
+        user = authenticate(request=request, username=username, password=password) 
+            
+        if not user:
+            user = authenticate(username=username, password=password)
+        
+            if user:
+                auth_login(request, user)
+            else:
+                return HttpResponseForbidden()    
     else:
         _LOG.error('authentication failed, user does not exist')
-        logout_ui20(request)
+        logout(request)
         return HttpResponseForbidden()    
 
     response_data = {}    
@@ -194,7 +114,7 @@ def login_ui20(request):
         response_data['username'] = username
         
         if hasattr(user, 'account'):
-            response_data['account'] = account.account_id
+            response_data['account'] = user.account
         else:
             #in some environments an account number may not be available
             setattr(user, 'account', user.id)
@@ -207,7 +127,7 @@ def login_ui20(request):
 
 
 @ensure_csrf_cookie
-def logout_ui20(request):
+def logout(request):
     """
     logout avail at host:port/ui/logout
     """
@@ -216,16 +136,16 @@ def logout_ui20(request):
 
 
 @ensure_csrf_cookie
-def index_ui20(request):
+def index(request):
     """
-    index page, setups up UI and javascript calls report_form_ui20
+    index page, setups up UI and javascript calls report_form
     """
     _LOG.info("index called by method: %s" % (request.method))
 
-    return template_response(request, 'ui20/index.html')
+    return template_response(request, 'meter/index.html')
 
 
-def import_ui20(request):
+def execute_import(request):
     """
     The primary method for import should be done via the api
     This is mainly for demo and test purposes atm
@@ -300,7 +220,7 @@ def report_form_rhics(request):
     return response
 
 
-def detailed_report_ui20(request):
+def detailed_report(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
@@ -335,7 +255,7 @@ def detailed_report_ui20(request):
     return response
 
 @login_required
-def report_ui20(request):
+def report(request):
     # replaces report(request)
     """
             
@@ -604,7 +524,7 @@ def unauthorized_pem():
     return response
 
 
-def instance_detail_ui20(request):
+def instance_detail(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     instance = request.POST['instance']
@@ -677,7 +597,7 @@ def quarantined_report(request):
 
 def export(request):
     if request.method == 'GET':
-        result = report(request)
+        result = create_export_report(request)
 
     mydict = json.loads(result.content)
     list_of_results = mydict['list']
@@ -706,4 +626,92 @@ def export(request):
             # row.append(getattr(obj), "wes")
             writer.writerow(row)
     # Return CSV file to browser as download
+    return response
+
+
+def create_export_report(request):
+    """
+    This is now used by "Export Report" and should be the "GET" equiv
+    of report
+
+    @param request: http
+
+    generate the data for the report.
+    data is generated from hours_per_consumer
+    
+    Returns:
+    Content-Disposition:attachment; filename=reportdata.csv
+    Content-Type:text/csv
+
+    """
+    _LOG.info("report called by method: %s" % (request.method))
+
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    if 'byMonth' in request.GET:
+        month_year = request.GET['byMonth'].encode('ascii').split('%2C')
+        month = int(month_year[0])
+        year = int(month_year[1])
+        start = datetime(year, month, 1)
+        if month == 12:
+            end = datetime(year + 1, 1, 1) - timedelta(days=1)
+        else:
+            end = datetime(year, month + 1, 1) - timedelta(days=1)
+    else:
+
+        startDate = request.GET['startDate'].encode('ascii').split("%2F")
+        endDate = request.GET['endDate'].encode('ascii').split("%2F")
+        start = datetime(
+            int(startDate[2]), int(startDate[0]), int(startDate[1]))
+        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+
+    if 'env' in request.GET:
+        environment = request.GET['env']
+    else:
+        environment = "All"
+        
+    rhic = request.GET['rhic']
+    contract = request.GET['contract_number']    
+    list_of_rhics = []
+    
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end, 
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = rhic
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics,
+                                     environment=environment)
+
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+        results = hours_per_consumer(start,
+                                     end,
+                                     list_of_rhics=list_of_rhics,
+                                     environment=environment)
+
+    format = constants.full_format
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    try:
+        response = HttpResponse(utils.to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+
     return response

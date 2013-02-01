@@ -1,0 +1,361 @@
+{% comment %}
+#
+# Copyright © 2012 Red Hat, Inc.
+#
+# This software is licensed to you under the GNU General Public
+# License as published by the Free Software Foundation; either version
+# 2 of the License (GPLv2) or (at your option) any later version.
+# There is NO WARRANTY for this software, express or implied,
+# including the implied warranties of MERCHANTABILITY,
+# NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+# have received a copy of GPLv2 along with this software; if not, see
+# http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+{% endcomment %}
+<html>
+    <head>
+        <link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
+        <link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet"/>
+        <link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}jquery.jqplot.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}chosen.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}report.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}TableTools.css" type="text/css" rel="stylesheet"/>
+        <script src="{{ STATIC_URL }}jquery.min.js"></script>
+        <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
+        <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
+        <script src="{{ STATIC_URL }}jquery.jqplot.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.highlighter.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.cursor.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.canvasTextRenderer.min.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.canvasAxisLabelRenderer.min.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.dateAxisRenderer.js"></script>
+        <script src="{{ STATIC_URL }}jqplot.canvasAxisTickRenderer.js"></script>
+        <script src="{{ STATIC_URL }}chosen.jquery.js"></script>
+        <script src="{{ STATIC_URL }}jquery.dataTables.min.js"></script> 
+        <script src="{{ STATIC_URL }}TableTools.min.js"></script>
+        <script src="{{ STATIC_URL }}date.js"></script>
+        <script src="{{ STATIC_URL }}indexSpace.js"></script>
+
+
+        <style>
+            #outer-wrapper {
+                background: #E6E6E6;
+            }
+            #navPrimary {
+                clear: both;
+            }
+
+            input {
+                vertical-align: bottom;
+            }
+            #form_error {
+                color: red;
+            }
+			li.disabled {
+				opacity: 0.35;
+			}
+            div.datatables_sort_wrapper {
+                position: relative;
+                padding-right: 14px;
+                text-align: center;
+            }
+            div.datatables_sort_wrapper span {
+                margin-top: -8px;
+                position: absolute;
+                right: 0;
+                top: 50%;
+            }
+            table.dataTable td {
+                text-align: center;
+            }
+            tr.highlighted {
+                background-color: #A1ACB2 !important;
+                color: #FFFFFF;
+            }
+            .dataTables_wrapper {
+                min-height: 0px !important; 
+            }
+        </style>
+    </head>
+    <body>
+	    <div id="outer-wrapper" class="wrapo">
+	        <div id="wrapper" class="wrapo">
+            	<div id="header-wrap" class="wrapi">
+                	<div id="header">
+                	<div id="spinner" class="spinner" style="display:none;">
+                	    <img id="img-spinner" src="{{ STATIC_URL }}ajax-loader.gif" alt="Loading"/>
+                	</div>
+
+                    	<div id="brand">
+                    		<a id="rhLogo" href="http://www.redhat.com/" title="Go to redhat.com">
+                	    		<img src="https://access.redhat.com/chrome_themes/umbra/g/logo_redhat.png" alt="Red Hat logo">
+                    		</a>
+                    	</div>
+
+                        <div id="utility">
+                        	<div id="utility-links">
+        		                <div id="account-links" class="account-links" style="display:block">
+                        			<span style="color: #FFFFFF;">
+                                  		<div style="padding: 4 2;">
+                			                <!-- Login Button -->
+                                			<button id="login-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Login</span></button>
+                                			<!-- Logout Button -->
+                                 			<button id="logout-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Logout</span></button>
+                                        </div>
+
+                                        <p>
+                            		    {% if user.is_authenticated %}
+                                            {{ user.username }} account #{{ user.account }}
+                                            <script type='text/javascript'>
+                                                first_logged_in = true;
+                                            </script>
+                                            {% if user.is_staff and user.is_superuser %}
+                                                <script type='text/javascript'>
+                                                    is_admin = true;
+                                                    turnOnAdminFeatures();
+                                                </script>
+                                            {% endif %}
+		                                {% else %}
+                        		            You are not logged in.
+                                            <script type='text/javascript'>
+                                                first_logged_in = false;
+                                            </script>
+		                                {% endif %}
+                                        </p>
+                	            	</span>
+                       			</div>
+                        	</div>
+                        </div>
+                        <div id='navWrap' class='clearWrap'>
+                            <div id='navPrimary'>
+                                <ul>
+                                    <!--
+                                        Create a much more generic way of attaching and
+                                        exercising onclick events.
+                                    -->
+                                    <li id='create_button' class='active'><a href="#">Create Report</a></li>
+                                    <li id='report_button'><a href='#'>View Report</a></li>
+                                    <li id='max_button'   ><a href="#">MCU</a></li>
+                                    <li id='detail_button'><a href='#'>View Detail</a></li>
+                                    <li id='import_button'><a href="#">Administer</a></li>
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id='main-wrap' class='wrapu'>
+                    <div id='main-top'></div>
+                    <div class='wrapi'>
+                        <div id='container' class='clearWrap'>
+                        	<a id="filter_toggle" style="float: right"  href="javascript:toggle_report_form();">show advanced filter</a>
+                        	<div id='default_report_controls'>
+                              <button id='default-report-submit' name='default-report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='create_default_report(event)'>
+                                <span class='ui-button-text'>Run Report</span>
+                              </button>
+
+
+                            </div>
+                            <div id='default_report_results_ui'> </div>	
+                            <div id='default_report_results'> </div>
+                            <div id='create_pane' style='display: none'>
+                                <fieldset>
+                                    <form id="report_form" style="display: none">
+                                     <h2>Filter by Date:</h2>
+                                      <br>
+                                        <table>
+                                            <tr>
+                                                <td width="10%">
+                                                    <div style='display: inline-block'>
+                                                        
+                                                        <b style='padding-top: 1em'> Month:</b>
+                                                        <select name=byMonth id="byMonth" class='chosen' style="width:100px;" disabled="false">
+
+                                                        </select> 
+                                                    </div>
+                                                </td>
+                                            </tr>
+        
+                                            <tr>
+                                                <td width="50%"> 
+                                                    <div style='display: inline-block'>
+                                                        
+                                                        <b>Custom Range:</b> 
+                                                            Start Date: <input type="text" id="startDate" name="startDate">
+                                                            End Date: <input type="text" id="endDate" name="endDate"> 
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+        								<!--
+                                        <h2>Filter by Customer Data:</h2> 
+                                        <br>
+                                        <table>
+                                            <tr>
+                                                <td width="5%"> 
+                                                    
+                                                    <b> Contract: </b> </td> 
+                                                    <td width="40%">
+                                                        <select id="contract" name=contract_number class='chosen'  style="width:150px;" disabled="false"> 
+                                                            
+                                                        </select> 
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="5%"> 
+                                                    
+                                                    <b> RHIC: </b></td>
+                                                    <td width="40%">
+                                                        <select id="rhic" name="rhic" class='chosen' style="width:400px;" disabled="false">
+                                                        </select>
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        -->
+                                        <h2>Filter by Reporting Domain:</h2> 
+                                        <br>
+                                        <table width=50%>
+                                            <tr> 
+                                                <td width="15%"><b>Reporting Domain: </b></td>
+                                                    <td width="51%">
+                                                        <select id='env' name="env" class='chosen'  style="width:150px;" disabled="false">
+                                                            
+                                                        </select>
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                            </table>
+                                            <table id=buttons width=50%>
+                                            <br><br><br>
+                                            <tr>
+                                                <td width="2%">
+                                                    <button id='report-submit' name='report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
+                                                        <span class='ui-button-text'>Run Report</span>
+                                                    </button>
+                                                </td>
+                                                <td width="2%">
+                                                <button id='export' name='export' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='exportReport(event)'>
+                                                    <span class='ui-button-text'>Export Report</span>
+                                                </button>
+                                                </td>
+                                                <td width="2%">
+                                                    <button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
+                                                        <div id='original'>
+                                                            <span class='ui-button-text original' style='float:left'>Reset Form</span>
+                                                        </div>
+                                                    </button>
+                                                </td>
+                                                
+                                            </tr>
+                                        </table>
+                                        <div id='form_error'>
+                                        </div>
+                                    </form>
+                                </fieldset>
+                            </div>
+
+                            <div id='report_pane'>
+                                <div>
+                                    <h3>This date range contains no usage data.</h3>
+                                    <br></br>
+                                    <br></br>
+                                </div>
+                                    <button id='createAnotherReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='openCreate()'>
+                                        <span class='ui-button-text'>Run another report</span>
+                                    </button>
+                                    
+                                </button>
+                                <table width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td><h3>Glossary:</h3></td>
+                                        </tr>
+                                        <tr>
+                                        <td width="15%">SLA :</td>
+                                        <td>Service level agreement as defined in the customers contract</td>
+                                        </tr>
+                                        <tr>
+                                        <td width="15%">Support :</td>
+                                        <td>Support parameters as defined in the customers contract</td>
+                                        </tr>
+                                        <tr>
+                                        <tr>
+                                        <td width="15%">Facts :</td>
+                                        <td>Characteristics of both hardware and software of the resource</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="15%">Contracted Use:</h3></td>
+                                            <td>This is the number of concurrent entitlements purchased in the contract</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="15%">NAU:</td>
+                                            <td>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td>
+                                        </tr>
+                                        <tr>
+                                            <td width="15%">Consumed :</td>
+                                            <td>Defined as an entitlement being installed and running on an instance or physical machine. If an instance is not running ( ie.. shutdown or terminated), then it is not counted as consumed</td>
+                                        </tr>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id='detail_pane'>
+                                <div id='details'>
+                                    <h2>Unique Resources:</h2>
+                                    <table style="width: 100%; margin-bottom: 0;">
+                                    </table>
+                                </div>
+                                <br>
+                                <div id='instance_details'>
+                                    
+                                </div>
+                            </div>
+                            <div id='max_pane'>
+                                <br>
+                                <div id='max_details'>
+                                
+                                </div>
+                            </div>
+                            <div id='import_pane'>
+                                 <button id='importData' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
+                                        <span class='ui-button-text'>Import Data</span>
+                                 </button>
+                                 <button id='QuarantineReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createQuarantineReport()'>
+                                        <span class='ui-button-text'>Refresh Quarantined Data</span>
+                                 </button>
+                                 <button id='factCompliance_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createFactComplianceReport()'>
+                                        <span class='ui-button-text'>Refresh Instance Compliance Data</span>
+                                 </button>
+
+                                 <div id='admin_report'> </div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <!-- Login Form -->
+        <!-- Login Form -->
+        <div id="login-form" title="Login">
+            <form>{% csrf_token %}
+                <fieldset>
+                    <label for="username">Username</label><br>
+                    <input type="text" name="username" id="username" class="text ui-widget-content ui-corner-all" /><br>
+                    <label for="password">Password</label><br>
+                    <input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all" />
+                </fieldset>
+            </form>
+            <div id="login-error" class="ui-state-error">
+                <div class="ui-state-error-text">
+                    <p>Invalid Username or Password.</p>
+                    <p>Please try again.</p>
+                </div>
+            </div>
+            <div id="relogin" class="ui-helper-hidden">
+                <p>Your session has expired, you must relogin.</p>
+            </div>
+        </div>
+    </body>
+</html>
