@@ -33,7 +33,7 @@ DUMP_DIR='/home/whayutin/workspace/report_server/src/report_server/dev/db_dump/'
 
 
 ### BEGIN ### ORIGINAL METERING SETTINGS
-"""
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -44,12 +44,12 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
-"""
+
 ### END ### ORIGINAL METERING SETTINGS
 
 
 ### BEGIN ### SPACEWALK REPORT-SERVER SETTINGS
-
+"""
 
 SESSION_ENGINE = 'report_server.session.spacewalk.db'
 #SESSION_ENGINE = 'django.contrib.sessions.backends.db
@@ -81,7 +81,7 @@ DATABASES = {
               'PORT': '1521',     
           }   
 }
-
+"""
 ### END ###SPACEWALK REPORT-SERVER SETTINGS
 
 
