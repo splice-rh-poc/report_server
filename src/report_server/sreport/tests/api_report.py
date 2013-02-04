@@ -13,11 +13,13 @@ from django.contrib.auth.models import User
 from report_server.sreport.models import ReportData
 from rhic_serve.rhic_rest.models import Account
 from report_server.sreport.tests.general import BaseReportTestCase
-from report_server.sreport.tests.general import BaseMongoApiTestCase
+from report_server.sreport.tests.general import MongoApiTestCase
 from setup import TestData
+import json
 
 
-class ReportDataTest(BaseReportTestCase):
+class ReportDataTest(MongoApiTestCase):
+    """
     username="shadowman@redhat.com"
     password="shadowman@redhat.com"
     
@@ -37,22 +39,23 @@ class ReportDataTest(BaseReportTestCase):
     def get_default_user(self):
         return Account.objects.get(login='shadowman@redhat.com')  
 
+    """
     def test_getlist(self):        
         
         #create json here, a valid entry
-        entry = TestData.create_product_usage_json(instance_identifier="00:11")
-        resp = self.api_client.post('/api/v1/productusage/', 
-                                     format='json',
+        e = TestData.create_product_usage_json(instance_identifier="00:11")
+        entry = json.dumps(e)
+        resp = self.post('/api/v1/productusage/', 
                                      data=entry)
         self.assertEqual(202, resp.status_code, 'http status code is expected')
         
-        query = {"user": "shadowman@redhat.com", "byMonth": "11,2012",\
+        q = {"user": "shadowman@redhat.com", "byMonth": "11,2012",\
                   "contract_number": "All", "rhic": "null", "env": "All"}
+        query = json.dumps(q)
         
-        resp = self.api_client.post('/api/v1/report/?username=shadowman@redhat.com', 
-                                    authentication=self.get_credentials(),
+        resp = self.post('/api/v1/report/', 
                                     data=query,
-                                    format='json',
+                                    code=200
                                     )
         self.assertEqual(200, resp.status_code, 'http status code is expected')
         self.assertContains(resp,

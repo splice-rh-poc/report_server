@@ -15,8 +15,9 @@ from django.views.generic import list_detail
 
 from tastypie.api import Api
 
-from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource, ComplianceDataResource, \
-                                    ReportResource
+from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource
+from report_server.sreport.api import ComplianceDataResource, ReportResource
+
 
 v1_api = Api(api_name='v1')
 

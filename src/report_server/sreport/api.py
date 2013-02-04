@@ -82,12 +82,10 @@ class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
         _LOG.debug("in import_hook")
-        items_not_imported, start_stop_time = import_util.import_data(
-            product_usage,
-            force_import=True
-        )
-        _LOG.debug(
-            "items_not_imported length: " + str(len(items_not_imported)))
+        items_not_imported, start_stop_time = import_util.import_data(product_usage,
+                                                                      force_import=True
+                                                                      )
+        _LOG.debug("items_not_imported length: " + str(len(items_not_imported)))
         for i in items_not_imported:
             thisDict = i.to_dict()
             thisItem = QuarantinedReportData(**thisDict)
@@ -135,7 +133,6 @@ class ComplianceDataResource(Resource):
 
         return response
 
-
 class ReportResource(MongoEngineResource):
 
     class Meta:
@@ -147,7 +144,7 @@ class ReportResource(MongoEngineResource):
         # always_return_data = True
 
         # All Resources require basic authentication (for now).
-        authentication = BasicAuthentication()
+        #authentication = BasicAuthentication()
         authorization = Authorization()
 
     def post_list(self, request, **kwargs):
@@ -158,6 +155,6 @@ class ReportResource(MongoEngineResource):
 
         user = request.user
 
-        response = views.report_ui20(request)
+        response = views.report(request)
 
         return response

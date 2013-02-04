@@ -94,15 +94,46 @@ class BaseReportTestCase(BaseMongoTestCase):
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)
 
-class BaseMongoApiTestCase(MongoApiTestCase):
-    def setUp(self):
-        username = 'shadowman@redhat.com'
-        password = 'shadowman@redhat.com'
-        self.login()
+class MongoApiTestCase(MongoApiTestCase):
+
+    username = 'shadowman@redhat.com'
+    password = 'shadowman@redhat.com'
 
     def login(self):
-        self.client.login(username=self.username, password=self.password)
+        login = self.client.login(username=self.username, password=self.password)
+        self.assertTrue(login)
 
+    def post(self, url, data, code=202):
+        self.login()
+        content_type = 'application/json'
+        response = self.client.post(url, data, content_type)
+        self.assertEquals(response.status_code, code)
+        self.client.logout()
+        return response
+
+    def get(self, url):
+        self.login()
+        content_type = 'application/json'
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.client.logout()
+        return response
+
+    def delete(self, url):
+        self.login()
+        content_type = 'application/json'
+        response = self.client.delete(url)
+        self.assertEquals(response.status_code, 204)
+        self.client.logout()
+        return response
+
+    def patch(self, url, data):
+        self.login()
+        content_type = 'application/json'
+        response = self.client.patch(url, data, content_type)
+        self.assertEquals(response.status_code, 202)
+        self.client.logout()
+        return response
 
 class ReportTestCase(BaseReportTestCase):
     def setUp(self):

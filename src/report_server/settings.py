@@ -77,57 +77,6 @@ INSTALLED_APPS = (
     'report_server.report_import'
 )
 
-### BEGIN ### ORIGINAL METERING SETTINGS
-"""
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    #'report_server.session.spacewalk.middleware.SpacewalkSessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
-"""
-### END ### ORIGINAL METERING SETTINGS
-
-
-### BEGIN ### SPACEWALK REPORT-SERVER SETTINGS
-
-
-SESSION_ENGINE = 'report_server.session.spacewalk.db'
-#SESSION_ENGINE = 'django.contrib.sessions.backends.db
-
-AUTHENTICATION_BACKENDS = (
-   'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
-   'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
-   #'django.contrib.auth.backends.ModelBackend',
-)
-
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    #'django.contrib.sessions.middleware.SessionMiddleware',
-    'report_server.session.spacewalk.middleware.SpacewalkSessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
-
-DATABASES = {
-   'default': {
-              'ENGINE': 'django.db.backends.oracle', 
-              'NAME': 'xe',                      
-              'USER': 'spacewalk',               
-              'PASSWORD': 'spacewalk',           
-              'HOST': 'ec2-23-23-35-227.compute-1.amazonaws.com',
-              'PORT': '1521',     
-          }   
-}
-
-### END ###SPACEWALK REPORT-SERVER SETTINGS
 
 
 TEMPLATE_DEBUG = True
