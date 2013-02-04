@@ -28,7 +28,8 @@ TEMPLATE_DIRS = (
 )
 
 TEMPLATE_DEBUG = True
-DUMP_DIR='/home/whayutin/workspace/report_server/src/report_server/dev/db_dump/'
+#DUMP_DIR='/home/whayutin/workspace/report_server/src/report_server/dev/db_dump/'
+DUMP_DIR='/home/hudson/slave/workspace/report-server/src/report_server/dev/db_dump/'
 
 
 
