@@ -95,11 +95,10 @@ def login(request):
             
         if not user:
             user = authenticate(username=username, password=password)
-        
-            if user:
-                auth_login(request, user)
-            else:
-                return HttpResponseForbidden()    
+            if not user:
+                return HttpResponseForbidden() 
+        #user found, now authenticate
+        auth_login(request, user)
     else:
         _LOG.error('authentication failed, user does not exist')
         logout(request)
