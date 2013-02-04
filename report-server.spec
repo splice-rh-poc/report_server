@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.52
+Version:	0.61
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -238,6 +238,42 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Feb 01 2013 John Matthews <jwmatthews@gmail.com> 0.61-1
+- Don't throw a 409 on duplicate ReportData objects, log the issue and
+  continue. (jwmatthews@gmail.com)
+
+* Fri Feb 01 2013 John Matthews <jwmatthews@gmail.com> 0.60-1
+- Fix to ensure 'date' of ProductUsage is always converted to datetime instance
+  prior to import_hook being called (jwmatthews@gmail.com)
+
+* Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.59-1
+- Adding debug info to track down issue with SpliceServer upload
+  (jwmatthews@gmail.com)
+
+* Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.58-1
+- Fix so SpliceServer API uses same db_alias for looking up if a SpliceServer
+  object exists (jwmatthews@gmail.com)
+
+* Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.57-1
+- Fix so SpliceServer data sent through API will be written to the db_alias
+  defined in ReportServer's SpliceServer model (jwmatthews@gmail.com)
+
+* Thu Jan 31 2013 John Matthews <jwmatthews@gmail.com> 0.56-1
+- Add timezone aware for 'default' (jwmatthews@gmail.com)
+
+* Wed Jan 30 2013 John Matthews <jmatthews@redhat.com> 0.55-1
+- Adding upload if 'SpliceServer' API (jmatthews@redhat.com)
+
+* Fri Jan 25 2013 John Matthews <jmatthews@redhat.com> 0.54-1
+- Fix for non-gzipped import of ProductUsage data (jmatthews@redhat.com)
+
+* Wed Jan 23 2013 John Matthews <jmatthews@redhat.com> 0.53-1
+- Added support for gzip compression for body of request in ProductUsage import
+  (jmatthews@redhat.com)
+- blanking out config (whayutin@redhat.com)
+- Fix ISE on upload of ProductUsage data with an empty body
+  (jmatthews@redhat.com)
+
 * Wed Jan 16 2013 wes hayutin <whayutin@redhat.com> 0.52-1
 - fixed some issues w/ biz rule report (whayutin@redhat.com)
 

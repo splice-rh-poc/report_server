@@ -38,7 +38,7 @@ connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic_serve', tz_aware=True,
 connect(MONGO_DATABASE_NAME, alias='results', tz_aware=True,
         host=MONGO_DATABASE_HOST)
 register_connection('default', MONGO_DATABASE_NAME_RHICSERVE,
-                    host=MONGO_DATABASE_HOST_RHICSERVE)      
+                    host=MONGO_DATABASE_HOST_RHICSERVE, tz_aware=True)
 
 
 # Custom test runner to work with Mongo
