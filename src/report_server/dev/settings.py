@@ -21,7 +21,7 @@ curr_dir = os.path.dirname(__file__)
 source_dir = os.path.join(curr_dir, '..')
 os.chdir(source_dir)
 
-DUMP_DIR = os.path.join(curr_dir, 'db_dump')
+DUMP_DIR = os.path.join(curr_dir, 'db_dump2')
 
 TEMPLATE_DIRS = (
     os.path.join(source_dir, 'templates')

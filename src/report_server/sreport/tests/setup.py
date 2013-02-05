@@ -211,6 +211,9 @@ class TestData():
 
         for key, value in PRODUCTS_DICT.items():
             # print('create_product', key)
+            #print(RHIC.objects.count())
+            #print(value[1])
+            #all_rhics = RHIC.objects.all()
             rhic = RHIC.objects.filter(uuid=value[1])[0]
             contract_num = rhic.contract
             # print('contract_num', contract_num)

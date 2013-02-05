@@ -19,27 +19,7 @@ import json
 
 
 class ReportDataTest(MongoApiTestCase):
-    """
-    username="shadowman@redhat.com"
-    password="shadowman@redhat.com"
-    
-    def setUp(self):
-        super(ReportDataTest, self).setUp()
-        self.drop_collections()
-        
-        
-    def get_credentials(self):
-        cred =  self.create_basic(username=self.username, password=self.password)
-        return cred
-        
 
-    def drop_collections(self):
-        ReportData.drop_collection()
-    
-    def get_default_user(self):
-        return Account.objects.get(login='shadowman@redhat.com')  
-
-    """
     def setUp(self):
         super(ReportDataTest, self).setUp()
         self.drop_collections()
@@ -58,6 +38,7 @@ class ReportDataTest(MongoApiTestCase):
         print('ENTRY: ' + entry)
         resp = self.post('/api/v1/productusage/', 
                                      data=entry)
+        print('resp:' + str(resp.status_code))
         self.assertEqual(202, resp.status_code, 'http status code is expected')
         self.assertEqual(1, ReportData.objects.all().count())
         
