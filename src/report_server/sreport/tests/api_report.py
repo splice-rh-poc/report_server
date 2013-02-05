@@ -40,14 +40,26 @@ class ReportDataTest(MongoApiTestCase):
         return Account.objects.get(login='shadowman@redhat.com')  
 
     """
+    def setUp(self):
+        super(ReportDataTest, self).setUp()
+        self.drop_collections()
+        self.detail_url = '/api/v1/report/'
+
+    def drop_collections(self):
+        ReportData.drop_collection()
+    
     def test_getlist(self):        
         
         #create json here, a valid entry
+        self.assertEqual(0, ReportData.objects.all().count())
+        print('count: ' + str(ReportData.objects.all().count()))
         e = TestData.create_product_usage_json(instance_identifier="00:11")
         entry = json.dumps(e)
+        print('ENTRY: ' + entry)
         resp = self.post('/api/v1/productusage/', 
                                      data=entry)
         self.assertEqual(202, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, ReportData.objects.all().count())
         
         q = {"user": "shadowman@redhat.com", "byMonth": "11,2012",\
                   "contract_number": "All", "rhic": "null", "env": "All"}
