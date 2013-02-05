@@ -57,6 +57,7 @@ class ReportDataTest(MongoApiTestCase):
                                     data=query,
                                     code=200
                                     )
+        print(resp)
         self.assertEqual(200, resp.status_code, 'http status code is expected')
         self.assertContains(resp,
                             '"count": 1',
