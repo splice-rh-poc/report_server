@@ -37,7 +37,7 @@ class ReportDataTest(MongoApiTestCase):
         #print('ENTRY: ' + entry)
         resp = self.post('/api/v1/productusage/', 
                                      data=entry)
-        print('resp:' + str(resp.status_code))
+        #print('resp:' + str(resp.status_code))
         self.assertEqual(202, resp.status_code, 'http status code is expected')
         self.assertEqual(1, ReportData.objects.all().count())
         
