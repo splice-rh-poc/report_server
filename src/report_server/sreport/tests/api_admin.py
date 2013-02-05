@@ -94,7 +94,7 @@ class QuarantinedDataTest(BaseReportTestCase):
     def test_getlist(self):
         #create json here
         n = (datetime.now() + timedelta(days=1)).strftime('%s')
-        entry = TestData.create_product_usage_json(date=n)
+        entry = TestData.create_product_usage_json()
         #entry["date"] = "abcd"
         
         """
