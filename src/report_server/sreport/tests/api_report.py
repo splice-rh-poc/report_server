@@ -12,7 +12,6 @@
 from django.contrib.auth.models import User
 from report_server.sreport.models import ReportData
 from rhic_serve.rhic_rest.models import Account
-from report_server.sreport.tests.general import BaseReportTestCase
 from report_server.sreport.tests.general import MongoApiTestCase
 from setup import TestData
 import json
@@ -32,10 +31,10 @@ class ReportDataTest(MongoApiTestCase):
         
         #create json here, a valid entry
         self.assertEqual(0, ReportData.objects.all().count())
-        print('count: ' + str(ReportData.objects.all().count()))
+        #print('count: ' + str(ReportData.objects.all().count()))
         e = TestData.create_product_usage_json(instance_identifier="00:11")
         entry = json.dumps(e)
-        print('ENTRY: ' + entry)
+        #print('ENTRY: ' + entry)
         resp = self.post('/api/v1/productusage/', 
                                      data=entry)
         print('resp:' + str(resp.status_code))
@@ -50,7 +49,7 @@ class ReportDataTest(MongoApiTestCase):
                                     data=query,
                                     code=200
                                     )
-        print(resp)
+        #print(resp)
         self.assertEqual(200, resp.status_code, 'http status code is expected')
         self.assertContains(resp,
                             '"count": 1',

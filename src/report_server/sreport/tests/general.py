@@ -17,13 +17,12 @@ from logging import getLogger
 
 from django.conf import settings
 from django.test import TestCase
+from django.test import client, simple, testcases
+
 from mongoengine.connection import connect
 from mongoengine import connection, register_connection
 
-from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
-from rhic_serve.rhic_rest.models import RHIC, Account
-from splice.common.models import ProductUsage
-
+from report_server.sreport.models import ProductUsage
 from report_server.common.biz_rules import Rules
 from report_server.common import config
 from report_server.common import constants
@@ -32,6 +31,12 @@ from report_server.common.report import hours_per_consumer
 from report_server.sreport.models import ReportData
 from report_server.sreport.models import SpliceServer
 from report_server.sreport.tests.setup import TestData, Product
+
+from rhic_serve.rhic_rest.models import RHIC, Account
+
+from splice.common import config
+
+from tastypie.test import ResourceTestCase
 
 
 LOG = getLogger(__name__)
@@ -73,24 +78,101 @@ report_biz_rules = rules.get_rules()
 rhic_serve = settings.MONGO_DATABASE_NAME_RHICSERVE 
 checkin = settings.MONGO_DATABASE_NAME_CHECKIN
 report = settings.MONGO_DATABASE_NAME
+#default = settings.MONGO_DATABASE_NAME_RHICSERVE
+DATABASES = [rhic_serve, checkin, report]
 
-class BaseReportTestCase(BaseMongoTestCase):
+
+class MongoTestRunner(simple.DjangoTestSuiteRunner):
+
+    def setup_databases(self, *args, **kwargs):
+        pass
+
+    def teardown_databases(self, *args, **kwargs):
+        pass
+
+
+class PatchClient(client.Client):
+
+    def patch(self, path, data={}, content_type=client.MULTIPART_CONTENT,
+             **extra):
+        "Construct a PATCH request."
+
+        post_data = self._encode_data(data, content_type)
+
+        parsed = client.urlparse(path)
+        r = {
+            'CONTENT_LENGTH': len(post_data),
+            'CONTENT_TYPE':   content_type,
+            'PATH_INFO':      self._get_path(parsed),
+            'QUERY_STRING':   parsed[4],
+            'REQUEST_METHOD': 'PATCH',
+            'wsgi.input':     client.FakePayload(post_data),
+        }
+        r.update(extra)
+        return self.request(**r)
+
+"""
+class MongoTestCase(BaseMongoTestCase):
 
     def setUp(self):
-        super(BaseReportTestCase, self).setUp()
+        super(MongoTestCase, self).setUp()
         self.setup_database()
+        #self.client.defaults['SSL_CLIENT_CERT'] = \
+           # open(config.CONFIG.get('security', 'rhic_ca_cert')).read()
+
+    def setup_database(self, *args, **kwargs):
+        # Disconnect from the default mongo db, and use a test db instead.
+        pass
+        self.disconnect_dbs()
+        connection.connect(MONGO_TEST_DATABASE_NAME, 
+            alias=settings.MONGO_DATABASE_NAME, tz_aware=True)
+
+        for collection in ['account', 'user', 'rhic', 'fs.chunks',
+            'fs.files']:
+            print 'importing %s collection' % collection
+            call(['mongoimport', '--db', MONGO_TEST_DATABASE_NAME,
+                '-c', collection, '--file', 
+                '%s.json' % os.path.join(settings.DUMP_DIR, collection)])
+"""
+
+
+class BaseMongoTestCase(ResourceTestCase):
+    
+    client_class = PatchClient
+
+    def _fixture_setup(self, *args, **kwargs):
+        pass
+
+    def _fixture_teardown(self, *args, **kwargs):
+        pass
+    
+    def tearDown(self):
+        self.teardown_database()
+        super(BaseMongoTestCase, self).tearDown()
+
+    def setUp(self):
+        super(BaseMongoTestCase, self).setUp()
+        self.setup_database()
+        self.drop_product_usage()
+        self.drop_report_data()
+        
+    def drop_product_usage(self):
+        ProductUsage.drop_collection()
+    
+    def drop_report_data(self):
+        ReportData.drop_collection()
 
     def setup_database(self):
         # Disconnect from the default mongo db, and use a test db instead.
         self.disconnect_dbs()
-        connection.connect(report, 
-            alias=report, tz_aware=True)
+        connection.connect(rhic_serve, 
+            alias='default', tz_aware=True)
         register_connection(rhic_serve, rhic_serve)
         register_connection(checkin, checkin)
         register_connection(report, report)
         register_connection('default', rhic_serve)
 
-        for collection in ['rhic', 'account']:
+        for collection in ['rhic', 'account', 'user', 'fs.chunks']:
             #print 'importing %s collection' % collection
             call(['mongoimport', '--db', 'rhic_serve',
                   '-c', collection, '--file', 
@@ -103,8 +185,20 @@ class BaseReportTestCase(BaseMongoTestCase):
                   '-c', collection, '--file', 
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)
+    
+    def teardown_database(self, *args, **kwargs):
+        self.disconnect_dbs()
+        # Drop the test database
+        for db in DATABASES:
+            pymongo_connection = connection.get_connection(db)
+            pymongo_connection.drop_database(db)
+    
+    def disconnect_dbs(self):
+        for alias in connection._connections.keys():
+            connection.disconnect(alias)
 
-class MongoApiTestCase(MongoApiTestCase):
+
+class MongoApiTestCase(BaseMongoTestCase):
 
     username = 'shadowman@redhat.com'
     password = 'shadowman@redhat.com'

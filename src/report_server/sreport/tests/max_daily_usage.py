@@ -12,7 +12,7 @@
 from datetime import datetime, timedelta
 from report_server.dev.custom_count import Rules
 from report_server.sreport.models import ReportData
-from report_server.sreport.tests.general import BaseReportTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase
 from report_server.common.max import MaxUsage
 from setup import TestData
 
@@ -32,7 +32,7 @@ rules = Rules()
 report_biz_rules = rules.get_rules()
 
 
-class MaxReportTestCase(BaseReportTestCase):
+class MaxReportTestCase(BaseMongoTestCase):
     
     def test_report_data(self):
         """

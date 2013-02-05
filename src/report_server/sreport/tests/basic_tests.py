@@ -20,7 +20,7 @@ from django.test import TestCase
 from mongoengine.connection import connect
 from mongoengine import connection, register_connection
 
-from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase, MongoApiTestCase
 from rhic_serve.rhic_rest.models import RHIC, Account
 from splice.common.models import ProductUsage
 
@@ -32,7 +32,7 @@ from report_server.common.report import hours_per_consumer
 from report_server.sreport.models import ReportData
 from report_server.sreport.models import SpliceServer
 from report_server.sreport.tests.setup import TestData, Product
-from report_server.sreport.tests.general import BaseReportTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase
 
 
 LOG = getLogger(__name__)
@@ -55,7 +55,7 @@ rules = Rules()
 report_biz_rules = rules.get_rules()
 
 
-class ReportTestCase(BaseReportTestCase):
+class ReportTestCase(BaseMongoTestCase):
     def setUp(self):
         super(ReportTestCase, self).setUp()
         self.drop_collections()

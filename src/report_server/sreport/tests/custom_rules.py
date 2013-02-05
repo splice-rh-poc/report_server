@@ -11,7 +11,7 @@
 
 from django.test import TestCase
 from report_server.common.biz_rules import Rules
-from report_server.sreport.tests.general import BaseReportTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase
 from setup import TestData
 
 
@@ -25,7 +25,7 @@ UNLIMITED = TestData.UNLIMITED
 GEAR = TestData.GEAR
 
 
-class RulesTestCase(BaseReportTestCase):
+class RulesTestCase(BaseMongoTestCase):
     def test_get_rules(self):
         r = Rules()
         rules = r.get_rules

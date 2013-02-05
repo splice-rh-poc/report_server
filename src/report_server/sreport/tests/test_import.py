@@ -27,7 +27,7 @@ from report_server.common.import_util import import_data
 from report_server.common import config
 from report_server.common.biz_rules import Rules
 from report_server.common import constants
-from report_server.sreport.tests.general import BaseReportTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase
 from rhic_serve.rhic_rest.models import RHIC, Account
 from setup import TestData
 from splice.common.models import ProductUsage
@@ -68,16 +68,14 @@ rules = Rules()
 report_biz_rules = rules.get_rules()
 
 
-class ReportImportTestCase(BaseReportTestCase):
+class ReportImportTestCase(BaseMongoTestCase):
 
     def setUp(self):
         super(ReportImportTestCase, self).setUp()
-        rhel_product = TestData.create_products()
-        rhel_entry = TestData.create_entry(RHEL, mem_high=True)
-        rhel_entry.save()
+        #rhel_product = TestData.create_products()
+        #rhel_entry = TestData.create_entry(RHEL, mem_high=True)
+        #rhel_entry.save()
         self.ss = SpliceServer.objects.get(hostname='test01')
-        ProductUsage.drop_collection()
-        ReportData.drop_collection()
 
     def test_import(self):
         fact1 = {"memory_dot_memtotal": "604836",
@@ -215,8 +213,8 @@ class ReportImportTestCase(BaseReportTestCase):
         self.assertEqual(len(lookup), items_to_load)
 
         timer_stop = datetime.now()
-        print('\n')
-        print('**** use_bulk_load =' + ' ' + str(timer_stop - timer_start))
+        #print('\n')
+        #print('**** use_bulk_load =' + ' ' + str(timer_stop - timer_start))
 
     def test_import_interval_2(self):
         fact1 = {"memory_dot_memtotal": "604836",

@@ -26,7 +26,7 @@ from report_server.common.import_util import import_data
 from report_server.common import config
 from report_server.common.biz_rules import Rules
 from report_server.common import constants
-from report_server.sreport.tests.general import BaseReportTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase
 from report_server.sreport.models import ReportData
 from report_server.sreport.models import SpliceServer, ProductUsage
 from rhic_serve.rhic_rest.models import RHIC, Account
@@ -76,7 +76,7 @@ rules = Rules()
 report_biz_rules = rules.get_rules()
 
 
-class UITestCase(BaseReportTestCase):
+class UITestCase(BaseMongoTestCase):
 
     def test_import_three(self):
         SpliceServer.drop_collection()

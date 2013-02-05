@@ -10,7 +10,7 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from report_server.sreport.models import ReportData, QuarantinedReportData
-from report_server.sreport.tests.general import BaseReportTestCase, MongoApiTestCase
+from report_server.sreport.tests.general import BaseMongoTestCase, MongoApiTestCase
 from rhic_serve.common.tests import BaseMongoTestCase#, MongoApiTestCase
 from setup import TestData
 from datetime import datetime, timedelta
@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 import json
 
 
-class ImportAPITest(BaseReportTestCase):
+class ImportAPITest(MongoApiTestCase):
     def setUp(self):
         super(ImportAPITest, self).setUp()
         self.drop_collections()
@@ -82,7 +82,7 @@ class ImportAPITest(BaseReportTestCase):
         
 
 
-class QuarantinedDataTest(BaseReportTestCase):
+class QuarantinedDataTest(BaseMongoTestCase):
     def setUp(self):
         super(QuarantinedDataTest, self).setUp()
         self.drop_collections()
