@@ -75,7 +75,7 @@ class ReportImportTestCase(BaseMongoTestCase):
         #rhel_product = TestData.create_products()
         #rhel_entry = TestData.create_entry(RHEL, mem_high=True)
         #rhel_entry.save()
-        self.ss = SpliceServer.objects.get(hostname='test01')
+        self.ss = SpliceServer.objects.get(hostname="test01")
 
     def test_import(self):
         fact1 = {"memory_dot_memtotal": "604836",

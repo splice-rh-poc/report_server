@@ -89,7 +89,7 @@ def import_data(product_usage=[],
             splice_server = SpliceServer.objects.get(uuid=pu.splice_server)
             _LOG.info('splice server = ' + splice_server.hostname)
         except Exception:
-            _LOG.critical('splice server' + str(pu.splice_server) + ' not found')
+            _LOG.critical('splice server named: ' + str(pu.splice_server) + ' not found')
             continue        
         
         

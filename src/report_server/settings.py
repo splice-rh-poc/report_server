@@ -29,7 +29,7 @@ MONGO_DATABASE_NAME_RHICSERVE = config.CONFIG.get('rhic_serve', 'db_name')
 MONGO_DATABASE_HOST_RHICSERVE = config.CONFIG.get('rhic_serve', 'db_host')
 
 # Connect to the mongo databases.
-connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin', tz_aware=True,
+connect(MONGO_DATABASE_NAME_CHECKIN, alias='checkin_service', tz_aware=True,
         host=MONGO_DATABASE_HOST_CHECKIN)
 connect(MONGO_DATABASE_NAME_RHICSERVE, alias='rhic_serve', tz_aware=True,
         host=MONGO_DATABASE_HOST_RHICSERVE)

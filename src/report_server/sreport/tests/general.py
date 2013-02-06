@@ -76,10 +76,10 @@ report_biz_rules = rules.get_rules()
 
 #MONGO_TEST_DATABASE_NAME = 'test_%s' % settings.MONGO_DATABASE_NAME
 rhic_serve = settings.MONGO_DATABASE_NAME_RHICSERVE 
-checkin = settings.MONGO_DATABASE_NAME_CHECKIN
+checkin_service = settings.MONGO_DATABASE_NAME_CHECKIN
 report = settings.MONGO_DATABASE_NAME
 #default = settings.MONGO_DATABASE_NAME_RHICSERVE
-DATABASES = [rhic_serve, checkin, report]
+DATABASES = [rhic_serve, checkin_service, report]
 
 
 class MongoTestRunner(simple.DjangoTestSuiteRunner):
@@ -168,7 +168,7 @@ class BaseMongoTestCase(ResourceTestCase):
         connection.connect(rhic_serve, 
             alias='default', tz_aware=True)
         register_connection(rhic_serve, rhic_serve)
-        register_connection(checkin, checkin)
+        register_connection(checkin_service, checkin_service)
         register_connection(report, report)
         register_connection('default', rhic_serve)
 
@@ -181,7 +181,7 @@ class BaseMongoTestCase(ResourceTestCase):
         
         for collection in ['splice_server']:
             #print 'importing %s collection' % collection
-            call(['mongoimport', '--db', 'checkin',
+            call(['mongoimport', '--db', 'checkin_service',
                   '-c', collection, '--file', 
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)

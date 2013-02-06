@@ -165,7 +165,7 @@ class TestData():
                 hour=this_hour,
                 day=this_day,
                 environment="us-east-1",
-                splice_server="splice-server-1.spliceproject.org"
+                splice_server="test01"
             )
         elif interval == 'daily':
             row = ReportDataDaily(
@@ -173,7 +173,7 @@ class TestData():
                 date=date,
                 day=this_day,
                 environment="us-east-1",
-                splice_server="splice-server-1.spliceproject.org"
+                splice_server="test01"
             )
 
         for key, value in PRODUCTS_DICT.items():

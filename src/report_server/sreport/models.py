@@ -28,12 +28,12 @@ class MyQuerySet(QuerySet):
 
 
 class ProductUsage(ProductUsage):
-    meta = {'db_alias': 'checkin',
+    meta = {'db_alias': 'checkin_service',
             'queryset_class': MyQuerySet}
 
 
 class SpliceServer(SpliceServer):
-    meta = {'db_alias': 'checkin',
+    meta = {'db_alias': 'checkin_service',
             'queryset_class': MyQuerySet}
 
     def __str__(self):
@@ -58,7 +58,7 @@ class ProductUsageForm(DocumentForm):
     splice_server_choices = [(server_id, server_id) for server_id in ProductUsage.objects().distinct("splice_server")]
     splice_server = forms.ChoiceField(choices=splice_server_choices)
 
-    meta = {'db_alias': 'checkin'}
+    meta = {'db_alias': 'checkin_service'}
 
 
 class ReportData(Document):
