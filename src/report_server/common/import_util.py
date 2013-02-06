@@ -51,12 +51,14 @@ def import_data(product_usage=[],
 
     # debug
     start = datetime.utcnow()
-
+    
+    #provide a way to throttle how often import can be run
     time = {}
     time['start'] = start.strftime(constants.full_format)
 
     time_now = datetime.utcnow()
-    last_import_threshhold = time_now - timedelta(minutes=45)
+    threshold = int(config.CONFIG.get('import', 'quiet_period'))
+    last_import_threshhold = time_now - timedelta(minutes=threshold)
     last_import = ImportHistory.objects.filter(
         date__gt=last_import_threshhold).count()
     if last_import > 0 and force_import == False:

@@ -23,10 +23,8 @@ from report_server.common.biz_rules import Rules
 
 MONGO_DATABASE_NAME = config.CONFIG.get('report_server', 'db_name')
 MONGO_DATABASE_HOST = config.CONFIG.get('report_server', 'db_host')
-#MONGO_DATABASE_NAME_CHECKIN = config.CONFIG.get('server', 'db_name')
-MONGO_DATABASE_NAME_CHECKIN = 'checkin'
-#MONGO_DATABASE_HOST_CHECKIN = config.CONFIG.get('server', 'db_host')
-MONGO_DATABASE_HOST_CHECKIN = MONGO_DATABASE_HOST
+MONGO_DATABASE_NAME_CHECKIN = config.CONFIG.get('server', 'db_name')
+MONGO_DATABASE_HOST_CHECKIN = config.CONFIG.get('server', 'db_host')
 MONGO_DATABASE_NAME_RHICSERVE = config.CONFIG.get('rhic_serve', 'db_name')
 MONGO_DATABASE_HOST_RHICSERVE = config.CONFIG.get('rhic_serve', 'db_host')
 
@@ -40,16 +38,11 @@ connect(MONGO_DATABASE_NAME, alias='results', tz_aware=True,
 register_connection('default', MONGO_DATABASE_NAME_RHICSERVE,
                     host=MONGO_DATABASE_HOST_RHICSERVE, tz_aware=True)
 
-
-# Custom test runner to work with Mongo
-TEST_RUNNER = 'rhic_serve.common.tests.MongoTestRunner'
-
 # Business Rules initialization
 r = Rules()
 r.init()
 r.list_rules()
 
-LOGIN_URL = '/ui/'
 
 ROOT_URLCONF = 'report_server.splice_reports.urls'
 
@@ -57,10 +50,6 @@ ROOT_URLCONF = 'report_server.splice_reports.urls'
 WSGI_APPLICATION = 'splice_reports.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    #os.path.join(os.path.abspath(os.path.dirname(__name__)), "templates"),
     '/usr/lib/report_server/templates',
 )
 
@@ -77,6 +66,47 @@ INSTALLED_APPS = (
     'report_server.report_import'
 )
 
-
-
 TEMPLATE_DEBUG = True
+
+# If report-config has spacewalk 
+if config.CONFIG.has_option('spacewalk', 'db_name'):
+
+    SESSION_ENGINE = 'report_server.session.spacewalk.db'
+    
+    AUTHENTICATION_BACKENDS = (
+       'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
+       'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
+       #'django.contrib.auth.backends.ModelBackend',
+    )
+    
+    MIDDLEWARE_CLASSES = (
+        'django.middleware.common.CommonMiddleware',
+        'report_server.session.spacewalk.middleware.SpacewalkSessionMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+    )
+    
+    DATABASES = {
+       'default': {
+                  'ENGINE': 'django.db.backends.oracle', 
+                  'NAME': config.CONFIG.get('spacewalk', 'db_name'),                      
+                  'USER': config.CONFIG.get('spacewalk', 'db_user'),               
+                  'PASSWORD': config.CONFIG.get('spacewalk', 'db_password'),           
+                  'HOST': config.CONFIG.get('spacewalk', 'db_host'),
+                  'PORT': config.CONFIG.get('spacewalk', 'db_port'),     
+              }   
+    }
+    
+#spacewalk is not part of the report-server setup
+else:
+    MIDDLEWARE_CLASSES = (
+        'django.middleware.common.CommonMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+    )
+    
+
+

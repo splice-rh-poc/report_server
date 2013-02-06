@@ -33,7 +33,6 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
         testing
         report_session = "33xa165e3fb2250de479f979062a03f17a6"
         """
-        #report_session = "175x53272d71c91ca57ca5d4d0c04c3b42fb"
         request.session = engine.SessionStore(session_key)
         
         if hasattr(request, 'user'):
@@ -60,7 +59,6 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
                 
         else:
             _LOG.debug('report session not found')
-            #request.session.flush()
             
     
    
