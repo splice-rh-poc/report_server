@@ -11,33 +11,40 @@
 
 from django.contrib.auth.models import User, check_password
 from passlib.hash import md5_crypt
-from report_server.session.spacewalk.models import WebContact, WebCustomer, Session
-from report_server.session.spacewalk.models import Pxtsessions
+from report_server.common import config
+import cx_Oracle
 
 import logging
 
 _LOG = logging.getLogger(__name__)
 
+DB_NAME = config.CONFIG.get('spacewalk', 'db_name')                      
+DB_USER = config.CONFIG.get('spacewalk', 'db_user')               
+DB_PASS = config.CONFIG.get('spacewalk', 'db_password')         
+DB_HOST = config.CONFIG.get('spacewalk', 'db_host')
+PORT =  config.CONFIG.get('spacewalk', 'db_port')
+
 class SpacewalkBackend(object):
     """
     Authenticate against a spacwalk db
-
-    Use the login name, and a hash of the password. For example:
-
-    ADMIN_LOGIN = 'admin'
-    ADMIN_PASSWORD = 'sha1$4e987$afbcf42e21bd417fb71db8c66b321e9fc33051de'
     """
-        
+    
     def authenticate(self, pxt_session=None):
+        con_string = DB_USER + '/' + DB_PASS + '@' + DB_HOST + '/' + DB_NAME
+        CON = cx_Oracle.connect(con_string)
+        CURSOR = CON.cursor()        
         pxt = pxt_session.split("x")[0]
-        mysession =  Pxtsessions.objects.filter(id=int(pxt))[0]
-        if not hasattr(mysession.web_user, "login"):
+        CURSOR.execute('select WEB_USER_ID from pxtsessions where ID = '+ pxt)
+        result = CURSOR.fetchone()
+        web_user_id = result[0]
+        if web_user_id == 'None':
             _LOG.error('spacewalk session has expired')
             return None
         
-        _LOG.debug('spacewalk user login: ' + mysession.web_user.login)
-                
-        oracle_user_login = mysession.web_user.login
+        
+        CURSOR.execute('select LOGIN from web_contact WHERE ID = ' + str(web_user_id))
+        result = CURSOR.fetchone()
+        oracle_user_login = result[0]        
         _LOG.info('ORACLE USER: ' +  oracle_user_login)
 
         try:

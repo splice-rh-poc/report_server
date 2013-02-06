@@ -33,6 +33,7 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
         testing
         report_session = "33xa165e3fb2250de479f979062a03f17a6"
         """
+        report_session = "206x9ef4ebf3bc37c27b4598ebdef168b022"
         request.session = engine.SessionStore(session_key)
         
         if hasattr(request, 'user'):
