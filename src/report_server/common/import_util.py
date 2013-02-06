@@ -57,7 +57,10 @@ def import_data(product_usage=[],
     time['start'] = start.strftime(constants.full_format)
 
     time_now = datetime.utcnow()
-    threshold = int(config.CONFIG.get('import', 'quiet_period'))
+    if config.CONFIG.has_option('import', 'quiet_period'):
+        threshold = int(config.CONFIG.get('import', 'quiet_period'))
+    else:
+        threshold = 0
     last_import_threshhold = time_now - timedelta(minutes=threshold)
     last_import = ImportHistory.objects.filter(
         date__gt=last_import_threshhold).count()
