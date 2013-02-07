@@ -13,6 +13,7 @@
 from django.contrib.auth.models import User, check_password
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
+from mongoengine.django.auth import MongoEngineBackend
 from passlib.hash import md5_crypt
 from report_server.common import config
 import cx_Oracle
@@ -44,12 +45,13 @@ class SpacewalkBackend(object):
             con_string = DB_USER + '/' + DB_PASS + '@' + DB_HOST + '/' + DB_NAME
             CON = cx_Oracle.connect(con_string)
             CURSOR = CON.cursor()
-            CURSOR.execute("select * FROM web_contact WHERE LOGIN = " + username)
+            query = "select * FROM web_contact WHERE LOGIN = '%s'" % (username)
+            CURSOR.execute(query)
             result = CURSOR.fetchone()
             #print(oracle_user.password)
             oracle_user_id = result[1]
             passwd_to_match = result[4]
-            salt = oracle_user.password.split("$")[2]
+            salt = passwd_to_match.split("$")[2]
             passwd_hash = md5_crypt.encrypt(password, salt=salt)
             
             if passwd_to_match == passwd_hash:

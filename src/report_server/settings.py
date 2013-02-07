@@ -71,11 +71,12 @@ TEMPLATE_DEBUG = True
 # If report-config has spacewalk 
 if config.CONFIG.has_option('spacewalk', 'db_name'):
 
-    SESSION_ENGINE = 'report_server.session.spacewalk.db'
+    SESSION_ENGINE = 'report_server.session.spacewalk'
     
     AUTHENTICATION_BACKENDS = (
        'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
        'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
+       'mongoengine.django.auth.MongoEngineBackend',
        #'django.contrib.auth.backends.ModelBackend',
     )
     
@@ -87,16 +88,6 @@ if config.CONFIG.has_option('spacewalk', 'db_name'):
         'django.contrib.messages.middleware.MessageMiddleware',
     )
     
-    DATABASES = {
-       'default': {
-                  'ENGINE': 'django.db.backends.oracle', 
-                  'NAME': config.CONFIG.get('spacewalk', 'db_name'),                      
-                  'USER': config.CONFIG.get('spacewalk', 'db_user'),               
-                  'PASSWORD': config.CONFIG.get('spacewalk', 'db_password'),           
-                  'HOST': config.CONFIG.get('spacewalk', 'db_host'),
-                  'PORT': config.CONFIG.get('spacewalk', 'db_port'),     
-              }   
-    }
     
 #spacewalk is not part of the report-server setup
 else:

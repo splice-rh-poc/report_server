@@ -26,14 +26,14 @@ _LOG = logging.getLogger(__name__)
 
 class SpacewalkSessionMiddleware(SessionMiddleware):
     def process_request(self, request):
-        engine = import_module(settings.SESSION_ENGINE)
+        engine = import_module('mongoengine.django.sessions')
         session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME, None)
         report_session = request.COOKIES.get('report-session', None)
         """
         testing
         report_session = "33xa165e3fb2250de479f979062a03f17a6"
         """
-        report_session = "206x9ef4ebf3bc37c27b4598ebdef168b022"
+        report_session = "222x9659ffee1a341271ff2147a2bcf97a3a"
         request.session = engine.SessionStore(session_key)
         
         if hasattr(request, 'user'):

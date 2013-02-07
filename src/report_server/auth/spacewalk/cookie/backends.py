@@ -12,6 +12,8 @@
 from django.contrib.auth.models import User, check_password
 from passlib.hash import md5_crypt
 from report_server.common import config
+from mongoengine.django.auth import MongoEngineBackend
+
 import cx_Oracle
 
 import logging
