@@ -10,7 +10,7 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 # Django settings for report_server project.
-#hey
+
 
 from mongoengine import connect
 from mongoengine.connection import register_connection
@@ -70,12 +70,17 @@ TEMPLATE_DEBUG = True
 
 # If report-config has spacewalk 
 if config.CONFIG.has_option('spacewalk', 'db_name'):
+    #print('add the following to sqlnet.ora')
+    #print('DIAG_ADR_ENABLED=OFF')
+    #print('DIAG_DDE_ENABLED=FALSE')
+    #print('DIAG_SIGHANDLER_ENABLED=FALSE')
+    
 
     SESSION_ENGINE = 'report_server.session.spacewalk'
     
     AUTHENTICATION_BACKENDS = (
        'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
-       'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
+       #'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
        #'mongoengine.django.auth.MongoEngineBackend',
        #'django.contrib.auth.backends.ModelBackend',
     )
@@ -91,6 +96,11 @@ if config.CONFIG.has_option('spacewalk', 'db_name'):
     
 #spacewalk is not part of the report-server setup
 else:
+    AUTHENTICATION_BACKENDS = (
+           'mongoengine.django.auth.MongoEngineBackend',
+           #'django.contrib.auth.backends.ModelBackend',
+        )    
+    
     MIDDLEWARE_CLASSES = (
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',

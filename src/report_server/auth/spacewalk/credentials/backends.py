@@ -10,30 +10,22 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 
-#from django.contrib.auth.models import User, check_password
-#from mongoengine.django.auth import User, check_password
-from mongoengine.django.auth import User, check_password
-#from mongoengine.django.auth import MongoEngineBackend
+
+
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
-
+from mongoengine.django.auth import User, check_password
 from passlib.hash import md5_crypt
 from report_server.common import config
-import cx_Oracle
-#from report_server.session.spacewalk.models import WebContact, WebCustomer, Session
-#from report_server.session.spacewalk.models import Pxtsessions
+from report_server.auth.spacewalk.db import SpacewalkDB
 
 import logging
-
 _LOG = logging.getLogger(__name__)
 
-DB_NAME = config.CONFIG.get('spacewalk', 'db_name')                      
-DB_USER = config.CONFIG.get('spacewalk', 'db_user')               
-DB_PASS = config.CONFIG.get('spacewalk', 'db_password')         
-DB_HOST = config.CONFIG.get('spacewalk', 'db_host')
-PORT =  config.CONFIG.get('spacewalk', 'db_port')
+
 
 class SpacewalkBackend(object):
+        
     """
     Authenticate against a spacwalk db
 
@@ -45,13 +37,9 @@ class SpacewalkBackend(object):
 
     def authenticate(self, request=None, username=None, password=None):
         try:
-            con_string = DB_USER + '/' + DB_PASS + '@' + DB_HOST + '/' + DB_NAME
-            CON = cx_Oracle.connect(con_string)
-            CURSOR = CON.cursor()
-            query = "select * FROM web_contact WHERE LOGIN = '%s'" % (username)
-            CURSOR.execute(query)
-            result = CURSOR.fetchone()
-            #print(oracle_user.password)
+
+            space_db = SpacewalkDB()
+            result = space_db.execute_one("select * FROM web_contact WHERE LOGIN = '%s'" % (username))
             oracle_user_id = result[1]
             passwd_to_match = result[4]
             salt = passwd_to_match.split("$")[2]

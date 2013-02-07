@@ -13,19 +13,11 @@
 from mongoengine.django.auth import User, check_password
 from passlib.hash import md5_crypt
 from report_server.common import config
-from mongoengine.django.auth import MongoEngineBackend
-
-import cx_Oracle
+from report_server.auth.spacewalk.db import SpacewalkDB
 
 import logging
 
 _LOG = logging.getLogger(__name__)
-
-DB_NAME = config.CONFIG.get('spacewalk', 'db_name')                      
-DB_USER = config.CONFIG.get('spacewalk', 'db_user')               
-DB_PASS = config.CONFIG.get('spacewalk', 'db_password')         
-DB_HOST = config.CONFIG.get('spacewalk', 'db_host')
-PORT =  config.CONFIG.get('spacewalk', 'db_port')
 
 class SpacewalkBackend(object):
     """
@@ -33,20 +25,16 @@ class SpacewalkBackend(object):
     """
     
     def authenticate(self, pxt_session=None):
-        con_string = DB_USER + '/' + DB_PASS + '@' + DB_HOST + '/' + DB_NAME
-        CON = cx_Oracle.connect(con_string)
-        CURSOR = CON.cursor()        
+  
         pxt = pxt_session.split("x")[0]
-        CURSOR.execute('select WEB_USER_ID from pxtsessions where ID = '+ pxt)
-        result = CURSOR.fetchone()
+        space_db = SpacewalkDB()
+        result = space_db.get_web_user(pxt)        
         web_user_id = result[0]
         if web_user_id == 'None':
             _LOG.error('spacewalk session has expired')
             return None
         
-        
-        CURSOR.execute('select LOGIN from web_contact WHERE ID = ' + str(web_user_id))
-        result = CURSOR.fetchone()
+        result = space_db.get_login(web_user_id)  
         oracle_user_login = result[0]        
         _LOG.info('ORACLE USER: ' +  oracle_user_login)
 
