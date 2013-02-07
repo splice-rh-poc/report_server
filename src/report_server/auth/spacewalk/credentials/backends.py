@@ -10,10 +10,13 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 
-from django.contrib.auth.models import User, check_password
+#from django.contrib.auth.models import User, check_password
+#from mongoengine.django.auth import User, check_password
+from mongoengine.django.auth import User, check_password
+#from mongoengine.django.auth import MongoEngineBackend
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
-from mongoengine.django.auth import MongoEngineBackend
+
 from passlib.hash import md5_crypt
 from report_server.common import config
 import cx_Oracle
@@ -80,3 +83,5 @@ class SpacewalkBackend(object):
             return User.objects.get(id=user_id)
         except User.DoesNotExist:
             return None
+
+

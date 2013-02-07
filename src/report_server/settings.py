@@ -76,7 +76,7 @@ if config.CONFIG.has_option('spacewalk', 'db_name'):
     AUTHENTICATION_BACKENDS = (
        'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
        'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
-       'mongoengine.django.auth.MongoEngineBackend',
+       #'mongoengine.django.auth.MongoEngineBackend',
        #'django.contrib.auth.backends.ModelBackend',
     )
     

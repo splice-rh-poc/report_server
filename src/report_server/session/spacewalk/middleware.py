@@ -13,7 +13,8 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from mongoengine.django.auth import User
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
 from django.utils.cache import patch_vary_headers
 from django.utils.http import cookie_date

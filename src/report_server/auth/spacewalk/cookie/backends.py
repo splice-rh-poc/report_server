@@ -9,7 +9,8 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from django.contrib.auth.models import User, check_password
+#from django.contrib.auth.models import User, check_password
+from mongoengine.django.auth import User, check_password
 from passlib.hash import md5_crypt
 from report_server.common import config
 from mongoengine.django.auth import MongoEngineBackend
@@ -57,7 +58,7 @@ class SpacewalkBackend(object):
             # to anything, because it won't be checked; the password
             # Another option is to decode the spacewalk user passwd
             
-            user = User(username=mysession.web_user.login, password="default")
+            user = User(username=oracle_user_login, password="default")
             user.is_active = True
             user.is_staff = False
             user.is_superuser = False

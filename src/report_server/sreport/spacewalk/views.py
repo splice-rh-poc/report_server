@@ -15,7 +15,8 @@ from datetime import datetime, timedelta
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from mongoengine.django.auth import User
 from django.db.models.base import get_absolute_url
 from django.db.models.loading import get_model
 from django.http import HttpResponse, HttpResponseForbidden
