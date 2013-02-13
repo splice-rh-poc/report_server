@@ -75,7 +75,7 @@ report_biz_rules = rules.get_rules()
 
 
 #MONGO_TEST_DATABASE_NAME = 'test_%s' % settings.MONGO_DATABASE_NAME
-rhic_serve = settings.MONGO_DATABASE_NAME_RHICSERVE 
+rhic_serve = settings.MONGO_DATABASE_NAME_RHICSERVE
 checkin_service = settings.MONGO_DATABASE_NAME_CHECKIN
 report = settings.MONGO_DATABASE_NAME
 #default = settings.MONGO_DATABASE_NAME_RHICSERVE
@@ -174,14 +174,14 @@ class BaseMongoTestCase(ResourceTestCase):
 
         for collection in ['rhic', 'account', 'user', 'fs.chunks']:
             #print 'importing %s collection' % collection
-            call(['mongoimport', '--db', 'rhic_serve',
+            call(['mongoimport', '--db', rhic_serve,
                   '-c', collection, '--file', 
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)
         
         for collection in ['splice_server']:
             #print 'importing %s collection' % collection
-            call(['mongoimport', '--db', 'checkin_service',
+            call(['mongoimport', '--db', checkin_service,
                   '-c', collection, '--file', 
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)
@@ -189,9 +189,9 @@ class BaseMongoTestCase(ResourceTestCase):
     def teardown_database(self, *args, **kwargs):
         self.disconnect_dbs()
         # Drop the test database
-        for db in DATABASES:
-            pymongo_connection = connection.get_connection(db)
-            pymongo_connection.drop_database(db)
+        #for db in DATABASES:
+        #    pymongo_connection = connection.get_connection(db)
+        #    pymongo_connection.drop_database(db)
     
     def disconnect_dbs(self):
         for alias in connection._connections.keys():
