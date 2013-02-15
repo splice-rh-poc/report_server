@@ -14,12 +14,12 @@
 
 from mongoengine import connect
 from mongoengine.connection import register_connection
-
-
 from splice.common import config
 from splice.common.settings import *
-
 from report_server.common.biz_rules import Rules
+from report_server.common.utils import read_rhn_conf
+import os
+
 
 MONGO_DATABASE_NAME = config.CONFIG.get('report_server', 'db_name')
 MONGO_DATABASE_HOST = config.CONFIG.get('report_server', 'db_host')
@@ -69,18 +69,15 @@ INSTALLED_APPS = (
 TEMPLATE_DEBUG = True
 
 # If report-config has spacewalk 
-if config.CONFIG.has_option('spacewalk', 'db_name'):
-    #print('add the following to sqlnet.ora')
-    #print('DIAG_ADR_ENABLED=OFF')
-    #print('DIAG_DDE_ENABLED=FALSE')
-    #print('DIAG_SIGHANDLER_ENABLED=FALSE')
-    
+#if config.CONFIG.has_option('spacewalk', 'db_name'):
+if os.path.isfile('/etc/rhn/rhn.conf'):
+    read_rhn_conf()
 
     SESSION_ENGINE = 'report_server.session.spacewalk'
     
     AUTHENTICATION_BACKENDS = (
        'report_server.auth.spacewalk.cookie.backends.SpacewalkBackend',
-       #'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
+       'report_server.auth.spacewalk.credentials.backends.SpacewalkBackend',
        #'mongoengine.django.auth.MongoEngineBackend',
        #'django.contrib.auth.backends.ModelBackend',
     )

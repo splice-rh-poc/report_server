@@ -35,18 +35,18 @@ class SpacewalkBackend(object):
             return None
         
         result = space_db.get_login(web_user_id)  
-        oracle_user_login = result[0]        
-        _LOG.info('ORACLE USER: ' +  oracle_user_login)
+        db_user_login = result[0]        
+        _LOG.info('DB USER: ' +  db_user_login)
 
         try:
-            user = User.objects.get(username=oracle_user_login)
+            user = User.objects.get(username=db_user_login)
             _LOG.info('report server username: ' + user.username)
         except User.DoesNotExist:
             # Create a new user. Note that we can set password
             # to anything, because it won't be checked; the password
             # Another option is to decode the spacewalk user passwd
             
-            user = User(username=oracle_user_login, password="default")
+            user = User(username=db_user_login, password="default")
             user.is_active = True
             user.is_staff = False
             user.is_superuser = False

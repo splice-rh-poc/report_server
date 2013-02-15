@@ -66,9 +66,52 @@ Requires:   rhic-serve-rest
 %description import
 Reporting server import application
 
+# report-server oracle package ------------------------------------------------
+%package oracle
+Summary:    libraries required for an Oracle database
+Group:		Development/Languages
+
+Requires:   cx_Oracle
+
+%description oracle
+Reporting server Oracle libraries
+
+# report-server postgresql package ------------------------------------------------
+%package postgresql
+Summary:    libraries required for a Postgresql database
+Group:		Development/Languages
+
+Requires:   python-psycopg2
+
+%description postgresql
+Reporting server postgresql libraries
+
 
 %package common
 Summary:    Common libraries for report-server.
+Group:      Development/Languages
+
+%description common
+Common libraries for report-server.
+
+%package        selinux
+Summary:        Splice Report Server SELinux policy
+Group:          Development/Languages
+BuildRequires:  rpm-python
+BuildRequires:  make
+BuildRequires:  checkpolicy
+BuildRequires:  selinux-policy-devel
+# el6, selinux-policy-doc is the required RPM which will bring below 'policyhelp'
+BuildRequires:  /usr/share/selinux/devel/policyhelp
+BuildRequires:  hardlink
+Requires: selinux-policy >= %{selinux_policyver}
+Requires(post): policycoreutils-python 
+Requires(post): selinux-policy-targeted
+Requires(post): /usr/sbin/semodule, /sbin/fixfiles, /usr/sbin/semanage
+Requires(postun): /usr/sbin/semodule
+
+%package oracle
+Summary:    o    libraries for report-server.
 Group:      Development/Languages
 
 %description common

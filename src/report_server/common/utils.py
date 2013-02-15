@@ -12,9 +12,12 @@
 
 from __future__ import division
 from datetime import datetime, timedelta
+from splice.common import config
 import logging
-import math
 import json
+import math
+import os
+
 
 _LOG = logging.getLogger(__name__)
 
@@ -139,3 +142,26 @@ class MongoEncoder(json.JSONEncoder):
 
 def to_json(obj):
     return json.dumps(obj, cls=MongoEncoder, indent=2)
+
+
+def read_rhn_conf():
+    config_file = '/etc/rhn/rhn.conf'
+    config_section = 'spacewalk'
+    rhn_dict = {}
+    keys = ['db_backend', 'db_user', 'db_password', 'db_name', 'db_host', 'db_port']
+    if os.path.isfile(config_file):
+        if not config.CONFIG.has_section(config_section):
+            config.CONFIG.add_section(config_section)
+        _LOG.info('found ' + config_file)
+        file = open(config_file, 'r')
+        for line in file:
+            for key in keys:
+                if key in line:
+                    _LOG.debug(line)
+                    value = line.split('=')[1].strip()
+                    rhn_dict[key] = value
+    for key, value in rhn_dict.items():
+        #_LOG.info(str(key) + ':' + str(value))
+        config.CONFIG.set(config_section, key, value)
+                    
+            

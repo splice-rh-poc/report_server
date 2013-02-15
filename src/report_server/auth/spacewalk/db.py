@@ -11,27 +11,41 @@
 
 
 from report_server import settings
-import cx_Oracle
+
+
 import logging
 from report_server.common import config
 import time
 
 _LOG = logging.getLogger(__name__)
-DBCON = None
+global DBCON 
 
-if config.CONFIG.has_option('spacewalk', 'db_name'):
+if config.CONFIG.has_option('spacewalk', 'db_backend'):
+    DB_BACKEND = config.CONFIG.get('spacewalk', 'db_backend')
     DB_NAME = config.CONFIG.get('spacewalk', 'db_name')                      
     DB_USER = config.CONFIG.get('spacewalk', 'db_user')               
     DB_PASS = config.CONFIG.get('spacewalk', 'db_password')         
     DB_HOST = config.CONFIG.get('spacewalk', 'db_host')
     PORT =  config.CONFIG.get('spacewalk', 'db_port')    
-    con_string = DB_USER + '/' + DB_PASS + '@' + DB_HOST + '/' + DB_NAME
-    DBCON = cx_Oracle.connect(con_string) 
-    _LOG.info('connected to spacewalk database ' + DB_NAME)
+    
+    if DB_BACKEND == 'postgresql':
+        import psycopg2
+        DBCON = psycopg2.connect(database=DB_NAME,
+                                  user=DB_USER,
+                                  password=DB_PASS,
+                                  host=DB_HOST,
+                                  port=PORT)
+        
+    else:
+        import cx_Oracle
+        con_string = DB_USER + '/' + DB_PASS + '@' + DB_HOST + '/' + DB_NAME
+        DBCON = cx_Oracle.connect(con_string) 
+    _LOG.info('connected to spacewalk %s database named %s' % (DB_BACKEND,DB_NAME))
 
 class SpacewalkDB():
     
     def __init__(self):
+        global DBCON
         self.DBCON = DBCON 
         self.login = None
         self.web_user = None
@@ -62,6 +76,6 @@ class SpacewalkDB():
         cursor = self.DBCON.cursor() 
         cursor.execute(query)
         result = cursor.fetchone()
-        print('execute_one: ' + str(result))
+        #print('execute_one: ' + str(result))
         cursor.close()
         return result        

@@ -40,8 +40,12 @@ class SpacewalkBackend(object):
 
             space_db = SpacewalkDB()
             result = space_db.execute_one("select * FROM web_contact WHERE LOGIN = '%s'" % (username))
-            oracle_user_id = result[1]
-            passwd_to_match = result[4]
+            if config.CONFIG.get('spacewalk', 'db_backend') == 'postgresql':
+                db_user_id = result[2]
+                passwd_to_match = result[4]
+            else:
+                db_user_id = result[1]
+                passwd_to_match = result[4]
             salt = passwd_to_match.split("$")[2]
             passwd_hash = md5_crypt.encrypt(password, salt=salt)
             
