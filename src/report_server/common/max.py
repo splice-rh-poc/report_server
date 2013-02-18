@@ -12,7 +12,7 @@
 #future import must be first
 from __future__ import division
 from datetime import datetime, timedelta
-from report_server.sreport.models import ReportData, ReportDataDaily
+from report_server.sreport.models import ReportData
 from report_server.common import constants
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
@@ -47,9 +47,6 @@ class MaxUsage:
                     day=day, **filter_args).distinct("instance_identifier")
                 mdu = len(mdu_each)
 
-            elif calculation == 'daily':
-                mdu = ReportDataDaily.objects.filter(
-                    day=day, **filter_args).count()
             else:
                 _LOG.error(
                     'check rules, unsupported format found != hourly,daily')
@@ -105,9 +102,6 @@ class MaxUsage:
                     day=day, **filter_args).distinct("instance_identifier")
                 mdu = len(mdu_each)
 
-            elif calculation == 'daily':
-                mdu = ReportDataDaily.objects.filter(
-                    day=day, **filter_args).count()
             else:
                 _LOG.error(
                     'check rules, unsupported format found != hourly,daily')

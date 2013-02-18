@@ -33,7 +33,7 @@ from report_server.common.utils import datespan
 from report_server.common.report import get_list_of_products, hours_per_consumer
 from report_server.common.import_util import import_data
 from report_server.common import config
-from report_server.sreport.models import ReportData, ReportDataDaily, MyQuerySet
+from report_server.sreport.models import ReportData, MyQuerySet
 from report_server.sreport.models import ProductUsage, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
@@ -167,14 +167,7 @@ class TestData():
                 environment="us-east-1",
                 splice_server="test01"
             )
-        elif interval == 'daily':
-            row = ReportDataDaily(
-                instance_identifier=instance_identifier,
-                date=date,
-                day=this_day,
-                environment="us-east-1",
-                splice_server="test01"
-            )
+
 
         for key, value in PRODUCTS_DICT.items():
             if product == key:

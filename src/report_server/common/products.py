@@ -11,7 +11,7 @@
 
 #__future__ import must be first
 from __future__ import division
-from report_server.sreport.models import ReportData, ReportDataDaily
+from report_server.sreport.models import ReportData
 from report_server.common.utils import datespan
 from report_server.common.utils import subscription_calc, get_datespan
 from report_server.common.utils import get_date_epoch, get_date_object
@@ -173,25 +173,7 @@ def generic_count(product,
                                                         end,
                                                         filter_args_low,
                                                         product.name)
-        #Add compliance here
-    elif product_config['calculation'] == 'daily':
-        high = ReportDataDaily.objects.filter(date__gt=start,
-                                              date__lt=end,
-                                              **filter_args_high).count()
-        low = ReportDataDaily.objects.filter(date__gt=start,
-                                             date__lt=end,
-                                             **filter_args_low).count()
-        #Add compliance here
-        if high:
-            compliant_high =  MaxUsage.get_MCU_Compliant(start,
-                                                         end,
-                                                         filter_args_high,
-                                                         product.name)
-        if low:
-            compliant_low =  MaxUsage.get_MCU_Compliant(start,
-                                                        end,
-                                                        filter_args_low,
-                                                        product.name)
+
     
     results = {'high_count': high,
                'facts_high': facts_high,
