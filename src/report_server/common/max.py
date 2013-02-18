@@ -49,7 +49,7 @@ class MaxUsage:
 
             else:
                 _LOG.error(
-                    'check rules, unsupported format found != hourly,daily')
+                    'check rules, unsupported format found != hourly')
                 raise Exception("unsupported calculation")
 
             hour_delta = timedelta(hours=1)

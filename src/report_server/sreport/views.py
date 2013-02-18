@@ -33,6 +33,7 @@ from report_server.common.import_util import import_data
 from report_server.common.max import MaxUsage
 from report_server.common.report import hours_per_consumer
 from report_server.common.utils import get_date_epoch, get_date_object
+from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.sreport.models import ProductUsageForm, ReportData
 from report_server.sreport.models import SpliceServer, QuarantinedReportData
 #from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
@@ -170,6 +171,7 @@ def execute_import(request):
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
         raise
+    
 
     return response
 
@@ -229,11 +231,9 @@ def detailed_report(request):
     day = date.strftime(constants.day_fmt)
 
     results = []
-    instances = ReportData.objects.filter(
-        day=day, **filter_args_dict).distinct('instance_identifier')
+    instances = ReportData.objects.filter(day=day, **filter_args_dict).distinct('instance_identifier')
     for i in instances:
-        count = ReportData.objects.filter(
-            instance_identifier=i, day=day, **filter_args_dict).count()
+        count = ReportData.objects.filter(instance_identifier=i, day=day, **filter_args_dict).count()
         results.append({'instance': i, 'count': count})
 
     this_filter = json.dumps(filter_args_dict)
@@ -241,7 +241,6 @@ def detailed_report(request):
     response_data = {}
     response_data['list'] = results
     response_data['date'] = get_date_epoch(date)
-                                            # int(date.strftime("%s")) * 1000
     response_data['this_filter'] = this_filter
     response_data['description'] = description
 
@@ -256,94 +255,14 @@ def detailed_report(request):
 
 @login_required
 def report(request):
-    # replaces report(request)
-    """
-            
-    generate the data for the report.
-    data is generated from hours_per_consumer
     
-    @param request: http
-    Args:
-        {
-            u'byMonth': u'11,2012', (optional)
-            u'contract_number': u'All',
-            u'env': u'All',
-            u'rhic': u'null'
-            u'startDate': u'11/01/2012' (optional)
-            u'endDate': u'11/30/2012', (optional)
-        }
-
-    Returns:
-    {
-        "start": "Thu Nov 01 00:00:00 2012", 
-        "account": "1190457", 
-        "end": "Fri Nov 30 00:00:00 2012", 
-        "list": [
-          [
-            {
-              "count": 168, 
-              "end": 1354251600, 
-              "contract_id": "3116649", 
-              "contract_use": 20, 
-              "support": "l1-l3", 
-              "sla": "prem", 
-              "start": 1351742400, 
-              "compliant": false, 
-              "filter_args_dict": "{\"memtotal__gt\": 0, \"product\": [\"69\"],
-                \"contract_id\": \"3116649\", \"support\": \"l1-l3\",
-                \"memtotal__lt\": 8388608, \"consumer_uuid\":
-                \"fea363f5-af37-4a23-a2fd-bea8d1fff9e8\", \"sla\": \"prem\"}", 
-              "engineering_id": "[u'69']", 
-              "nau": "1", 
-              "facts": "< 8GB", 
-              "product_config": "{\"calculation\": \"hourly\",
-                \"memtotal\": {\"low_gt\": 0, \"low_lt\": 8388608, 
-                \"rule\": \"0 > 8388608; 8388608 > 83886080\", 
-                \"high_desc\": \"> 8GB\", \"high_gt\": 8388608, 
-                \"high_lt\": 83886080, \"low_desc\": \"< 8GB\"}, 
-                \"cpu\": [], \"cpu_sockets\": []}", 
-              "sub_hours": 696, 
-              "product_name": "RHEL Server", 
-              "rhic": "rhel-server-jboss-1190457-3116649-prem-l1-l3"
-            } 
-        ]
-      }
-
-    """
     _LOG.info("report called by method: %s" % (request.method))
 
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-    try:
-        api_data = json.loads(request.raw_post_data)
-        data = api_data
-    except Exception:
-        _LOG.debug('report called, request.raw_post_data does not match expected format')
-        try:
-            form_data = json.loads(utils.to_json(request.POST))
-            data = form_data
-
-        except Exception:
-            _LOG.error('report called, request.raw_post_data and '
-                       'request.POST do not match expected format')
-
-    if 'byMonth' in data:
-        month_year = data['byMonth'].split(',')
-        month = int(month_year[0])
-        year = int(month_year[1])
-        #year = datetime.today().year
-        start = datetime(year, month, 1)
-        if month == 12:
-            end = datetime((year + 1), 1, 1) - timedelta(days=1)
-        else:
-            end = datetime(year, month + 1, 1) - timedelta(days=1)
-    if 'startDate' in data:
-        startDate = data['startDate'].split("/")
-        endDate = data['endDate'].split("/")
-        start = datetime(
-            int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-
+    start, end = get_dates_from_request(request)
+    data = data_from_post(request)
+    
     if 'env' in data:
         environment = data['env']
     else:
@@ -355,10 +274,6 @@ def report(request):
     
     if contract == 'All' and (rhic == 'All' or rhic == 'null'):
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start,
-                                     end, 
-                                     list_of_rhics=list_of_rhics,
-                                     environment=environment)
 
     elif rhic != 'null':
         if rhic == "All":
@@ -366,17 +281,16 @@ def report(request):
         else:
             my_uuid = data['rhic']
             list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-        results = hours_per_consumer(start,
-                                     end,
-                                     list_of_rhics,
-                                     environment=environment)
 
     else:
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
-        results = hours_per_consumer(start,
-                                     end,
-                                     list_of_rhics=list_of_rhics,
-                                     environment=environment)
+
+    args = {'start': start,
+            'end': end,
+            'list_of_rhics': list_of_rhics,
+            'environment': environment
+            } 
+    results = hours_per_consumer(**args)
 
     format = constants.full_format
 
@@ -402,41 +316,25 @@ def default_report(request):
 
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-    try:
-        api_data = json.loads(request.raw_post_data)
-        data = api_data
-    except Exception:
-        _LOG.debug('report called, request.raw_post_data does not match expected format')
-        try:
-            form_data = json.loads(utils.to_json(request.POST))
-            data = form_data
-
-        except Exception:
-            _LOG.error('report called, request.raw_post_data and '
-                       'request.POST do not match expected format')
-
-
-    startDate = data['startDate'].split("/")
-    endDate = data['endDate'].split("/")
-    start = datetime(int(startDate[2]), int(startDate[0]), int(startDate[1]))
-    end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+    data = data_from_post(request)
+    start, end = get_dates_from_request(request)
     environment = data['env']
     rhic = data['rhic']
     contract = data['contract_number']
     list_of_rhics = []
     
- 
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
-    usuage_compliance = hours_per_consumer(start,
-                                 end, 
-                                 list_of_rhics=list_of_rhics,
-                                 environment=environment,
-                                 return_failed_only=True)
+    args = {'start': start,
+            'end': end,
+            'list_of_rhics': list_of_rhics,
+            'environment': environment,
+            'return_failed_only': True
+            }
+    usuage_compliance = hours_per_consumer(**args)
     
     fact_compliance = system_fact_compliance_list(account)
 
     format = constants.full_format
-
     response_data = {}
     response_data['list'] = usuage_compliance
     response_data['biz_list'] = fact_compliance
@@ -560,9 +458,13 @@ def max_report(request):
     description = request.POST['description']
     product_name = description.split(',')[0].split(':')[1].strip()
 
-    response_data = MaxUsage.get_MDU_MCU(start, end, filter_args_dict, product_name)
+    args = {'start': start,
+            'end': end,
+            'filter_args': filter_args_dict,
+            'product_name': product_name
+            }
+    response_data = MaxUsage.get_MDU_MCU(**args)
     
-    # start.int(date.strftime("%s")) * 1000
     response_data['start'] = get_date_epoch(start) 
     response_data['end'] = get_date_epoch(end)
     response_data['description'] = description
@@ -604,10 +506,10 @@ def export(request):
     start = datetime.strptime(mydict['start'], constants.full_format)
     end = datetime.strptime(mydict['end'], constants.full_format)
     filter_args_list = []
-    for rhic in list_of_results:
-        for products in rhic:
+    for rhic in list_of_results: #a
+        for products in rhic: #x
             filter_args_list.append(products['filter_args_dict'])
-
+    
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
         ReportData.__name__)
@@ -623,7 +525,6 @@ def export(request):
         for obj in ReportData.objects.filter(date__gt=start, date__lt=end, **thismap):
             row = [obj.consumer, obj.instance_identifier,
                    obj.product_name, obj.product, obj.hour, obj.splice_server]
-            # row.append(getattr(obj), "wes")
             writer.writerow(row)
     # Return CSV file to browser as download
     return response
@@ -648,23 +549,8 @@ def create_export_report(request):
 
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-    if 'byMonth' in request.GET:
-        month_year = request.GET['byMonth'].encode('ascii').split('%2C')
-        month = int(month_year[0])
-        year = int(month_year[1])
-        start = datetime(year, month, 1)
-        if month == 12:
-            end = datetime(year + 1, 1, 1) - timedelta(days=1)
-        else:
-            end = datetime(year, month + 1, 1) - timedelta(days=1)
-    else:
-
-        startDate = request.GET['startDate'].encode('ascii').split("%2F")
-        endDate = request.GET['endDate'].encode('ascii').split("%2F")
-        start = datetime(
-            int(startDate[2]), int(startDate[0]), int(startDate[1]))
-        end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-
+    start, end = get_dates_from_request(request)
+    
     if 'env' in request.GET:
         environment = request.GET['env']
     else:

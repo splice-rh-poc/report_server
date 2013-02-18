@@ -165,3 +165,74 @@ def read_rhn_conf():
         config.CONFIG.set(config_section, key, value)
                     
             
+
+def get_dates_from_request(request):
+    start = None
+    end = None
+    if not request.POST: 
+        if 'byMonth' in request.GET:
+                month_year = request.GET['byMonth'].encode('ascii').split('%2C')
+                month = int(month_year[0])
+                year = int(month_year[1])
+                start = datetime(year, month, 1)
+                if month == 12:
+                    end = datetime(year + 1, 1, 1) - timedelta(days=1)
+                else:
+                    end = datetime(year, month + 1, 1) - timedelta(days=1)
+        else:
+    
+            startDate = request.GET['startDate'].encode('ascii').split("%2F")
+            endDate = request.GET['endDate'].encode('ascii').split("%2F")
+            start = datetime(
+                int(startDate[2]), int(startDate[0]), int(startDate[1]))
+            end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
+            
+    else:
+        data = data_from_post(request)
+        if 'byMonth' in data:
+                month_year = data['byMonth'].split(',')
+                month = int(month_year[0])
+                year = int(month_year[1])
+                #year = datetime.today().year
+                start = datetime(year, month, 1)
+                if month == 12:
+                    end = datetime((year + 1), 1, 1) - timedelta(days=1)
+                else:
+                    end = datetime(year, month + 1, 1) - timedelta(days=1)
+        if 'startDate' in data:
+            startDate = data['startDate'].split("/")
+            endDate = data['endDate'].split("/")
+            start = datetime(
+                int(startDate[2]), int(startDate[0]), int(startDate[1]))
+            end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))        
+        
+    
+    return start, end
+
+
+def data_from_post(request):
+    data = None
+    try:
+        api_data = json.loads(request.POST)
+        data = api_data
+    except Exception:
+        _LOG.debug('report called, request.raw_post_data does not match expected format')
+        try:
+            form_data = json.loads(to_json(request.POST))
+            data = form_data
+
+        except Exception:
+            _LOG.error('report called, request.raw_post_data and '
+                       'request.POST do not match expected format') 
+    return data
+
+
+def create_response(response_data):
+    try:
+        response = HttpResponse(utils.to_json(response_data))
+    except:
+        _LOG.error(sys.exc_info()[0])
+        _LOG.error(sys.exc_info()[1])
+        raise
+    
+        

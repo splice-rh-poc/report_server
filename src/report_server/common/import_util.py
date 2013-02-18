@@ -75,10 +75,8 @@ def import_data(product_usage=[],
 
     # committing every 100 records instead of every 1 record saves about 5
     # seconds.
-    commit_count = 500
     cached_rhics = {}
     cached_contracts = {}
-    rds = {}
 
     for pu in product_usage:
         uuid = pu.consumer
