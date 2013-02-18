@@ -62,27 +62,7 @@ def start_space(request):
 
 @ensure_csrf_cookie
 def login(request):
-    """
-    login, available at host:
-    
-    Returns:
-        {
-          "username": "user@host.com", 
-          "account": "1190457", 
-          "is_admin": true
-        }
-    """
-    """
-    cookies = request.COOKIES
-    for key, value in cookies.items():
-        if key == "pxt-session-cookie":
-            _LOG.debug('found ' + key + ":" + value)
-            user = authenticate(pxt_session=value)
-            if user:
-                _LOG.debug('user = ' + user.username)
-            else:
-                _LOG.debug('No user for the session was found')
-    """
+
     if hasattr(request.session, "_auth_user_id"):
         userid = request.session._auth_user_id
         user = User.objects.get(id=userid)
@@ -108,7 +88,6 @@ def login(request):
 
     response_data = {}    
     if user is not None:
-        #not sure why request.user is not persisting through the middleware
         username = str(request.user)
         _LOG.info('request.user ' + username)
         response_data['is_admin'] = False
@@ -147,37 +126,12 @@ def index(request):
 
 
 def execute_import(request):
-    """
-    The primary method for import should be done via the api
-    This is mainly for demo and test purposes atm
-    
-    Returns:
-      {
-       "time": [
-         {
-           "start": "Mon Dec 03 19:55:38 2012", 
-           "end": "Mon Dec 03 19:55:58 2012"
-         }
-       ]
-     }
-    """
-    # response = import_checkin_data(request)
+
     quarantined, results = import_data()
     response_data = {}
     response_data['time'] = results
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
     
-
-    return response
-
-
-
-
+    return create_response(response_data)
 
 
 @login_required
@@ -212,14 +166,7 @@ def report_form_rhics(request):
 
     _LOG.info(response_data)
 
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
+    return create_response(response_data)
 
 
 def detailed_report(request):
@@ -244,14 +191,8 @@ def detailed_report(request):
     response_data['this_filter'] = this_filter
     response_data['description'] = description
 
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
+    return create_response(response_data)
 
-    return response
 
 @login_required
 def report(request):
@@ -300,14 +241,8 @@ def report(request):
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
 
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
+    return create_response(response_data)
 
-    return response
 
 @login_required
 def default_report(request):
@@ -342,14 +277,8 @@ def default_report(request):
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
 
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
+    return create_response(response_data)
 
-    return response
 
 
 def system_fact_compliance(request):
@@ -361,14 +290,9 @@ def system_fact_compliance(request):
     account = Account.objects.filter(login=user)[0].account_id    
     response_data = {}
     response_data['list'] = system_fact_compliance_list(account)
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
+    
+    return create_response(response_data)
 
-    return response
 
 
 def system_fact_compliance_list(account):
@@ -412,15 +336,7 @@ def unauthorized_pem():
 
     response_data = {}
     response_data['list'] = results
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
-
+    return create_response(response_data)
 
 def instance_detail(request):
     user = str(request.user)
@@ -437,14 +353,8 @@ def instance_detail(request):
     response_data['list'] = results
     response_data['account'] = account
 
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
+    return create_response(response_data)
 
-    return response
 
 
 def max_report(request):
@@ -469,17 +379,9 @@ def max_report(request):
     response_data['end'] = get_date_epoch(end)
     response_data['description'] = description
     response_data['filter_args'] = json.dumps(filter_args_dict)
-
-    try:
-        # response = HttpResponse(simplejson.dumps(response_data))
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
-
+    
+    return create_response(response_data)
+    
 
 def quarantined_report(request):
     qobjects = []
@@ -487,14 +389,8 @@ def quarantined_report(request):
 
     response_data = {}
     response_data['list'] = qobjects
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
+    
+    return create_response(response_data)
 
 
 def export(request):
@@ -593,11 +489,5 @@ def create_export_report(request):
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
 
-    try:
-        response = HttpResponse(utils.to_json(response_data))
-    except:
-        _LOG.error(sys.exc_info()[0])
-        _LOG.error(sys.exc_info()[1])
-        raise
-
-    return response
+    #return create_response(utils.to_json(response_data))
+    return create_response(response_data)

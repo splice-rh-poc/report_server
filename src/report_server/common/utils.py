@@ -12,12 +12,13 @@
 
 from __future__ import division
 from datetime import datetime, timedelta
+from django.http import HttpResponse, HttpResponseForbidden
 from splice.common import config
 import logging
 import json
 import math
 import os
-
+import sys
 
 _LOG = logging.getLogger(__name__)
 
@@ -229,10 +230,11 @@ def data_from_post(request):
 
 def create_response(response_data):
     try:
-        response = HttpResponse(utils.to_json(response_data))
+        response = HttpResponse(to_json(response_data))
     except:
         _LOG.error(sys.exc_info()[0])
         _LOG.error(sys.exc_info()[1])
         raise
+    return response
     
         
