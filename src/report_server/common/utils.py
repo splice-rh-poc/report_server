@@ -219,7 +219,7 @@ def data_from_post(request):
     except Exception:
         _LOG.debug('report called, request.raw_post_data does not match expected format')
         try:
-            form_data = json.loads(to_json(request.raw_post_data))
+            form_data = json.loads(to_json(request.POST))
             data = form_data
 
         except Exception as e:
