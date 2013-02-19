@@ -21,7 +21,7 @@ from report_server.report_import.api import productusage
 from splice.common.api import SpliceServerResource
 from splice.common.auth import X509CertificateAuthentication
 from splice.common import certs
-from tastypie.authorization import Authorization
+from tastypie.authorization import Authorization, DjangoAuthorization
 from tastypie.authentication import BasicAuthentication, MultiAuthentication
 from tastypie.authentication import SessionAuthentication
 from tastypie_mongoengine.resources import MongoEngineResource
@@ -144,8 +144,10 @@ class ReportResource(MongoEngineResource):
         # always_return_data = True
 
         # All Resources require basic authentication (for now).
-        #authentication = BasicAuthentication()
+        
         authorization = Authorization()
+        authentication = BasicAuthentication()
+        
 
     def post_list(self, request, **kwargs):
         # data = json.loads(request.raw_post_data,

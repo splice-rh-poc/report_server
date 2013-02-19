@@ -11,7 +11,6 @@
 
 
 from subprocess import call, PIPE
-import os
 from datetime import datetime, timedelta
 from logging import getLogger
 
@@ -37,11 +36,14 @@ from rhic_serve.rhic_rest.models import RHIC, Account
 from splice.common import config
 
 from tastypie.test import ResourceTestCase
-
+from tastypie import authentication
 
 LOG = getLogger(__name__)
 #this_config = config.get_import_info()
 ss = SpliceServer
+
+import os
+import base64
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -98,6 +100,10 @@ class PatchClient(client.Client):
         "Construct a PATCH request."
 
         post_data = self._encode_data(data, content_type)
+        
+        username = 'shadowman@redhat.com:shadowman@redhat.com'
+        #credentials = base64.b64encode(username)
+        #client.defaults['HTTP_AUTHORIZATION'] = 'Basic ' + credentials
 
         parsed = client.urlparse(path)
         r = {
@@ -155,6 +161,11 @@ class BaseMongoTestCase(ResourceTestCase):
         self.setup_database()
         self.drop_product_usage()
         self.drop_report_data()
+        #required to add authorization to the headers for tastypie.. :(
+        username = 'shadowman@redhat.com:shadowman@redhat.com'
+        credentials = base64.b64encode(username)
+        self.client.defaults['HTTP_AUTHORIZATION'] = 'Basic ' + credentials
+        
         
     def drop_product_usage(self):
         ProductUsage.drop_collection()
@@ -206,6 +217,8 @@ class MongoApiTestCase(BaseMongoTestCase):
     def login(self):
         login = self.client.login(username=self.username, password=self.password)
         self.assertTrue(login)
+        self.client.request
+
 
     def post(self, url, data, code=202):
         self.login()
@@ -231,11 +244,11 @@ class MongoApiTestCase(BaseMongoTestCase):
         self.client.logout()
         return response
 
-    def patch(self, url, data):
+    def patch(self, url, data, code=202):
         self.login()
         content_type = 'application/json'
         response = self.client.patch(url, data, content_type)
-        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.status_code, code)
         self.client.logout()
         return response
 
