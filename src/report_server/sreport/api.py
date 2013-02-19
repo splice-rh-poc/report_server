@@ -11,7 +11,6 @@
 
 
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from report_server.sreport.models import QuarantinedReportData
 from report_server.sreport.models import ReportData, SpliceServer
 from report_server.sreport import views
@@ -21,16 +20,14 @@ from report_server.report_import.api import productusage
 from splice.common.api import SpliceServerResource
 from splice.common.auth import X509CertificateAuthentication
 from splice.common import certs
-from tastypie.authorization import Authorization, DjangoAuthorization
-from tastypie.authentication import BasicAuthentication, MultiAuthentication
-from tastypie.authentication import SessionAuthentication
+from tastypie.authorization import Authorization
+from tastypie.authentication import BasicAuthentication
 from tastypie_mongoengine.resources import MongoEngineResource
 from tastypie.serializers import Serializer
 from tastypie.resources import Resource
 import logging
-import json
+
 import sys
-import types
 
 
 _LOG = logging.getLogger("sreport.api")
@@ -77,6 +74,7 @@ class SpliceServerResourceMod(SpliceServerResource):
         #
         _LOG.info("report_server.sreport.api.SpliceServerResource::find_by_uuid(%s) SpliceServer=%s" % (uuid, SpliceServer))
         return SpliceServer.objects(uuid=uuid).first()
+
 
 class ProductUsageResource(productusage.ProductUsageResource):
 
@@ -155,7 +153,7 @@ class ReportResource(MongoEngineResource):
         #data = json.loads(request.raw_post_data)
         _LOG.info("ReportResource::post_list() ")
 
-        user = request.user
+        #user = request.user
 
         response = views.report(request)
 

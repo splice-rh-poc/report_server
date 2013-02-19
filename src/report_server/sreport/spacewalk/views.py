@@ -11,36 +11,13 @@
 
 # Create your views here.
 from __future__ import division
-from datetime import datetime, timedelta
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-#from django.contrib.auth.models import User
-from mongoengine.django.auth import User
-from django.db.models.base import get_absolute_url
-from django.db.models.loading import get_model
-from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.template.defaultfilters import slugify
-from django.template.response import TemplateResponse
-from django.utils.datastructures import MultiValueDictKeyError
-from django.views.decorators.csrf import ensure_csrf_cookie
 
-from report_server.common import constants, utils
-from report_server.common.biz_rules import Rules
-from report_server.common.import_util import import_data
-from report_server.common.max import MaxUsage
-from report_server.common.report import hours_per_consumer
-from report_server.common.utils import get_date_epoch, get_date_object
-from report_server.sreport.models import ProductUsageForm, ReportData
-from report_server.sreport.models import SpliceServer, QuarantinedReportData
-#from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
-from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
-
-
+from django.http import HttpResponse
+from report_server.sreport.models import SpliceServer
+from report_server.common import utils
 import logging
-import json
+
 import sys
 
 _LOG = logging.getLogger(__name__)
@@ -58,13 +35,9 @@ def report_form(request):
             form = ProductUsageForm()
     """
 
-    contracts = []
-    user = str(request.user)
-    account = User.objects.filter(username=user)[0].id
-    list_of_contracts = []
-    list_of_rhics = []
-    environments = SpliceServer.objects.distinct("environment")
 
+    user = str(request.user)
+    environments = SpliceServer.objects.distinct("environment")
     response_data = {}
     response_data['user'] = user
     response_data['environments'] = environments

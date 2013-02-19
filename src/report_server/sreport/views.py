@@ -11,20 +11,15 @@
 
 # Create your views here.
 from __future__ import division
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-#from django.contrib.auth.models import User
 from mongoengine.django.auth import User
-from django.db.models.base import get_absolute_url
-from django.db.models.loading import get_model
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
-from django.template.response import TemplateResponse
-from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from report_server.common import constants, utils
@@ -35,15 +30,14 @@ from report_server.common.report import hours_per_consumer
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.sreport.models import ProductUsageForm, ReportData
-from report_server.sreport.models import SpliceServer, QuarantinedReportData
-#from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
-from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
+from report_server.sreport.models import  QuarantinedReportData
+from rhic_serve.rhic_rest.models import RHIC, Account
 
 
 import csv
 import logging
 import json
-import sys
+
 
 _LOG = logging.getLogger(__name__)
 
@@ -55,6 +49,7 @@ def template_response(request, template_name):
 
 def start_meter(request):
     return template_response(request, 'meter/index.html')
+
 
 def start_space(request):
     return template_response(request, 'space/index.html')
@@ -126,7 +121,6 @@ def index(request):
 
 
 def execute_import(request):
-
     quarantined, results = import_data()
     response_data = {}
     response_data['time'] = results
@@ -155,7 +149,7 @@ def report_form_rhics(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     if request.POST['contract_number'] == "All":
-            list_of_rhics = list(RHIC.objects.filter(account_id=account))    
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))    
     else:
         contract_number = json.loads(request.POST['contract_number'])
         list_of_rhics = list(RHIC.objects.filter(contract=str(contract_number)))
@@ -170,8 +164,6 @@ def report_form_rhics(request):
 
 
 def detailed_report(request):
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     description = request.POST['description']
     date = datetime.strptime(request.POST['date'], constants.just_date)
@@ -202,7 +194,6 @@ def report(request):
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
        
-    
     start, end = get_dates_from_request(request)
     data = data_from_post(request)
     
@@ -256,8 +247,6 @@ def default_report(request):
     data = data_from_post(request)
     start, end = get_dates_from_request(request)
     environment = data['env']
-    rhic = data['rhic']
-    contract = data['contract_number']
     list_of_rhics = []
     
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
@@ -298,7 +287,7 @@ def system_fact_compliance(request):
 
 
 def system_fact_compliance_list(account):
-    list_of_instances=[]
+    list_of_instances = []
     rules = Rules()
     report_biz_rules = rules.get_rules()
     list_of_rhics = list(RHIC.objects.filter(account_id=account))
@@ -333,12 +322,14 @@ def system_fact_compliance_list(account):
                         results.append([inst, product_rules, 'violates memory'])   
     return results
 
+
 def unauthorized_pem():
     results = ReportData.objects.filter()
 
     response_data = {}
     response_data['list'] = results
     return create_response(response_data)
+
 
 def instance_detail(request):
     user = str(request.user)
@@ -360,8 +351,6 @@ def instance_detail(request):
 
 
 def max_report(request):
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     s = request.POST['start']
     e = request.POST['end']
@@ -386,7 +375,6 @@ def max_report(request):
     
 
 def quarantined_report(request):
-    qobjects = []
     qobjects = QuarantinedReportData.objects.all()
 
     response_data = {}
@@ -412,8 +400,7 @@ def export(request):
     response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
         ReportData.__name__)
     writer = csv.writer(response)
-    # Write headers to CSV file
-    headers = []
+
 
     # Write data to CSV file
     for f in filter_args_list:
