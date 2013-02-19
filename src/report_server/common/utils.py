@@ -12,7 +12,7 @@
 
 from __future__ import division
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from splice.common import config
 import logging
 import json
@@ -214,17 +214,18 @@ def get_dates_from_request(request):
 def data_from_post(request):
     data = None
     try:
-        api_data = json.loads(request.POST)
+        api_data = json.loads(request.raw_post_data)
         data = api_data
     except Exception:
         _LOG.debug('report called, request.raw_post_data does not match expected format')
         try:
-            form_data = json.loads(to_json(request.POST))
+            form_data = json.loads(to_json(request.raw_post_data))
             data = form_data
 
-        except Exception:
-            _LOG.error('report called, request.raw_post_data and '
-                       'request.POST do not match expected format') 
+        except Exception as e:
+            _LOG.critical('report called, request.raw_post_data and '
+                       'request.POST do not match expected format')
+            return HttpResponseServerError
     return data
 
 

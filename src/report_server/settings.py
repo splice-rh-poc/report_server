@@ -69,9 +69,15 @@ INSTALLED_APPS = (
 TEMPLATE_DEBUG = True
 
 # If report-config has spacewalk 
-#if config.CONFIG.has_option('spacewalk', 'db_name'):
+
 if os.path.isfile('/etc/rhn/rhn.conf'):
     read_rhn_conf()
+    
+    #print('add the following to sqlnet.ora')
+    #print('DIAG_ADR_ENABLED=OFF')
+    #print('DIAG_DDE_ENABLED=FALSE')
+    #print('DIAG_SIGHANDLER_ENABLED=FALSE')
+
 
     SESSION_ENGINE = 'report_server.session.spacewalk'
     

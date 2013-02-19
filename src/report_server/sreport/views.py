@@ -201,16 +201,18 @@ def report(request):
 
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
+       
+    
     start, end = get_dates_from_request(request)
     data = data_from_post(request)
     
     if 'env' in data:
-        environment = data['env']
+        environment = data["env"]
     else:
         environment = "All"
 
-    rhic = data['rhic']
-    contract = data['contract_number']
+    rhic = data["rhic"]
+    contract = data["contract_number"]
     list_of_rhics = []
     
     if contract == 'All' and (rhic == 'All' or rhic == 'null'):

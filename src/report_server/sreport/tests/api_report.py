@@ -41,14 +41,12 @@ class ReportDataTest(MongoApiTestCase):
         self.assertEqual(202, resp.status_code, 'http status code is expected')
         self.assertEqual(1, ReportData.objects.all().count())
         
-        q = {"user": "shadowman@redhat.com", "byMonth": "11,2012",\
-                  "contract_number": "All", "rhic": "null", "env": "All"}
-        query = json.dumps(q)
+        q = {"user": "shadowman@redhat.com", "byMonth": "11,2012", "contract_number": "All", "rhic": "null", "env": "All"}
+        myquery = json.dumps(q)
         
         resp = self.post('/api/v1/report/', 
-                                    data=query,
-                                    code=200
-                                    )
+                        data=myquery,
+                        code=200)
         #print(resp)
         self.assertEqual(200, resp.status_code, 'http status code is expected')
         self.assertContains(resp,
