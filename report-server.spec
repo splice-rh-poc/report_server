@@ -234,7 +234,7 @@ exit 0
 %{python_sitelib}/report_server/common
 %{python_sitelib}/report_server/__init__.py*
 %config(noreplace) %{_sysconfdir}/rc.d/init.d/report-server
-%config(noreplace) %{_sysconfdir}/splice/report.conf
+%config(noreplace) %{_sysconfdir}/splice/conf.d/report.conf
 
 %files import
 %defattr(-,root,root,-)
