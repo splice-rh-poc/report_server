@@ -30,7 +30,7 @@ from report_server.common.report import hours_per_consumer
 from report_server.common.utils import get_date_epoch, get_date_object
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.sreport.models import ProductUsageForm, ReportData
-from report_server.sreport.models import  QuarantinedReportData
+from report_server.sreport.models import QuarantinedReportData
 from rhic_serve.rhic_rest.models import RHIC, Account
 
 
@@ -145,7 +145,6 @@ def report_form_rhics(request):
         else:
             form = ProductUsageForm()
 
-            
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
     if request.POST['contract_number'] == "All":
@@ -271,7 +270,6 @@ def default_report(request):
     return create_response(response_data)
 
 
-
 def system_fact_compliance(request):
     """
     Search through ReportData.objects and find any objects that do not meet the
@@ -283,7 +281,6 @@ def system_fact_compliance(request):
     response_data['list'] = system_fact_compliance_list(account)
     
     return create_response(response_data)
-
 
 
 def system_fact_compliance_list(account):
@@ -349,7 +346,6 @@ def instance_detail(request):
     return create_response(response_data)
 
 
-
 def max_report(request):
     filter_args_dict = json.loads(request.POST['filter_args_dict'])
     s = request.POST['start']
@@ -392,15 +388,14 @@ def export(request):
     start = datetime.strptime(mydict['start'], constants.full_format)
     end = datetime.strptime(mydict['end'], constants.full_format)
     filter_args_list = []
-    for rhic in list_of_results: #a
-        for products in rhic: #x
+    for rhic in list_of_results:
+        for products in rhic:
             filter_args_list.append(products['filter_args_dict'])
     
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
         ReportData.__name__)
     writer = csv.writer(response)
-
 
     # Write data to CSV file
     for f in filter_args_list:

@@ -26,7 +26,6 @@ from tastypie_mongoengine.resources import MongoEngineResource
 from tastypie.serializers import Serializer
 from tastypie.resources import Resource
 import logging
-
 import sys
 
 

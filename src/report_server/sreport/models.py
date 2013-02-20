@@ -10,7 +10,6 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 from django import forms
-from django.db import models
 from django.contrib.auth.models import User
 from mongoengine import DateTimeField, Document, ListField, StringField, IntField
 from mongodbforms import DocumentForm
@@ -185,12 +184,7 @@ class QuarantinedReportData(Document):
     splice_server = StringField(required=True)
     duplicate = IntField()
 
-
-        
-
-
-        
-        
+      
 class Account(Document):
 
     meta = {
@@ -204,11 +198,13 @@ class Account(Document):
     # List of contracts associated with the account.
     #contracts = ListField(EmbeddedDocumentField(Contract))
 
+
 class SpliceUserProfile(User):
     meta = {
         'db_alias': 'results'
     }
     account = StringField(unique=True, required=True)
+
 
 class SpliceAdminGroup(Document):
     meta = {

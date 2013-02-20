@@ -11,19 +11,13 @@
 
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate
-#from django.contrib.auth.models import User
-from mongoengine.django.auth import User
-from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
-from django.utils.cache import patch_vary_headers
-from django.utils.http import cookie_date
 from django.utils.importlib import import_module
-
 import logging
-import time
 
 _LOG = logging.getLogger(__name__)
+
 
 class SpacewalkSessionMiddleware(SessionMiddleware):
     def process_request(self, request):
@@ -45,11 +39,9 @@ class SpacewalkSessionMiddleware(SessionMiddleware):
                 user = authenticate(pxt_session=report_session)
             except IndexError:
                 _LOG.error('authentication failed, cookie is not valid')
-            if user:
-                backend_id = request.session.get(BACKEND_SESSION_KEY)
-                
+            if user:              
                 request.session.__setattr__("_auth_user_id", user.id)
-                
+    
                 #need to add the user attribute to be set in auth_login
                 request.__setattr__("user", None)
                 _LOG.info("ssession: " + report_session)

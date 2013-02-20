@@ -14,8 +14,8 @@ from __future__ import division
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseServerError
 from splice.common import config
-import logging
 import json
+import logging
 import math
 import os
 import sys
@@ -61,7 +61,7 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
             hours_for_sub[currentDate.month]['end'] = currentDate
         
         if (currentDate + delta).month == 1 and currentDate.month == 12:
-            _LOG.debug('plus delta= ' + str((currentDate + delta).month) + ', currentDate = ' + str(currentDate.month))
+            _LOG.debug('plus delta= %s, currentDate= %s' % (str((currentDate + delta).month), str(currentDate.month)))
             sub = count 
             hours_for_sub[currentDate.month]['hours_for_sub'] = sub
             hours_for_sub[currentDate.month]['end'] = currentDate
@@ -73,10 +73,8 @@ def datespan(startDate, endDate, delta=timedelta(hours=1)):
     
     _LOG.debug(str(hours_for_sub))  
     for key, value in hours_for_sub.items():
-        #if 'hours_for_sub' in value:
-            #_LOG.debug(str(key) +  str(value['start']) + str(value['end']) +  str(value['hours_for_sub']))
         total_hours += value['hours_for_sub']
-    _LOG.debug('total hours: ' + str(total_hours))
+    _LOG.debug('total hours: %s' % (str(total_hours)))
     return total_hours
 
 
@@ -95,7 +93,6 @@ def get_date_epoch(date):
     '''
     return python epoch time * 1000 for javascript 
     '''
-    
     epoch = (int(date.strftime("%s")))
     return epoch
 
@@ -187,17 +184,20 @@ def get_dates_from_request(request):
     
             startDate = request.GET['startDate'].encode('ascii').split("%2F")
             endDate = request.GET['endDate'].encode('ascii').split("%2F")
-            start = datetime(
-                int(startDate[2]), int(startDate[0]), int(startDate[1]))
-            end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))
-            
+            start = datetime(int(startDate[2]),
+                             int(startDate[0]),
+                             int(startDate[1])
+                             )
+            end = datetime(int(endDate[2]),
+                           int(endDate[0]),
+                           int(endDate[1])
+                           )            
     else:
         data = data_from_post(request)
         if 'byMonth' in data:
                 month_year = data['byMonth'].split(',')
                 month = int(month_year[0])
                 year = int(month_year[1])
-                #year = datetime.today().year
                 start = datetime(year, month, 1)
                 if month == 12:
                     end = datetime((year + 1), 1, 1) - timedelta(days=1)
@@ -206,11 +206,14 @@ def get_dates_from_request(request):
         if 'startDate' in data:
             startDate = data['startDate'].split("/")
             endDate = data['endDate'].split("/")
-            start = datetime(
-                int(startDate[2]), int(startDate[0]), int(startDate[1]))
-            end = datetime(int(endDate[2]), int(endDate[0]), int(endDate[1]))        
-        
-    
+            start = datetime(int(startDate[2]),
+                             int(startDate[0]),
+                             int(startDate[1])
+                             )
+            end = datetime(int(endDate[2]),
+                           int(endDate[0]),
+                           int(endDate[1])
+                           )            
     return start, end
 
 
