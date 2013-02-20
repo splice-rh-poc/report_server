@@ -148,6 +148,7 @@ rm -rf %{buildroot}
 pushd src
 %{__python} setup.py install -O1 --skip-build --root %{buildroot}
 popd
+mkdir -p %{buildroot}/%{_sysconfdir}/splice/conf.d/
 mkdir -p %{buildroot}/%{_sysconfdir}/httpd/conf.d/
 mkdir -p %{buildroot}/%{_var}/log/%{name}
 mkdir -p %{buildroot}/%{_usr}/lib/report_server
