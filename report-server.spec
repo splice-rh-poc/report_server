@@ -173,7 +173,7 @@ cp -R src/report_server/sreport/static %{buildroot}/%{_localstatedir}/www/html/r
 # Install WSGI script & httpd conf
 cp -R srv %{buildroot}
 cp etc/httpd/conf.d/%{name}.conf %{buildroot}/%{_sysconfdir}/httpd/conf.d/
-cp -R etc/splice/report.conf %{buildroot}/%{_sysconfdir}/conf.d/
+cp -R etc/splice/report.conf %{buildroot}/%{_sysconfdir}/splice/conf.d/
 cp -R etc/rc.d/init.d %{buildroot}/%{_sysconfdir}/rc.d
 
 # Remove egg info
