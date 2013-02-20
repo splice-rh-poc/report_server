@@ -12,12 +12,10 @@
 # Create your views here.
 from __future__ import division
 from django.contrib.auth.decorators import login_required
-
 from django.http import HttpResponse
 from report_server.sreport.models import SpliceServer
 from report_server.common import utils
 import logging
-
 import sys
 
 _LOG = logging.getLogger(__name__)
@@ -25,17 +23,6 @@ _LOG = logging.getLogger(__name__)
 @login_required
 def report_form(request):
     _LOG.info("space_form called by method: %s" % (request.method))
-
-    """
-    if request.method == 'POST':
-        form = ProductUsageForm(request.POST)
-        if form.is_valid():
-            pass
-        else:
-            form = ProductUsageForm()
-    """
-
-
     user = str(request.user)
     environments = SpliceServer.objects.distinct("environment")
     response_data = {}

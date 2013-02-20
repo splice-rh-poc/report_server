@@ -9,12 +9,8 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-
-
-
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
-from mongoengine.django.auth import User, check_password
+from mongoengine.django.auth import User
+from mongoengine.django import auth
 from passlib.hash import md5_crypt
 from report_server.common import config
 from report_server.auth.spacewalk.db import SpacewalkDB
@@ -41,10 +37,8 @@ class SpacewalkBackend(object):
             space_db = SpacewalkDB()
             result = space_db.execute_one("select * FROM web_contact WHERE LOGIN = '%s'" % (username))
             if config.CONFIG.get('spacewalk', 'db_backend') == 'postgresql':
-                db_user_id = result[2]
                 passwd_to_match = result[4]
             else:
-                db_user_id = result[1]
                 passwd_to_match = result[4]
             salt = passwd_to_match.split("$")[2]
             passwd_hash = md5_crypt.encrypt(password, salt=salt)
@@ -52,7 +46,8 @@ class SpacewalkBackend(object):
             if passwd_to_match == passwd_hash:
                 try:
                     user = User.objects.get(username=username)
-                except User.DoesNotExist:
+                except Exception as e:
+                    _LOG.debug("User not found or exception: %s" % (str(e)))
                     # Create a new user. Note that we can set password
                     # to anything, because it won't be checked; the password
                     # from settings.py will.

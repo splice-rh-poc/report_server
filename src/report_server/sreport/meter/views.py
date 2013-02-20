@@ -11,70 +11,21 @@
 
 # Create your views here.
 from __future__ import division
-from datetime import datetime, timedelta
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.db.models.base import get_absolute_url
-from django.db.models.loading import get_model
-from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.template.defaultfilters import slugify
-from django.template.response import TemplateResponse
-from django.utils.datastructures import MultiValueDictKeyError
-from django.views.decorators.csrf import ensure_csrf_cookie
-
-from report_server.common import constants, utils
-from report_server.common.biz_rules import Rules
-from report_server.common.import_util import import_data
-from report_server.common.max import MaxUsage
-from report_server.common.report import hours_per_consumer
-from report_server.common.utils import get_date_epoch, get_date_object
-from report_server.sreport.models import ProductUsageForm, ReportData
-from report_server.sreport.models import SpliceServer, QuarantinedReportData
-#from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
-from rhic_serve.rhic_rest.models import RHIC, Account, SpliceAdminGroup
-
-
-import csv
+from django.http import HttpResponse
+from report_server.common import utils
+from report_server.sreport.models import ProductUsageForm, SpliceServer
+from rhic_serve.rhic_rest.models import RHIC, Account
 import logging
-import json
 import sys
 
+
+# from report_server.sreport.models import Account, SpliceAdminGroup, SpliceUserProfile
 _LOG = logging.getLogger(__name__)
 
 
 @login_required
 def report_form(request):
-    """
-    Build the report form. Discovers the associated contracts, rhics and 
-    populates the form.
-    
-    @param request: http
-    @param request.user: the currently logged in user
-    
-    Returns:
-       A json doc w/ contracts, user, environment, list_of_rhics
-       Example:
-       {
-        "contracts": [
-          "3116649", 
-          "3879847"
-        ], 
-        "user": "user@host.com", 
-        "environments": [
-          "east"
-        ], 
-        "list_of_rhics": [
-          [
-            "8d401b5e-2fa5-4cb6-be64-5f57386fda86", 
-            "rhel-server-1190457-3116649-prem-l1-l3"
-          ], 
-        ]
-      }
-    """
     # replaces create_report()
     _LOG.info("report_form_ui20 called by method: %s" % (request.method))
 

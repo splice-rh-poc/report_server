@@ -30,7 +30,7 @@ import logging
 import sys
 
 
-_LOG = logging.getLogger("sreport.api")
+_LOG = logging.getLogger(__name__)
 
 class RestSerializer(Serializer):
     """
@@ -79,11 +79,11 @@ class SpliceServerResourceMod(SpliceServerResource):
 class ProductUsageResource(productusage.ProductUsageResource):
 
     def import_hook(self, product_usage):
-        _LOG.debug("in import_hook")
+        _LOG.info("called import_hook")
         items_not_imported, start_stop_time = import_util.import_data(product_usage,
                                                                       force_import=True
                                                                       )
-        _LOG.debug("items_not_imported length: " + str(len(items_not_imported)))
+        _LOG.info("items_not_imported length: " + str(len(items_not_imported)))
         for i in items_not_imported:
             thisDict = i.to_dict()
             thisItem = QuarantinedReportData(**thisDict)
@@ -140,21 +140,13 @@ class ReportResource(MongoEngineResource):
         # Make sure we always get back the representation of the resource back
         # on a POST.
         # always_return_data = True
-
-        # All Resources require basic authentication (for now).
-        
         authorization = Authorization()
         authentication = BasicAuthentication()
         
 
     def post_list(self, request, **kwargs):
-        # data = json.loads(request.raw_post_data,
-        # object_hook=json_util.object_hook)
-        #data = json.loads(request.raw_post_data)
-        _LOG.info("ReportResource::post_list() ")
-
-        #user = request.user
+        user = request.user
+        _LOG.info("%s called ReportResource::post_list()  " % (str(user)))
 
         response = views.report(request)
-
         return response
