@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.62
+Version:	0.63
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -259,6 +259,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Feb 20 2013 Wes Hayutin <whayutin@redhat.com> 0.63-1
+- fixed bug in spec (whayutin@redhat.com)
+
 * Wed Feb 20 2013 Wes Hayutin <whayutin@redhat.com> 0.62-1
 - little more clean up (whayutin@redhat.com)
 - clean up report and utils (whayutin@redhat.com)
