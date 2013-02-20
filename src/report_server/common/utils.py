@@ -12,7 +12,7 @@
 
 from __future__ import division
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError
 from splice.common import config
 import logging
 import json
@@ -158,6 +158,9 @@ def read_rhn_conf():
         for line in file:
             for key in keys:
                 if key in line:
+                    #if line commented out
+                    if line[:1] == "#":
+                        break
                     _LOG.debug(line)
                     value = line.split('=')[1].strip()
                     rhn_dict[key] = value
@@ -223,8 +226,8 @@ def data_from_post(request):
             data = form_data
 
         except Exception as e:
-            _LOG.critical('report called, request.raw_post_data and '
-                       'request.POST do not match expected format')
+            _LOG.critical('Exception: %s' % (str(e)))
+            _LOG.critical('request.raw_post_data, or request.POST do not match expected format')
             return HttpResponseServerError
     return data
 

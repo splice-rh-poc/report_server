@@ -68,7 +68,7 @@ def hours_per_consumer(start,
                     if not return_failed_only:
                         rhic_list.append(result)
                     else:
-                        if result['compliant'] == False:
+                        if not result['compliant']:
                             rhic_list.append(result)
         if rhic_list:
             results.append(rhic_list)
