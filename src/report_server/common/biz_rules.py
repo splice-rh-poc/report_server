@@ -203,7 +203,7 @@ class Rules:
     def list_rules(self):
         with open(path, 'rb') as rulz:
             report_rules = json.load(rulz)
-        print(report_rules)
+        #print(report_rules)
         _LOG.info('report server rules=' + str(report_rules))
 
     def get_rules(self):

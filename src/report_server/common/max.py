@@ -25,40 +25,37 @@ class MaxUsage:
 
     @staticmethod
     def get_MDU_MCU(start, end, filter_args, product_name):
-        currentDate = start
-        count_list = []
-        f = filter_args
-        delta = timedelta(days=1)
-        
-        calculation = 'hourly'
         results = []
         mdu_count = []
         mcu_count = []
         date = []
-        daily_highest_concurrent_usage = 0
-        contract_quantity = get_product_info(f, product_name)
         daily_contract = []
+
+        currentDate = start
+        f = filter_args
+        delta = timedelta(days=1)
+        calculation = 'hourly'
+        contract_quantity = get_product_info(f, product_name)
 
         while currentDate < end:
             hourly_highest_concurrent_usage = 0
             day = currentDate.strftime(constants.day_fmt)
             if calculation == 'hourly':
-                mdu_each = ReportData.objects.filter(
-                    day=day, **filter_args).distinct("instance_identifier")
-                mdu = len(mdu_each)
+                #Find the number of instances that checked in that day
+                mdu_each = ReportData.objects.filter(day=day, **filter_args)
+                mdu = len(mdu_each.distinct("instance_identifier"))
 
             else:
-                _LOG.error(
-                    'check rules, unsupported format found != hourly')
+                _LOG.error('check rules, unsupported format found != hourly')
                 raise Exception("unsupported calculation")
 
             hour_delta = timedelta(hours=1)
-            currentHour = datetime.strptime(
-                currentDate.strftime(constants.day_fmt), constants.day_fmt)
+            currentHour = datetime.strptime(day, constants.day_fmt)
+            
+            #Find the highest concurrent usuage in a 24 hour period
             for h in range(24):
                 this_hour = currentHour.strftime(constants.hr_fmt)
-                mcu = ReportData.objects.filter(
-                    hour=this_hour, **filter_args).count()
+                mcu = ReportData.objects.filter(hour=this_hour, **filter_args).count()
                 if mcu > hourly_highest_concurrent_usage:
                     hourly_highest_concurrent_usage = mcu
 
@@ -67,13 +64,16 @@ class MaxUsage:
             # The highest number is the count
             mcu = hourly_highest_concurrent_usage
 
-            results.append({'date': currentDate.strftime(
-                constants.just_date), 'mdu': mdu, 'mcu': mcu})
-            mdu_count.append([currentDate.strftime(constants.jqplot_fmt), mdu])
-            mcu_count.append([currentDate.strftime(constants.jqplot_fmt), mcu])
-            daily_contract.append([currentDate.strftime(
-                constants.jqplot_fmt), contract_quantity])
-            date.append(currentDate.strftime(constants.jqplot_fmt))
+            results.append({'date': currentDate.strftime(constants.just_date),
+                            'mdu': mdu,
+                            'mcu': mcu}
+                           )
+            
+            this_date = currentDate.strftime(constants.jqplot_fmt)
+            mdu_count.append([this_date, mdu])
+            mcu_count.append([this_date, mcu])
+            daily_contract.append([this_date, contract_quantity])
+            date.append(this_date)
 
             currentDate += delta
 
@@ -98,23 +98,18 @@ class MaxUsage:
             hourly_highest_concurrent_usage = 0
             day = currentDate.strftime(constants.day_fmt)
             if calculation == 'hourly':
-                mdu_each = ReportData.objects.filter(
-                    day=day, **filter_args).distinct("instance_identifier")
-                mdu = len(mdu_each)
-
+                mdu_each = ReportData.objects.filter(day=day, **filter_args)
+                mdu = len(mdu_each.distinct("instance_identifier"))
             else:
-                _LOG.error(
-                    'check rules, unsupported format found != hourly,daily')
+                _LOG.error('check rules, unsupported format found != hourly,daily')
                 raise Exception("unsupported calculation")
 
             if mdu > contract_quantity:
                 hour_delta = timedelta(hours=1)
-                currentHour = datetime.strptime(currentDate.strftime(
-                    constants.day_fmt), constants.day_fmt)
+                currentHour = datetime.strptime(day, constants.day_fmt)
                 for h in range(24):
                     this_hour = currentHour.strftime(constants.hr_fmt)
-                    mcu = ReportData.objects.filter(
-                        hour=this_hour, **filter_args).count()
+                    mcu = ReportData.objects.filter(hour=this_hour, **filter_args).count()
                     if mcu > hourly_highest_concurrent_usage:
                         hourly_highest_concurrent_usage = mcu
 
@@ -145,11 +140,13 @@ def get_product_info(filter_args, product_name):
         if contract.contract_id == contract_num:
             list_of_products = contract.products
             for product in list_of_products:
-                if (product.engineering_ids == eng_product and
-                    product.sla == sla and
-                    product.support_level == support and
-                    product.name == product_name):
-                    #THEN
+                conditions = [product.engineering_ids == eng_product,
+                              product.sla == sla,
+                              product.support_level == support,
+                              product.name == product_name
+                              ]
+
+                if all(conditions):
                     count += 1
                     quantity = product.quantity
                     if count > 1:

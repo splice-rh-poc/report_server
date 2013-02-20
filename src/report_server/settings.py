@@ -41,7 +41,7 @@ register_connection('default', MONGO_DATABASE_NAME_RHICSERVE,
 # Business Rules initialization
 r = Rules()
 r.init()
-r.list_rules()
+#r.list_rules()
 
 
 ROOT_URLCONF = 'report_server.splice_reports.urls'

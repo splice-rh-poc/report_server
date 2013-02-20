@@ -113,7 +113,6 @@ def getRHICdata(RHIC):
     all_rhics = data
     # all_rhics = json.loads(data)
 
-    my_rhics = []
     for rhic in all_rhics:
         if rhic['uuid'] == RHIC:
             return rhic['id']
