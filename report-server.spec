@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.61
+Version:	0.62
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -67,51 +67,28 @@ Requires:   rhic-serve-rest
 Reporting server import application
 
 # report-server oracle package ------------------------------------------------
-%package oracle
+%package rs-oracle
 Summary:    libraries required for an Oracle database
 Group:		Development/Languages
 
 Requires:   cx_Oracle
 
-%description oracle
+%description rs-oracle
 Reporting server Oracle libraries
 
 # report-server postgresql package ------------------------------------------------
-%package postgresql
+%package rs-postgresql
 Summary:    libraries required for a Postgresql database
 Group:		Development/Languages
 
 Requires:   python-psycopg2
 
-%description postgresql
+%description rs-postgresql
 Reporting server postgresql libraries
 
 
 %package common
 Summary:    Common libraries for report-server.
-Group:      Development/Languages
-
-%description common
-Common libraries for report-server.
-
-%package        selinux
-Summary:        Splice Report Server SELinux policy
-Group:          Development/Languages
-BuildRequires:  rpm-python
-BuildRequires:  make
-BuildRequires:  checkpolicy
-BuildRequires:  selinux-policy-devel
-# el6, selinux-policy-doc is the required RPM which will bring below 'policyhelp'
-BuildRequires:  /usr/share/selinux/devel/policyhelp
-BuildRequires:  hardlink
-Requires: selinux-policy >= %{selinux_policyver}
-Requires(post): policycoreutils-python 
-Requires(post): selinux-policy-targeted
-Requires(post): /usr/sbin/semodule, /sbin/fixfiles, /usr/sbin/semanage
-Requires(postun): /usr/sbin/semodule
-
-%package oracle
-Summary:    o    libraries for report-server.
 Group:      Development/Languages
 
 %description common
@@ -281,6 +258,86 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Feb 20 2013 Wes Hayutin <whayutin@redhat.com> 0.62-1
+- little more clean up (whayutin@redhat.com)
+- clean up report and utils (whayutin@redhat.com)
+- clean up max module (whayutin@redhat.com)
+- clean up (whayutin@redhat.com)
+- clean up (whayutin@redhat.com)
+- woot! fixed tastypie basic auth issue (whayutin@redhat.com)
+- fixed issue w/ form processing (whayutin@redhat.com)
+- fixed unit test failure (whayutin@redhat.com)
+- collapsed repsponse (whayutin@redhat.com)
+- cleaning up views (whayutin@redhat.com)
+- removed ReportUsageDaily (whayutin@redhat.com)
+- added postgres support (whayutin@redhat.com)
+- unit tests now will not drop db (whayutin@redhat.com)
+- broke out oracle connection into its own module (whayutin@redhat.com)
+- moved auth back over to mongo (whayutin@redhat.com)
+- closer to working w/ mongo (whayutin@redhat.com)
+- removing need for django oracle model (whayutin@redhat.com)
+- workaround for config issue (whayutin@redhat.com)
+- fixed unit tests: checkin_service db name and splice server names
+  (whayutin@redhat.com)
+- fixed config, broke out space/meter into the report.conf
+  (whayutin@redhat.com)
+- remove print (whayutin@redhat.com)
+- all unit tests passing on devel workstation with new data
+  (whayutin@redhat.com)
+- changed db import to know rhic, accounts, splice serves etc.
+  (whayutin@redhat.com)
+- fixed unit test and setting (whayutin@redhat.com)
+- fixed unit test and setting (whayutin@redhat.com)
+- fixed bug in defunt test (whayutin@redhat.com)
+- fixing up unit tests (whayutin@redhat.com)
+- fixing up unit tests (whayutin@redhat.com)
+- fixing up unit tests (whayutin@redhat.com)
+- merge master into branch (whayutin@redhat.com)
+- fixed authenticate issue I introduced on Friday (whayutin@redhat.com)
+- enabling both the spacewalk and default metering apps to work side by side
+  (whayutin@redhat.com)
+- breaking out spacewalk required URL's from the master branch which will be
+  called meter hence forth.  Common urls will remain in sreport.views.py
+  (whayutin@redhat.com)
+- Revert "both cookie and cred auth is looking good" (whayutin@redhat.com)
+- reseting branch (whayutin@redhat.com)
+- Revert "java dir somehow got in here" (whayutin@redhat.com)
+- Revert "Revert "gutted unneeded elements of the webui and view""
+  (whayutin@redhat.com)
+- Revert "gutted unneeded elements of the webui and view" (whayutin@redhat.com)
+- gutted unneeded elements of the webui and view (whayutin@redhat.com)
+- java dir somehow got in here (whayutin@redhat.com)
+- both cookie and cred auth is looking good (whayutin@redhat.com)
+- broke out auth into two engines cookie and credentials (whayutin@redhat.com)
+- Revert "authenticating w/ both a cookie and a login does not appear to be
+  supportable" (whayutin@redhat.com)
+- authenticating w/ both a cookie and a login does not appear to be supportable
+  (whayutin@redhat.com)
+- adding login form back in (whayutin@redhat.com)
+- Revert "trying out login/logout w/ sessions" (whayutin@redhat.com)
+- trying out login/logout w/ sessions (whayutin@redhat.com)
+- flush session if spacewalk session is no longer active (whayutin@redhat.com)
+- auto create django user from spacewalk session (whayutin@redhat.com)
+- fixed issue in the backend.py that was causing the user to be Anonymous
+  instead of the oracle user (whayutin@redhat.com)
+- still testing (whayutin@redhat.com)
+- changed up the view a bit (whayutin@redhat.com)
+- I think I have the custom session working atm...  w/ auth_user_backendq\x04U6
+  report_server.auth.spacewalk.backends.SpacewalkBackendU\r_auth_user_idq\x05K\
+  x02u. (whayutin@redhat.com)
+- still testing (whayutin@redhat.com)
+- testing (whayutin@redhat.com)
+- logging in but ssl mismatch on requests (whayutin@redhat.com)
+- login w/ cookie is pretty much working (whayutin@redhat.com)
+- adding code to read spacewalk cookies (whayutin@redhat.com)
+- created a custom authentication backend for spacewalk (whayutin@redhat.com)
+- ok.. had to turn some of the features off like contracts etc.. but logging
+  into the report server using a spacewalk oracle backend is working
+  (whayutin@redhat.com)
+- have django logins working while pointing to the spacewalk oracle db
+  (whayutin@redhat.com)
+- moving auth to oracle (whayutin@redhat.com)
+
 * Fri Feb 01 2013 John Matthews <jwmatthews@gmail.com> 0.61-1
 - Don't throw a 409 on duplicate ReportData objects, log the issue and
   continue. (jwmatthews@gmail.com)
