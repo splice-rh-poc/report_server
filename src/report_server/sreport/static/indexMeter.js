@@ -17,6 +17,8 @@ $(document).ready(function() {
 		$(this).hide();
 	});
     
+	hide_pages();
+    
     setupLoginForm();
     setupLLButtons();
     //setupNavButtons(); // obsolete?
@@ -42,6 +44,16 @@ $(document).ready(function() {
 
 });
 
+function hide_pages() {
+	document.getElementById("navWrap").style.display = "none";
+    document.getElementById("main-wrap").style.display = "none";
+}
+
+function show_pages() {
+	document.getElementById("navWrap").style.display = "block";
+    document.getElementById("main-wrap").style.display = "block";
+    openCreate();
+}
 
 function login() {
     $('#login-form').dialog('open');
@@ -66,6 +78,7 @@ function logout() {
         $('#account-links > span > p').text('You are not logged in.');
 
         logged_in = false;
+        hide_pages();
 
         // Disable appropriate nav tabs 
         $('#report_button').addClass('disabled');
@@ -78,8 +91,6 @@ function logout() {
         $('#max_button').off("click");
         $('#import_button').off("click");
 
-        
-        //loadContent();
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });
@@ -89,11 +100,13 @@ function setupLLButtons() {
     if (first_logged_in) {
         disableButton($('#login-button'));
         logged_in = true;
+        show_pages();
     } else {
         disableButton($('#logout-button'));
         logged_in = false;
+        hide_pages();
     }
-    loadContent();
+
     $('#login-error').hide();
 }
 
@@ -419,8 +432,7 @@ function setupLoginForm() {
                     $('#account-links > span > p').text(rtn.username + " account #" + rtn.account);
 
                     logged_in = true;
-
-                    loadContent();
+                    show_pages();
 
                 }).fail(function(jqXHR) {
                 	console.log("This request failed");
