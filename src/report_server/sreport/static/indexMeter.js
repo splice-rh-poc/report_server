@@ -1,7 +1,8 @@
 var first_logged_in = false;
 var logged_in = false;
 var is_admin = true;
-var csrftoken = '';
+var csrftoken = null;
+var pxt = null;
 var page_size = 10; // default value
 
 $(document).ready(function() {
@@ -845,6 +846,8 @@ function setupLoginForm() {
                     loadContent();
 
                 }).fail(function(jqXHR) {
+                	console.log("This request failed");
+                	console.log(jqXHR);
                    $('#login-error').show();
                 });
             },
@@ -855,6 +858,7 @@ function setupLoginForm() {
         }
     });
 }
+
 
 function change_rhic_form(data){
     $('#rhic').empty();
