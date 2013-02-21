@@ -216,6 +216,7 @@ class MongoApiTestCase(BaseMongoTestCase):
 
     def login(self):
         login = self.client.login(username=self.username, password=self.password)
+        #if login fails, check if there is a /etc/rhn/rhn.conf and if the spacewalk auth backend is used
         self.assertTrue(login)
         self.client.request
 
