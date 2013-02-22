@@ -76,6 +76,10 @@ function setupLoginForm() {
 
                     logged_in = true;
                     show_pages();
+                    
+                    //TESTING
+                    setupCreateFormOLD();
+                    //setupCreateForm();
 
                 }).fail(function(jqXHR) {
                 	console.log("This request failed");
@@ -328,6 +332,24 @@ function resetReportForm(event) {
     $('#report_button').off('click');
     $('#detail_button').off('click');
     $('#max_button').off("click");
+}
+
+function setupReportForm(){
+    $('#report_form').each(function() {
+        this.reset();
+    });
+    
+    $('#startDate').attr('disabled', false);
+    $('#endDate').attr('disabled', false);
+    $('#rhic').attr('disabled', false);
+    $('#contract').attr('disabled', false);
+    $("#startDate").attr('disabled', false);
+    $("#endDate").attr('disabled', false);
+    $("#byMonth").attr('disabled', false);
+    $("#env").attr('disabled', false);
+
+    $('#startDate').datepicker();
+    $('#endDate').datepicker();
 }
 
 

@@ -35,6 +35,9 @@ $(document).ready(function() {
     setupCreateForm();
     openCreate();
     navButtonDocReady();
+    
+    
+    
 
 });
 
@@ -59,17 +62,107 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
+
+function setupCreateFormOLD() {
+    setupReportForm();
+
+    $.ajax({
+        url: '/report-server/meter/report_form/',
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        crossDomain: false,
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    }).done(function(data) {
+        fill_create_report_form(JSON.parse(data));
+        //fill_create_report_rhic_form(JSON.parse(data));
+        $('#contract').chosen();
+        $('#rhic').chosen();
+        $('#byMonth').chosen();
+        $('#env').chosen();
+    }).fail(function(jqXHR) {
+        // TODO: Add error handling here
+    });
+}
+
+
+function xhr_get(options){
+    $.ajax({
+        url: options.url,
+        type: 'GET',
+        contentType: 'application/json',
+        data: {},
+        crossDomain: false,
+        success: options.success,
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+           }
+       }).fail(function(jqXHR) {
+            console.log('xhr_get FAIL')
+        });
+   
+};
+
+
+function fill_create_report_form(data) {
+    // Clear outdated elements
+	$('#byMonth').empty();
+    $('#contract').empty();
+    $('#rhic').empty();
+    $('#env').empty();
+    //$('#byMonth').empty();
+
+    // Add defaults
+    $('#contract').append($('<option value=null></option>'));
+    $('#contract').append($('<option selected value=All>All</option>'));
+    
+
+
+    // Add remainder elements from data
+    jQuery.each(data.contracts, function(index, ele) {
+            $('#contract').append($('<option value=' + ele + '>' + ele + '</option>'));
+            });	
+
+    $('#rhic').append($('<option selected value=null></option>'));
+    jQuery.each(data.list_of_rhics, function(index, ele) {
+            $('#rhic').append($('<option value=' + ele[0] + '>' + ele[1] + '</option>'));
+            });	
+
+    $('#env').append($('<option value=All>All</option>'));
+    jQuery.each(data.environments, function(index, ele) {
+            $('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
+            });	
+
+   
+    date_0 = Date.today();
+    date_1 = (1).months().ago();
+    date_2 = (2).months().ago();
+    
+    $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
+    $('#byMonth').append($('<option selected value=' + date_0.toString("M") + ',' + date_0.toString("yyyy") +  '>' + date_0.toString("MMM") + ' ' + date_0.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
+    $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
+    
+}
+
 function setupCreateForm() {
   
 }
+
+
+
 
 function updateListOfRHICS() {
 
 }
 
-function setupCreateFormButtons() {
-  
-}
+
 
 function createReport(event) {
 	
@@ -107,9 +200,7 @@ function change_rhic_form(data){
     
 }
 
-function fill_create_report_form(data) {
 
-}
     
 function loadContent() {
    
