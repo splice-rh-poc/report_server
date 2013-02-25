@@ -78,8 +78,8 @@ function setupLoginForm() {
                     show_pages();
                     
                     //TESTING
-                    setupCreateFormOLD();
-                    //setupCreateForm();
+                    //setupCreateFormOLD();
+                    setupCreateForm();
 
                 }).fail(function(jqXHR) {
                 	console.log("This request failed");

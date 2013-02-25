@@ -34,6 +34,7 @@
         <script src="{{ STATIC_URL }}jquery.dataTables.min.js"></script> 
         <script src="{{ STATIC_URL }}TableTools.min.js"></script>
         <script src="{{ STATIC_URL }}date.js"></script>
+        <script src="{{ STATIC_URL }}underscore.js"></script>
         <script src="{{ STATIC_URL }}backbone.js"></script>
         <script src="{{ STATIC_URL }}report-navigation.js"></script>
         <script src="{{ STATIC_URL }}report-meter.js"></script>
@@ -195,7 +196,7 @@
                                         <table>
                                             <tr>
                                                 <td width="5%"> 
-                                                    
+                                                    <ul id="wes_contract"> </ul>
                                                     <b> Contract: </b> </td> 
                                                     <td width="40%">
                                                         <select id="contract" name=contract_number class='chosen'  style="width:150px;" disabled="false"> 

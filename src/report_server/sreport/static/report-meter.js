@@ -32,7 +32,6 @@ $(document).ready(function() {
 	hide_pages();
     setupLoginForm();
     setupLoginButtons();
-    setupCreateForm();
     openCreate();
     navButtonDocReady();
     
@@ -89,25 +88,49 @@ function setupCreateFormOLD() {
     });
 }
 
+function setupCreateForm(){
+    var Contract = Backbone.Model.extend({
+        url:  '/report-server/meter/report_form/'
+    });
 
-function xhr_get(options){
-    $.ajax({
-        url: options.url,
-        type: 'GET',
-        contentType: 'application/json',
-        data: {},
-        crossDomain: false,
-        success: options.success,
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-           }
-       }).fail(function(jqXHR) {
-            console.log('xhr_get FAIL')
-        });
-   
-};
+    var Contracts = Backbone.Collection.extend({
+       url:  '/report-server/meter/report_form/',
+       model: Contract
+    });
+    
+    var ContractsView = Backbone.View.extend({
+        el: $('#form_container'),
+        initialize: function() {
+            this.contracts = new Contracts(null, {
+                view: this
+            });
+            
+            this.render();
+        },
+        
+        render: function() {
+            var contract_select_template = _.template($("#contract_select_template").html(), {
+                contracts: this.contracts.toJSON(),
+                labelValue: 'Something'
+            });
+            $('#form-container').html(contract_select_template);
+        },
+    });
+    
+    var contractsView = new ContractsView();
+    /*
+    var contract = new Contract();
+    var contracts = new Contracts();
+    contracts.fetch();
+    
+    var contractView = new ContractsView({el: $("#wes_contract"), collection: contracts, model: contract });
+    
+    
+    contractView.render();
+    $('#wes_contract').html();
+    */
+    
+}
 
 
 function fill_create_report_form(data) {
@@ -149,10 +172,6 @@ function fill_create_report_form(data) {
     $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
     $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
     
-}
-
-function setupCreateForm() {
-  
 }
 
 

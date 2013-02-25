@@ -51,10 +51,10 @@ def report_form(request):
 
     response_data = {}
     response_data['contracts'] = contracts
-    response_data['user'] = user
-    response_data['list_of_rhics'] = [(str(r.uuid), r.name)
-                                      for r in list_of_rhics]
-    response_data['environments'] = environments
+    #response_data['user'] = user
+    #response_data['list_of_rhics'] = [(str(r.uuid), r.name)
+    #                                  for r in list_of_rhics]
+    #response_data['environments'] = environments
 
     _LOG.info(response_data)
 
