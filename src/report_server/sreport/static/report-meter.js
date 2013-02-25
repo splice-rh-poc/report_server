@@ -32,6 +32,7 @@ $(document).ready(function() {
 	hide_pages();
     setupLoginForm();
     setupLoginButtons();
+    setupCreateForm();
     openCreate();
     navButtonDocReady();
     
@@ -98,12 +99,6 @@ function setupCreateForm(){
     
     var AppView = Backbone.View.extend({
       
-      el: '#contract-container',
-      
-      events: {
-        'click #test': 'fetchData'
-      },
-      
       initialize: function() {
         _.bindAll(this, 'render', 'fetchData');
         this.collection.bind('reset', this.render);
@@ -111,13 +106,26 @@ function setupCreateForm(){
       },
       
       render: function(){
-        var ul = $('#contracts').empty();
+        var select_contract = $('#contract');
+        var select_rhic = $('#rhic');
+        var select_env = $('#env');
         
         this.collection.each(function(item) {
             var list = item.get('contracts')
-                for (c in list){
-                    $('<li>').text(list[c]).appendTo(ul);
+                for (i in list){
+                    select_contract.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
                 }
+            var list = item.get('list_of_rhics')
+                for (i in list){
+                    select_rhic.append($('<option value=' + list[i][1] + '>' + list[i][1] + '</option>'));
+                }
+            var list = item.get('environments')
+                for (i in list){
+                    select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+                }
+         select_contract.chosen();
+         select_rhic.chosen();
+         select_env.chosen();
         });
       },
       
