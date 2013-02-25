@@ -90,6 +90,10 @@ function setupCreateFormOLD() {
 }
 
 function setupCreateForm(){
+    var select_contract = $('#contract');
+    var select_rhic = $('#rhic');
+    var select_env = $('#env');
+    
     var Contract = Backbone.Model.extend({});
 
     var Contracts = Backbone.Collection.extend({
@@ -106,10 +110,7 @@ function setupCreateForm(){
       },
       
       render: function(){
-        var select_contract = $('#contract');
-        var select_rhic = $('#rhic');
-        var select_env = $('#env');
-        
+
         this.collection.each(function(item) {
             var list = item.get('contracts')
                 for (i in list){
@@ -123,10 +124,12 @@ function setupCreateForm(){
                 for (i in list){
                     select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
                 }
-         select_contract.chosen();
-         select_rhic.chosen();
-         select_env.chosen();
+         
         });
+        
+        select_contract.chosen();
+        select_rhic.chosen();
+        select_env.chosen();
       },
       
       fetchData: function() {
@@ -135,39 +138,7 @@ function setupCreateForm(){
     });
     
     var appview = new AppView({ collection: new Contracts() });
-}
-
-
-function fill_create_report_form(data) {
-    // Clear outdated elements
-	$('#byMonth').empty();
-    $('#contract').empty();
-    $('#rhic').empty();
-    $('#env').empty();
-    //$('#byMonth').empty();
-
-    // Add defaults
-    $('#contract').append($('<option value=null></option>'));
-    $('#contract').append($('<option selected value=All>All</option>'));
     
-
-
-    // Add remainder elements from data
-    jQuery.each(data.contracts, function(index, ele) {
-            $('#contract').append($('<option value=' + ele + '>' + ele + '</option>'));
-            });	
-
-    $('#rhic').append($('<option selected value=null></option>'));
-    jQuery.each(data.list_of_rhics, function(index, ele) {
-            $('#rhic').append($('<option value=' + ele[0] + '>' + ele[1] + '</option>'));
-            });	
-
-    $('#env').append($('<option value=All>All</option>'));
-    jQuery.each(data.environments, function(index, ele) {
-            $('#env').append($('<option value=' + ele + '>' + ele + '</option>'));
-            });	
-
-   
     date_0 = Date.today();
     date_1 = (1).months().ago();
     date_2 = (2).months().ago();
@@ -177,9 +148,11 @@ function fill_create_report_form(data) {
     $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
     $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
     
+    $('#startDate').datepicker();
+    $('#endDate').datepicker();
+    $('#byMonth').chosen();
+    
 }
-
-
 
 
 function updateListOfRHICS() {
