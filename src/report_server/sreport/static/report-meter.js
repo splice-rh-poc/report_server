@@ -89,47 +89,44 @@ function setupCreateFormOLD() {
 }
 
 function setupCreateForm(){
-    var Contract = Backbone.Model.extend({
-        url:  '/report-server/meter/report_form/'
-    });
+    var Contract = Backbone.Model.extend({});
 
     var Contracts = Backbone.Collection.extend({
-       url:  '/report-server/meter/report_form/',
-       model: Contract
+      model: Contract,
+      url: '/report-server/meter/report_form/'
     });
     
-    var ContractsView = Backbone.View.extend({
-        el: $('#form_container'),
-        initialize: function() {
-            this.contracts = new Contracts(null, {
-                view: this
-            });
-            
-            this.render();
-        },
+    var AppView = Backbone.View.extend({
+      
+      el: '#contract-container',
+      
+      events: {
+        'click #test': 'fetchData'
+      },
+      
+      initialize: function() {
+        _.bindAll(this, 'render', 'fetchData');
+        this.collection.bind('reset', this.render);
+        this.collection.fetch();
+      },
+      
+      render: function(){
+        var ul = $('#contracts').empty();
         
-        render: function() {
-            var contract_select_template = _.template($("#contract_select_template").html(), {
-                contracts: this.contracts.toJSON(),
-                labelValue: 'Something'
-            });
-            $('#form-container').html(contract_select_template);
-        },
+        this.collection.each(function(item) {
+            var list = item.get('contracts')
+                for (c in list){
+                    $('<li>').text(list[c]).appendTo(ul);
+                }
+        });
+      },
+      
+      fetchData: function() {
+        this.collection.fetch();
+      }
     });
     
-    var contractsView = new ContractsView();
-    /*
-    var contract = new Contract();
-    var contracts = new Contracts();
-    contracts.fetch();
-    
-    var contractView = new ContractsView({el: $("#wes_contract"), collection: contracts, model: contract });
-    
-    
-    contractView.render();
-    $('#wes_contract').html();
-    */
-    
+    var appview = new AppView({ collection: new Contracts() });
 }
 
 
