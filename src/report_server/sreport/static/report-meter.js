@@ -64,41 +64,27 @@ function csrfSafeMethod(method) {
 }
 
 
-function setupCreateFormOLD() {
-    setupReportForm();
-
-    $.ajax({
-        url: '/report-server/meter/report_form/',
-        type: 'GET',
-        contentType: 'application/json',
-        data: {},
-        crossDomain: false,
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    }).done(function(data) {
-        fill_create_report_form(JSON.parse(data));
-        //fill_create_report_rhic_form(JSON.parse(data));
-        $('#contract').chosen();
-        $('#rhic').chosen();
-        $('#byMonth').chosen();
-        $('#env').chosen();
-    }).fail(function(jqXHR) {
-        // TODO: Add error handling here
-    });
-}
-
 function setupCreateForm(){
     var select_contract = $('#contract');
     var select_rhic = $('#rhic');
     var select_env = $('#env');
     
-    var Contract = Backbone.Model.extend({});
+    select_contract.empty();
+    select_rhic.empty();
+    select_env.empty();
+    
+    var FormDatum = Backbone.Model.extend({
+        defaults: {
+            contracts: ['null', 'All'],
+            
+            environments: ['null', 'All'],
+            
+            list_of_rhics: ['null', 'All']
+        }
+    });
 
-    var Contracts = Backbone.Collection.extend({
-      model: Contract,
+    var FormData = Backbone.Collection.extend({
+      model: FormDatum,
       url: '/report-server/meter/report_form/'
     });
     
@@ -114,17 +100,21 @@ function setupCreateForm(){
 
         this.collection.each(function(item) {
             var list = item.get('contracts')
-                for (i in list){
-                    select_contract.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
-                }
+            
+            select_contract.append($('<option selected value=All>All</option>'));
+            for (i in list){
+                select_contract.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+            }
+            
+            select_rhic.append($('<option selected value=All>All</option>'));
             var list = item.get('list_of_rhics')
-                for (i in list){
-                    select_rhic.append($('<option value=' + list[i][1] + '>' + list[i][1] + '</option>'));
-                }
+            for (i in list){
+               select_rhic.append($('<option value=' + list[i][0] + '>' + list[i][1] + '</option>'));
+            }
             var list = item.get('environments')
-                for (i in list){
-                    select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
-                }
+            for (i in list){
+               select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+            }
          
         });
         
@@ -135,7 +125,7 @@ function setupCreateForm(){
       
     });
     
-    var appview = new AppView({ collection: new Contracts() });
+    var appview = new AppView({ collection: new FormData() });
 
 }
 
@@ -145,10 +135,11 @@ function setupCreateDatesForm(){
     date_2 = (2).months().ago();
     
     $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
-    $('#byMonth').append($('<option selected value=' + date_0.toString("M") + ',' + date_0.toString("yyyy") +  '>' + date_0.toString("MMM") + ' ' + date_0.toString("yyyy") + '</option>'));
-    $('#byMonth').append($('<option selected value=' + date_1.toString("M") + ',' + date_1.toString("yyyy") +  '>' + date_1.toString("MMM") + ' ' + date_1.toString("yyyy") + '</option>'));
-    $('#byMonth').append($('<option selected value=' + date_2.toString("M") + ',' + date_2.toString("yyyy") +  '>' + date_2.toString("MMM") + ' ' + date_2.toString("yyyy") + '</option>'));
     
+    [date_0, date_1, date_2].forEach(function(item){
+        $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
+    });
+
     $('#startDate').datepicker();
     $('#endDate').datepicker();
     $('#byMonth').chosen();
@@ -162,6 +153,33 @@ function updateListOfRHICS() {
 
 
 function createReport(event) {
+    event.preventDefault();
+    form_filter_link_hide(false);
+    if (logged_in){
+        var CreateReport = Backbone.Model.extend({
+            url: '/report-server/meter/report/'
+        });
+        
+        var data = {
+            byMonth:            $('#byMonth').val(),
+            startDat:           $('#startDate').val(),
+            endDate:            $('#endDate').val(),
+            contract_number:    $('#contract').val(),
+            rhic:               $('#rhic').val()
+        };
+        
+        var createReport = new CreateReport();
+        console.log(createReport.toJSON());
+        
+        createReport.save( data, {
+            success: function(model, response){
+                console.log('SUCCESS');
+                console.log(response);
+            }
+        });
+        
+        }
+        
 	
 }
 
