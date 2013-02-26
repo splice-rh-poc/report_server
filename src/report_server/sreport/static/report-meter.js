@@ -32,7 +32,7 @@ $(document).ready(function() {
 	hide_pages();
     setupLoginForm();
     setupLoginButtons();
-    setupCreateForm();
+    //setupCreateForm();
     setupCreateDatesForm();
     openCreate();
     navButtonDocReady();
@@ -64,36 +64,11 @@ function csrfSafeMethod(method) {
 }
 
 
-function setupCreateFormOLD() {
-    setupReportForm();
-
-    $.ajax({
-        url: '/report-server/meter/report_form/',
-        type: 'GET',
-        contentType: 'application/json',
-        data: {},
-        crossDomain: false,
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    }).done(function(data) {
-        fill_create_report_form(JSON.parse(data));
-        //fill_create_report_rhic_form(JSON.parse(data));
-        $('#contract').chosen();
-        $('#rhic').chosen();
-        $('#byMonth').chosen();
-        $('#env').chosen();
-    }).fail(function(jqXHR) {
-        // TODO: Add error handling here
-    });
-}
-
 function setupCreateForm(){
-    var select_contract = $('#contract');
-    var select_rhic = $('#rhic');
-    var select_env = $('#env');
+    
+    var list_contracts = [];
+    var list_rhics = [];
+    var list_env = [];
     
     var Contract = Backbone.Model.extend({});
 
@@ -102,6 +77,8 @@ function setupCreateForm(){
       url: '/report-server/meter/report_form/'
     });
     
+    
+    
     var AppView = Backbone.View.extend({
       
       initialize: function() {
@@ -109,33 +86,40 @@ function setupCreateForm(){
         this.collection.bind('reset', this.render);
         this.collection.fetch();
       },
-      
+
       render: function(){
 
         this.collection.each(function(item) {
-            var list = item.get('contracts')
-                for (i in list){
-                    select_contract.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
-                }
-            var list = item.get('list_of_rhics')
-                for (i in list){
-                    select_rhic.append($('<option value=' + list[i][1] + '>' + list[i][1] + '</option>'));
-                }
-            var list = item.get('environments')
-                for (i in list){
-                    select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
-                }
-         
+            list_contracts = item.get('contracts')
+            rhics = item.get('list_of_rhics')
+            for(var i=0; i<rhics.length; i++){
+                list_rhics.push(rhics[i][1]);
+            }
+            list_env = item.get('environments')
+                
         });
+
+        var ReportForm = Backbone.Model.extend({
+            schema: {
+                Contracts: {type: 'Select', options: list_contracts },
+                RHIC: {type: 'Select', options: list_rhics },
+                Environment: {type: 'Select', options: list_env },
+                }
+        })
+
+        var newform = new ReportForm();
+        var form = new Backbone.Form({
+            model: newform
+        }).render();
+
+        $('#customer-data').append(form.el);
         
-        select_contract.chosen();
-        select_rhic.chosen();
-        select_env.chosen();
       }
       
     });
     
     var appview = new AppView({ collection: new Contracts() });
+    
 
 }
 

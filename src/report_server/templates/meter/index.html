@@ -36,6 +36,8 @@
         <script src="{{ STATIC_URL }}date.js"></script>
         <script src="{{ STATIC_URL }}underscore.js"></script>
         <script src="{{ STATIC_URL }}backbone.js"></script>
+        <script src="{{ STATIC_URL }}backbone-forms.js"></script>
+        <link href="{{ STATIC_URL }}default.css" type="text/css" rel="stylesheet"/>
         <script src="{{ STATIC_URL }}report-navigation.js"></script>
         <script src="{{ STATIC_URL }}report-meter.js"></script>
         <script src="{{ STATIC_URL }}report-export.js"></script>
@@ -103,7 +105,7 @@
                         			<span style="color: #FFFFFF;">
                                   		<div style="padding: 4 2;">
                 			                <!-- Login Button -->
-                                			<button id="login-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Login</span></button>
+                                			<button id="login-button" class="ui-button uhttps://github.com/powmedia/backbone-forms/blob/master/distribution/templates/default.cssi-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Login</span></button>
                                 			<!-- Logout Button -->
                                  			<button id="logout-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Logout</span></button>
                                         </div>
@@ -193,44 +195,10 @@
         
                                         <h2>Filter by Customer Data:</h2> 
                                         <br>
-
-                                        <table>
-                                            <tr>
-                                                <td width="5%"> 
-                                                    
-                                                    <b> Contract: </b> </td> 
-                                                    <td width="40%">
-                                                        <select id="contract" name=contract_number class='chosen'  style="width:150px;"> 
-                                                            
-                                                        </select> 
-                                                    </td>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                            <tr>
-                                                <td width="5%"> 
-                                                    
-                                                    <b> RHIC: </b></td>
-                                                    <td width="40%">
-                                                        <select id="rhic" name="rhic" class='chosen' style="width:400px;">
-                                                        </select>
-                                                    </td>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <h2>Filter by Reporting Domain:</h2> 
-                                        <br>
-                                        <table width=50%>
-                                            <tr> 
-                                                <td width="15%"><b>Reporting Domain: </b></td>
-                                                    <td width="51%">
-                                                        <select id='env' name="env" class='chosen'  style="width:150px;">
-                                                            
-                                                        </select>
-                                                    </td>
-                                                </td>
-                                            </tr>
-                                            </table>
+                                        <div id="customer-data">
+                                            
+                                        </div>
+                                    
                                             <table id=buttons width=50%>
                                             <br><br><br>
                                             <tr>
