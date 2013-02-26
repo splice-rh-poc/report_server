@@ -73,15 +73,7 @@ function setupCreateForm(){
     select_rhic.empty();
     select_env.empty();
     
-    var FormDatum = Backbone.Model.extend({
-        defaults: {
-            contracts: ['null', 'All'],
-            
-            environments: ['null', 'All'],
-            
-            list_of_rhics: ['null', 'All']
-        }
-    });
+    var FormDatum = Backbone.Model.extend({});
 
     var FormData = Backbone.Collection.extend({
       model: FormDatum,
@@ -175,6 +167,11 @@ function createReport(event) {
             success: function(model, response){
                 console.log('SUCCESS');
                 console.log(response);
+                
+                $('#report_pane > div').empty();
+                var pane = '#report_pane > div';
+                populateReport(response, pane );
+                openReport();
             }
         });
         
@@ -182,6 +179,75 @@ function createReport(event) {
         
 	
 }
+
+function populateReport(rtn, pane) {
+    var Report = {};
+    $('#report_pane').empty();
+    
+    Report.Model = Backbone.Model.extend();
+    
+    Report.Collection = Backbone.Collection.extend({
+        model: Report.Model
+    })
+
+    var report_columns = [
+        {
+            header: "Product",
+            className: "product-name",
+            getFormatted: function() {
+                return this.get("product_name");
+            }
+        },{
+            header: "SLA",
+            className: "sla",
+            getFormatted: function() {
+                return this.get("sla");
+            }
+        },{
+            header: "Support",
+            className: "support",
+            getFormatted: function() {
+                return this.get("support");
+            }
+        },{
+            header: "Facts",
+            className: "facts",
+            getFormatted: function() {
+                return this.get("facts");
+            }
+        },{
+            header: "Contracted Use",
+            className: "contracted-use",
+            getFormatted: function() {
+                return this.get("contracted_use");
+            }
+        },{
+            header: "NAU",
+            className: "nau",
+            getFormatted: function() {
+                return this.get("nau");
+            }
+        }
+    ];
+    
+    var mylist = []
+    for (i = 0; i < rtn.list.length; i++){
+        for (j = 0; j < rtn.list[i].length; j++){
+            mylist.push(rtn.list[i][j]);
+            
+        }
+    }
+    var reports = new Report.Collection(mylist);
+            
+    var report_table_w_objects = new Backbone.Table({
+        collection: reports,
+        columns: report_columns
+    });
+            
+    $('#report_pane').append(report_table_w_objects.render().el);
+
+}
+
 
 function create_default_report(event){
    
@@ -221,9 +287,6 @@ function loadContent() {
    
 }
 
-function populateReport(rtn, pane) {
-
-}
 
 function populateQuarantineReport(rtn) {
     
