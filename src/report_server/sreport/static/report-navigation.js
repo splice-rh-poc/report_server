@@ -80,6 +80,8 @@ function setupLoginForm() {
                     //TESTING
                     //setupCreateFormOLD();
                     setupCreateForm();
+                    setupCreateDatesForm();
+
 
                 }).fail(function(jqXHR) {
                 	console.log("This request failed");
@@ -167,9 +169,16 @@ function navButtonDocReady(){
 
 
 // ********************   SHOW, HIDE REPORT FORM**************************
-function form_filter_link_hide(){
-	document.getElementById("filter_toggle").style.display = "none";
-	toggle_report_form()
+function form_filter_link_hide(hide){
+    if (hide){
+    	document.getElementById("filter_toggle").style.display = "none";
+    	toggle_report_form()
+    }
+    if (!hide){
+        document.getElementById("filter_toggle").style.display = "block";
+        document.getElementById("default-report-submit").style.display = "block";
+        toggle_report_form()
+    }
 }
 
 function toggle_report_form() {

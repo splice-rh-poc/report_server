@@ -33,6 +33,7 @@ $(document).ready(function() {
     setupLoginForm();
     setupLoginButtons();
     setupCreateForm();
+    setupCreateDatesForm();
     openCreate();
     navButtonDocReady();
     
@@ -104,7 +105,7 @@ function setupCreateForm(){
     var AppView = Backbone.View.extend({
       
       initialize: function() {
-        _.bindAll(this, 'render', 'fetchData');
+        _.bindAll(this, 'render');
         this.collection.bind('reset', this.render);
         this.collection.fetch();
       },
@@ -130,15 +131,15 @@ function setupCreateForm(){
         select_contract.chosen();
         select_rhic.chosen();
         select_env.chosen();
-      },
-      
-      fetchData: function() {
-        this.collection.fetch();
       }
+      
     });
     
     var appview = new AppView({ collection: new Contracts() });
-    
+
+}
+
+function setupCreateDatesForm(){
     date_0 = Date.today();
     date_1 = (1).months().ago();
     date_2 = (2).months().ago();
@@ -151,7 +152,6 @@ function setupCreateForm(){
     $('#startDate').datepicker();
     $('#endDate').datepicker();
     $('#byMonth').chosen();
-    
 }
 
 
