@@ -20,6 +20,8 @@
         <link href="{{ STATIC_URL }}chosen.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}report.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}TableTools.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}backbone-ui.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}backgrid.css" type="text/css" rel="stylesheet"/>
         <script src="{{ STATIC_URL }}jquery.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
         <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
@@ -36,7 +38,8 @@
         <script src="{{ STATIC_URL }}date.js"></script>
         <script src="{{ STATIC_URL }}underscore.js"></script>
         <script src="{{ STATIC_URL }}backbone.js"></script>
-        <script src="{{ STATIC_URL }}backbone.table.js"></script>
+        <script src="{{ STATIC_URL }}backbone-ui.js"></script>
+        <script src="{{ STATIC_URL }}backgrid.js"></script>
         <script src="{{ STATIC_URL }}report-navigation.js"></script>
         <script src="{{ STATIC_URL }}report-meter.js"></script>
         <script src="{{ STATIC_URL }}report-export.js"></script>
@@ -270,8 +273,8 @@
                                     <button id='createAnotherReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='openCreate()'>
                                         <span class='ui-button-text'>Run another report</span>
                                     </button>
-                                    
-                                </button>
+                                
+                                <br><br><br><br>    
                                 <table width="100%">
                                     <tbody>
                                         <tr>
@@ -298,10 +301,7 @@
                                             <td width="15%">NAU:</td>
                                             <td>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td>
                                         </tr>
-                                        <tr>
-                                            <td width="15%">Consumed :</td>
-                                            <td>Defined as an entitlement being installed and running on an instance or physical machine. If an instance is not running ( ie.. shutdown or terminated), then it is not counted as consumed</td>
-                                        </tr>
+                                        
                                         
                                     </tbody>
                                 </table>

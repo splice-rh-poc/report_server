@@ -181,55 +181,22 @@ function createReport(event) {
 }
 
 function populateReport(rtn, pane) {
+    var pane = $('#report_pane > div');
+    var this_div = $('<div this_rhic_table>');
+    pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
+    pane.append('<br><br>');
+    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     var Report = {};
-    $('#report_pane').empty();
     
-    Report.Model = Backbone.Model.extend();
-    
-    Report.Collection = Backbone.Collection.extend({
-        model: Report.Model
-    })
 
-    var report_columns = [
-        {
-            header: "Product",
-            className: "product-name",
-            getFormatted: function() {
-                return this.get("product_name");
-            }
-        },{
-            header: "SLA",
-            className: "sla",
-            getFormatted: function() {
-                return this.get("sla");
-            }
-        },{
-            header: "Support",
-            className: "support",
-            getFormatted: function() {
-                return this.get("support");
-            }
-        },{
-            header: "Facts",
-            className: "facts",
-            getFormatted: function() {
-                return this.get("facts");
-            }
-        },{
-            header: "Contracted Use",
-            className: "contracted-use",
-            getFormatted: function() {
-                return this.get("contracted_use");
-            }
-        },{
-            header: "NAU",
-            className: "nau",
-            getFormatted: function() {
-                return this.get("nau");
-            }
-        }
-    ];
     
+    var Report = Backbone.Model.extend();
+    
+    var Reports = Backbone.Collection.extend({
+        model: Report
+        
+    })
+        
     var mylist = []
     for (i = 0; i < rtn.list.length; i++){
         for (j = 0; j < rtn.list[i].length; j++){
@@ -237,14 +204,58 @@ function populateReport(rtn, pane) {
             
         }
     }
-    var reports = new Report.Collection(mylist);
+    var reports = new Reports(mylist);
             
-    var report_table_w_objects = new Backbone.Table({
-        collection: reports,
-        columns: report_columns
-    });
-            
-    $('#report_pane').append(report_table_w_objects.render().el);
+    var columns = [{
+      name: "rhic", 
+      label: "RHIC:", 
+      editable: false,
+      cell: "string"
+    }, {
+      name: "product_name",
+      label: "Product:",
+      editable: false,
+      cell: "string"
+    }, {
+      name: "sla",
+      label: "SLA:",
+      editable: false,
+      cell: "string"
+    }, {
+      name: "support",
+      label: "Support:",
+      editable: false,
+      cell: "string"
+    }, {
+      name: "contract_use",
+      label: "Contract Use:",
+      editable: false,
+      cell: "string"
+    }, {
+      name: "nau",
+      label: "Usage:",
+      editable: false,
+      cell: "string"
+    }, {
+      name: "compliant",
+      label: "Compliant:",
+      editable: false,
+      cell: "string"
+    }];
+    
+    // Initialize a new Grid instance
+    var grid = new Backgrid.Grid({
+      columns: columns,
+      collection: reports
+    })
+    
+    pane.append(grid.render().$el);
+    
+    show_details.click(function (){
+        this_div.toggle("slow");
+    })
+return rtn.list.length
+
 
 }
 
