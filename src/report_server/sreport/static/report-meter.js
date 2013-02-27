@@ -255,36 +255,38 @@ function populateReportBG(rtn, pane) {
       label: "Compliant:",
       editable: false,
       cell: "string"
-    }, {
-      name: "action",
-      label: "Action:",
-      editable: false,
-      cell: "string"
       }];
     
     
- 
-    // w/o paging
-    var grid = new Backgrid.Grid({
-      columns: columns,
-      collection: reports
-    })
-    
-    
+    var ClickableRow = Backgrid.Row.extend({
+        events: {
+        "click": "onClick"
+    },
+    onClick: function () {
+        Backbone.trigger("rowclicked", this.model);
+       }
+    });
+
+    Backbone.on("rowclicked", function (model) {
+        console.log('in row click');
+        var description = 'Product: '+ model.get('product_name') + ', SLA:' + model.get('sla') +
+                        ', Support: ' + model.get('support') + ' Facts: ' + model.get('facts') ;
+        createMax(model.get('start'), model.get('end'), description, model.get('filter_args_dict'));
+    });
+
+
     // w/ paging
     var pageableGrid = new Backgrid.Grid({
         columns: columns,
         collection: pageable_reports,
         footer: Backgrid.Extension.Paginator,
+        row: ClickableRow
         
     });
     
-    //pane.append(grid.render().$el);
     pane.append(pageableGrid.render().$el);
     
-    show_details.click(function (){
-        this_div.toggle("slow");
-    })
+
 return rtn.list.length
 
 
@@ -366,7 +368,40 @@ return rtn.list.length
 
 
 function createMax(start, end, description, filter_args) {
+    closeDetail();
+    closeMax();
     console.log(start + end + description + filter_args);
+    
+        
+    var MaxReport = Backbone.Model.extend({
+        url : '/report-server/meter/max_report/'
+    });
+
+    var data = {
+        "start": start,
+        "end": end,
+        "description": description,
+        "filter_args_dict": unescape(filter_args)
+    };
+    
+    console.log(data);
+    var maxReport = new MaxReport();
+
+    maxReport.save(data, {
+        success : function(model, response) {
+            console.log('SUCCESS');
+            console.log(response);
+
+            $('#max_pane > div').empty();
+            var pane = '#max_pane > div';
+            
+            openMax();
+        }
+    }); 
+
+        
+     
+       
     
 }
 
