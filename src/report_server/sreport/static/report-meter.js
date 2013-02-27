@@ -170,7 +170,8 @@ function createReport(event) {
                 
                 $('#report_pane > div').empty();
                 var pane = '#report_pane > div';
-                populateReport(response, pane );
+                //populateReportBB(response, pane );
+                populateReportBG(response, pane );
                 openReport();
             }
         });
@@ -180,7 +181,7 @@ function createReport(event) {
 	
 }
 
-function populateReport(rtn, pane) {
+function populateReportBG(rtn, pane) {
     var pane = $('#report_pane > div');
     var this_div = $('<div this_rhic_table>');
     pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
@@ -196,15 +197,28 @@ function populateReport(rtn, pane) {
         model: Report
         
     })
+    
+    var PageableReports = Backbone.PageableCollection.extend({
+        model: Report,
+        state: {
+            pageSize: 3
+        },
+        mode: "client"
+        
+    })
         
     var mylist = []
     for (i = 0; i < rtn.list.length; i++){
         for (j = 0; j < rtn.list[i].length; j++){
-            mylist.push(rtn.list[i][j]);
+            var row = rtn.list[i][j];
+            row.description = [row.product_name, row.sla, row.support, row.facts];
+            row.action = [row.start, row.end, row.description, row.filter_args_dict];
+            mylist.push(row);
             
         }
     }
     var reports = new Reports(mylist);
+    var pageable_reports = new PageableReports(mylist);
             
     var columns = [{
       name: "rhic", 
@@ -241,15 +255,32 @@ function populateReport(rtn, pane) {
       label: "Compliant:",
       editable: false,
       cell: "string"
-    }];
+    }, {
+      name: "action",
+      label: "Action:",
+      editable: false,
+      cell: "string"
+      }];
     
-    // Initialize a new Grid instance
+    
+ 
+    // w/o paging
     var grid = new Backgrid.Grid({
       columns: columns,
       collection: reports
     })
     
-    pane.append(grid.render().$el);
+    
+    // w/ paging
+    var pageableGrid = new Backgrid.Grid({
+        columns: columns,
+        collection: pageable_reports,
+        footer: Backgrid.Extension.Paginator,
+        
+    });
+    
+    //pane.append(grid.render().$el);
+    pane.append(pageableGrid.render().$el);
     
     show_details.click(function (){
         this_div.toggle("slow");
@@ -260,6 +291,87 @@ return rtn.list.length
 }
 
 
+function populateReportBB(rtn, pane) {
+    var pane = $('#report_pane > div');
+    var this_div = $('<div this_rhic_table>');
+    pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
+    pane.append('<br><br>');
+    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+    var Report = {};
+    
+
+    
+    var Report = Backbone.Model.extend();
+    
+    var Reports = Backbone.Collection.extend({
+        model: Report
+        
+    })
+    
+    
+        
+    var mylist = [];
+    id = 0;
+    for (i = 0; i < rtn.list.length; i++){
+        for (j = 0; j < rtn.list[i].length; j++){
+            //unbelievable this needs an id
+            var row = rtn.list[i][j];
+            row.id = id;
+            mylist.push(row);
+            id++;
+            
+        }
+    }
+
+    
+    var reports = new Reports(mylist);
+            
+    grid = new bbGrid.View({
+        container: pane,
+        collection: reports,
+        onRowClick: function(){
+            var models = this.getSelectedModels();
+            if( !_.isEmpty(models)) {
+                m = _.first(models);
+                var description = 'Product: '+ m.get('product_name') + ', SLA:' + m.get('sla') + ', Support: ' + m.get('support') + ' Facts: ' + m.get('facts') ;
+                createMax(m.get('start'), m.get('end'), description, m.get('filter_args_dict'));
+            } else {
+                console.log('ERROR');
+            }
+        },
+
+        colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
+                   { title: 'RHIC:', name: 'rhic' },
+                   { title: 'Product:', name: 'product_name'},
+                   { title: 'SLA:', name: 'sla'},
+                   { title: 'Support:', name: 'support'},
+                   { title: 'Contract Use:', name: 'contract_use'},
+                   { title: 'NAU:', name: 'nau'},
+                   { title: 'Compliant:', name: 'compliant'}
+                   
+                   ]
+    
+    });
+    pane.append('<br><br><br>');
+    //pane.append(grid.render().$el);
+    //pane.append(grid.render().$el);
+    
+    show_details.click(function (){
+        this_div.toggle("slow");
+    })
+return rtn.list.length
+
+
+}
+
+
+function createMax(start, end, description, filter_args) {
+    console.log(start + end + description + filter_args);
+    
+}
+
+
+
 function create_default_report(event){
    
 }
@@ -268,9 +380,6 @@ function createDetail(date, description,  filter_args) {
    
 }
 
-function createMax(start, end, description, filter_args) {
-    
-}
 
 function createInstanceDetail(date, instance, filter_args) {
     
