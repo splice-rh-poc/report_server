@@ -184,8 +184,8 @@ function createReport(event) {
 function populateReportBG(rtn, pane) {
     var pane = $('#report_pane > div');
     var this_div = $('<div this_rhic_table>');
-    pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
-    pane.append('<br><br>');
+
+    setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
     var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     var Report = {};
     
@@ -201,7 +201,7 @@ function populateReportBG(rtn, pane) {
     var PageableReports = Backbone.PageableCollection.extend({
         model: Report,
         state: {
-            pageSize: 3
+            pageSize: 10
         },
         mode: "client"
         
@@ -211,8 +211,6 @@ function populateReportBG(rtn, pane) {
     for (i = 0; i < rtn.list.length; i++){
         for (j = 0; j < rtn.list[i].length; j++){
             var row = rtn.list[i][j];
-            row.description = [row.product_name, row.sla, row.support, row.facts];
-            row.action = [row.start, row.end, row.description, row.filter_args_dict];
             mylist.push(row);
             
         }
@@ -301,13 +299,7 @@ return rtn.list.length
 
 function createMax(start, end, description, filter_args) {
     closeDetail();
-    closeMax();
-    console.log('in max');
-    console.log(start);
-    console.log(end);
-    console.log(description);
-    console.log(filter_args);
-    
+    closeMax();   
         
     var MaxReport = Backbone.Model.extend({
         url : '/report-server/meter/max_report/'
@@ -341,6 +333,7 @@ function createMax(start, end, description, filter_args) {
 }
 
 function populateMaxReport(rtn) {
+    //SETUP
     var pane = $('#max_pane');
     pane.empty();
     
@@ -359,12 +352,10 @@ function populateMaxReport(rtn) {
     desc_start.setUTCSeconds(start);
     desc_end.setUTCSeconds(end);
     
-    //setup description
-    pane.append('<h3>Date Range: ' + desc_start.toDateString().substr(0,10) + ' ----> ' + desc_end.toDateString().substr(0,10) + '</h3>');
-    pane.append('<br><br>');
-    var header = $('<b> ' +  setup_description(description) + '</b>' );
-    pane.append(header);
-    
+    setup_description(pane, desc_start.toDateString().substr(0,10) + ' ----> ' + desc_end.toDateString().substr(0,10), description);
+    //SETUP
+
+    //GRAPH
     if (list.length > 0){
         pane.append($('<br></br>'));
         pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
@@ -428,11 +419,11 @@ function populateMaxReport(rtn) {
                //alert("test" + "," + data[0] + "," + data[1]);
                var this_date = new Date(data[0]);
                var date_to_send = (this_date.getMonth() + 1) + "-" + this_date.getDate() + "-" + this_date.getFullYear();
-               createDetail( date_to_send, description,  escape(new String(filter_args)));
+               createDetail( date_to_send, description, filter_args);
               });
     
         glossary_mdu(pane);
-        
+        //GRAPH
         
         //BEGIN LIST
         var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
@@ -442,11 +433,7 @@ function populateMaxReport(rtn) {
 
         var Max = Backbone.Model.extend();
     
-        var MaxList = Backbone.Collection.extend({
-            model: Max
-            
-        });
-        
+
         var PageableMaxList = Backbone.PageableCollection.extend({
             model: Max,
             state: {
@@ -482,11 +469,11 @@ function populateMaxReport(rtn) {
         });
     
         Backbone.on("maxrowclicked", function (model) {
-            console.log('in max row click');
+            console.log(model.get('date') + JSON.stringify(description) + JSON.stringify(filter_args));
+            createDetail(model.get('date'), description, filter_args);
         });
         
         var mylist = new PageableMaxList(list);
-        // w/ paging
         var pageableGrid = new Backgrid.Grid({
             columns: columns,
             collection: mylist,
@@ -511,7 +498,201 @@ function populateMaxReport(rtn) {
         pane.append($('<h3>This date range contains no usage data.</h3><br></br><br></br>'));
     }
 }
-        
+
+function createDetail(date, description,  filter_args) {
+    console.log('in create detail');
+    
+    var Detail = Backbone.Model.extend({
+        url : '/report-server/meter/details/'
+    });
+
+    var data = {
+        "date": date,
+        "description": description,
+        "filter_args_dict": filter_args
+    };
+    
+    console.log(data);
+
+    var details = new Detail();
+
+    details.save(data, {
+        success : function(model, response) {
+            console.log('SUCCESS');
+            console.log(response);
+
+            closeDetail();
+            populateDetailReport(model);
+            openDetail();
+
+            $('#detail_button').removeClass('disabled');
+            $('#detail_button').on("click", openDetail);
+        }
+    }); 
+
+}
+
+function populateDetailReport(rtn) {
+    //setup
+    var date = rtn.get('date');
+    var description = rtn.get('description');
+    var filter_args = rtn.get('filter_args_dict');
+    var list = rtn.get('list');
+
+    console.log('in populate Detail Report');
+    $('#details').empty();
+    $('#instance_details').empty();
+    var desc_date = new Date(0);
+    desc_date.setUTCSeconds(date);
+
+    var pane = $('#details');
+    setup_description(pane, desc_date.toDateString().substr(0, 10), description)
+    //setup
+
+    var Detail = Backbone.Model.extend();
+
+    var PageableDetailList = Backbone.PageableCollection.extend({
+        model : Detail,
+        state : {
+            pageSize : 10
+        },
+        mode : "client"
+
+    });
+
+    var columns = [{
+        name : "instance",
+        label : "Instance:",
+        cell : "string",
+        editable: false
+    }, {
+        name : "count",
+        label : "Count:",
+        cell : "string",
+        editable: false
+    }];
+
+    var ClickableDetailRow = Backgrid.Row.extend({
+        events : {
+            "click" : "onClick"
+        },
+        onClick : function() {
+            Backbone.trigger("detailrowclicked", this.model);
+        }
+    });
+
+    Backbone.on("detailrowclicked", function(model) {
+        console.log(model.get('instance'));
+        createInstanceDetail(date, model.get('instance'), filter_args);
+    });
+
+    var mylist = new PageableDetailList(list);
+
+    var pageableGrid = new Backgrid.Grid({
+        columns : columns,
+        collection : mylist,
+        footer : Backgrid.Extension.Paginator,
+        row : ClickableDetailRow
+
+    });
+    pane.append('<br><br>')
+    pane.append(pageableGrid.render().$el);
+
+}
+
+function createInstanceDetail(date, instance, filter_args) {
+    var data = {
+        "date": date,
+        "instance": instance,
+        "filter_args_dict": filter_args
+    };
+    console.log(data);
+    var InstanceDetail = Backbone.Model.extend({
+        url : '/report-server/meter/instance_details/'
+    });
+
+    var instanceDetails = new InstanceDetail();
+
+    instanceDetails.save(data, {
+        success : function(model, response) {
+            console.log('SUCCESS');
+            console.log(response);
+
+            populateInstanceDetailReport(model);
+            openDetail(); // this shouldn't be needed, but no harm in calling it again
+            $('#detail_button').on("click", openDetail);
+        }
+    });
+    
+}
+
+function populateInstanceDetailReport(rtn) {
+    console.log('in pop instc details');
+    var pane = $('#instance_details');
+    pane.empty();
+    
+    list = rtn.get('list');
+    
+    var InstanceCheckin = Backbone.Model.extend();
+    
+    var PageableInstanceCheckin = Backbone.PageableCollection.extend({
+        model : InstanceCheckin,
+        state : {
+            pageSize : 10
+        },
+        mode : "client"
+    });
+    
+    var columns = [{
+        name : "instance_identifier",
+        label : "UUID:",
+        cell : "string",
+        editable: false
+    }, {
+        name : "product_name",
+        label : "Product:",
+        cell : "string",
+        editable: false
+    }, {
+        name : "hour",
+        label : "Time:",
+        cell : "string",
+        editable: false
+    }, {
+        name : "memtotal",
+        label : "Memory:",
+        cell : "string",
+        editable: false
+    }, {
+        name : "cpu_sockets",
+        label : "Sockets:",
+        cell : "string",
+        editable: false
+    }, {
+        name : "environment",
+        label : "Domain:",
+        cell : "string",
+        editable: false
+    }];
+    
+    var mylist = new PageableInstanceCheckin(list);
+
+    var pageableGrid = new Backgrid.Grid({
+        columns : columns,
+        collection : mylist,
+        footer : Backgrid.Extension.Paginator
+
+    });
+    pane.append('<br><br>')
+    pane.append(pageableGrid.render().$el);
+    
+    if (!$('#instance_details').is(':visible')) {
+        $('#instance_details').show();
+    }
+
+    
+ 
+}
 
 
 
@@ -519,14 +700,6 @@ function create_default_report(event){
    
 }
 
-function createDetail(date, description,  filter_args) {
-   
-}
-
-
-function createInstanceDetail(date, instance, filter_args) {
-    
-}
 
 function createQuarantineReport() {
    
@@ -561,12 +734,8 @@ function populateFactComplianceReport(rtn, pane) {
 
 
 
-function populateDetailReport(rtn) {
-   
-}
 
-function populateInstanceDetailReport(rtn) {
- 
-}
+
+
 
 

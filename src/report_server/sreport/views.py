@@ -163,9 +163,10 @@ def report_form_rhics(request):
 
 
 def detailed_report(request):
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    description = request.POST['description']
-    date = datetime.strptime(request.POST['date'], constants.just_date)
+    data = utils.data_from_post(request)
+    
+    filter_args_dict = data['filter_args_dict']
+    date = datetime.strptime(data['date'], constants.just_date)
     day = date.strftime(constants.day_fmt)
 
     results = []
@@ -174,13 +175,13 @@ def detailed_report(request):
         count = ReportData.objects.filter(instance_identifier=i, day=day, **filter_args_dict).count()
         results.append({'instance': i, 'count': count})
 
-    this_filter = json.dumps(filter_args_dict)
+    
 
     response_data = {}
     response_data['list'] = results
     response_data['date'] = get_date_epoch(date)
-    response_data['this_filter'] = this_filter
-    response_data['description'] = description
+    response_data['this_filter'] = filter_args_dict
+    response_data['description'] = data['description']
 
     return create_response(response_data)
 
@@ -281,11 +282,12 @@ def unauthorized_pem():
 
 
 def instance_detail(request):
+    data = utils.data_from_post(request)
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-    instance = request.POST['instance']
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    date = get_date_object(request.POST['date'])
+    instance = data['instance']
+    filter_args_dict = data['filter_args_dict']
+    date = get_date_object(data['date'])
     day = date.strftime(constants.day_fmt)
 
     results = ReportData.objects.filter(

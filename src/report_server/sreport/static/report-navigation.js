@@ -361,8 +361,11 @@ function setupReportForm(){
     $('#endDate').datepicker();
 }
 
-function setup_description(data){
-    return (data.Product + ", " + data.SLA + ", " + data.Support + ", " + data.Facts);
+function setup_description(pane, date, desc){
+    pane.append('<h3>Date Range: ' + date + '</h3>');
+    if (desc){
+        pane.append('<b>' + desc.Product + ", " + desc.SLA + ", " + desc.Support + ", " + desc.Facts + '</b>');
+    }
 }
 
 function glossary_mdu(pane){
