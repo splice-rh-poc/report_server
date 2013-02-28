@@ -299,25 +299,14 @@ def instance_detail(request):
 
 
 def max_report(request):
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    s = request.POST['start']
-    e = request.POST['end']
-    start = get_date_object(s)
-    end = get_date_object(e)
-    description = request.POST['description']
-    product_name = description.split(',')[0].split(':')[1].strip()
+    data = utils.data_from_post(request);
 
-    args = {'start': start,
-            'end': end,
-            'filter_args': filter_args_dict,
-            'product_name': product_name
-            }
-    response_data = MaxUsage.get_MDU_MCU(**args)
+    response_data = MaxUsage.get_MDU_MCU(**data)
     
-    response_data['start'] = get_date_epoch(start) 
-    response_data['end'] = get_date_epoch(end)
-    response_data['description'] = description
-    response_data['filter_args'] = json.dumps(filter_args_dict)
+    response_data['start'] = data['start'] 
+    response_data['end'] = data["end"]
+    response_data['description'] = data["description"]
+    response_data['filter_args'] = data["filter_args_dict"]
     
     return create_response(response_data)
     

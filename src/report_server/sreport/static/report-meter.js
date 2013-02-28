@@ -122,9 +122,9 @@ function setupCreateForm(){
 }
 
 function setupCreateDatesForm(){
-    date_0 = Date.today();
+    date_2 = Date.today();
     date_1 = (1).months().ago();
-    date_2 = (2).months().ago();
+    date_0 = (2).months().ago();
     
     $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
     
@@ -196,7 +196,7 @@ function populateReportBG(rtn, pane) {
     var Reports = Backbone.Collection.extend({
         model: Report
         
-    })
+    });
     
     var PageableReports = Backbone.PageableCollection.extend({
         model: Report,
@@ -205,7 +205,7 @@ function populateReportBG(rtn, pane) {
         },
         mode: "client"
         
-    })
+    });
         
     var mylist = []
     for (i = 0; i < rtn.list.length; i++){
@@ -269,9 +269,14 @@ function populateReportBG(rtn, pane) {
 
     Backbone.on("rowclicked", function (model) {
         console.log('in row click');
-        var description = 'Product: '+ model.get('product_name') + ', SLA:' + model.get('sla') +
-                        ', Support: ' + model.get('support') + ' Facts: ' + model.get('facts') ;
-        createMax(model.get('start'), model.get('end'), description, model.get('filter_args_dict'));
+
+        var description = {};
+        description["Product"] = model.get('product_name');
+        description["SLA"] = model.get('sla');
+        description["Support"] = model.get('support');
+        description["Facts"] = model.get('facts');
+        var filter_args = JSON.parse(model.get('filter_args_dict'));
+        createMax(model.get('start'), model.get('end'), description, filter_args);
     });
 
 
@@ -292,85 +297,16 @@ return rtn.list.length
 
 }
 
-
-function populateReportBB(rtn, pane) {
-    var pane = $('#report_pane > div');
-    var this_div = $('<div this_rhic_table>');
-    pane.append('<h3>Date Range: ' + rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10) + '</h3>');
-    pane.append('<br><br>');
-    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-    var Report = {};
     
-
-    
-    var Report = Backbone.Model.extend();
-    
-    var Reports = Backbone.Collection.extend({
-        model: Report
-        
-    })
-    
-    
-        
-    var mylist = [];
-    id = 0;
-    for (i = 0; i < rtn.list.length; i++){
-        for (j = 0; j < rtn.list[i].length; j++){
-            //unbelievable this needs an id
-            var row = rtn.list[i][j];
-            row.id = id;
-            mylist.push(row);
-            id++;
-            
-        }
-    }
-
-    
-    var reports = new Reports(mylist);
-            
-    grid = new bbGrid.View({
-        container: pane,
-        collection: reports,
-        onRowClick: function(){
-            var models = this.getSelectedModels();
-            if( !_.isEmpty(models)) {
-                m = _.first(models);
-                var description = 'Product: '+ m.get('product_name') + ', SLA:' + m.get('sla') + ', Support: ' + m.get('support') + ' Facts: ' + m.get('facts') ;
-                createMax(m.get('start'), m.get('end'), description, m.get('filter_args_dict'));
-            } else {
-                console.log('ERROR');
-            }
-        },
-
-        colModel: [{ title: 'ID', name: 'id', index: true, sorttype: 'number' },
-                   { title: 'RHIC:', name: 'rhic' },
-                   { title: 'Product:', name: 'product_name'},
-                   { title: 'SLA:', name: 'sla'},
-                   { title: 'Support:', name: 'support'},
-                   { title: 'Contract Use:', name: 'contract_use'},
-                   { title: 'NAU:', name: 'nau'},
-                   { title: 'Compliant:', name: 'compliant'}
-                   
-                   ]
-    
-    });
-    pane.append('<br><br><br>');
-    //pane.append(grid.render().$el);
-    //pane.append(grid.render().$el);
-    
-    show_details.click(function (){
-        this_div.toggle("slow");
-    })
-return rtn.list.length
-
-
-}
-
 
 function createMax(start, end, description, filter_args) {
     closeDetail();
     closeMax();
-    console.log(start + end + description + filter_args);
+    console.log('in max');
+    console.log(start);
+    console.log(end);
+    console.log(description);
+    console.log(filter_args);
     
         
     var MaxReport = Backbone.Model.extend({
@@ -381,10 +317,11 @@ function createMax(start, end, description, filter_args) {
         "start": start,
         "end": end,
         "description": description,
-        "filter_args_dict": unescape(filter_args)
+        "filter_args_dict": filter_args
     };
     
     console.log(data);
+
     var maxReport = new MaxReport();
 
     maxReport.save(data, {
@@ -396,14 +333,185 @@ function createMax(start, end, description, filter_args) {
             var pane = '#max_pane > div';
             
             openMax();
+            $('#max_button').on("click", openMax);
+            populateMaxReport(model);
         }
     }); 
 
-        
-     
-       
-    
 }
+
+function populateMaxReport(rtn) {
+    var pane = $('#max_pane');
+    pane.empty();
+    
+    var contract = rtn.get('daily_contract');
+    var date = rtn.get('date');
+    var description = rtn.get('description');
+    var end = rtn.get('end');
+    var filter_args = rtn.get('filter_args');
+    var list = rtn.get('list');
+    var mcu = rtn.get('mcu');
+    var mdu = rtn.get('mdu');
+    var start = rtn.get('start');
+    
+    var desc_start = new Date(0);
+    var desc_end = new Date(0);
+    desc_start.setUTCSeconds(start);
+    desc_end.setUTCSeconds(end);
+    
+    //setup description
+    pane.append('<h3>Date Range: ' + desc_start.toDateString().substr(0,10) + ' ----> ' + desc_end.toDateString().substr(0,10) + '</h3>');
+    pane.append('<br><br>');
+    var header = $('<b> ' +  setup_description(description) + '</b>' );
+    pane.append(header);
+    
+    if (list.length > 0){
+        pane.append($('<br></br>'));
+        pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
+        
+        var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
+                {
+                    title:'MDU vs MCU',
+                    axesDefaults: {
+                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
+                    },
+                    
+                    axes: {
+                        xaxis:{
+                            label: "Date Range",
+                            renderer:$.jqplot.DateAxisRenderer, 
+                            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                            tickOptions: {
+                              angle: -30,
+                              formatString: '%b %e %Y'
+                            } 
+                        },
+                        yaxis:{
+                            label: "Number of Resources",
+                            pad: 1.3
+                        }
+                    },
+                    highlighter: {
+                        show: true,
+                        sizeAdjust: 10.5,
+                        useAxesFormatters: true
+                    },
+                    cursor: {
+                        show: true
+                    },
+                    legend: {
+                        show: true,
+                        location: 'se',
+                        yoffset: 500
+                        
+                    },
+                    series:[
+                        {
+                            label: 'MDU',
+                            lineWidth:2,
+                            markerOptions: { style:'dimaond' } 
+                        },
+                        {
+                            label: 'MCU',
+                            markerOptions: { sytle:'circle'}
+                        },
+                        {
+                            label: 'Contracted Use',
+                            lineWidth:5,
+                            color: '#FF0000',
+                            markerOptions: { style:"filledSquare", size:10 }
+                        }
+                    ]
+                    
+                });
+        $('#chartdiv').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data) { 
+               //alert("test" + "," + data[0] + "," + data[1]);
+               var this_date = new Date(data[0]);
+               var date_to_send = (this_date.getMonth() + 1) + "-" + this_date.getDate() + "-" + this_date.getFullYear();
+               createDetail( date_to_send, description,  escape(new String(filter_args)));
+              });
+    
+        glossary_mdu(pane);
+        
+        
+        //BEGIN LIST
+        var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+        pane.append(show_details);
+        pane.append('<br><br>');
+        var list_view = $('<div id=list_view>');
+
+        var Max = Backbone.Model.extend();
+    
+        var MaxList = Backbone.Collection.extend({
+            model: Max
+            
+        });
+        
+        var PageableMaxList = Backbone.PageableCollection.extend({
+            model: Max,
+            state: {
+                pageSize: 25
+            },
+            mode: "client"
+            
+        });
+        
+        
+        
+        var columns = [{
+            name: "date",
+            label: "Date",
+            cell: "string"
+        },{
+            name: "mdu",
+            label: "MDU",
+            cell: "string"
+        },{
+            name: "mcu",
+            label: "MCU",
+            cell: "string"
+        }];
+        
+        var ClickableMaxRow = Backgrid.Row.extend({
+        events: {
+            "click": "onClick"
+        },
+        onClick: function () {
+            Backbone.trigger("maxrowclicked", this.model);
+           }
+        });
+    
+        Backbone.on("maxrowclicked", function (model) {
+            console.log('in max row click');
+        });
+        
+        var mylist = new PageableMaxList(list);
+        // w/ paging
+        var pageableGrid = new Backgrid.Grid({
+            columns: columns,
+            collection: mylist,
+            footer: Backgrid.Extension.Paginator,
+            row: ClickableMaxRow
+        
+        });
+
+
+        
+        list_view.append(pageableGrid.render().$el);
+        list_view.hide();
+        pane.append(list_view);
+        
+        
+        $("button").click(function (){
+            list_view.toggle("slow");
+            
+          })
+          
+    } else {
+        pane.append($('<h3>This date range contains no usage data.</h3><br></br><br></br>'));
+    }
+}
+        
 
 
 
@@ -451,9 +559,7 @@ function populateFactComplianceReport(rtn, pane) {
   
 }
 
-function populateMaxReport(rtn) {
-   
-}
+
 
 function populateDetailReport(rtn) {
    

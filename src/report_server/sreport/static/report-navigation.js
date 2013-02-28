@@ -361,5 +361,17 @@ function setupReportForm(){
     $('#endDate').datepicker();
 }
 
+function setup_description(data){
+    return (data.Product + ", " + data.SLA + ", " + data.Support + ", " + data.Facts);
+}
+
+function glossary_mdu(pane){
+    pane.append('<h3>Glossary:</h3>');
+    pane.append('<b>Maximum Daily Usage (MDU)</b><br>');
+    pane.append('<b>Maximum Concurrent Usage (MCU)</b><br>');
+    pane.append('<b>Contracted Use: This is the number of concurrent entitlements purchased in the contract</b>');
+    pane.append('<br><br>'); 
+}
+
 
 
