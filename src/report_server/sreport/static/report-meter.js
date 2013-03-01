@@ -38,7 +38,18 @@ $(document).ready(function() {
     navButtonDocReady();
     
     
-    
+     $("#byMonth").change(function() {
+        $("#startDate").val('').trigger('liszt:updated');
+        $("#endDate").val('').trigger('liszt:updated');
+    });
+
+    $("#startDate").change(function() {
+        $("#byMonth").val('').trigger('liszt:updated');
+    });
+
+    $("#endDate").change(function() {
+        $("#byMonth").val('').trigger('liszt:updated');
+    });
 
 });
 
@@ -126,7 +137,7 @@ function setupCreateDatesForm(){
     date_1 = (1).months().ago();
     date_0 = (2).months().ago();
     
-    $('#byMonth').append($('<option  value=' + '-1' + ' ></option>'));
+    $('#byMonth').append($('<option  value></option>'));
     
     [date_0, date_1, date_2].forEach(function(item){
         $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
@@ -153,12 +164,18 @@ function createReport(event) {
         });
         
         var data = {
-            byMonth:            $('#byMonth').val(),
-            startDat:           $('#startDate').val(),
-            endDate:            $('#endDate').val(),
             contract_number:    $('#contract').val(),
             rhic:               $('#rhic').val()
         };
+        
+        if ($('#byMonth').val() == ""){
+            data.startDate =  $('#startDate').val();
+            data.endDate =  $('#endDate').val();
+        }
+        else{
+            data.byMonth = $('#byMonth').val();
+        }
+        
         
         var createReport = new CreateReport();
         console.log(createReport.toJSON());
