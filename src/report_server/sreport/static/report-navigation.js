@@ -230,7 +230,9 @@ function enableButton(btn) {
 
 function openCreate() {
     removeActiveNav();
+    form_filter_link_hide(false);
     $('#create_button').addClass('active');
+    $('#create_button').on("click", openCreate);
 
     if (logged_in) {
         $('#create_pane').show();
@@ -242,9 +244,20 @@ function openCreate() {
     }
 }
 
+function closeCreate() {
+    $('#create_button').addClass('disabled');
+    removeActiveNav();
+    $('#create_button').off("click");
+    $('#create_button').hide();
+}
+
+
+
+
 function openReport() {
     $('#report_button').removeClass('disabled');
-    form_filter_link_hide();
+    $('#report_button').on("click", openReport);
+    form_filter_link_hide(true);
     removeActiveNav();
     $('#report_button').addClass('active');
     $('#create_pane').hide();
@@ -255,9 +268,17 @@ function openReport() {
     $('#report_pane').show();
 }
 
+function closeReport() {
+    $('#report_button').addClass('disabled');
+    removeActiveNav();
+    $('#report_button').off("click");
+    $('#report_button').hide();
+}
+
 function openDetail() {
     $('#detail_button').removeClass('disabled');
-    form_filter_link_hide();
+    $('#detail_button').on("click", openDetail);
+    form_filter_link_hide(true);
     removeActiveNav();
     $('#detail_button').addClass('active');
     $('#create_pane').hide();
@@ -276,20 +297,23 @@ function closeDetail() {
 
 }
 
+
 function openMax() {
-	form_filter_link_hide();
+    form_filter_link_hide(true);
+    $('#max_button').on("click", openMax);
     $('#max_button').removeClass('disabled');
     removeActiveNav();
     $('#max_button').addClass('active');
-    if (logged_in) {
-        $('#create_pane').hide();
-        $('#report_pane').hide();
-        $('#detail_pane').hide();
-        $('#max_pane').hide();
-        $('#import_pane').hide();
-        $('#max_pane').show();
-    }
+
+    $('#create_pane').hide();
+    $('#report_pane').hide();
+    $('#detail_pane').hide();
+    $('#max_pane').hide();
+    $('#import_pane').hide();
+    $('#max_pane').show();
+
 }
+
 
 function closeMax() {
     $('#max_button').addClass('disabled');
@@ -299,7 +323,7 @@ function closeMax() {
 }
 
 function openImport() {
-	form_filter_link_hide();
+	form_filter_link_hide(true);
     removeActiveNav();
     $('#import_button').addClass('active');
 

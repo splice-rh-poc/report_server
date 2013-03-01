@@ -170,8 +170,7 @@ function createReport(event) {
                 
                 $('#report_pane > div').empty();
                 var pane = '#report_pane > div';
-                //populateReportBB(response, pane );
-                populateReportBG(response, pane );
+                populateReport(response, pane );
                 openReport();
             }
         });
@@ -181,7 +180,7 @@ function createReport(event) {
 	
 }
 
-function populateReportBG(rtn, pane) {
+function populateReport(rtn, pane) {
     var pane = $('#report_pane > div');
     var this_div = $('<div this_rhic_table>');
 
@@ -325,7 +324,6 @@ function createMax(start, end, description, filter_args) {
             var pane = '#max_pane > div';
             
             openMax();
-            $('#max_button').on("click", openMax);
             populateMaxReport(model);
         }
     }); 
@@ -521,7 +519,6 @@ function createDetail(date, description,  filter_args) {
             console.log('SUCCESS');
             console.log(response);
 
-            closeDetail();
             populateDetailReport(model);
             openDetail();
 
