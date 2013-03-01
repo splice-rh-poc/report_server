@@ -14,6 +14,7 @@ from report_server.dev.custom_count import Rules
 from report_server.sreport.models import ReportData
 from report_server.sreport.tests.general import BaseMongoTestCase
 from report_server.common.max import MaxUsage
+from report_server.common import constants
 from setup import TestData
 
 
@@ -70,7 +71,13 @@ class MaxReportTestCase(BaseMongoTestCase):
                "sla": rhel_entry.sla
         }
         
-        test_dict = MaxUsage.get_MDU_MCU(start, end, filter_args, RHEL)
+        args = {
+            "start": start.strftime(constants.epoch),
+            "end": end.strftime(constants.epoch),
+            "filter_args_dict": filter_args,
+            "description": {"Product": RHEL}
+        }        
+        test_dict = MaxUsage.get_MDU_MCU(**args)
         result = test_dict['mdu'][1]
         self.assertEqual(result[1], 1, "correct mdu found")
         
@@ -102,7 +109,14 @@ class MaxReportTestCase(BaseMongoTestCase):
                    "sla": rhel_entry.sla
             }
             
-            test_dict = MaxUsage.get_MDU_MCU(start, end, filter_args, RHEL)
+            args = {
+                "start": start.strftime(constants.epoch),
+                "end": end.strftime(constants.epoch),
+                "filter_args_dict": filter_args,
+                "description": {"Product": RHEL}
+            }            
+            
+            test_dict = MaxUsage.get_MDU_MCU(**args)
             mdu = test_dict['mdu'][1]
             mcu = test_dict['mcu'][1]
             self.assertEqual(mdu[1], 2, "correct mdu found") 
@@ -145,7 +159,15 @@ class MaxReportTestCase(BaseMongoTestCase):
                        "sla": rhel_entry.sla
                 }
                 
-                test_dict = MaxUsage.get_MDU_MCU(start, end, filter_args, RHEL)
+                args = {
+                    "start": start.strftime(constants.epoch),
+                    "end": end.strftime(constants.epoch),
+                    "filter_args_dict": filter_args,
+                    "description": {"Product": RHEL}
+                }
+                
+                
+                test_dict = MaxUsage.get_MDU_MCU(**args)
                 mdu = test_dict['mdu'][1]
                 mcu = test_dict['mcu'][1]
                 self.assertEqual(mdu[1], 3, "correct mdu found") 

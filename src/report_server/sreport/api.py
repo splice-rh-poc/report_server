@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from report_server.sreport.models import QuarantinedReportData
 from report_server.sreport.models import ReportData, SpliceServer
 from report_server.sreport import views
+from report_server.sreport.meter.views import report
 from report_server.common import utils
 from report_server.common import import_util
 from report_server.report_import.api import productusage
@@ -147,5 +148,5 @@ class ReportResource(MongoEngineResource):
         user = request.user
         _LOG.info("%s called ReportResource::post_list()  " % (str(user)))
 
-        response = views.report(request)
+        response = report(request)
         return response
