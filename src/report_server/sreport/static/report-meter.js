@@ -203,7 +203,6 @@ function populateReport(rtn, pane) {
     var this_div = $('<div this_rhic_table>');
 
     setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
-    var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     var Report = {};
 
     var Report = Backbone.Model.extend();
@@ -455,9 +454,7 @@ function populateMaxReport(rtn) {
         //GRAPH
         
         //BEGIN LIST
-        var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
-        pane.append(show_details);
-        pane.append('<br><br>');
+        button_show_details(pane);
         var list_view = $('<div id=list_view>');
 
         var Max = Backbone.Model.extend();
@@ -523,9 +520,7 @@ function populateMaxReport(rtn) {
             
           })
           
-    } else {
-        pane.append($('<h3>This date range contains no usage data.</h3><br></br><br></br>'));
-    }
+    } 
 }
 
 function createDetail(date, description,  filter_args) {

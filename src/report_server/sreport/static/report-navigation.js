@@ -432,5 +432,11 @@ function button_run_another_report(pane){
     //pane.append('</button>');
 }
 
+function button_show_details(pane){
+        var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+        pane.append(show_details);
+        pane.append('<br><br>');
+}
+
 
 
