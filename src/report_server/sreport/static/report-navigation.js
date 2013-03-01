@@ -172,9 +172,11 @@ function navButtonDocReady(){
 function form_filter_link_hide(hide){
     if (hide){
     	document.getElementById("filter_toggle").style.display = "none";
+    	document.getElementById("default_report_controls").style.display = "none";
     	toggle_report_form()
     }
     if (!hide){
+        document.getElementById("default_report_controls").style.display = "block";
         document.getElementById("filter_toggle").style.display = "block";
         document.getElementById("default-report-submit").style.display = "block";
         toggle_report_form()
@@ -228,11 +230,10 @@ function enableButton(btn) {
 }
 
 
-function openCreate() {
+function openCreateLogin() {
     removeActiveNav();
     form_filter_link_hide(false);
     $('#create_button').addClass('active');
-    $('#create_button').on("click", openCreate);
 
     if (logged_in) {
         $('#create_pane').show();
@@ -244,15 +245,28 @@ function openCreate() {
     }
 }
 
+
+function openCreate() {
+    removeActiveNav();
+    $('#create_button').addClass('active');
+    $('#create_button').on("click", openCreate);
+    form_filter_link_hide(false);
+    $('#create_pane').show();
+    $('#report_pane').hide();
+    $('#detail_pane').hide();
+    $('#max_pane').hide();
+    $('#import_pane').hide();
+
+}
+
+
+
 function closeCreate() {
     $('#create_button').addClass('disabled');
     removeActiveNav();
     $('#create_button').off("click");
     $('#create_button').hide();
 }
-
-
-
 
 function openReport() {
     $('#report_button').removeClass('disabled');
@@ -267,6 +281,7 @@ function openReport() {
     $('#max_pane').hide();
     $('#report_pane').show();
 }
+
 
 function closeReport() {
     $('#report_button').addClass('disabled');
@@ -398,6 +413,23 @@ function glossary_mdu(pane){
     pane.append('<b>Maximum Concurrent Usage (MCU)</b><br>');
     pane.append('<b>Contracted Use: This is the number of concurrent entitlements purchased in the contract</b>');
     pane.append('<br><br>'); 
+}
+
+function glossary_report(pane){
+    pane.append('<br><br><br><br><br><br>');
+    pane.append('<table width="100%"><tbody>');
+    pane.append('<tr><td><h3>Glossary:</h3></td></tr>');
+    pane.append('<tr><td width="15%">SLA :</td><td>Service level agreement as defined in the customers contract</td></tr>');
+    pane.append('<tr><td width="15%">Support :</td><td>Support parameters as defined in the customers contract</td></tr>');
+    pane.append('<tr><td width="15%">Facts :</td><td>Characteristics of both hardware and software of the resource</td></tr>');
+    pane.append('<tr><td width="15%">Contracted Use:</td><td>This is the number of concurrent entitlements purchased in the contract</td></tr>');
+    pane.append('<tr><td width="15%">NAU :</td><td>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td></tr>');
+}
+
+function button_run_another_report(pane){
+    pane.append('<button id="createAnotherReport_button" name=class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="openCreate()"><span class="ui-button-text">Run another report</span></button>');
+    //pane.append('<span class="ui-button-text">Run another report</span>');
+    //pane.append('</button>');
 }
 
 

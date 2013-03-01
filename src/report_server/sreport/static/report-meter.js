@@ -34,7 +34,7 @@ $(document).ready(function() {
     setupLoginButtons();
     setupCreateForm();
     setupCreateDatesForm();
-    openCreate();
+    openCreateLogin();
     navButtonDocReady();
     
     
@@ -180,91 +180,89 @@ function createReport(event) {
 	
 }
 
+
 function populateReport(rtn, pane) {
-    var pane = $('#report_pane > div');
+    var pane = $(pane);
     var this_div = $('<div this_rhic_table>');
 
     setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
     var show_details = $('<button id=show_details style="float: right" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
     var Report = {};
-    
 
-    
     var Report = Backbone.Model.extend();
-    
+
     var Reports = Backbone.Collection.extend({
-        model: Report
-        
+        model : Report
+
     });
-    
+
     var PageableReports = Backbone.PageableCollection.extend({
-        model: Report,
-        state: {
-            pageSize: 10
+        model : Report,
+        state : {
+            pageSize : 10
         },
-        mode: "client"
-        
+        mode : "client"
+
     });
-        
+
     var mylist = []
-    for (i = 0; i < rtn.list.length; i++){
-        for (j = 0; j < rtn.list[i].length; j++){
+    for ( i = 0; i < rtn.list.length; i++) {
+        for ( j = 0; j < rtn.list[i].length; j++) {
             var row = rtn.list[i][j];
             mylist.push(row);
-            
+
         }
     }
     var reports = new Reports(mylist);
     var pageable_reports = new PageableReports(mylist);
-            
+
     var columns = [{
-      name: "rhic", 
-      label: "RHIC:", 
-      editable: false,
-      cell: "string"
+        name : "rhic",
+        label : "RHIC:",
+        editable : false,
+        cell : "string"
     }, {
-      name: "product_name",
-      label: "Product:",
-      editable: false,
-      cell: "string"
+        name : "product_name",
+        label : "Product:",
+        editable : false,
+        cell : "string"
     }, {
-      name: "sla",
-      label: "SLA:",
-      editable: false,
-      cell: "string"
+        name : "sla",
+        label : "SLA:",
+        editable : false,
+        cell : "string"
     }, {
-      name: "support",
-      label: "Support:",
-      editable: false,
-      cell: "string"
+        name : "support",
+        label : "Support:",
+        editable : false,
+        cell : "string"
     }, {
-      name: "contract_use",
-      label: "Contract Use:",
-      editable: false,
-      cell: "string"
+        name : "contract_use",
+        label : "Contract Use:",
+        editable : false,
+        cell : "string"
     }, {
-      name: "nau",
-      label: "Usage:",
-      editable: false,
-      cell: "string"
+        name : "nau",
+        label : "Usage:",
+        editable : false,
+        cell : "string"
     }, {
-      name: "compliant",
-      label: "Compliant:",
-      editable: false,
-      cell: "string"
-      }];
-    
-    
+        name : "compliant",
+        label : "Compliant:",
+        editable : false,
+        cell : "string"
+    }];
+
     var ClickableRow = Backgrid.Row.extend({
-        events: {
-        "click": "onClick"
-    },
-    onClick: function () {
-        Backbone.trigger("rowclicked", this.model);
-       }
+        events : {
+            "click" : "onClick"
+        },
+        onClick : function() {
+            Backbone.trigger("rowclicked", this.model);
+        }
     });
 
-    Backbone.on("rowclicked", function (model) {
+    Backbone.on("rowclicked", function(model) {
         console.log('in row click');
 
         var description = {};
@@ -276,23 +274,39 @@ function populateReport(rtn, pane) {
         createMax(model.get('start'), model.get('end'), description, filter_args);
     });
 
-
     // w/ paging
     var pageableGrid = new Backgrid.Grid({
-        columns: columns,
-        collection: pageable_reports,
-        footer: Backgrid.Extension.Paginator,
-        row: ClickableRow
-        
+        columns : columns,
+        collection : pageable_reports,
+        footer : Backgrid.Extension.Paginator,
+        row : ClickableRow
+
     });
-    
-    pane.append(pageableGrid.render().$el);
+
+    fact = 0;
+
+    if (rtn.list.length + fact > 0) {
+        console.log('fail')
+        var table = $('<table width=\"60%\" align=\"right\"></table>');
+        table.append('<img border=0 src="/static/fail.png") alt="fail" width="100" height="100">');
+        pane.append(table);
+        pane.append(pageableGrid.render().$el);
+        button_run_another_report(pane);
+        glossary_report(pane);
+    } else {
+        console.log('pass')
+        result_ui = $('#report_pane > div');
+        var table = $('<table width=\"60%\" align=\"right\"></table>');
+        table.append('<img border=0 src="/static/pass.jpg") alt="fail" width="100" height="100">');
+        pane.append(table);
+    }
+
     
 
-return rtn.list.length
-
+    return rtn.list.length
 
 }
+
 
     
 
@@ -692,8 +706,52 @@ function populateInstanceDetailReport(rtn) {
 }
 
 
-
 function create_default_report(event){
+    document.getElementById("report_form").style.display = "none"
+    $('#default_report_results_ui').empty();
+    $('#default_report_results').empty();
+    event.preventDefault();
+    
+    if (logged_in) {
+        var data = {};
+        var dtoday = Date.today();
+        console.log(dtoday);
+
+        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
+        data['endDate'] = Date.today().toString("M/d/yyyy");
+        data['contract_number'] = "All"
+        data['rhic'] = "null"
+        data['env'] = "All"
+        
+        console.log(data);
+        var DefaultReport = Backbone.Model.extend({
+            url : '/report-server/meter/default_report/'
+        });
+    
+        var defaultReport = new DefaultReport();
+    
+        
+        defaultReport.save(data, {
+            success : function(model, response) {
+                console.log('SUCCESS');
+                console.log(response);
+                
+                $('#report_pane > div').empty();
+                var pane = '#report_pane > div';
+                var num = populateReport(response, pane );
+                openReport();
+                
+                //$('#default_report_results').append("<br><br><br><br><br><br>");
+                //num = populateReport(response, "#default_report_results");
+                //fact = populateFactComplianceReport(response.biz_list, "#default_report_results");
+
+            }
+        });
+
+        
+    }
+    
+    
    
 }
 
