@@ -419,11 +419,11 @@ function glossary_report(pane){
     pane.append('<br><br><br><br><br><br>');
     pane.append('<table width="100%"><tbody>');
     pane.append('<tr><td><h3>Glossary:</h3></td></tr>');
-    pane.append('<tr><td width="15%">SLA :</td><td>Service level agreement as defined in the customers contract</td></tr>');
-    pane.append('<tr><td width="15%">Support :</td><td>Support parameters as defined in the customers contract</td></tr>');
-    pane.append('<tr><td width="15%">Facts :</td><td>Characteristics of both hardware and software of the resource</td></tr>');
-    pane.append('<tr><td width="15%">Contracted Use:</td><td>This is the number of concurrent entitlements purchased in the contract</td></tr>');
-    pane.append('<tr><td width="15%">NAU :</td><td>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td></tr>');
+    pane.append('<tr><td width="20%"><b>SLA :</td><td><b>Service level agreement as defined in the customers contract</td></tr><');
+    pane.append('<tr><td width="20%"><b>Support :</td><td><b>Support parameters as defined in the customers contract</td></tr>');
+    pane.append('<tr><td width="20%"><b>Facts :</td><td><b>Characteristics of both hardware and software of the resource</td></tr>');
+    pane.append('<tr><td width="20%"><b>Contracted Use:</td><td><b>This is the number of concurrent entitlements purchased in the contract</td></tr>');
+    pane.append('<tr><td width="20%"><b>NAU :</td><td><b>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td></tr>');
 }
 
 function button_run_another_report(pane){
