@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.65
+Version:	0.66
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -256,6 +256,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Mar 04 2013 Wes Hayutin <whayutin@redhat.com> 0.66-1
+- remove rhic-serv from dependencies (whayutin@redhat.com)
+
 * Mon Mar 04 2013 Wes Hayutin <whayutin@redhat.com> 0.65-1
 - Merge branch 'backbone' (whayutin@redhat.com)
 - removed bootstrap css (whayutin@redhat.com)
