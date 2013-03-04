@@ -676,6 +676,15 @@ function populateInstanceDetailReport(rtn) {
         label : "Product:",
         cell : "string",
         editable: false
+    },{
+        name : "product_name",
+        label : "Product:",
+        cell : Backgrid.SelectCell.extend({
+        optionValues: [["RHEL Server", "rhel_server"],
+                       ["RHEL HA", "rhel_ha"],
+                       ["RHEL Server for Education", "rhel_edu"],
+                       ["JBoss EAP", "jboss_eap"]]
+                    })
     }, {
         name : "hour",
         label : "Time:",
