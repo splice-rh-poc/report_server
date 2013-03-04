@@ -32,9 +32,6 @@ Requires:   %{name}-common = %{version}-%{release}
 Requires:   %{name}-import = %{version}-%{release}
 Requires:   %{name}-selinux = %{version}-%{release}
 Requires:   splice-common
-Requires:   rhic-serve-rest
-Requires:   rhic-serve-rcs
-Requires:   rhic-serve-common
 
 
 %description
