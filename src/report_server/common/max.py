@@ -14,6 +14,7 @@ from __future__ import division
 from datetime import datetime, timedelta
 from report_server.sreport.models import ReportData
 from report_server.common import constants
+from report_server.common import utils
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 import logging
@@ -24,7 +25,11 @@ _LOG = logging.getLogger(__name__)
 class MaxUsage:
 
     @staticmethod
-    def get_MDU_MCU(start, end, filter_args, product_name):
+    def get_MDU_MCU(**kwargs):
+        start = utils.get_date_object(kwargs["start"])
+        end = utils.get_date_object(kwargs["end"])
+        filter_args = kwargs["filter_args_dict"]
+        product_name = kwargs["description"]["Product"]
         results = []
         mdu_count = []
         mcu_count = []

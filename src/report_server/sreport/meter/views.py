@@ -13,7 +13,10 @@
 from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from report_server.common import utils
+from report_server.common import constants, utils
+from report_server.common.utils import get_date_epoch, get_date_object
+from report_server.common.utils import get_dates_from_request, data_from_post, create_response
+from report_server.common.report import hours_per_consumer
 from report_server.sreport.models import ProductUsageForm, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
 import logging
@@ -66,3 +69,55 @@ def report_form(request):
         raise
 
     return response
+
+
+
+@login_required
+def report(request):
+    
+    _LOG.info("report called by method: %s" % (request.method))
+
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+       
+    start, end = get_dates_from_request(request)
+    data = data_from_post(request)
+    
+    if 'env' in data:
+        environment = data["env"]
+    else:
+        environment = "All"
+
+    rhic = data["rhic"]
+    contract = data["contract_number"]
+    list_of_rhics = []
+    
+    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+
+    elif rhic != 'null':
+        if rhic == "All":
+            list_of_rhics = list(RHIC.objects.filter(contract=contract))
+        else:
+            my_uuid = data['rhic']
+            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
+
+    else:
+        list_of_rhics = list(RHIC.objects.filter(account_id=account))
+
+    args = {'start': start,
+            'end': end,
+            'list_of_rhics': list_of_rhics,
+            'environment': environment
+            } 
+    results = hours_per_consumer(**args)
+
+    format = constants.full_format
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['account'] = account
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    return create_response(response_data)

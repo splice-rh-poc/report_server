@@ -163,9 +163,10 @@ def report_form_rhics(request):
 
 
 def detailed_report(request):
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    description = request.POST['description']
-    date = datetime.strptime(request.POST['date'], constants.just_date)
+    data = utils.data_from_post(request)
+    
+    filter_args_dict = data['filter_args_dict']
+    date = datetime.strptime(data['date'], constants.just_date)
     day = date.strftime(constants.day_fmt)
 
     results = []
@@ -174,66 +175,18 @@ def detailed_report(request):
         count = ReportData.objects.filter(instance_identifier=i, day=day, **filter_args_dict).count()
         results.append({'instance': i, 'count': count})
 
-    this_filter = json.dumps(filter_args_dict)
+    
 
     response_data = {}
     response_data['list'] = results
     response_data['date'] = get_date_epoch(date)
-    response_data['this_filter'] = this_filter
-    response_data['description'] = description
+    response_data['this_filter'] = filter_args_dict
+    response_data['description'] = data['description']
 
     return create_response(response_data)
 
 
-@login_required
-def report(request):
-    
-    _LOG.info("report called by method: %s" % (request.method))
 
-    user = str(request.user)
-    account = Account.objects.filter(login=user)[0].account_id
-       
-    start, end = get_dates_from_request(request)
-    data = data_from_post(request)
-    
-    if 'env' in data:
-        environment = data["env"]
-    else:
-        environment = "All"
-
-    rhic = data["rhic"]
-    contract = data["contract_number"]
-    list_of_rhics = []
-    
-    if contract == 'All' and (rhic == 'All' or rhic == 'null'):
-        list_of_rhics = list(RHIC.objects.filter(account_id=account))
-
-    elif rhic != 'null':
-        if rhic == "All":
-            list_of_rhics = list(RHIC.objects.filter(contract=contract))
-        else:
-            my_uuid = data['rhic']
-            list_of_rhics = list(RHIC.objects.filter(uuid=my_uuid))
-
-    else:
-        list_of_rhics = list(RHIC.objects.filter(account_id=account))
-
-    args = {'start': start,
-            'end': end,
-            'list_of_rhics': list_of_rhics,
-            'environment': environment
-            } 
-    results = hours_per_consumer(**args)
-
-    format = constants.full_format
-
-    response_data = {}
-    response_data['list'] = results
-    response_data['account'] = account
-    response_data['start'] = start.strftime(format)
-    response_data['end'] = end.strftime(format)
-
-    return create_response(response_data)
 
 
 @login_required
@@ -329,11 +282,12 @@ def unauthorized_pem():
 
 
 def instance_detail(request):
+    data = utils.data_from_post(request)
     user = str(request.user)
     account = Account.objects.filter(login=user)[0].account_id
-    instance = request.POST['instance']
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    date = get_date_object(request.POST['date'])
+    instance = data['instance']
+    filter_args_dict = data['filter_args_dict']
+    date = get_date_object(data['date'])
     day = date.strftime(constants.day_fmt)
 
     results = ReportData.objects.filter(
@@ -347,25 +301,14 @@ def instance_detail(request):
 
 
 def max_report(request):
-    filter_args_dict = json.loads(request.POST['filter_args_dict'])
-    s = request.POST['start']
-    e = request.POST['end']
-    start = get_date_object(s)
-    end = get_date_object(e)
-    description = request.POST['description']
-    product_name = description.split(',')[0].split(':')[1].strip()
+    data = utils.data_from_post(request);
 
-    args = {'start': start,
-            'end': end,
-            'filter_args': filter_args_dict,
-            'product_name': product_name
-            }
-    response_data = MaxUsage.get_MDU_MCU(**args)
+    response_data = MaxUsage.get_MDU_MCU(**data)
     
-    response_data['start'] = get_date_epoch(start) 
-    response_data['end'] = get_date_epoch(end)
-    response_data['description'] = description
-    response_data['filter_args'] = json.dumps(filter_args_dict)
+    response_data['start'] = data['start'] 
+    response_data['end'] = data["end"]
+    response_data['description'] = data["description"]
+    response_data['filter_args'] = data["filter_args_dict"]
     
     return create_response(response_data)
     

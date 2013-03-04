@@ -16,25 +16,32 @@
         <link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
         <link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet"/>
         <link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
-        <link href="{{ STATIC_URL }}jquery.jqplot.css" type="text/css" rel="stylesheet"/>
-        <link href="{{ STATIC_URL }}chosen.css" type="text/css" rel="stylesheet"/>
-        <link href="{{ STATIC_URL }}report.css" type="text/css" rel="stylesheet"/>
-        <link href="{{ STATIC_URL }}TableTools.css" type="text/css" rel="stylesheet"/>
-        <script src="{{ STATIC_URL }}jquery.min.js"></script>
-        <script src="{{ STATIC_URL }}jquery-ui.min.js"></script>
-        <script src="{{ STATIC_URL }}jquery-csrf.js"></script>
-        <script src="{{ STATIC_URL }}jquery.jqplot.js"></script>
-        <script src="{{ STATIC_URL }}jqplot.highlighter.js"></script>
-        <script src="{{ STATIC_URL }}jqplot.cursor.js"></script>
-        <script src="{{ STATIC_URL }}jqplot.canvasTextRenderer.min.js"></script>
-        <script src="{{ STATIC_URL }}jqplot.canvasAxisLabelRenderer.min.js"></script>
-        <script src="{{ STATIC_URL }}jqplot.dateAxisRenderer.js"></script>
-        <script src="{{ STATIC_URL }}jqplot.canvasAxisTickRenderer.js"></script>
-        <script src="{{ STATIC_URL }}chosen.jquery.js"></script>
-        <script src="{{ STATIC_URL }}jquery.dataTables.min.js"></script> 
-        <script src="{{ STATIC_URL }}TableTools.min.js"></script>
-        <script src="{{ STATIC_URL }}date.js"></script>
-        <script src="{{ STATIC_URL }}indexMeter.js"></script>
+        <link href="{{ STATIC_URL }}css/jquery.jqplot.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/chosen.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/report.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/backgrid.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/backgrid-paginator.css" type="text/css" rel="stylesheet"/>
+        <script src="{{ STATIC_URL }}lib/jquery.min.js"></script>
+        <script src="{{ STATIC_URL }}lib/jquery-ui.min.js"></script>
+        <script src="{{ STATIC_URL }}lib/jquery-csrf.js"></script>
+        <script src="{{ STATIC_URL }}lib/jquery.jqplot.js"></script>
+        <script src="{{ STATIC_URL }}lib/jqplot.highlighter.js"></script>
+        <script src="{{ STATIC_URL }}lib/jqplot.cursor.js"></script>
+        <script src="{{ STATIC_URL }}lib/jqplot.canvasTextRenderer.min.js"></script>
+        <script src="{{ STATIC_URL }}lib/jqplot.canvasAxisLabelRenderer.min.js"></script>
+        <script src="{{ STATIC_URL }}lib/jqplot.dateAxisRenderer.js"></script>
+        <script src="{{ STATIC_URL }}lib/jqplot.canvasAxisTickRenderer.js"></script>
+        <script src="{{ STATIC_URL }}lib/chosen.jquery.js"></script>
+        <script src="{{ STATIC_URL }}lib/date.js"></script>
+        <script src="{{ STATIC_URL }}lib/underscore.js"></script>
+        <script src="{{ STATIC_URL }}lib/backbone.js"></script>
+        <script src="{{ STATIC_URL }}lib/backbone-pageable.js"></script>
+        <script src="{{ STATIC_URL }}lib/backgrid.js"></script>
+        <script src="{{ STATIC_URL }}lib/backgrid-paginator.js"></script>
+        <script src="{{ STATIC_URL }}report-navigation.js"></script>
+        <script src="{{ STATIC_URL }}report-meter.js"></script>
+        <script src="{{ STATIC_URL }}report-export.js"></script>
+        
 
 
         <style>
@@ -159,7 +166,7 @@
                             <div id='create_pane' style='display: none'>
                                 <fieldset>
                                     <form id="report_form" style="display: none">
-                                     <h2>Filter by Date:</h2>
+                                     <h3>Filter by Date:</h3>
                                       <br>
                                         <table>
                                             <tr>
@@ -167,7 +174,7 @@
                                                     <div style='display: inline-block'>
                                                         
                                                         <b style='padding-top: 1em'> Month:</b>
-                                                        <select name=byMonth id="byMonth" class='chosen' style="width:100px;" disabled="false">
+                                                        <select name=byMonth id="byMonth" class='chosen' style="width:100px;">
 
                                                         </select> 
                                                     </div>
@@ -186,38 +193,40 @@
                                             </tr>
                                         </table>
         
-                                        <h2>Filter by Customer Data:</h2> 
+                                        <h3>Filter by Customer Data:</h3> 
                                         <br>
+
                                         <table>
                                             <tr>
                                                 <td width="5%"> 
                                                     
                                                     <b> Contract: </b> </td> 
                                                     <td width="40%">
-                                                        <select id="contract" name=contract_number class='chosen'  style="width:150px;" disabled="false"> 
+                                                        <select id="contract" name=contract_number class='chosen'  style="width:150px;"> 
                                                             
                                                         </select> 
                                                     </td>
                                                 </td>
                                             </tr>
                                             <tr>
+                                            <tr>
                                                 <td width="5%"> 
                                                     
                                                     <b> RHIC: </b></td>
                                                     <td width="40%">
-                                                        <select id="rhic" name="rhic" class='chosen' style="width:400px;" disabled="false">
+                                                        <select id="rhic" name="rhic" class='chosen' style="width:400px;">
                                                         </select>
                                                     </td>
                                                 </td>
                                             </tr>
                                         </table>
-                                        <h2>Filter by Reporting Domain:</h2> 
+                                        <h3>Filter by Reporting Domain:</h3> 
                                         <br>
                                         <table width=50%>
                                             <tr> 
                                                 <td width="15%"><b>Reporting Domain: </b></td>
                                                     <td width="51%">
-                                                        <select id='env' name="env" class='chosen'  style="width:150px;" disabled="false">
+                                                        <select id='env' name="env" class='chosen'  style="width:150px;">
                                                             
                                                         </select>
                                                     </td>
@@ -242,10 +251,6 @@
                                                         <div id='original'>
                                                             <span class='ui-button-text original' style='float:left'>Reset Form</span>
                                                         </div>
-                                                        <div id='choices'>
-                                                            <span class='ui-button-text' style='float:left'>Yes</span>
-                                                            <span class='ui-button-text' style='float:left'>No</span>
-                                                        </div>
                                                     </button>
                                                 </td>
                                                 
@@ -263,44 +268,9 @@
                                     <br></br>
                                     <br></br>
                                 </div>
-                                    <button id='createAnotherReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='openCreate()'>
-                                        <span class='ui-button-text'>Run another report</span>
-                                    </button>
-                                    
-                                </button>
-                                <table width="100%">
-                                    <tbody>
-                                        <tr>
-                                            <td><h3>Glossary:</h3></td>
-                                        </tr>
-                                        <tr>
-                                        <td width="15%">SLA :</td>
-                                        <td>Service level agreement as defined in the customers contract</td>
-                                        </tr>
-                                        <tr>
-                                        <td width="15%">Support :</td>
-                                        <td>Support parameters as defined in the customers contract</td>
-                                        </tr>
-                                        <tr>
-                                        <tr>
-                                        <td width="15%">Facts :</td>
-                                        <td>Characteristics of both hardware and software of the resource</td>
-                                        </tr>
-                                        <tr>
-                                            <td width="15%">Contracted Use:</h3></td>
-                                            <td>This is the number of concurrent entitlements purchased in the contract</td>
-                                        </tr>
-                                        <tr>
-                                            <td width="15%">NAU:</td>
-                                            <td>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td>
-                                        </tr>
-                                        <tr>
-                                            <td width="15%">Consumed :</td>
-                                            <td>Defined as an entitlement being installed and running on an instance or physical machine. If an instance is not running ( ie.. shutdown or terminated), then it is not counted as consumed</td>
-                                        </tr>
                                         
-                                    </tbody>
-                                </table>
+                                
+                             
                             </div>
                             <div id='detail_pane'>
                                 <div id='details'>
