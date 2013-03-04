@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.66
+Version:	0.67
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -255,6 +255,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Mar 04 2013 Wes Hayutin <whayutin@redhat.com> 0.67-1
+- remove rhic-serve dep (whayutin@redhat.com)
+
 * Mon Mar 04 2013 Wes Hayutin <whayutin@redhat.com> 0.66-1
 - remove rhic-serv from dependencies (whayutin@redhat.com)
 
