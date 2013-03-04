@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.64
+Version:	0.65
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -259,6 +259,35 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Mar 04 2013 Wes Hayutin <whayutin@redhat.com> 0.65-1
+- Merge branch 'backbone' (whayutin@redhat.com)
+- removed bootstrap css (whayutin@redhat.com)
+- removed show details (whayutin@redhat.com)
+- test (whayutin@redhat.com)
+- update js paths (whayutin@redhat.com)
+- fixed javascript date listz update (whayutin@redhat.com)
+- little clean up of navigation (whayutin@redhat.com)
+- navigation working properly (whayutin@redhat.com)
+- fixed unit tests (whayutin@redhat.com)
+- have full metering workflow working w/ backbone (whayutin@redhat.com)
+- have max page working (whayutin@redhat.com)
+- progress w/ tables (whayutin@redhat.com)
+- experimenting with different tables (whayutin@redhat.com)
+- found a better library for javascript tables and backbone
+  (whayutin@redhat.com)
+- have a table working w/ backbone (whayutin@redhat.com)
+- have form posting and returning the appropriate json (whayutin@redhat.com)
+- broke out dates (whayutin@redhat.com)
+- form is more complete (whayutin@redhat.com)
+- contracts are working.. at the most basic level (whayutin@redhat.com)
+- staging change in xhr (whayutin@redhat.com)
+- rename javascript file for spacewalk (whayutin@redhat.com)
+- clean up javascript (whayutin@redhat.com)
+- pulling more javascript out (whayutin@redhat.com)
+- pulling javascript out (whayutin@redhat.com)
+- added doc (whayutin@redhat.com)
+- prepping js files (whayutin@redhat.com)
+
 * Wed Feb 20 2013 Wes Hayutin <whayutin@redhat.com> 0.64-1
 - fixing spec bug (whayutin@redhat.com)
 - copied report.conf to the wrong dir (whayutin@redhat.com)
