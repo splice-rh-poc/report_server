@@ -478,6 +478,7 @@ var InputCellEditor = Backgrid.InputCellEditor = CellEditor.extend({
      @param {Event} e
   */
   saveOrCancel: function (e) {
+    console.log('In save or Cancel');
     if (e.type === "keydown") {
       // enter or tab
       if (e.keyCode === 13 || e.keyCode === 9) {
@@ -490,6 +491,7 @@ var InputCellEditor = Backgrid.InputCellEditor = CellEditor.extend({
           this.trigger("error");
         }
         else {
+          console.log('saved');
           this.trigger("done");
         }
       }
@@ -1088,7 +1090,9 @@ var SelectCellEditor = Backgrid.SelectCellEditor = CellEditor.extend({
      `done` Backbone event.
   */
   save: function (e) {
+    console.log('in save')
     this.model.set(this.column.get("name"), this.formatter.toRaw(this.$el.val()));
+    //console.log(this.model.get(this.column.get("name"))
     this.trigger("done");
   }
 
