@@ -670,10 +670,15 @@ function populateInstanceDetailReport(rtn) {
         save: function (e) {
             console.log('in custom save')
             this.model.set(this.column.get("name"), this.formatter.toRaw(this.$el.val()));
+            console.log('get value and bind to pool here');
             this.trigger("done");
             console.log("done, successfully saved " + this.formatter.toRaw(this.$el.val()));
         }
     });
+    
+    /*
+     * curl -k -u admin:admin https://localhost:8443/candlepin/owners/admin/pools?consumer=e69871bb-170c-426a-844d-18f26632ffa4
+     */
     
     product_options = [["RHEL Server", "rhel_server"],
                        ["RHEL HA", "rhel_ha"],
@@ -690,6 +695,11 @@ function populateInstanceDetailReport(rtn) {
         label : "Bind Product:",
         cell : Backgrid.SelectCell.extend({
             optionValues: product_options,
+            
+            setOptionValues: function (cell, editor) {
+                console.log('Fetch available pools here');
+                editor.setOptionValues(this.optionValues);
+            },
            
             editor: CustomSelectCellEditor
 
