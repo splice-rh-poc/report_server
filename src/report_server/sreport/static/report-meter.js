@@ -671,7 +671,7 @@ function populateInstanceDetailReport(rtn) {
             console.log('in custom save')
             this.model.set(this.column.get("name"), this.formatter.toRaw(this.$el.val()));
             this.trigger("done");
-            console.log("done");
+            console.log("done, successfully saved " + this.formatter.toRaw(this.$el.val()));
         }
     });
     
