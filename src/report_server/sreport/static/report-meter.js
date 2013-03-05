@@ -680,11 +680,22 @@ function populateInstanceDetailReport(rtn) {
         name : "product_name",
         label : "Product:",
         cell : Backgrid.SelectCell.extend({
-        optionValues: [["RHEL Server", "rhel_server"],
-                       ["RHEL HA", "rhel_ha"],
-                       ["RHEL Server for Education", "rhel_edu"],
-                       ["JBoss EAP", "jboss_eap"]]
-                    })
+            optionValues: [["RHEL Server", "rhel_server"],
+                           ["RHEL HA", "rhel_ha"],
+                           ["RHEL Server for Education", "rhel_edu"],
+                           ["JBoss EAP", "jboss_eap"]],
+            initialize: function (options) {
+                Backgrid.Cell.prototype.initialize.apply(this, arguments);
+                this.optionValues = _.result(this, "optionValues");
+                this.listenTo(this, "edit", this.setOptionValues);
+            },
+
+            setOptionValues: function (cell, editor) {
+                console.log('before edit');
+                editor.setOptionValues(this.optionValues);
+                console.log('after edit');
+            },
+        })
     }, {
         name : "hour",
         label : "Time:",
