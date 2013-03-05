@@ -666,35 +666,33 @@ function populateInstanceDetailReport(rtn) {
         mode : "client"
     });
     
+    var CustomSelectCellEditor = Backgrid.SelectCellEditor.extend({
+        save: function (e) {
+            console.log('in custom save')
+            this.model.set(this.column.get("name"), this.formatter.toRaw(this.$el.val()));
+            this.trigger("done");
+            console.log("done");
+        }
+    });
+    
+    product_options = [["RHEL Server", "rhel_server"],
+                       ["RHEL HA", "rhel_ha"],
+                       ["RHEL Server for Education", "rhel_edu"],
+                       ["JBoss EAP", "jboss_eap"]];
+    
     var columns = [{
         name : "instance_identifier",
         label : "UUID:",
         cell : "string",
         editable: false
     }, {
-        name : "product_name",
-        label : "Product:",
-        cell : "string",
-        editable: false
-    },{
-        name : "product_name",
-        label : "Product:",
+        name : "product_bind",
+        label : "Bind Product:",
         cell : Backgrid.SelectCell.extend({
-            optionValues: [["RHEL Server", "rhel_server"],
-                           ["RHEL HA", "rhel_ha"],
-                           ["RHEL Server for Education", "rhel_edu"],
-                           ["JBoss EAP", "jboss_eap"]],
-            initialize: function (options) {
-                Backgrid.Cell.prototype.initialize.apply(this, arguments);
-                this.optionValues = _.result(this, "optionValues");
-                this.listenTo(this, "edit", this.setOptionValues);
-            },
+            optionValues: product_options,
+           
+            editor: CustomSelectCellEditor
 
-            setOptionValues: function (cell, editor) {
-                console.log('before edit');
-                editor.setOptionValues(this.optionValues);
-                console.log('after edit');
-            },
         })
     }, {
         name : "hour",
@@ -733,8 +731,6 @@ function populateInstanceDetailReport(rtn) {
         $('#instance_details').show();
     }
 
-    
- 
 }
 
 
