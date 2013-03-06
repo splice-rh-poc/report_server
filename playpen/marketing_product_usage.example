@@ -1,5 +1,5 @@
 {
-	"_id" : ObjectId("5137976c59c722089a000003"),
+	"_id" : ObjectId("51379de459c722089a00000a"),
 	"_types" : [
 		"MarketingProductUsage"
 	],
@@ -41,6 +41,7 @@
 		"lscpu_dot_cpu_socket(s)" : "0"
 	},
 	"created" : ISODate("2013-03-06T00:00:00Z"),
+	"entitlement_status" : "valid",
 	"product_info" : [
 		{
 			"account" : "1212729",
