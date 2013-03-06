@@ -666,25 +666,44 @@ function populateInstanceDetailReport(rtn) {
         mode : "client"
     });
     
+    var CustomSelectCellEditor = Backgrid.SelectCellEditor.extend({
+        save: function (e) {
+            console.log('in custom save')
+            this.model.set(this.column.get("name"), this.formatter.toRaw(this.$el.val()));
+            console.log('get value and bind to pool here');
+            this.trigger("done");
+            console.log("done, successfully saved " + this.formatter.toRaw(this.$el.val()));
+        }
+    });
+    
+    /*
+     * curl -k -u admin:admin https://localhost:8443/candlepin/owners/admin/pools?consumer=e69871bb-170c-426a-844d-18f26632ffa4
+     */
+    
+    product_options = [["RHEL Server", "rhel_server"],
+                       ["RHEL HA", "rhel_ha"],
+                       ["RHEL Server for Education", "rhel_edu"],
+                       ["JBoss EAP", "jboss_eap"]];
+    
     var columns = [{
         name : "instance_identifier",
         label : "UUID:",
         cell : "string",
         editable: false
     }, {
-        name : "product_name",
-        label : "Product:",
-        cell : "string",
-        editable: false
-    },{
-        name : "product_name",
-        label : "Product:",
+        name : "product_bind",
+        label : "Bind Product:",
         cell : Backgrid.SelectCell.extend({
-        optionValues: [["RHEL Server", "rhel_server"],
-                       ["RHEL HA", "rhel_ha"],
-                       ["RHEL Server for Education", "rhel_edu"],
-                       ["JBoss EAP", "jboss_eap"]]
-                    })
+            optionValues: product_options,
+            
+            setOptionValues: function (cell, editor) {
+                console.log('Fetch available pools here');
+                editor.setOptionValues(this.optionValues);
+            },
+           
+            editor: CustomSelectCellEditor
+
+        })
     }, {
         name : "hour",
         label : "Time:",
@@ -722,8 +741,6 @@ function populateInstanceDetailReport(rtn) {
         $('#instance_details').show();
     }
 
-    
- 
 }
 
 
