@@ -17,16 +17,19 @@ from tastypie.api import Api
 
 from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource
 from report_server.sreport.api import ComplianceDataResource, ReportResource
+from report_server.sreport.api import MarketingProductUsageResource
 
 
 v1_api = Api(api_name='v1')
 
 # Resources
 productusage_resource = ProductUsageResource()
+marketing_productusage_resource = MarketingProductUsageResource()
 quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
 report_resource = ReportResource()
 v1_api.register(productusage_resource)
+v1_api.register(marketing_productusage_resource)
 v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
 v1_api.register(report_resource)

@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from mongoengine import DateTimeField, Document, ListField, StringField, IntField
 from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
-from splice.common.models import ProductUsage, SpliceServer
+from splice.common.models import ProductUsage, SpliceServer, MarketingProductUsage
 
 
 class MyQuerySet(QuerySet):
@@ -27,6 +27,10 @@ class MyQuerySet(QuerySet):
 
 
 class ProductUsage(ProductUsage):
+    meta = {'db_alias': 'checkin_service',
+            'queryset_class': MyQuerySet}
+    
+class MarketingProductUsage(MarketingProductUsage):
     meta = {'db_alias': 'checkin_service',
             'queryset_class': MyQuerySet}
 
@@ -107,6 +111,51 @@ class ReportData(Document):
                 'memtotal': self.memtotal,
                 'cpu_sockets': self.cpu_sockets,
                 'cpu': self.cpu,
+                'environment': self.environment,
+                'splice_server': self.splice_server,
+                'duplicate': self.duplicate,
+                'record_identifier': self.record_identifier
+                }
+    
+
+class MarketingReportData(Document):
+
+    meta = {
+        'db_alias': 'results',
+        'allow_inheritance': True,
+        'indexes': [('splice_server', 'instance_identifier', 'hour',
+                     'product'),
+                    'date'],
+    }
+
+    instance_identifier = StringField(required=True)
+    account = StringField(required=True)
+    contract = StringField(required=True)
+    product = StringField(required=True)
+    product_name = StringField(required=True)
+    quantity = IntField(required=True)
+    date = DateTimeField(required=True)
+    hour = StringField(required=True)
+    systemid = IntField(required=True)
+    cpu_sockets = IntField(required=True)
+    facts = StringField(required=True)
+    environment = StringField(required=True)
+    splice_server = StringField(required=True)
+    record_identifier = StringField(required=True, unique_with=['splice_server',
+                                    'instance_identifier', 'hour', 'product'])
+
+    def to_dict(self):
+        return {'instance_identifier': self.instance_identifier,
+                'account': self.account,
+                'contract': self.contract,
+                'product': self.product,
+                'product_name': self.product_name,
+                'quantity': self.quantity,
+                'date': self.date,
+                'hour': self.hour,
+                'systemid': self.systemid,
+                'cpu_sockets': self.cpu_sockets,
+                'facts': self.facts,
                 'environment': self.environment,
                 'splice_server': self.splice_server,
                 'duplicate': self.duplicate,

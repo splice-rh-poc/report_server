@@ -16,8 +16,8 @@ from datetime import datetime, timedelta
 from mongoengine import OperationError, NotUniqueError
 from report_server.common import config
 from report_server.common import constants
-from report_server.sreport.models import ReportData, ImportHistory
-from report_server.sreport.models import ProductUsage, SpliceServer
+from report_server.sreport.models import ReportData, MarketingReportData, ImportHistory
+from report_server.sreport.models import ProductUsage, SpliceServer, MarketingProductUsage
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 from sets import Set
@@ -46,8 +46,8 @@ def import_data(product_usage=[],
         product_usage = ProductUsage.objects.all()
     start_stop_time = []
     quarantined = []
-    total_import_count = len(product_usage)
-    remaining_import_count = total_import_count
+    #total_import_count = len(product_usage)
+    #remaining_import_count = total_import_count
 
     # debug
     start = datetime.utcnow()
@@ -198,3 +198,54 @@ def import_data(product_usage=[],
     _LOG.info('import complete')
 
     return quarantined, start_stop_time
+
+
+def import_candlepin_data(mkt_product_usage=[],
+                          checkin_interval=1,
+                          from_splice_server="NA",
+                          force_import=False):
+    
+    if not mkt_product_usage:
+        mkt_product_usage = MarketingProductUsage.objects.all()
+    quarantined = []
+    
+    
+    for pu in mkt_product_usage:
+        rd = MarketingReportData(
+            instance_identifier = pu.instance_identifier,
+            account = pu.product_info[0]["account"],
+            contract = pu.product_info[0]["contract"],
+            product = pu.product_info[0]["product"],
+            product_name = pu.product_info[0]["product"],
+            quantity = pu.product_info[0]["quantity"],
+            date = pu.date,
+            hour = pu.date.strftime(constants.hr_fmt),
+            systemid = pu.facts["systemid"],
+            cpu_sockets = pu.facts["cpu_dot_cpu_socket(s)"],
+            facts = str(pu.facts),
+            environment = pu.splice_server,
+            splice_server = pu.splice_server,
+            record_identifier = (pu.splice_server +
+                                 str(pu.instance_identifier) +
+                                 pu.date.strftime(constants.hr_fmt) +
+                                 pu.product_info[0]["product"])            
+        
+        )
+        
+        try:
+            rd.save(safe=True)
+            _LOG.info('recording: ' + str(pu.product_info[0]["product"]))
+        except NotUniqueError:
+            _LOG.info("Ignorning NotUniqueError for: %s" % (rd))
+        except OperationError as oe:
+            _LOG.info("could not import:" + str(pu) + "Exception: " + str(oe))
+            quarantined.append(rd)
+
+    
+
+    _LOG.info('import complete')
+
+    return quarantined   
+    
+    
+    

@@ -90,6 +90,21 @@ class ProductUsageResource(productusage.ProductUsageResource):
             thisItem.save()
 
         return items_not_imported
+    
+
+class MarketingProductUsageResource(productusage.ProductUsageResource):
+
+    def import_hook(self, product_usage):
+        _LOG.info("called marketing import_hook")
+        not_imported = import_util.import_candlepin_data(product_usage,
+                                                        force_import=True
+                                                                    )
+        _LOG.info("items_not_imported length: " + str(len(not_imported)))
+        for i in not_imported:
+            thisDict = i.to_dict()
+            thisItem.save()
+
+        return not_imported
 
 
 class QuarantinedDataResource(Resource):
