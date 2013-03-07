@@ -135,6 +135,8 @@ class MarketingReportData(Document):
     product_name = StringField(required=True)
     quantity = IntField(required=True)
     date = DateTimeField(required=True)
+    created = DateTimeField(required=True)
+    updated = DateTimeField(required=True)
     hour = StringField(required=True)
     systemid = IntField(required=True)
     cpu_sockets = IntField(required=True)
@@ -152,6 +154,8 @@ class MarketingReportData(Document):
                 'product_name': self.product_name,
                 'quantity': self.quantity,
                 'date': self.date,
+                'created': self.created,
+                'updated': self.updated,
                 'hour': self.hour,
                 'systemid': self.systemid,
                 'cpu_sockets': self.cpu_sockets,

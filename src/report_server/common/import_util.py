@@ -21,6 +21,7 @@ from report_server.sreport.models import ProductUsage, SpliceServer, MarketingPr
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 from sets import Set
+from splice.common import utils
 import logging
 
 _LOG = logging.getLogger(__name__)
@@ -211,6 +212,16 @@ def import_candlepin_data(mkt_product_usage=[],
     
     
     for pu in mkt_product_usage:
+        if isinstance(pu.date, basestring):
+            # We must convert from str to datetime for ReportServer to be able to process this data
+            pu.date = utils.convert_to_datetime(pu.date) 
+        if isinstance(pu.updated, basestring):
+            # We must convert from str to datetime for ReportServer to be able to process this data
+            pu.updated = utils.convert_to_datetime(pu.updated)
+        if isinstance(pu.created, basestring):
+            # We must convert from str to datetime for ReportServer to be able to process this data
+            pu.created = utils.convert_to_datetime(pu.created)        
+        
         rd = MarketingReportData(
             instance_identifier = pu.instance_identifier,
             account = pu.product_info[0]["account"],
@@ -219,6 +230,8 @@ def import_candlepin_data(mkt_product_usage=[],
             product_name = pu.product_info[0]["product"],
             quantity = pu.product_info[0]["quantity"],
             date = pu.date,
+            created = pu.created,
+            updated = pu.updated,
             hour = pu.date.strftime(constants.hr_fmt),
             systemid = pu.facts["systemid"],
             cpu_sockets = pu.facts["cpu_dot_cpu_socket(s)"],
