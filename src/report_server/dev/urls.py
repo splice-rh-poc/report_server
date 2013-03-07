@@ -63,6 +63,7 @@ urlpatterns = patterns('',
     
     (r'^report-server/space/$', 'report_server.sreport.views.start_space'),
     (r'^report-server/space/report_form/$', 'report_server.sreport.spacewalk.views.report_form'),
+    (r'^report-server/space/report/$', 'report_server.sreport.spacewalk.views.report'),
 )
 
 urlpatterns += (

@@ -13,8 +13,9 @@
 from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from report_server.sreport.models import SpliceServer
-from report_server.common import utils
+from report_server.common.utils import get_dates_from_request, data_from_post, create_response
+from report_server.common import constants, utils
+from report_server.sreport.models import MarketingReportData
 import logging
 import sys
 
@@ -24,10 +25,12 @@ _LOG = logging.getLogger(__name__)
 def report_form(request):
     _LOG.info("space_form called by method: %s" % (request.method))
     user = str(request.user)
-    environments = SpliceServer.objects.distinct("environment")
+    environments = MarketingReportData.objects.distinct("splice_server")
+    contracts = MarketingReportData.objects.distinct("contract")
     response_data = {}
     response_data['user'] = user
     response_data['environments'] = environments
+    response_data['contracts'] = contracts
 
     _LOG.info(response_data)
 
@@ -39,3 +42,36 @@ def report_form(request):
         raise
 
     return response
+
+
+@login_required
+def report(request):
+    
+    _LOG.info("report called by method: %s" % (request.method))
+    user = str(request.user)
+       
+    start, end = get_dates_from_request(request)
+    data = data_from_post(request)
+    
+    if 'env' in data:
+        environment = data["env"]
+    else:
+        environment = "All"
+
+    contract = data["contract_number"]
+    results = []
+    invalid = MarketingReportData.objects.filter(status='invalid')
+    partial = MarketingReportData.objects.filter(status='partial')
+
+    if invalid:
+        results.append(invalid[0])
+    if partial:
+        results.append(partial[0])
+    format = constants.full_format
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+
+    return create_response(response_data)

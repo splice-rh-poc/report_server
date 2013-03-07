@@ -134,6 +134,7 @@ class MarketingReportData(Document):
     product = StringField(required=True)
     product_name = StringField(required=True)
     quantity = IntField(required=True)
+    status = StringField(required=True)
     date = DateTimeField(required=True)
     created = DateTimeField(required=True)
     updated = DateTimeField(required=True)
@@ -153,6 +154,7 @@ class MarketingReportData(Document):
                 'product': self.product,
                 'product_name': self.product_name,
                 'quantity': self.quantity,
+                'status': self.status,
                 'date': self.date,
                 'created': self.created,
                 'updated': self.updated,
