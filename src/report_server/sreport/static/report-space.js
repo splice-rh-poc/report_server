@@ -213,16 +213,7 @@ function populateReport(rtn, pane) {
         mode : "client"
 
     });
-    /*
-    var mylist = []
-    for ( i = 0; i < rtn.list.length; i++) {
-        for ( j = 0; j < rtn.list[i].length; j++) {
-            var row = rtn.list[i][j];
-            mylist.push(row);
 
-        }
-    }
-    */
     var reports = new Reports(rtn.list);
     var pageable_reports = new PageableReports(rtn.list);
 
@@ -259,6 +250,8 @@ function populateReport(rtn, pane) {
 
     Backbone.on("rowclicked", function(model) {
         console.log('in row click');
+        //date, instance, filter_args
+        createInstanceDetail(model);
 
     });
 
@@ -298,308 +291,13 @@ function populateReport(rtn, pane) {
 
     
 
-function createMax(start, end, description, filter_args) {
-    closeDetail();
-    closeMax();   
-        
-    var MaxReport = Backbone.Model.extend({
-        url : '/report-server/space/max_report/'
-    });
-
-    var data = {
-        "start": start,
-        "end": end,
-        "description": description,
-        "filter_args_dict": filter_args
-    };
-    
-    console.log(data);
-
-    var maxReport = new MaxReport();
-
-    maxReport.save(data, {
-        success : function(model, response) {
-            console.log('SUCCESS');
-            console.log(response);
-
-            $('#max_pane > div').empty();
-            var pane = '#max_pane > div';
-            
-            openMax();
-            populateMaxReport(model);
-        }
-    }); 
-
-}
-
-function populateMaxReport(rtn) {
-    //SETUP
-    var pane = $('#max_pane');
-    pane.empty();
-    
-    var contract = rtn.get('daily_contract');
-    var date = rtn.get('date');
-    var description = rtn.get('description');
-    var end = rtn.get('end');
-    var filter_args = rtn.get('filter_args');
-    var list = rtn.get('list');
-    var mcu = rtn.get('mcu');
-    var mdu = rtn.get('mdu');
-    var start = rtn.get('start');
-    
-    var desc_start = new Date(0);
-    var desc_end = new Date(0);
-    desc_start.setUTCSeconds(start);
-    desc_end.setUTCSeconds(end);
-    
-    setup_description(pane, desc_start.toDateString().substr(0,10) + ' ----> ' + desc_end.toDateString().substr(0,10), description);
-    //SETUP
-
-    //GRAPH
-    if (list.length > 0){
-        pane.append($('<br></br>'));
-        pane.append($('<div id="chartdiv" style="height:400px;width:100%; "></div>'));
-        
-        var plot1 = $.jqplot('chartdiv', [mdu, mcu, contract],
-                {
-                    title:'MDU vs MCU',
-                    axesDefaults: {
-                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-                    },
-                    
-                    axes: {
-                        xaxis:{
-                            label: "Date Range",
-                            renderer:$.jqplot.DateAxisRenderer, 
-                            tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                            tickOptions: {
-                              angle: -30,
-                              formatString: '%b %e %Y'
-                            } 
-                        },
-                        yaxis:{
-                            label: "Number of Resources",
-                            pad: 1.3
-                        }
-                    },
-                    highlighter: {
-                        show: true,
-                        sizeAdjust: 10.5,
-                        useAxesFormatters: true
-                    },
-                    cursor: {
-                        show: true
-                    },
-                    legend: {
-                        show: true,
-                        location: 'se',
-                        yoffset: 500
-                        
-                    },
-                    series:[
-                        {
-                            label: 'MDU',
-                            lineWidth:2,
-                            markerOptions: { style:'dimaond' } 
-                        },
-                        {
-                            label: 'MCU',
-                            markerOptions: { sytle:'circle'}
-                        },
-                        {
-                            label: 'Contracted Use',
-                            lineWidth:5,
-                            color: '#FF0000',
-                            markerOptions: { style:"filledSquare", size:10 }
-                        }
-                    ]
-                    
-                });
-        $('#chartdiv').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data) { 
-               //alert("test" + "," + data[0] + "," + data[1]);
-               var this_date = new Date(data[0]);
-               var date_to_send = (this_date.getMonth() + 1) + "-" + this_date.getDate() + "-" + this_date.getFullYear();
-               createDetail( date_to_send, description, filter_args);
-              });
-    
-        glossary_mdu(pane);
-        //GRAPH
-        
-        //BEGIN LIST
-        button_show_details(pane);
-        var list_view = $('<div id=list_view>');
-
-        var Max = Backbone.Model.extend();
-    
-
-        var PageableMaxList = Backbone.PageableCollection.extend({
-            model: Max,
-            state: {
-                pageSize: 25
-            },
-            mode: "client"
-            
-        });
-        
-        
-        
-        var columns = [{
-            name: "date",
-            label: "Date",
-            cell: "string"
-        },{
-            name: "mdu",
-            label: "MDU",
-            cell: "string"
-        },{
-            name: "mcu",
-            label: "MCU",
-            cell: "string"
-        }];
-        
-        var ClickableMaxRow = Backgrid.Row.extend({
-        events: {
-            "click": "onClick"
-        },
-        onClick: function () {
-            Backbone.trigger("maxrowclicked", this.model);
-           }
-        });
-    
-        Backbone.on("maxrowclicked", function (model) {
-            console.log(model.get('date') + JSON.stringify(description) + JSON.stringify(filter_args));
-            createDetail(model.get('date'), description, filter_args);
-        });
-        
-        var mylist = new PageableMaxList(list);
-        var pageableGrid = new Backgrid.Grid({
-            columns: columns,
-            collection: mylist,
-            footer: Backgrid.Extension.Paginator,
-            row: ClickableMaxRow
-        
-        });
-
-
-        
-        list_view.append(pageableGrid.render().$el);
-        list_view.hide();
-        pane.append(list_view);
-        
-        
-        $("button").click(function (){
-            list_view.toggle("slow");
-            
-          })
-          
-    } 
-}
-
-function createDetail(date, description,  filter_args) {
-    console.log('in create detail');
-    
-    var Detail = Backbone.Model.extend({
-        url : '/report-server/space/details/'
-    });
-
-    var data = {
-        "date": date,
-        "description": description,
-        "filter_args_dict": filter_args
-    };
-    
-    console.log(data);
-
-    var details = new Detail();
-
-    details.save(data, {
-        success : function(model, response) {
-            console.log('SUCCESS');
-            console.log(response);
-
-            populateDetailReport(model);
-            openDetail();
-
-            $('#detail_button').removeClass('disabled');
-            $('#detail_button').on("click", openDetail);
-        }
-    }); 
-
-}
-
-function populateDetailReport(rtn) {
-    //setup
-    var date = rtn.get('date');
-    var description = rtn.get('description');
-    var filter_args = rtn.get('filter_args_dict');
-    var list = rtn.get('list');
-
-    console.log('in populate Detail Report');
-    $('#details').empty();
-    $('#instance_details').empty();
-    var desc_date = new Date(0);
-    desc_date.setUTCSeconds(date);
-
-    var pane = $('#details');
-    setup_description(pane, desc_date.toDateString().substr(0, 10), description)
-    //setup
-
-    var Detail = Backbone.Model.extend();
-
-    var PageableDetailList = Backbone.PageableCollection.extend({
-        model : Detail,
-        state : {
-            pageSize : 10
-        },
-        mode : "client"
-
-    });
-
-    var columns = [{
-        name : "instance",
-        label : "Instance:",
-        cell : "string",
-        editable: false
-    }, {
-        name : "count",
-        label : "Count:",
-        cell : "string",
-        editable: false
-    }];
-
-    var ClickableDetailRow = Backgrid.Row.extend({
-        events : {
-            "click" : "onClick"
-        },
-        onClick : function() {
-            Backbone.trigger("detailrowclicked", this.model);
-        }
-    });
-
-    Backbone.on("detailrowclicked", function(model) {
-        console.log(model.get('instance'));
-        createInstanceDetail(date, model.get('instance'), filter_args);
-    });
-
-    var mylist = new PageableDetailList(list);
-
-    var pageableGrid = new Backgrid.Grid({
-        columns : columns,
-        collection : mylist,
-        footer : Backgrid.Extension.Paginator,
-        row : ClickableDetailRow
-
-    });
-    pane.append('<br><br>')
-    pane.append(pageableGrid.render().$el);
-
-}
-
-function createInstanceDetail(date, instance, filter_args) {
+function createInstanceDetail(model) {
+    console.log('in createInstanceDetail')
+    date = model.get("date")
+    instance = model.get("instance_identifier")
     var data = {
         "date": date,
         "instance": instance,
-        "filter_args_dict": filter_args
     };
     console.log(data);
     var InstanceDetail = Backbone.Model.extend({
@@ -626,10 +324,10 @@ function populateInstanceDetailReport(rtn) {
     var pane = $('#instance_details');
     pane.empty();
     
-    list = rtn.get('list');
+    instance = rtn.get('list');
     
     var InstanceCheckin = Backbone.Model.extend();
-    
+
     var PageableInstanceCheckin = Backbone.PageableCollection.extend({
         model : InstanceCheckin,
         state : {
@@ -660,45 +358,10 @@ function populateInstanceDetailReport(rtn) {
     var columns = [{
         name : "instance_identifier",
         label : "UUID:",
-        cell : "string",
-        editable: false
-    }, {
-        name : "product_bind",
-        label : "Bind Product:",
-        cell : Backgrid.SelectCell.extend({
-            optionValues: product_options,
-            
-            setOptionValues: function (cell, editor) {
-                console.log('Fetch available pools here');
-                editor.setOptionValues(this.optionValues);
-            },
-           
-            editor: CustomSelectCellEditor
-
-        })
-    }, {
-        name : "hour",
-        label : "Time:",
-        cell : "string",
-        editable: false
-    }, {
-        name : "memtotal",
-        label : "Memory:",
-        cell : "string",
-        editable: false
-    }, {
-        name : "cpu_sockets",
-        label : "Sockets:",
-        cell : "string",
-        editable: false
-    }, {
-        name : "environment",
-        label : "Domain:",
-        cell : "string",
-        editable: false
+        cell : "string"
     }];
     
-    var mylist = new PageableInstanceCheckin(list);
+    var mylist = new PageableInstanceCheckin(instance);
 
     var pageableGrid = new Backgrid.Grid({
         columns : columns,

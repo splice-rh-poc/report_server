@@ -13,6 +13,7 @@
 from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from splice.common.utils import convert_to_datetime
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.common import constants, utils
 from report_server.sreport.models import MarketingReportData
@@ -73,5 +74,23 @@ def report(request):
     response_data['list'] = results
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
+
+    return create_response(response_data)
+
+def instance_detail(request):
+    data = utils.data_from_post(request)
+    user = str(request.user)
+    _LOG.info(str(data))
+    _LOG.info(type(data))
+    _LOG.info(data)
+    #account = Account.objects.filter(login=user)[0].account_id
+    instance = data["instance"]
+    date = convert_to_datetime(data["date"])
+    print(type(instance))
+    print(type(date))
+    results = MarketingReportData.objects.filter(instance_identifier=instance, date=date)
+
+    response_data = {}
+    response_data['list'] = results
 
     return create_response(response_data)
