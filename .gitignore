@@ -2,6 +2,9 @@
 *.project
 *.pydevproject
 *.settings
+*.sublime*
+*.wpr
+*.wpu
 src/config
 config
 src/debug/*

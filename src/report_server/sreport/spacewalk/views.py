@@ -60,8 +60,8 @@ def report(request):
 
     contract = data["contract_number"]
     results = []
-    invalid = MarketingReportData.objects.filter(status='invalid')
-    partial = MarketingReportData.objects.filter(status='partial')
+    invalid = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end)
+    partial = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end)
 
     if invalid:
         results.append(invalid[0])

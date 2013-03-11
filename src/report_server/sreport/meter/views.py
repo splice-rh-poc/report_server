@@ -19,6 +19,7 @@ from report_server.common.utils import get_dates_from_request, data_from_post, c
 from report_server.common.report import hours_per_consumer
 from report_server.sreport.models import ProductUsageForm, SpliceServer
 from rhic_serve.rhic_rest.models import RHIC, Account
+
 import logging
 import sys
 
@@ -69,8 +70,7 @@ def report_form(request):
         raise
 
     return response
-
-
+    
 
 @login_required
 def report(request):
@@ -91,7 +91,7 @@ def report(request):
     rhic = data["rhic"]
     contract = data["contract_number"]
     list_of_rhics = []
-    
+
     if contract == 'All' and (rhic == 'All' or rhic == 'null'):
         list_of_rhics = list(RHIC.objects.filter(account_id=account))
 

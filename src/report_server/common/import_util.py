@@ -18,6 +18,7 @@ from report_server.common import config
 from report_server.common import constants
 from report_server.sreport.models import ReportData, MarketingReportData, ImportHistory
 from report_server.sreport.models import ProductUsage, SpliceServer, MarketingProductUsage
+from report_server.sreport.models import Product, Pool
 from rhic_serve.rhic_rest.models import RHIC
 from rhic_serve.rhic_rest.models import Account
 from sets import Set
@@ -220,14 +221,18 @@ def import_candlepin_data(mkt_product_usage=[],
             pu.updated = utils.convert_to_datetime(pu.updated)
         if isinstance(pu.created, basestring):
             # We must convert from str to datetime for ReportServer to be able to process this data
-            pu.created = utils.convert_to_datetime(pu.created)        
+            pu.created = utils.convert_to_datetime(pu.created) 
+
+        id = pu.product_info[0]["product"]
+        this_product = Product.objects.filter(product_id=id)[0]
+        this_pool = Pool.objects.filter(product_id=id)[0]  
         
         rd = MarketingReportData(
             instance_identifier = pu.instance_identifier,
             account = pu.product_info[0]["account"],
             contract = pu.product_info[0]["contract"],
-            product = pu.product_info[0]["product"],
-            product_name = pu.product_info[0]["product"],
+            product = this_product.product_id,
+            product_name = this_product.attrs["name"],
             quantity = pu.product_info[0]["quantity"],
             status = pu.entitlement_status,
             date = pu.date,
@@ -239,6 +244,12 @@ def import_candlepin_data(mkt_product_usage=[],
             facts = str(pu.facts),
             environment = pu.splice_server,
             splice_server = pu.splice_server,
+            pool_uuid = this_pool.uuid,
+            pool_provided_products = this_pool.provided_products,
+            pool_start = this_pool.start_date,
+            pool_end = this_pool.end_date,
+            pool_active = this_pool.active,
+            pool_quantity = this_pool.quantity,
             record_identifier = (pu.splice_server +
                                  str(pu.instance_identifier) +
                                  pu.date.strftime(constants.hr_fmt) +

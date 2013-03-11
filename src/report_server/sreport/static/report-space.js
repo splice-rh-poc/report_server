@@ -227,13 +227,18 @@ function populateReport(rtn, pane) {
     var pageable_reports = new PageableReports(rtn.list);
 
     var columns = [{
-        name : "product",
+        name : "systemid",
+        label : "System ID:",
+        editable : false,
+        cell : "string"
+    },{
+        name : "product_name",
         label : "Product:",
         editable : false,
         cell : "string"
     }, {
-        name : "contract",
-        label : "Contract:",
+        name : "pool_uuid",
+        label : "Pool UUID:",
         editable : false,
         cell : "string"
     }, {

@@ -11,10 +11,11 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from mongoengine import DateTimeField, Document, ListField, StringField, IntField
+from mongoengine import DateTimeField, Document, ListField, StringField, IntField, BooleanField
 from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
 from splice.common.models import ProductUsage, SpliceServer, MarketingProductUsage
+from splice.common.models import Pool, Product, Rules
 
 
 class MyQuerySet(QuerySet):
@@ -41,6 +42,19 @@ class SpliceServer(SpliceServer):
 
     def __str__(self):
         return "%s" % (self.environment)
+
+class Pool(Pool):
+    meta = {'db_alias': 'checkin_service',
+            'queryset_class': MyQuerySet}
+
+class Product(Product):
+    meta = {'db_alias': 'checkin_service',
+            'queryset_class': MyQuerySet}
+
+class Rules(Rules):
+    meta = {'db_alias': 'checkin_service',
+            'queryset_class': MyQuerySet}
+
 
 
 class ProductUsageForm(DocumentForm):
@@ -144,6 +158,14 @@ class MarketingReportData(Document):
     facts = StringField(required=True)
     environment = StringField(required=True)
     splice_server = StringField(required=True)
+    pool_uuid = StringField(required=True)
+    pool_provided_products = ListField(required=True)
+    pool_start = DateTimeField(required=True)
+    pool_end = DateTimeField(required=True)
+    pool_active = BooleanField(required=True)
+    pool_quantity = IntField(required=True)
+
+
     record_identifier = StringField(required=True, unique_with=['splice_server',
                                     'instance_identifier', 'hour', 'product'])
 
@@ -153,6 +175,8 @@ class MarketingReportData(Document):
                 'contract': self.contract,
                 'product': self.product,
                 'product_name': self.product_name,
+                'pool_uuid': self.pool_uuid,
+                'pool': self.pool,
                 'quantity': self.quantity,
                 'status': self.status,
                 'date': self.date,
@@ -168,36 +192,6 @@ class MarketingReportData(Document):
                 'record_identifier': self.record_identifier
                 }
 
-
-class ReportDataDaily(Document):
-
-    meta = {
-        'db_alias': 'results',
-        'allow_inheritance': True,
-        'indexes': [('consumer_uuid', 'instance_identifier', 'day',
-                     'product'),
-                    'date'],
-    }
-
-    instance_identifier = StringField(required=True)
-    consumer_uuid = StringField(required=True)
-    consumer = StringField(required=True)
-    product = ListField(required=True)
-    product_name = StringField(required=True)
-    date = DateTimeField(required=True)
-    sla = StringField(required=True)
-    support = StringField(required=True)
-    contract_id = StringField(required=True)
-    contract_use = StringField(required=True)
-    day = StringField(required=True)
-    memtotal = IntField(required=True)
-    cpu_sockets = IntField(required=True)
-    cpu = IntField(required=True)
-    environment = StringField(required=True)
-    splice_server = StringField(required=True)
-    duplicate = IntField()
-    record_identifier = StringField(required=True, unique_with=['consumer',
-                                    'instance_identifier', 'day', 'product'])
 
 
 class ImportHistory(Document):
@@ -239,7 +233,7 @@ class QuarantinedReportData(Document):
     splice_server = StringField(required=True)
     duplicate = IntField()
 
-      
+
 class Account(Document):
 
     meta = {

@@ -1,0 +1,1 @@
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "checkin_service.rules", "name" : "_id_" }, { "v" : 1, "key" : { "version" : 1 }, "unique" : true, "ns" : "checkin_service.rules", "name" : "version_1", "background" : false, "dropDups" : false }, { "v" : 1, "key" : { "_types" : 1 }, "ns" : "checkin_service.rules", "background" : false, "name" : "_types_1" } ] }
