@@ -364,7 +364,7 @@ function populateInstanceDetailReport(rtn) {
         label : "Product:",
         cell : "string"
     },{
-        name : "hour",
+        name : "date",
         label : "Checkin @:",
         cell : "string"
     },{
@@ -445,13 +445,12 @@ function create_default_report(event){
 
         data['startDate'] = (3).months().ago().toString("M/d/yyyy");
         data['endDate'] = Date.today().toString("M/d/yyyy");
-        data['contract_number'] = "All"
-        data['rhic'] = "null"
         data['env'] = "All"
+        data['contract_number'] = "All"
         
         console.log(data);
         var DefaultReport = Backbone.Model.extend({
-            url : '/report-server/space/default_report/'
+            url : '/report-server/space/report/'
         });
     
         var defaultReport = new DefaultReport();
