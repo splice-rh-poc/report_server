@@ -328,12 +328,8 @@ function populateInstanceDetailReport(rtn) {
     
     var InstanceCheckin = Backbone.Model.extend();
 
-    var PageableInstanceCheckin = Backbone.PageableCollection.extend({
-        model : InstanceCheckin,
-        state : {
-            pageSize : 10
-        },
-        mode : "client"
+    var InstanceCheckinCollection = Backbone.Collection.extend({
+        model : InstanceCheckin
     });
     
     var CustomSelectCellEditor = Backgrid.SelectCellEditor.extend({
@@ -355,23 +351,80 @@ function populateInstanceDetailReport(rtn) {
                        ["RHEL Server for Education", "rhel_edu"],
                        ["JBoss EAP", "jboss_eap"]];
     
-    var columns = [{
+    var columnsInstance = [{
         name : "instance_identifier",
         label : "UUID:",
         cell : "string"
+    },{
+        name : "systemid",
+        label : "System ID:",
+        cell : "string"
+    },{
+        name : "product_name",
+        label : "Product:",
+        cell : "string"
+    },{
+        name : "hour",
+        label : "Checkin @:",
+        cell : "string"
+    },{
+        name : "splice_server",
+        label : "Environment:",
+        cell : "string"
+    },];
+
+
+    var columnsPool = [{
+        name : "pool_uuid",
+        label : "Pool UUID:",
+        cell : "string"
+    },{
+        name : "pool_active",
+        label : "Pool Status:",
+        cell : "string"
+    },{
+        name : "pool_quantity",
+        label : "Available:",
+        cell : "string"
+    },{
+        name : "pool_start",
+        label : "Start:",
+        cell : "string"
+    },{
+        name : "pool_end",
+        label : "End:",
+        cell : "string"
     }];
     
-    var mylist = new PageableInstanceCheckin(instance);
+    var myinstance = new InstanceCheckinCollection(instance);
 
-    var pageableGrid = new Backgrid.Grid({
-        columns : columns,
-        collection : mylist,
-        footer : Backgrid.Extension.Paginator
-
+    var gridInstance = new Backgrid.Grid({
+        columns : columnsInstance,
+        collection : myinstance
     });
-    pane.append('<br><br>')
-    pane.append(pageableGrid.render().$el);
-    
+
+
+    var gridPool = new Backgrid.Grid({
+        columns : columnsPool,
+        collection : myinstance
+    });
+
+    pane.append('<br>');
+    pane.append('<h3>Instance Detail:</h3>');
+    pane.append(gridInstance.render().$el);
+    pane.append('<br>');
+    pane.append('<h3>Pool Detail:</h3>');
+    pane.append(gridPool.render().$el);
+    pane.append('<br>');
+    pane.append('<h3>Instance Facts:</h3>');
+
+    var factsString = myinstance.at(0).get('facts');
+    var facts = JSON.parse( factsString );
+
+    $.each(facts, function( key, value ){
+        pane.append("<li>" + key + ": " + value + "</li>")
+    });
+
     if (!$('#instance_details').is(':visible')) {
         $('#instance_details').show();
     }

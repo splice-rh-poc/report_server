@@ -80,15 +80,12 @@ def report(request):
 def instance_detail(request):
     data = utils.data_from_post(request)
     user = str(request.user)
-    _LOG.info(str(data))
-    _LOG.info(type(data))
-    _LOG.info(data)
     #account = Account.objects.filter(login=user)[0].account_id
     instance = data["instance"]
     date = convert_to_datetime(data["date"])
-    print(type(instance))
-    print(type(date))
     results = MarketingReportData.objects.filter(instance_identifier=instance, date=date)
+    _LOG.info("in view")
+    _LOG.info(results[0]["facts"])
 
     response_data = {}
     response_data['list'] = results

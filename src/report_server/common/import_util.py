@@ -14,8 +14,7 @@ from __future__ import division
 
 from datetime import datetime, timedelta
 from mongoengine import OperationError, NotUniqueError
-from report_server.common import config
-from report_server.common import constants
+from report_server.common import config, constants
 from report_server.sreport.models import ReportData, MarketingReportData, ImportHistory
 from report_server.sreport.models import ProductUsage, SpliceServer, MarketingProductUsage
 from report_server.sreport.models import Product, Pool
@@ -24,6 +23,7 @@ from rhic_serve.rhic_rest.models import Account
 from sets import Set
 from splice.common import utils
 import logging
+import json
 
 _LOG = logging.getLogger(__name__)
 
@@ -225,7 +225,8 @@ def import_candlepin_data(mkt_product_usage=[],
 
         id = pu.product_info[0]["product"]
         this_product = Product.objects.filter(product_id=id)[0]
-        this_pool = Pool.objects.filter(product_id=id)[0]  
+        this_pool = Pool.objects.filter(product_id=id)[0]
+        facts = utils.obj_to_json(pu.facts)
         
         rd = MarketingReportData(
             instance_identifier = pu.instance_identifier,
@@ -241,7 +242,7 @@ def import_candlepin_data(mkt_product_usage=[],
             hour = pu.date.strftime(constants.hr_fmt),
             systemid = pu.facts["systemid"],
             cpu_sockets = pu.facts["cpu_dot_cpu_socket(s)"],
-            facts = str(pu.facts),
+            facts = facts,
             environment = pu.splice_server,
             splice_server = pu.splice_server,
             pool_uuid = this_pool.uuid,

@@ -11,7 +11,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from mongoengine import DateTimeField, Document, ListField, StringField, IntField, BooleanField
+from mongoengine import DateTimeField, Document, ListField, StringField, IntField, BooleanField, DictField
 from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
 from splice.common.models import ProductUsage, SpliceServer, MarketingProductUsage
