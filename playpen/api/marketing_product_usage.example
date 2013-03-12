@@ -9,7 +9,7 @@
         "memory_dot_memtotal": "604160",
         "lscpu_dot_on-line_cpu(s)_list": "",
         "lscpu_dot_l1d_cache": "6144 KB",
-        "systemid": "1000010000",
+        "systemid": "1000010003",
         "net_dot_interface_dot_eth0_dot_ipv4_netmask": "255.255.254.0",
         "lscpu_dot_architecture": "x86_64",
         "lscpu_dot_model": "Intel(R) Xeon(R) CPU           E5430  @ 2.66GHz",
@@ -40,7 +40,7 @@
         "lscpu_dot_cpu_socket(s)": "0"
     },
     "created": "2013-03-06T00:00:00Z",
-    "entitlement_status": "valid",
+    "entitlement_status": "partial",
     "product_info": [
         {
             "account": "1212729",
@@ -50,6 +50,6 @@
         }
     ],
     "_cls": "MarketingProductUsage",
-    "instance_identifier": "408626c6-ee7b-4c21-92f7-f769ff230b45",
+    "instance_identifier": "608626c6-ee7b-4c21-92f7-f769ff230b46",
     "date": "2013-03-06T16:32:52Z"
 }

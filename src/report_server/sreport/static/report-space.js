@@ -224,7 +224,7 @@ function populateReport(rtn, pane) {
         cell : "string"
     },{
         name : "product_name",
-        label : "Product:",
+        label : "Subscription:",
         editable : false,
         cell : "string"
     }, {
@@ -234,7 +234,7 @@ function populateReport(rtn, pane) {
         cell : "string"
     }, {
         name : "status",
-        label : "Instance Status:",
+        label : "Subscription Status:",
         editable : false,
         cell : "string"
     }];
@@ -346,54 +346,65 @@ function populateInstanceDetailReport(rtn) {
      * curl -k -u admin:admin https://localhost:8443/candlepin/owners/admin/pools?consumer=e69871bb-170c-426a-844d-18f26632ffa4
      */
     
-    product_options = [["RHEL Server", "rhel_server"],
-                       ["RHEL HA", "rhel_ha"],
-                       ["RHEL Server for Education", "rhel_edu"],
-                       ["JBoss EAP", "jboss_eap"]];
     
     var columnsInstance = [{
         name : "instance_identifier",
         label : "UUID:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },{
         name : "systemid",
         label : "System ID:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },{
         name : "product_name",
-        label : "Product:",
-        cell : "string"
+        label : "Subscription:",
+        cell : "string",
+        editable: false
+    },{
+        name : "product",
+        label : "Subscription ID:",
+        cell : "string",
+        editable: false
     },{
         name : "date",
         label : "Checkin @:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },{
         name : "splice_server",
         label : "Environment:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },];
 
 
     var columnsPool = [{
         name : "pool_uuid",
         label : "Pool UUID:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },{
         name : "pool_active",
-        label : "Pool Status:",
-        cell : "string"
+        label : "Pool Active?",
+        cell : "string",
+        editable: false
     },{
         name : "pool_quantity",
         label : "Available:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },{
         name : "pool_start",
         label : "Start:",
-        cell : "string"
+        cell : "string",
+        editable: false
     },{
         name : "pool_end",
         label : "End:",
-        cell : "string"
+        cell : "string",
+        editable: false
     }];
     
     var myinstance = new InstanceCheckinCollection(instance);
@@ -415,6 +426,14 @@ function populateInstanceDetailReport(rtn) {
     pane.append('<br>');
     pane.append('<h3>Pool Detail:</h3>');
     pane.append(gridPool.render().$el);
+    pane.append('<br>');
+    pane.append('<h3>Provided Products:</h3>');
+    var products = myinstance.at(0).get('pool_provided_products');
+    products = JSON.parse( products );
+    $.each(products, function( key, value ){
+        pane.append("<li>" + value.name  + "</li>")
+    });
+
     pane.append('<br>');
     pane.append('<h3>Instance Facts:</h3>');
 

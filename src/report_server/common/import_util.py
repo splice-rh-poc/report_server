@@ -227,6 +227,9 @@ def import_candlepin_data(mkt_product_usage=[],
         this_product = Product.objects.filter(product_id=id)[0]
         this_pool = Pool.objects.filter(product_id=id)[0]
         facts = utils.obj_to_json(pu.facts)
+        provided_products = utils.obj_to_json(this_pool.provided_products)
+        _LOG.info("TYPE PROVIDED PRODUCTS ")
+        _LOG.info(type(provided_products))
         
         rd = MarketingReportData(
             instance_identifier = pu.instance_identifier,
@@ -246,7 +249,7 @@ def import_candlepin_data(mkt_product_usage=[],
             environment = pu.splice_server,
             splice_server = pu.splice_server,
             pool_uuid = this_pool.uuid,
-            pool_provided_products = this_pool.provided_products,
+            pool_provided_products = provided_products,
             pool_start = this_pool.start_date,
             pool_end = this_pool.end_date,
             pool_active = this_pool.active,

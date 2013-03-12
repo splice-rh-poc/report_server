@@ -159,7 +159,7 @@ class MarketingReportData(Document):
     environment = StringField(required=True)
     splice_server = StringField(required=True)
     pool_uuid = StringField(required=True)
-    pool_provided_products = ListField(required=True)
+    pool_provided_products = StringField(required=True)
     pool_start = DateTimeField(required=True)
     pool_end = DateTimeField(required=True)
     pool_active = BooleanField(required=True)
