@@ -137,17 +137,11 @@ class MarketingReportData(Document):
     meta = {
         'db_alias': 'results',
         'allow_inheritance': True,
-        'indexes': [('splice_server', 'instance_identifier', 'hour',
-                     'product'),
+        'indexes': [('splice_server', 'instance_identifier', 'hour'),
                     'date'],
     }
 
     instance_identifier = StringField(required=True)
-    account = StringField(required=True)
-    contract = StringField(required=True)
-    product = StringField(required=True)
-    product_name = StringField(required=True)
-    quantity = IntField(required=True)
     status = StringField(required=True)
     date = DateTimeField(required=True)
     created = DateTimeField(required=True)
@@ -158,26 +152,15 @@ class MarketingReportData(Document):
     facts = StringField(required=True)
     environment = StringField(required=True)
     splice_server = StringField(required=True)
-    pool_uuid = StringField(required=True)
-    pool_provided_products = StringField(required=True)
-    pool_start = DateTimeField(required=True)
-    pool_end = DateTimeField(required=True)
-    pool_active = BooleanField(required=True)
-    pool_quantity = IntField(required=True)
+    product_info = StringField(required=True)
+    
 
 
     record_identifier = StringField(required=True, unique_with=['splice_server',
-                                    'instance_identifier', 'hour', 'product'])
+                                    'instance_identifier', 'hour'])
 
     def to_dict(self):
         return {'instance_identifier': self.instance_identifier,
-                'account': self.account,
-                'contract': self.contract,
-                'product': self.product,
-                'product_name': self.product_name,
-                'pool_uuid': self.pool_uuid,
-                'pool': self.pool,
-                'quantity': self.quantity,
                 'status': self.status,
                 'date': self.date,
                 'created': self.created,
@@ -188,7 +171,7 @@ class MarketingReportData(Document):
                 'facts': self.facts,
                 'environment': self.environment,
                 'splice_server': self.splice_server,
-                'duplicate': self.duplicate,
+                'product_info': self.product_info,
                 'record_identifier': self.record_identifier
                 }
 

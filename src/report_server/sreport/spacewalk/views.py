@@ -13,10 +13,11 @@
 from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from splice.common.utils import convert_to_datetime
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.common import constants, utils
 from report_server.sreport.models import MarketingReportData
+from splice.common.utils import convert_to_datetime
+from splice.common import config
 import logging
 import sys
 
@@ -27,11 +28,11 @@ def report_form(request):
     _LOG.info("space_form called by method: %s" % (request.method))
     user = str(request.user)
     environments = MarketingReportData.objects.distinct("splice_server")
-    contracts = MarketingReportData.objects.distinct("contract")
+    status = MarketingReportData.objects.distinct("status")
     response_data = {}
     response_data['user'] = user
     response_data['environments'] = environments
-    response_data['contracts'] = contracts
+    response_data['status'] = status
 
     _LOG.info(response_data)
 
@@ -59,15 +60,34 @@ def report(request):
     else:
         environment = "All"
 
-    contract = data["contract_number"]
+    status = data["status"]
     results = []
-    invalid = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end)
-    partial = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end)
+    _LOG.info("status =" + status)
+    if status == "All":
+        results  = MarketingReportData.objects.filter(date__gt=start, date__lt=end)
+        #r  = MarketingReportData.objects.all()
+    elif status == "valid":
+        results = MarketingReportData.objects.filter(status='valid', date__gt=start, date__lt=end)
+    elif status == "invalid":
+        results = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end)
+    elif status == "partial":
+        results = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end)
+    elif status == "Failed":
+        invalid = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end)
+        partial = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end)
+        if invalid:
+            results.append(invalid[0])
+        if partial:
+            results.append(partial[0])
 
+    if results:
+        _LOG.info(len(results))
+    """
     if invalid:
         results.append(invalid[0])
     if partial:
         results.append(partial[0])
+    """
     format = constants.full_format
 
     response_data = {}
@@ -83,11 +103,17 @@ def instance_detail(request):
     #account = Account.objects.filter(login=user)[0].account_id
     instance = data["instance"]
     date = convert_to_datetime(data["date"])
-    results = MarketingReportData.objects.filter(instance_identifier=instance, date=date)
-    _LOG.info("in view")
-    _LOG.info(results[0]["facts"])
+    results = MarketingReportData.objects.filter(instance_identifier=instance, date=date)[0]
+
 
     response_data = {}
-    response_data['list'] = results
+    response_data['space_hostname'] = config.CONFIG.get('spacewalk', 'db_host')
+    response_data['facts'] = results["facts"]
+    response_data['product_info'] = results["product_info"]
+    response_data['status'] = results["status"]
+    response_data['splice_server'] = results["splice_server"]
+    response_data['system_id'] = results["systemid"]
+    response_data['instance_identifier'] = results["instance_identifier"]
+    response_data['date'] = results["date"]
 
     return create_response(response_data)

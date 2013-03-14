@@ -76,13 +76,16 @@ function csrfSafeMethod(method) {
 
 
 function setupCreateForm(){
-    var select_contract = $('#contract');
+    var select_status = $('#status');
     var select_rhic = $('#rhic');
     var select_env = $('#env');
+    var select_org = $('#org');
+
     
-    select_contract.empty();
+    select_status.empty();
     select_rhic.empty();
     select_env.empty();
+    select_org.empty();
     
     var FormDatum = Backbone.Model.extend({});
 
@@ -102,22 +105,32 @@ function setupCreateForm(){
       render: function(){
 
         this.collection.each(function(item) {
-            var list = item.get('contracts')
+            var list = item.get('status')
             
-            select_contract.append($('<option selected value=All>All</option>'));
+            select_status.append($('<option selected value=Failed>Failed</option>'));
+            select_status.append($('<option selected value=All>All</option>'));
             for (i in list){
-                select_contract.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+                name = list[i].charAt(0).toUpperCase() + list[i].slice(1);
+                select_status.append($('<option value=' + list[i] + '>' + name + '</option>'));
             }
             
             var list = item.get('environments')
+            select_env.append($('<option selected value=All>All</option>'));
             for (i in list){
                select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+            }
+
+            var list = item.get('organizations')
+            select_org.append($('<option selected value=All>All</option>'));
+            for (i in list){
+               select_org.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
          
         });
         
-        select_contract.chosen();
+        select_status.chosen();
         select_env.chosen();
+        select_org.chosen();
       }
       
     });
@@ -158,7 +171,9 @@ function createReport(event) {
         });
         
         var data = {
-            contract_number:    $('#contract').val(),
+            status:    $('#status').val(),
+            env:    $('#env').val(),
+            org:    $('#org').val()
         };
         
         if ($('#byMonth').val() == ""){
@@ -169,7 +184,7 @@ function createReport(event) {
             data.byMonth = $('#byMonth').val();
         }
         
-        
+        console.log(data);
         var createReport = new CreateReport();
         console.log(createReport.toJSON());
         
@@ -223,13 +238,13 @@ function populateReport(rtn, pane) {
         editable : false,
         cell : "string"
     },{
-        name : "product_name",
-        label : "Subscription:",
+        name : "splice_server",
+        label : "Satellite Server:",
         editable : false,
         cell : "string"
     }, {
-        name : "pool_uuid",
-        label : "Pool UUID:",
+        name : "organization",
+        label : "Organization:",
         editable : false,
         cell : "string"
     }, {
@@ -324,12 +339,19 @@ function populateInstanceDetailReport(rtn) {
     var pane = $('#instance_details');
     pane.empty();
     
-    instance = rtn.get('list');
+    var facts = rtn.get('facts');
+    var product_info = JSON.parse(rtn.get('product_info'))
+    var status = rtn.get('status')
+    var splice_server = rtn.get('splice_server')
+    var system_id = rtn.get('system_id')
+    var instance_identifier = rtn.get('instance_identifier')
+    var date = rtn.get('date')
+    var spacewalk = rtn.get('space_hostname')
     
-    var InstanceCheckin = Backbone.Model.extend();
+    var ProductModel = Backbone.Model.extend();
 
-    var InstanceCheckinCollection = Backbone.Collection.extend({
-        model : InstanceCheckin
+    var ProductCollection = Backbone.Collection.extend({
+        model : ProductModel
     });
     
     var CustomSelectCellEditor = Backgrid.SelectCellEditor.extend({
@@ -348,13 +370,8 @@ function populateInstanceDetailReport(rtn) {
     
     
     var columnsInstance = [{
-        name : "instance_identifier",
-        label : "UUID:",
-        cell : "string",
-        editable: false
-    },{
-        name : "systemid",
-        label : "System ID:",
+        name : "product_id",
+        label : "Subscription ID:",
         cell : "string",
         editable: false
     },{
@@ -363,21 +380,16 @@ function populateInstanceDetailReport(rtn) {
         cell : "string",
         editable: false
     },{
-        name : "product",
-        label : "Subscription ID:",
+        name : "product_account",
+        label : "Account:",
         cell : "string",
         editable: false
     },{
-        name : "date",
-        label : "Checkin @:",
+        name : "product_quantity",
+        label : "Number of Consumed:",
         cell : "string",
         editable: false
-    },{
-        name : "splice_server",
-        label : "Environment:",
-        cell : "string",
-        editable: false
-    },];
+    }];
 
 
     var columnsPool = [{
@@ -407,7 +419,7 @@ function populateInstanceDetailReport(rtn) {
         editable: false
     }];
     
-    var myinstance = new InstanceCheckinCollection(instance);
+    var myinstance = new ProductCollection(product_info);
 
     var gridInstance = new Backgrid.Grid({
         columns : columnsInstance,
@@ -420,6 +432,7 @@ function populateInstanceDetailReport(rtn) {
         collection : myinstance
     });
 
+    pane.append("<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">link to system</a>")
     pane.append('<br>');
     pane.append('<h3>Instance Detail:</h3>');
     pane.append(gridInstance.render().$el);
@@ -428,17 +441,19 @@ function populateInstanceDetailReport(rtn) {
     pane.append(gridPool.render().$el);
     pane.append('<br>');
     pane.append('<h3>Provided Products:</h3>');
-    var products = myinstance.at(0).get('pool_provided_products');
-    products = JSON.parse( products );
-    $.each(products, function( key, value ){
-        pane.append("<li>" + value.name  + "</li>")
-    });
+    
 
+    $.each(product_info, function(key, value){
+        $.each(value.pool_provided_products, function( key, value ){
+            pane.append("<li>" + value.name  + "</li>")
+        });
+    });
+    
     pane.append('<br>');
     pane.append('<h3>Instance Facts:</h3>');
 
-    var factsString = myinstance.at(0).get('facts');
-    var facts = JSON.parse( factsString );
+
+    var facts = JSON.parse( facts );
 
     $.each(facts, function( key, value ){
         pane.append("<li>" + key + ": " + value + "</li>")

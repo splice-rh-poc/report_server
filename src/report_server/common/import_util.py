@@ -223,21 +223,34 @@ def import_candlepin_data(mkt_product_usage=[],
             # We must convert from str to datetime for ReportServer to be able to process this data
             pu.created = utils.convert_to_datetime(pu.created) 
 
-        id = pu.product_info[0]["product"]
-        this_product = Product.objects.filter(product_id=id)[0]
-        this_pool = Pool.objects.filter(product_id=id)[0]
+        subscriptions = []
+        for p in pu.product_info:
+            this_product = Product.objects.filter(product_id=p["product"])[0]
+            this_pool = Pool.objects.filter(product_id=p["product"])[0]
+            mydict = {}
+            mydict["product_account"] = p["account"]
+            mydict["product_id"] = p["product"]
+            mydict["product_name"] = this_product.name
+            mydict["product_contract"] = p["contract"]
+            mydict["product_quantity"] = p["quantity"]
+            
+            mydict["pool_uuid"] = this_pool.uuid
+            mydict["pool_provided_products"] = this_pool.provided_products
+            mydict["pool_start"] = this_pool.start_date
+            mydict["pool_end"] = this_pool.end_date
+            mydict["pool_active"] = this_pool.active
+            mydict["pool_quantity"] = this_pool.quantity
+
+            subscriptions.append(mydict)
+
+        product_info = utils.obj_to_json(subscriptions)
         facts = utils.obj_to_json(pu.facts)
-        provided_products = utils.obj_to_json(this_pool.provided_products)
+        
         _LOG.info("TYPE PROVIDED PRODUCTS ")
-        _LOG.info(type(provided_products))
+        _LOG.info(type(product_info))
         
         rd = MarketingReportData(
             instance_identifier = pu.instance_identifier,
-            account = pu.product_info[0]["account"],
-            contract = pu.product_info[0]["contract"],
-            product = this_product.product_id,
-            product_name = this_product.attrs["name"],
-            quantity = pu.product_info[0]["quantity"],
             status = pu.entitlement_status,
             date = pu.date,
             created = pu.created,
@@ -248,16 +261,11 @@ def import_candlepin_data(mkt_product_usage=[],
             facts = facts,
             environment = pu.splice_server,
             splice_server = pu.splice_server,
-            pool_uuid = this_pool.uuid,
-            pool_provided_products = provided_products,
-            pool_start = this_pool.start_date,
-            pool_end = this_pool.end_date,
-            pool_active = this_pool.active,
-            pool_quantity = this_pool.quantity,
+            product_info = product_info,
             record_identifier = (pu.splice_server +
                                  str(pu.instance_identifier) +
-                                 pu.date.strftime(constants.hr_fmt) +
-                                 pu.product_info[0]["product"])            
+                                 pu.date.strftime(constants.hr_fmt) 
+                                 )            
         
         )
         
