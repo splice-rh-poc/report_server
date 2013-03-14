@@ -205,6 +205,55 @@ function createReport(event) {
 	
 }
 
+function create_default_report(event){
+    document.getElementById("report_form").style.display = "none"
+    $('#default_report_results_ui').empty();
+    $('#default_report_results').empty();
+    event.preventDefault();
+    
+    if (logged_in) {
+        var data = {};
+        var dtoday = Date.today();
+        console.log(dtoday);
+
+        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
+        data['endDate'] = Date.today().toString("M/d/yyyy");
+        data['env'] = "All"
+        data['org'] = "All"
+        data['status'] = "All"
+        
+        console.log(data);
+        var DefaultReport = Backbone.Model.extend({
+            url : '/report-server/space/report/'
+        });
+    
+        var defaultReport = new DefaultReport();
+    
+        
+        defaultReport.save(data, {
+            success : function(model, response) {
+                console.log('SUCCESS');
+                console.log(response);
+                
+                $('#report_pane > div').empty();
+                var pane = '#report_pane > div';
+                var num = populateReport(response, pane );
+                openReport();
+                
+                //$('#default_report_results').append("<br><br><br><br><br><br>");
+                //num = populateReport(response, "#default_report_results");
+                //fact = populateFactComplianceReport(response.biz_list, "#default_report_results");
+
+            }
+        });
+
+        
+    }
+    
+    
+   
+}
+
 
 function populateReport(rtn, pane) {
     var pane = $(pane);
@@ -288,7 +337,6 @@ function populateReport(rtn, pane) {
         pane.append(table);
         pane.append(pageableGrid.render().$el);
         button_run_another_report(pane);
-        glossary_report(pane);
     } else {
         console.log('pass')
         result_ui = $('#report_pane > div');
@@ -466,53 +514,7 @@ function populateInstanceDetailReport(rtn) {
 }
 
 
-function create_default_report(event){
-    document.getElementById("report_form").style.display = "none"
-    $('#default_report_results_ui').empty();
-    $('#default_report_results').empty();
-    event.preventDefault();
-    
-    if (logged_in) {
-        var data = {};
-        var dtoday = Date.today();
-        console.log(dtoday);
 
-        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
-        data['endDate'] = Date.today().toString("M/d/yyyy");
-        data['env'] = "All"
-        data['contract_number'] = "All"
-        
-        console.log(data);
-        var DefaultReport = Backbone.Model.extend({
-            url : '/report-server/space/report/'
-        });
-    
-        var defaultReport = new DefaultReport();
-    
-        
-        defaultReport.save(data, {
-            success : function(model, response) {
-                console.log('SUCCESS');
-                console.log(response);
-                
-                $('#report_pane > div').empty();
-                var pane = '#report_pane > div';
-                var num = populateReport(response, pane );
-                openReport();
-                
-                //$('#default_report_results').append("<br><br><br><br><br><br>");
-                //num = populateReport(response, "#default_report_results");
-                //fact = populateFactComplianceReport(response.biz_list, "#default_report_results");
-
-            }
-        });
-
-        
-    }
-    
-    
-   
-}
 
 
 function createQuarantineReport() {
