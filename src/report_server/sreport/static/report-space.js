@@ -333,7 +333,7 @@ function populateReport(rtn, pane) {
     if (rtn.list.length + fact > 0) {
         console.log('fail')
         var table = $('<table width=\"60%\" align=\"right\"></table>');
-        table.append('<img border=0 src="/static/fail.png") alt="fail" width="100" height="100">');
+        table.append('<img border=0 src="/static/fail.jpg") alt="fail" width="100" height="100">');
         pane.append(table);
         pane.append(pageableGrid.render().$el);
         button_run_another_report(pane);
