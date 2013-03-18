@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.67
+Version:	0.68
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -255,6 +255,38 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Mar 18 2013 wes hayutin <weshayutin@gmail.com> 0.68-1
+- clean up (weshayutin@gmail.com)
+- have dashboard working w/ counts and grid hover (weshayutin@gmail.com)
+- creating dashboard (weshayutin@gmail.com)
+- changed icon (weshayutin@gmail.com)
+- fix default report (weshayutin@gmail.com)
+- modified instance to show multiple products and pools per instance
+  (weshayutin@gmail.com)
+- added some details to the instance details page (whayutin@redhat.com)
+- default report (whayutin@redhat.com)
+- instance details (whayutin@redhat.com)
+- instance detail added (whayutin@redhat.com)
+- added product and pool to report (whayutin@redhat.com)
+- added product and pool to report (whayutin@redhat.com)
+- building report from satellite data (whayutin@redhat.com)
+- report-form is working (whayutin@redhat.com)
+- added date conversion , and fixed init script logging param
+  (whayutin@redhat.com)
+- first commit for marketing product usage (whayutin@redhat.com)
+- updated marketing product doc (whayutin@redhat.com)
+- Merge branch 'master' of github.com:splice/report_server
+  (whayutin@redhat.com)
+- added mkt product example (whayutin@redhat.com)
+- added retrieve options and made some comments (whayutin@redhat.com)
+- added log statement w/ product (whayutin@redhat.com)
+- have updating product from select box working (whayutin@redhat.com)
+- override select cell (whayutin@redhat.com)
+- add false product entries (whayutin@redhat.com)
+- Merge branch 'master' of github.com:splice/report_server
+  (whayutin@redhat.com)
+- added some code to demo remediation (whayutin@redhat.com)
+
 * Mon Mar 04 2013 Wes Hayutin <whayutin@redhat.com> 0.67-1
 - remove rhic-serve dep (whayutin@redhat.com)
 
