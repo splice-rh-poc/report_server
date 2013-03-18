@@ -332,34 +332,25 @@ function populateReport(rtn, pane) {
 
     if (rtn.list.length + fact > 0) {
         console.log('fail')
-        /*
-        var table = $('<table width=\"60%\" align=\"right\"></table>');
-        table.append('<img border=0 src="/static/fail.jpg") alt="fail" width="100" height="100">');
-        pane.append(table);
-        */
+ 
         var dash = $('<div class="dash">');
         var dashhead = $('<div class="dashhead">');
         var clearportal = $('<div class="fl clear portal">');
         var dashboard_subscriptions = $('<div id="dashboard_subscriptions">');
 
 
-        dashboard_subscriptions.append('<hr width="300px">');
+        dashboard_subscriptions.append('<hr width="350px">');
         var table = $('<table width=\"60%\"></table>');
-        table.append('<tr><td>line 1 </td></tr>');
-        table.append('<tr><td>line 2 </td></tr>');
-        table.append('<tr><td>line 3 </td></tr>');
+        table.append('<tr><td>Invalid Subscriptions</td><td>' + rtn.num_invalid + '</td></tr>');
+        table.append('<tr><td>Insufficient Subscriptions</td><td>' + rtn.num_partial + '</td></tr>');
+        table.append('<tr><td>Current Subscriptions</td><td>' + rtn.num_valid + '</td></tr>');
 
         table.append('</table>');
         dashboard_subscriptions.append(table);
-
-
-        //clearportal.append(dashboard_subscriptions);
         dashhead.append('<h2 class="fl">System Subscription Status</h2>');
-        //dashhead.append('<img border=0 src="/static/fail.jpg") class="status_icon" alt="fail" width="50" height="50">');
         dashhead.append('<div class="status_icon" alt="fail">');
         dashhead.append(dashboard_subscriptions);
         dash.append(dashhead);
-        //dash.append(clearportal);
 
         pane.append(dash);
         pane.append(pageableGrid.render().$el);

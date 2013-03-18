@@ -41,6 +41,14 @@
   border: 1px solid #DDD;
 }
 
+.backgrid tr:hover {
+    background-color: #DDD;
+}
+
+.backgrid td:hover {
+    cursor: pointer;
+}
+
 .backgrid th {
   font-weight: bold;
   cursor: pointer;

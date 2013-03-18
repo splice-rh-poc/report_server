@@ -82,18 +82,20 @@ def report(request):
 
     if results:
         _LOG.info(len(results))
-    """
-    if invalid:
-        results.append(invalid[0])
-    if partial:
-        results.append(partial[0])
-    """
+
+    num_valid = MarketingReportData.objects.filter(status='valid', date__gt=start, date__lt=end).count()
+    num_invalid = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end).count()
+    num_partial = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end).count()
+    
     format = constants.full_format
 
     response_data = {}
     response_data['list'] = results
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
+    response_data['num_valid'] = str(num_valid)
+    response_data['num_invalid'] = str(num_invalid)
+    response_data['num_partial'] = str(num_partial)
 
     return create_response(response_data)
 
