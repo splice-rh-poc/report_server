@@ -328,42 +328,29 @@ function populateReport(rtn, pane) {
 
     });
 
-    fact = 0;
-
-    if (rtn.list.length + fact > 0) {
-        console.log('fail')
- 
-        var dash = $('<div class="dash">');
-        var dashhead = $('<div class="dashhead">');
-        var clearportal = $('<div class="fl clear portal">');
-        var dashboard_subscriptions = $('<div id="dashboard_subscriptions">');
+    var dash = $('<div class="dash">');
+    var dashhead = $('<div class="dashhead">');
+    var clearportal = $('<div class="fl clear portal">');
+    var dashboard_subscriptions = $('<div id="dashboard_subscriptions">');
 
 
-        dashboard_subscriptions.append('<hr width="350px">');
-        var table = $('<table width=\"60%\"></table>');
-        table.append('<tr><td>Invalid Subscriptions</td><td>' + rtn.num_invalid + '</td></tr>');
-        table.append('<tr><td>Insufficient Subscriptions</td><td>' + rtn.num_partial + '</td></tr>');
-        table.append('<tr><td>Current Subscriptions</td><td>' + rtn.num_valid + '</td></tr>');
+    dashboard_subscriptions.append('<hr width="350px">');
+    var table = $('<table width=\"60%\"></table>');
+    table.append('<tr><td>Invalid Subscriptions</td><td>' + rtn.num_invalid + '</td></tr>');
+    table.append('<tr><td>Insufficient Subscriptions</td><td>' + rtn.num_partial + '</td></tr>');
+    table.append('<tr><td>Current Subscriptions</td><td>' + rtn.num_valid + '</td></tr>');
 
-        table.append('</table>');
-        dashboard_subscriptions.append(table);
-        dashhead.append('<h2 class="fl">System Subscription Status</h2>');
-        dashhead.append('<div class="status_icon" alt="fail">');
-        dashhead.append(dashboard_subscriptions);
-        dash.append(dashhead);
+    table.append('</table>');
+    dashboard_subscriptions.append(table);
+    dashhead.append('<h2 class="fl">System Subscription Status</h2>');
+    dashhead.append('<div class="status_icon" alt="fail">');
+    dashhead.append(dashboard_subscriptions);
+    dash.append(dashhead);
 
-        pane.append(dash);
-        pane.append(pageableGrid.render().$el);
-        button_run_another_report(pane);
-    } else {
-        console.log('pass')
-        result_ui = $('#report_pane > div');
-        var table = $('<table width=\"60%\" align=\"right\"></table>');
-        table.append('<img border=0 src="/static/pass.jpg") alt="fail" width="100" height="100">');
-        pane.append(table);
-    }
-
-    
+    pane.append(dash);
+    pane.append(pageableGrid.render().$el);
+    button_run_another_report(pane);
+  
 
     return rtn.list.length
 
@@ -498,7 +485,7 @@ function populateInstanceDetailReport(rtn) {
         collection : myinstance
     });
 
-    pane.append("<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">link to system</a>")
+    pane.append("<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">Link to System Detail's page in Satellite</a>")
     pane.append('<br>');
     pane.append('<h3>Instance Detail:</h3>');
     pane.append(gridInstance.render().$el);
