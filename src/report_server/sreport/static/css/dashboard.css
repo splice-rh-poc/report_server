@@ -1,0 +1,52 @@
+
+
+/* box for "errors" on the custom 500 error page */
+.dash {
+    background-color: #F9F8F8;
+    background-image: linear-gradient(#F7F7F7, #EEEEEE);
+    background-size: 50% auto;
+    border: 1px solid #D7D7D7;
+    border-radius: 3px 3px 3px 3px;
+    margin-bottom: 10px;
+    margin-right: 50%;
+    padding: 10px 10px 0 15px;
+    position: relative;
+    h1, h2, h3 {
+        margin-top: 3px;
+    }
+    h1, h2, h3, h4, h5 {
+      font-weight: normal;
+    }
+    h2 {
+      font-size: 145%;
+    }
+    hr {
+      height: 1px;
+      border: 0;
+      background: #c7c7c7;
+
+    }
+    .dashhead {
+        position: relative;
+    }
+
+    #dashboard_subscriptions {
+      color: #939292;
+      height: 153px;
+            
+ 
+    }
+
+    .status_icon {
+      position: absolute;
+      left: 300px; 
+      top: 50px;
+      z-index: -1;
+    }
+
+
+    
+
+     
+
+}

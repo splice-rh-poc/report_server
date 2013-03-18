@@ -72,3 +72,44 @@ table#max_data {
 	clear:none;
 	background: {{ STATIC_URL }}transbg.png
 }
+
+.alignleft {
+display: block;
+margin-left: 0;
+margin-right: auto;
+}
+.aligncenter {
+display: block;
+margin-left: auto;
+margin-right: auto;
+}
+.alignright {
+display: block;
+margin-left: auto;
+margin-right: 0;
+}
+
+
+
+
+.status_background {
+    height: 150px;
+    width: 170px;
+    position: absolute;
+    left: 350px;
+    top: 5px;
+    background-color: #c00;
+
+
+}
+
+.status_icon {
+            background: url("chart_overlay.png") no-repeat;
+            height: 150px;
+            width: 170px;
+            position: absolute;
+            left: 350px;
+            top: 5px;
+            z-index: 1;
+            opacity: 1;
+}
