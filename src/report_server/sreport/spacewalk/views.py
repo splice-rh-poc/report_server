@@ -130,17 +130,30 @@ def export(request):
     status = request.GET["status"]
     environment = request.GET['env']
 
+    _LOG.info(status)
+    _LOG.info(environment)
+
     
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
         MarketingReportData.__name__)
     writer = csv.writer(response)
 
+    if status == "All":
+        for obj in MarketingReportData.objects.filter(date__gt=start, date__lt=end):
+            _LOG.info(obj.product_info)
+            products = json.loads(obj.product_info)
+            _LOG.info(products)
+            for p in products:
+                row = [obj.instance_identifier, obj.hour, obj.splice_server, p["product_id"], 
+                p["product_account"], p["product_contract"], p["product_quantity"], p["pool_uuid"]]
+                writer.writerow(row)
+            # Return CSV file to browser as download
+    else:
+        for obj in MarketingReportData.objects.filter(status=status, date__gt=start, date__lt=end):
+            row = [obj.instance_identifier, obj.hour, obj.splice_server]
+            writer.writerow(row)
 
-    for obj in MarketingReportData.objects.filter(date__gt=start, date__lt=end):
-        row = [obj.instance_identifier, obj.hour, obj.splice_server]
-        writer.writerow(row)
-    # Return CSV file to browser as download
     return response
 
 def create_export_report(request):
