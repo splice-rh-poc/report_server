@@ -297,6 +297,11 @@ function populateReport(rtn, pane) {
         editable : false,
         cell : "string"
     }, {
+        name : "updated",
+        label : "Last Checkin:",
+        editable : false,
+        cell : "datetime"
+    }, {
         name : "status",
         label : "Subscription Status:",
         editable : false,
