@@ -13,11 +13,15 @@
 from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.template.defaultfilters import slugify
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.common import constants, utils
 from report_server.sreport.models import MarketingReportData
 from splice.common.utils import convert_to_datetime
 from splice.common import config
+
+import csv
+import json
 import logging
 import sys
 
@@ -118,4 +122,77 @@ def instance_detail(request):
     response_data['instance_identifier'] = results["instance_identifier"]
     response_data['date'] = results["date"]
 
+    return create_response(response_data)
+
+def export(request):
+    #if request.method == 'GET':
+    start, end = get_dates_from_request(request)
+    status = request.GET["status"]
+    environment = request.GET['env']
+
+    
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(
+        MarketingReportData.__name__)
+    writer = csv.writer(response)
+
+
+    for obj in MarketingReportData.objects.filter(date__gt=start, date__lt=end):
+        row = [obj.instance_identifier, obj.hour, obj.splice_server]
+        writer.writerow(row)
+    # Return CSV file to browser as download
+    return response
+
+def create_export_report(request):
+    
+    _LOG.info("report called by method: %s" % (request.method))
+
+    user = str(request.user)
+    account = Account.objects.filter(login=user)[0].account_id
+    start, end = get_dates_from_request(request)
+    
+    if 'env' in request.GET:
+        environment = request.GET['env']
+    else:
+        environment = "All"
+
+
+    status = request.GET["status"]
+    results = []
+    _LOG.info("status =" + status)
+    if status == "All":
+        results  = MarketingReportData.objects.filter(date__gt=start, date__lt=end)
+        #r  = MarketingReportData.objects.all()
+    elif status == "valid":
+        results = MarketingReportData.objects.filter(status='valid', date__gt=start, date__lt=end)
+    elif status == "invalid":
+        results = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end)
+    elif status == "partial":
+        results = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end)
+    elif status == "Failed":
+        invalid = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end)
+        partial = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end)
+        if invalid:
+            results.append(invalid[0])
+        if partial:
+            results.append(partial[0])
+
+    if results:
+        _LOG.info(len(results))
+
+    num_valid = MarketingReportData.objects.filter(status='valid', date__gt=start, date__lt=end).count()
+    num_invalid = MarketingReportData.objects.filter(status='invalid', date__gt=start, date__lt=end).count()
+    num_partial = MarketingReportData.objects.filter(status='partial', date__gt=start, date__lt=end).count()
+    
+    format = constants.full_format
+
+    response_data = {}
+    response_data['list'] = results
+    response_data['start'] = start.strftime(format)
+    response_data['end'] = end.strftime(format)
+    response_data['num_valid'] = str(num_valid)
+    response_data['num_invalid'] = str(num_invalid)
+    response_data['num_partial'] = str(num_partial)
+
+    #return create_response(utils.to_json(response_data))
     return create_response(response_data)

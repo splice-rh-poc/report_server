@@ -54,7 +54,7 @@ urlpatterns = patterns('',
     (r'^meter/report_form_rhics/$', 'report_server.sreport.views.report_form_rhics'),
     (r'^meter/report/$', 'report_server.sreport.meter.views.report'),
     (r'^meter/default_report/$', 'report_server.sreport.views.default_report'),
-    (r'^meter/export/$', 'report_server.sreport.views.export'),
+    (r'^meter/export/$', 'report_server.sreport.meter.views.export'),
     (r'^meter/details/$', 'report_server.sreport.views.detailed_report'),
     (r'^meter/max_report/$', 'report_server.sreport.views.max_report'),
     (r'^meter/quarantine/$', 'report_server.sreport.views.quarantined_report'),
@@ -63,7 +63,10 @@ urlpatterns = patterns('',
     
     (r'^space/$', 'report_server.sreport.views.start_space'),
     (r'^space/report_form/$', 'report_server.sreport.spacewalk.views.report_form'),
-    (r'^report-server/space/instance_details/$', 'report_server.sreport.spacewalk.views.instance_detail'),
+    (r'^space/report/$', 'report_server.sreport.spacewalk.views.report'),
+    (r'^space/instance_details/$', 'report_server.sreport.spacewalk.views.instance_detail'),
+    (r'^space/export/$', 'report_server.sreport.spacewalk.views.export')
+
 
 )
 
