@@ -428,13 +428,18 @@ function populateInstanceDetailReport(rtn) {
     
     
     var columnsInstance = [{
+        name : "product_name",
+        label : "Subscription:",
+        cell : "string",
+        editable: false
+    },{
         name : "product_id",
         label : "Subscription ID:",
         cell : "string",
         editable: false
     },{
-        name : "product_name",
-        label : "Subscription:",
+        name : "pool_uuid",
+        label : "Pool UUID:",
         cell : "string",
         editable: false
     },{
@@ -443,26 +448,13 @@ function populateInstanceDetailReport(rtn) {
         cell : "string",
         editable: false
     },{
+        name : "product_contract",
+        label : "Contract:",
+        cell : "string",
+        editable: false
+    },{
         name : "product_quantity",
-        label : "Number of Consumed:",
-        cell : "string",
-        editable: false
-    }];
-
-
-    var columnsPool = [{
-        name : "pool_uuid",
-        label : "Pool UUID:",
-        cell : "string",
-        editable: false
-    },{
-        name : "pool_active",
-        label : "Pool Active?",
-        cell : "string",
-        editable: false
-    },{
-        name : "pool_quantity",
-        label : "Available:",
+        label : "Consumed:",
         cell : "string",
         editable: false
     },{
@@ -476,6 +468,9 @@ function populateInstanceDetailReport(rtn) {
         cell : "string",
         editable: false
     }];
+
+
+    var columnsPool = [];
     
     var myinstance = new ProductCollection(product_info);
 
@@ -484,38 +479,46 @@ function populateInstanceDetailReport(rtn) {
         collection : myinstance
     });
 
-
+    /*
     var gridPool = new Backgrid.Grid({
         columns : columnsPool,
         collection : myinstance
     });
+*/
 
     pane.append("<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">Link to System Detail's page in Satellite</a>")
     pane.append('<br>');
     pane.append('<h3>Instance Detail:</h3>');
     pane.append(gridInstance.render().$el);
     pane.append('<br>');
-    pane.append('<h3>Pool Detail:</h3>');
-    pane.append(gridPool.render().$el);
-    pane.append('<br>');
+
     pane.append('<h3>Provided Products:</h3>');
     
 
     $.each(product_info, function(key, value){
+        pane.append("<b><li>" + value.product_name + "</li></b>")
         $.each(value.pool_provided_products, function( key, value ){
-            pane.append("<li>" + value.name  + "</li>")
+            pane.append("<li>&nbsp&nbsp&nbsp" + value.name  + "</li>")
         });
     });
     
     pane.append('<br>');
     pane.append('<h3>Instance Facts:</h3>');
-
+    var list_view = $('<div id=instance_facts>');
+    button_show_details(pane);
+    
 
     var facts = JSON.parse( facts );
-
     $.each(facts, function( key, value ){
-        pane.append("<li>" + key + ": " + value + "</li>")
+        list_view.append("<li>" + key + ": " + value + "</li>")
     });
+    list_view.append('</div>');
+    list_view.hide();
+    pane.append(list_view);
+    $("button").click(function (){
+            list_view.toggle("slow");
+            
+    })
 
     if (!$('#instance_details').is(':visible')) {
         $('#instance_details').show();
