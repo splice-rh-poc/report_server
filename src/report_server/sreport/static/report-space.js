@@ -80,12 +80,16 @@ function setupCreateForm(){
     var select_rhic = $('#rhic');
     var select_env = $('#env');
     var select_org = $('#org');
+    var select_sys_host = $('#sys_host');
+    var select_sys_id = $('#sys_id');
 
     
     select_status.empty();
     select_rhic.empty();
     select_env.empty();
     select_org.empty();
+    select_sys_host.empty();
+    select_sys_id.empty();
     
     var FormDatum = Backbone.Model.extend({});
 
@@ -125,12 +129,26 @@ function setupCreateForm(){
             for (i in list){
                select_org.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
+
+            var list = item.get('sys_host')
+            select_sys_host.append($('<option selected value=All>All</option>'));
+            for (i in list){
+               select_sys_host.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+            }
+
+            var list = item.get('sys_id')
+            select_sys_id.append($('<option selected value=All>All</option>'));
+            for (i in list){
+               select_sys_id.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+            }
          
         });
         
         select_status.chosen();
         select_env.chosen();
         select_org.chosen();
+        select_sys_host.chosen({ max_choices: 1 });
+        select_sys_id.chosen({ max_choices: 5 });
       }
       
     });
@@ -257,9 +275,11 @@ function create_default_report(event){
 
 function populateReport(rtn, pane) {
     var pane = $(pane);
+    pane.empty();
+    setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
     var this_div = $('<div this_rhic_table>');
 
-    setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
+    
     var Report = {};
 
     var Report = Backbone.Model.extend();
@@ -396,7 +416,8 @@ function populateInstanceDetailReport(rtn) {
     console.log('in pop instc details');
     var pane = $('#instance_details');
     pane.empty();
-    
+    //setup_description(pane, rtn.get('date'));
+
     var facts = rtn.get('facts');
     var product_info = JSON.parse(rtn.get('product_info'))
     var status = rtn.get('status')
@@ -498,7 +519,7 @@ function populateInstanceDetailReport(rtn) {
     table.append('<tr><td>Hostname: </td><td>' + 'this_hostname' + '</td></tr>');
     var link_to_system = "<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">Go to System Detail's Page </a>"
     table.append('<tr><td>Remediate: </td><td>' + link_to_system + '</td></tr>');
-    table.append('<tr><td>Failure: </td><td>' + 'biz rules failure explanation' + '</td></tr>');
+    table.append('<tr><td>Status: </td><td>' + 'biz rules failure explanation' + '</td></tr>');
 
     table.append('</table>');
     dashboard_subscriptions.append(table);
@@ -514,39 +535,73 @@ function populateInstanceDetailReport(rtn) {
     pane.append(gridInstance.render().$el);
     pane.append('<br>');
 
-    pane.append('<b>Provided Products:</b>');
-    var eng_prod_view = $('<div id=eng_prod>');
-    button_details(pane, "eng_prod_button", "  show/hide");
-
-    $.each(product_info, function(key, value){
-        eng_prod_view.append("<b><li>" + value.product_name + "</li></b>")
-        $.each(value.pool_provided_products, function( key, value ){
-            eng_prod_view.append("<li>&nbsp&nbsp&nbsp" + value.name  + "</li>")
-        });
-    });
-    eng_prod_view.append('</div>');
-    eng_prod_view.hide();
-    pane.append(eng_prod_view);
-    $("#eng_prod_button").click(function (){
-            eng_prod_view.toggle("slow");
+    //SYSTEM DETAIL
+    pane.append('<b>System Details:</b>');
+    var sys_detail_view = $('<div id=sys_detail>');
+    button_details(pane, "sys_detail_button", "  show/hide");
+    sys_detail_view.append("<li>&nbsp&nbsp Last Checkin: " + date + "</li>");
+    sys_detail_view.append("<li>&nbsp&nbsp Satellite Server: " + spacewalk + "</li>");
+    sys_detail_view.append("<li>&nbsp&nbsp Satellite Version: 5.6 </li>");
+    sys_detail_view.append("<li>&nbsp&nbsp Organization Name: Marketing</li>");
+    sys_detail_view.append('<br></div>');
+    sys_detail_view.hide();
+    pane.append(sys_detail_view);
+    $("#sys_detail_button").click(function (){
+            sys_detail_view.toggle("slow");
+            
     })
+
+   
     
-    pane.append('<br>');
-    pane.append('<b>Instance Facts:</b>');
+    //SYSTEM FACTS
+    pane.append('<b>System Facts:</b>');
     var facts_view = $('<div id=instance_facts>');
     button_details(pane, "facts_button", "  show/hide");
     
 
     var facts = JSON.parse( facts );
     $.each(facts, function( key, value ){
-        facts_view.append("<li>" + key + ": " + value + "</li>")
+        facts_view.append("<li>&nbsp&nbsp" + key + ": " + value + "</li>")
     });
-    facts_view.append('</div>');
+    facts_view.append('<br></div>');
     facts_view.hide();
     pane.append(facts_view);
     $("#facts_button").click(function (){
             facts_view.toggle("slow");
             
+    })
+
+
+     //PROVIDED PRODUCTS
+    pane.append('<b>Provided Products:</b>');
+    var eng_prod_view = $('<div id=eng_prod>');
+    button_details(pane, "eng_prod_button", "  show/hide");
+
+
+    $.each(product_info, function(key, value){
+        eng_prod_view.append("<b><li>&nbsp&nbsp" + value.product_name + "</li></b>")
+        $.each(value.pool_provided_products, function( key, value ){
+            eng_prod_view.append("<li>&nbsp&nbsp&nbsp&nbsp" + value.name  + "</li>")
+        });
+    });
+    eng_prod_view.append('<br></div>');
+    eng_prod_view.hide();
+    pane.append(eng_prod_view);
+    $("#eng_prod_button").click(function (){
+            eng_prod_view.toggle("slow");
+    })
+
+     //INSTALLED PRODUCTS
+    pane.append('<b>Installed Products:</b>');
+    var install_eng_prod_view = $('<div id=install_eng_prod>');
+    button_details(pane, "install_eng_prod_button", "  show/hide");
+    install_eng_prod_view.append("<li>&nbsp&nbsp Red Hat Enterprise Linux Server</li>");
+
+    install_eng_prod_view.append('<br></div>');
+    install_eng_prod_view.hide();
+    pane.append(install_eng_prod_view);
+    $("#install_eng_prod_button").click(function (){
+            install_eng_prod_view.toggle("slow");
     })
 
     if (!$('#instance_details').is(':visible')) {

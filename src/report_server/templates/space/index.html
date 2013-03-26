@@ -105,9 +105,15 @@
                         			<span style="color: #FFFFFF;">
                                   		<div style="padding: 4 2;">
                 			                <!-- Login Button -->
-                                			<button id="login-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Login</span></button>
+                                			<button id="login-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                                                <span class='ui-button-text'>Login</span>
+                                            </button>
                                 			<!-- Logout Button -->
-                                 			<button id="logout-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class='ui-button-text'>Logout</span></button>
+                                 			<button id="logout-button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                                                <span class='ui-button-text'>Logout</span>
+                                            </button>
+
+
                                         </div>
 
                                         <p>
@@ -142,7 +148,7 @@
                                     -->
                                     <li id='create_button' class='active'><a href="#">Create Report</a></li>
                                     <li id='report_button'><a href='#'>View Report</a></li>
-                                    <li id='detail_button'><a href='#'>View Detail</a></li>
+                                    <li id='detail_button'><a href='#'>System Detail</a></li>
                                     <li id='import_button'><a href="#">Administer</a></li>
                                     
                                 </ul>
@@ -231,6 +237,28 @@
                                                 </td>
                                             </tr>
                                             </table>
+                                        <h3>Filter by System:</h3> 
+                                        <br>
+                                        <table width=70%>
+                                            <tr> 
+                                                <td width="20%"><b>System Hostname: </b></td>
+                                                    <td width="71%">
+                                                        <select id='sys_host' name="sys_host" class='chosen'  style="width:350px;">
+                                                            
+                                                        </select>
+                                                    </td>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td width="20%"><b>System ID: </b></td>
+                                                    <td width="71%">
+                                                        <select id='sys_id' name="sys_id" class='chosen'  style="width:150px;">
+                                                            
+                                                        </select>
+                                                    </td>
+                                                </td>
+                                            </tr>
+                                            </table>
                                             <table id=buttons width=50%>
                                             <br><br><br>
                                             <tr>
@@ -246,9 +274,9 @@
                                                 </td>
                                                 <td width="2%">
                                                     <button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
-                                                        <div id='original'>
-                                                            <span class='ui-button-text original' style='float:left'>Reset Form</span>
-                                                        </div>
+                                                        
+                                                            <span class='ui-button-text'>Reset Form</span>
+                                                        
                                                     </button>
                                                 </td>
                                                 

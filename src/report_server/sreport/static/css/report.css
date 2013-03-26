@@ -126,3 +126,7 @@ table#factCompliance_data {
 }
 
 ul, li {list-style-type: none;}
+
+.show-detail-button {
+    float: right;
+}

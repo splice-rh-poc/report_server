@@ -427,9 +427,8 @@ function glossary_report(pane){
 }
 
 function button_run_another_report(pane){
-    pane.append('<button id="createAnotherReport_button" name=class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="openCreate()"><span class="ui-button-text">Run another report</span></button>');
-    //pane.append('<span class="ui-button-text">Run another report</span>');
-    //pane.append('</button>');
+    pane.append('<button id="createAnotherReport_button" name=class="ui-button-text " onclick="openCreate()"><span class="ui-button-text">Run another report</span></button>');
+
 }
 
 function button_show_details(pane){
@@ -439,7 +438,7 @@ function button_show_details(pane){
 }
 
 function button_details(pane, id,  btn_txt){
-        var details = $('<button id=' + id + ' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >' + btn_txt + '</button>');
+        var details = $('<button id=' + id + ' class="show-detail-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >' + btn_txt + '</button>');
         pane.append(details);
         pane.append('<br><br>');
 }

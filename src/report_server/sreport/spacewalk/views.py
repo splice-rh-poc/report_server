@@ -33,10 +33,13 @@ def report_form(request):
     user = str(request.user)
     environments = MarketingReportData.objects.distinct("splice_server")
     status = MarketingReportData.objects.distinct("status")
+    sys_id = MarketingReportData.objects.distinct("systemid")
     response_data = {}
     response_data['user'] = user
     response_data['environments'] = environments
     response_data['status'] = status
+    response_data['sys_host'] = ['mock_host1', 'mock_host2']
+    response_data['sys_id'] = sys_id
 
     _LOG.info(response_data)
 
