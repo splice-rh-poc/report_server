@@ -486,37 +486,66 @@ function populateInstanceDetailReport(rtn) {
     });
 */
 
-    pane.append("<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">Link to System Detail's page in Satellite</a>")
-    pane.append('<br>');
-    pane.append('<h3>Instance Detail:</h3>');
+    var dash = $('<div class="dash">');
+    var dashhead = $('<div class="dashhead">');
+    var clearportal = $('<div class="fl clear portal">');
+    var dashboard_subscriptions = $('<div id="dashboard_subscriptions">');
+
+
+    dashboard_subscriptions.append('<hr width="350px">');
+    var table = $('<table width=\"60%\"></table>');
+    table.append('<tr><td>System ID: </td><td>' + system_id + '</td></tr>');
+    table.append('<tr><td>Hostname: </td><td>' + 'this_hostname' + '</td></tr>');
+    var link_to_system = "<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">Go to System Detail's Page </a>"
+    table.append('<tr><td>Remediate: </td><td>' + link_to_system + '</td></tr>');
+    table.append('<tr><td>Failure: </td><td>' + 'biz rules failure explanation' + '</td></tr>');
+
+    table.append('</table>');
+    dashboard_subscriptions.append(table);
+    dashhead.append('<h2 class="fl">System Subscription Status</h2>');
+    dashhead.append('<div class="status_icon" alt="fail">');
+    dashhead.append(dashboard_subscriptions);
+    dash.append(dashhead);
+
+    pane.append(dash);
+
+    pane.append('<br><br>');
+    pane.append('<b>Subscription Detail:</b>');
     pane.append(gridInstance.render().$el);
     pane.append('<br>');
 
-    pane.append('<h3>Provided Products:</h3>');
-    
+    pane.append('<b>Provided Products:</b>');
+    var eng_prod_view = $('<div id=eng_prod>');
+    button_details(pane, "eng_prod_button", "  show/hide");
 
     $.each(product_info, function(key, value){
-        pane.append("<b><li>" + value.product_name + "</li></b>")
+        eng_prod_view.append("<b><li>" + value.product_name + "</li></b>")
         $.each(value.pool_provided_products, function( key, value ){
-            pane.append("<li>&nbsp&nbsp&nbsp" + value.name  + "</li>")
+            eng_prod_view.append("<li>&nbsp&nbsp&nbsp" + value.name  + "</li>")
         });
     });
+    eng_prod_view.append('</div>');
+    eng_prod_view.hide();
+    pane.append(eng_prod_view);
+    $("#eng_prod_button").click(function (){
+            eng_prod_view.toggle("slow");
+    })
     
     pane.append('<br>');
-    pane.append('<h3>Instance Facts:</h3>');
-    var list_view = $('<div id=instance_facts>');
-    button_show_details(pane);
+    pane.append('<b>Instance Facts:</b>');
+    var facts_view = $('<div id=instance_facts>');
+    button_details(pane, "facts_button", "  show/hide");
     
 
     var facts = JSON.parse( facts );
     $.each(facts, function( key, value ){
-        list_view.append("<li>" + key + ": " + value + "</li>")
+        facts_view.append("<li>" + key + ": " + value + "</li>")
     });
-    list_view.append('</div>');
-    list_view.hide();
-    pane.append(list_view);
-    $("button").click(function (){
-            list_view.toggle("slow");
+    facts_view.append('</div>');
+    facts_view.hide();
+    pane.append(facts_view);
+    $("#facts_button").click(function (){
+            facts_view.toggle("slow");
             
     })
 

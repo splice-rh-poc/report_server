@@ -438,5 +438,11 @@ function button_show_details(pane){
         pane.append('<br><br>');
 }
 
+function button_details(pane, id,  btn_txt){
+        var details = $('<button id=' + id + ' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >' + btn_txt + '</button>');
+        pane.append(details);
+        pane.append('<br><br>');
+}
+
 
 
