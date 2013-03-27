@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.68
+Version:	0.69
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -255,6 +255,15 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Mar 27 2013 wes hayutin <whayutin@redhat.com> 0.69-1
+- added subscription details page (whayutin@redhat.com)
+- mocking out more function (whayutin@redhat.com)
+- added dash to details (whayutin@redhat.com)
+- updates to details page (weshayutin@gmail.com)
+- add checkin time for view report (weshayutin@gmail.com)
+- first pass at spacewalk report export (weshayutin@gmail.com)
+- refactoring data export to work w/ spacewalk (weshayutin@gmail.com)
+
 * Mon Mar 18 2013 wes hayutin <weshayutin@gmail.com> 0.68-1
 - clean up (weshayutin@gmail.com)
 - have dashboard working w/ counts and grid hover (weshayutin@gmail.com)
