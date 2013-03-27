@@ -16,7 +16,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import slugify
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.common import constants, utils
-from report_server.sreport.models import MarketingReportData
+from report_server.sreport.models import MarketingReportData, Pool
 from splice.common.utils import convert_to_datetime
 from splice.common import config
 
@@ -124,6 +124,20 @@ def instance_detail(request):
     response_data['system_id'] = results["systemid"]
     response_data['instance_identifier'] = results["instance_identifier"]
     response_data['date'] = results["date"]
+
+    return create_response(response_data)
+
+def subscription_detail(request):
+    data = utils.data_from_post(request)
+    product_id = data["product_id"]
+    result = Pool.objects.filter(product_id=product_id)[0]
+    provided_products = json.dumps(result['provided_products'])
+    product_attributes = json.dumps(result['product_attributes'])
+    response_data = {}
+    response_data['pool_detail'] = result
+    response_data['provided_products'] = provided_products
+    response_data['product_attributes'] = product_attributes
+    
 
     return create_response(response_data)
 

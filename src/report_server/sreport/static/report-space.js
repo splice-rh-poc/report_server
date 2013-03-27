@@ -339,7 +339,6 @@ function populateReport(rtn, pane) {
 
     Backbone.on("rowclicked", function(model) {
         console.log('in row click');
-        //date, instance, filter_args
         createInstanceDetail(model);
 
     });
@@ -367,7 +366,7 @@ function populateReport(rtn, pane) {
 
     table.append('</table>');
     dashboard_subscriptions.append(table);
-    dashhead.append('<h2 class="fl">System Subscription Status</h2>');
+    dashhead.append('<h2 class="fl">Subscription Status</h2>');
     dashhead.append('<div class="status_icon" alt="fail">');
     dashhead.append(dashboard_subscriptions);
     dash.append(dashhead);
@@ -433,15 +432,7 @@ function populateInstanceDetailReport(rtn) {
         model : ProductModel
     });
     
-    var CustomSelectCellEditor = Backgrid.SelectCellEditor.extend({
-        save: function (e) {
-            console.log('in custom save')
-            this.model.set(this.column.get("name"), this.formatter.toRaw(this.$el.val()));
-            console.log('get value and bind to pool here');
-            this.trigger("done");
-            console.log("done, successfully saved " + this.formatter.toRaw(this.$el.val()));
-        }
-    });
+
     
     /*
      * curl -k -u admin:admin https://localhost:8443/candlepin/owners/admin/pools?consumer=e69871bb-170c-426a-844d-18f26632ffa4
@@ -490,6 +481,20 @@ function populateInstanceDetailReport(rtn) {
         editable: false
     }];
 
+    var ClickableRow = Backgrid.Row.extend({
+        events : {
+            "click" : "onClick"
+        },
+        onClick : function() {
+            Backbone.trigger("subRowClicked", this.model);
+        }
+    });
+
+    Backbone.on("subRowClicked", function(model) {
+        console.log('in sub row click');
+        subscriptionDetail(model);
+    });
+
 
     var columnsPool = [];
     
@@ -497,7 +502,8 @@ function populateInstanceDetailReport(rtn) {
 
     var gridInstance = new Backgrid.Grid({
         columns : columnsInstance,
-        collection : myinstance
+        collection : myinstance,
+        row : ClickableRow
     });
 
     /*
@@ -531,7 +537,7 @@ function populateInstanceDetailReport(rtn) {
     pane.append(dash);
 
     pane.append('<br><br>');
-    pane.append('<b>Subscription Detail:</b>');
+    pane.append('<b>Subscriptions:</b>');
     pane.append(gridInstance.render().$el);
     pane.append('<br>');
 
@@ -614,7 +620,51 @@ function populateInstanceDetailReport(rtn) {
 
 
 
-function createQuarantineReport() {
+function subscriptionDetail(model) {
+    $('#subscription_pane').empty();
+    var pane = $('#subscription_pane');
+    
+    var product_id = model.get("product_id");
+
+    var Subscription = Backbone.Model.extend({
+        url: '/report-server/space/subscription/'
+    });
+
+    var data = {
+        product_id: product_id
+    };
+
+    console.log(data);
+    var subscription = new Subscription();
+
+    subscription.save(data, {
+        success: function(model, response){
+            console.log('SUCCESS');
+            console.log(response);
+            //pane.append(JSON.stringify(response));
+            //var pool_detail = JSON.parse(response);
+            pane.append("<h3>Subscription Detail: </h3><br>")
+            pane.append("&nbsp&nbsp<b>Product Name: </b>" + response.pool_detail.product_name + "<br><br>");
+            pane.append("&nbsp&nbsp<b>Product ID: </b>" + response.pool_detail.product_id + "<br><br>");
+            pane.append("&nbsp&nbsp<b>UUIDD: </b>" + response.pool_detail.uuid + "<br><br>");
+            pane.append("&nbsp&nbsp<b>Start Date: </b>" + response.pool_detail.start_date + "<br><br>");
+            pane.append("&nbsp&nbsp<b>End Date: </b>" + response.pool_detail.end_date + "<br><br>");
+            pane.append("&nbsp&nbsp<b>Provided Products: </b><br><br>");
+            var provided_products = JSON.parse(response.provided_products);
+            $.each(provided_products, function( key, value ){
+                pane.append("<li>&nbsp&nbsp&nbsp&nbsp" + value.name  + "</li>")
+            });
+
+            pane.append("<br>&nbsp&nbsp<b>Product Attributes: </b><br><br>");
+            var product_attributes = JSON.parse(response.product_attributes);
+            $.each(product_attributes, function( key, value ){
+                pane.append("<li>&nbsp&nbsp&nbsp&nbsp " + key + ": " + value +  "</li>");
+            });
+
+        }
+    })
+
+    openSubscription();
    
 }
 

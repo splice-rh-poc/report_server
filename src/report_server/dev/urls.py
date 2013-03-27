@@ -65,7 +65,8 @@ urlpatterns = patterns('',
     (r'^report-server/space/report_form/$', 'report_server.sreport.spacewalk.views.report_form'),
     (r'^report-server/space/report/$', 'report_server.sreport.spacewalk.views.report'),
     (r'^report-server/space/instance_details/$', 'report_server.sreport.spacewalk.views.instance_detail'),
-    (r'^report-server/space/export/$', 'report_server.sreport.spacewalk.views.export')
+    (r'^report-server/space/export/$', 'report_server.sreport.spacewalk.views.export'),
+    (r'^report-server/space/subscription/$', 'report_server.sreport.spacewalk.views.subscription_detail')
 
 )
 
