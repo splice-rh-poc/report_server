@@ -14,7 +14,8 @@ from django.http import HttpResponse
 from report_server.sreport.models import QuarantinedReportData
 from report_server.sreport.models import ReportData, SpliceServer
 from report_server.sreport import views
-from report_server.sreport.meter.views import report
+from report_server.sreport.meter.views import report as meter_report
+from report_server.sreport.spacewalk.views import report as space_report
 from report_server.common import utils
 from report_server.common import import_util
 from report_server.report_import.api import productusage
@@ -146,7 +147,9 @@ class ComplianceDataResource(Resource):
 
         return response
 
-class ReportResource(MongoEngineResource):
+
+
+class ReportMeterResource(MongoEngineResource):
 
     class Meta:
         queryset = ReportData.objects.all()
@@ -163,5 +166,25 @@ class ReportResource(MongoEngineResource):
         user = request.user
         _LOG.info("%s called ReportResource::post_list()  " % (str(user)))
 
-        response = report(request)
+        response = meter_report(request)
+        return response
+    
+class ReportSpaceResource(MongoEngineResource):
+
+    class Meta:
+        queryset = ReportData.objects.all()
+        allow_methods = ['post']
+
+        # Make sure we always get back the representation of the resource back
+        # on a POST.
+        # always_return_data = True
+        authorization = Authorization()
+        authentication = BasicAuthentication()
+        
+
+    def post_list(self, request, **kwargs):
+        user = request.user
+        _LOG.info("%s called ReportResource::post_list()  " % (str(user)))
+
+        response = space_report(request)
         return response

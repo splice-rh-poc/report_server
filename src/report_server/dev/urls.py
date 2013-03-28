@@ -16,8 +16,10 @@ from django.views.generic import list_detail
 from tastypie.api import Api
 
 from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource
-from report_server.sreport.api import ComplianceDataResource, ReportResource
+from report_server.sreport.api import ComplianceDataResource
+from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
 from report_server.sreport.api import MarketingProductUsageResource
+
 
 
 v1_api = Api(api_name='v1')
@@ -27,12 +29,14 @@ productusage_resource = ProductUsageResource()
 marketing_productusage_resource = MarketingProductUsageResource()
 quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
-report_resource = ReportResource()
+report_meter_resource = ReportMeterResource()
+report_space_resource = ReportSpaceResource()
 v1_api.register(productusage_resource)
 v1_api.register(marketing_productusage_resource)
 v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
-v1_api.register(report_resource)
+v1_api.register(report_meter_resource)
+v1_api.register(report_space_resource)
 
 urlpatterns = patterns('',
     # Examples:
@@ -54,7 +58,7 @@ urlpatterns = patterns('',
     (r'^report-server/meter/report_form_rhics/$', 'report_server.sreport.views.report_form_rhics'),
     (r'^report-server/meter/report/$', 'report_server.sreport.meter.views.report'),
     (r'^report-server/meter/default_report/$', 'report_server.sreport.views.default_report'),
-    (r'^report-server/meter/export/$', 'report_server.sreport..meter.views.export'),
+    (r'^report-server/meter/export/$', 'report_server.sreport.meter.views.export'),
     (r'^report-server/meter/details/$', 'report_server.sreport.views.detailed_report'),
     (r'^report-server/meter/max_report/$', 'report_server.sreport.views.max_report'),
     (r'^report-server/meter/quarantine/$', 'report_server.sreport.views.quarantined_report'),
