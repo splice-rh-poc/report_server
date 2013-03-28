@@ -112,6 +112,7 @@ function setupCreateForm(){
             var list = item.get('status')
             
             select_status.append($('<option selected value=Failed>Failed</option>'));
+            select_status.append($('<option selected value=Inactive>Inactive</option>'));
             select_status.append($('<option selected value=All>All</option>'));
             for (i in list){
                 name = list[i].charAt(0).toUpperCase() + list[i].slice(1);
