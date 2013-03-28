@@ -364,6 +364,7 @@ function populateReport(rtn, pane) {
     table.append('<tr><td>Invalid Subscriptions</td><td>' + rtn.num_invalid + '</td></tr>');
     table.append('<tr><td>Insufficient Subscriptions</td><td>' + rtn.num_partial + '</td></tr>');
     table.append('<tr><td>Current Subscriptions</td><td>' + rtn.num_valid + '</td></tr>');
+    table.append('<tr><td>Inactive Systems</td><td>' + 0 + '</td></tr>');
 
     table.append('</table>');
     dashboard_subscriptions.append(table);
@@ -644,6 +645,7 @@ function subscriptionDetail(model) {
             console.log(response);
             //pane.append(JSON.stringify(response));
             //var pool_detail = JSON.parse(response);
+            pane.empty();
             pane.append("<h3>Subscription Detail: </h3><br>")
             pane.append("&nbsp&nbsp<b>Product Name: </b>" + response.pool_detail.product_name + "<br><br>");
             pane.append("&nbsp&nbsp<b>Product ID: </b>" + response.pool_detail.product_id + "<br><br>");
