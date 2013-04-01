@@ -576,11 +576,26 @@ function populateInstanceDetailReport(rtn) {
     table.append('</table>');
     dashboard_subscriptions.append(table);
     dashhead.append('<h2 class="fl">System Subscription Status</h2>');
-    dashhead.append('<div class="status_icon" alt="fail">');
+    dashhead.append('<div class="status_icon system_status_icon" alt="fail">');
     dashhead.append(dashboard_subscriptions);
     dash.append(dashhead);
 
     pane.append(dash);
+
+    var status_color = null;
+    switch (status) {
+        case "partial":
+            status_color = color_yellow;
+            break;
+        case "invalid":
+            status_color = color_red;
+            break;
+        case "valid":
+            status_color = color_green;
+            break;
+    }
+    drawCircle("div.system_status_icon", status_color, ".80"); 
+
 
     pane.append('<br><br>');
     pane.append('<b>Subscriptions:</b>');
@@ -659,6 +674,7 @@ function populateInstanceDetailReport(rtn) {
     if (!$('#instance_details').is(':visible')) {
         $('#instance_details').show();
     }
+
 
 }
 
