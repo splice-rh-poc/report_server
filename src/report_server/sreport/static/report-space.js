@@ -16,6 +16,9 @@ var is_admin = true;
 var csrftoken = null;
 var pxt = null;
 var page_size = 10; // default value
+var color_green = "#9ccc50"
+var color_red = "#e13831"
+var color_yellow = "#f0e960"
 
 $(document).ready(function() {
     csrftoken = getCookie('csrftoken');
@@ -72,6 +75,36 @@ function getCookie(name) {
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+
+
+
+function drawCircle(element_selector, color_choice, width) {
+    //Following approach Katello/SAM use for rendering colored 'ball' for dashboard
+    //https://github.com/Katello/katello/blob/master/src/app/views/dashboard/_subscriptions.haml
+    //https://github.com/Katello/katello/blob/master/src/app/stylesheets/sections/dashboard.scss
+    //https://github.com/Katello/katello/blob/master/src/public/javascripts/dashboard.js#L17
+    var plot_data = [{data:1, color:color_choice}];
+    var elem = $(element_selector);
+    if (elem.length == 0) {
+        alert("Couldn't find selector with: " + element_selector);
+        return;
+    }
+    $.plot(elem, plot_data, {
+        series: {
+            pie:{
+                show: true,
+                radius: width,
+                label: {
+                    show: false
+                }
+            }
+        },
+        legend: {
+            show: false
+        }
+    });
 }
 
 
@@ -361,10 +394,10 @@ function populateReport(rtn, pane) {
 
     dashboard_subscriptions.append('<hr width="350px">');
     var table = $('<table width=\"60%\"></table>');
-    table.append('<tr><td>Invalid Subscriptions</td><td>' + rtn.num_invalid + '</td></tr>');
-    table.append('<tr><td>Insufficient Subscriptions</td><td>' + rtn.num_partial + '</td></tr>');
-    table.append('<tr><td>Current Subscriptions</td><td>' + rtn.num_valid + '</td></tr>');
-    table.append('<tr><td>Inactive Systems</td><td>' + 0 + '</td></tr>');
+    table.append('<tr><td><span><div class="small_status_icon small_status_icon_red"/> Invalid Subscriptions</td><td></span>' + rtn.num_invalid + '</td></tr>'); // Red
+    table.append('<tr><td><span><div class="small_status_icon small_status_icon_yellow"/> Insufficient Subscriptions</td><td></span>' + rtn.num_partial + '</td></tr>'); // Yellow 
+    table.append('<tr><td><span><div class="small_status_icon small_status_icon_green" /> Current Subscriptions</td><td></span>' + rtn.num_valid + '</td></tr>'); // Green
+    table.append('<tr><td>Inactive Systems</td><td>' + 0 + '</td></tr>'); //Orange
 
     table.append('</table>');
     dashboard_subscriptions.append(table);
@@ -373,10 +406,21 @@ function populateReport(rtn, pane) {
     dashhead.append(dashboard_subscriptions);
     dash.append(dashhead);
 
+
     pane.append(dash);
     pane.append(pageableGrid.render().$el);
     button_run_another_report(pane);
-  
+     
+    var status_color = null;
+    if (rtn.num_invalid > 0) {
+        status_color = color_red;
+    } else if (rtn.num_partial > 0) {
+        status_color = color_yellow;
+    } else if (rtn.num_valid > 0) {
+        status_color = color_green;
+    }
+    // TODO: add "inactive" with color orange
+    drawCircle("div.status_icon", status_color, ".80"); 
 
     return rtn.list.length
 

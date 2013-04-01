@@ -74,8 +74,24 @@ table#factCompliance_data {
 
 }
 
+.small_status_icon {
+    width: 15px;
+    height: 15px;
+    float: left;
+}
+.small_status_icon_red {
+    background:url("../status_icons_sprite.png") no-repeat -15px -25px;
+}
+.small_status_icon_green {
+    background:url("../status_icons_sprite.png") no-repeat 1px -26px;
+}
+.small_status_icon_yellow {
+    background:url("../status_icons_sprite.png") no-repeat -30px -25px;
+}
+
 .status_icon {
             background: url("../chart_overlay.png") no-repeat;
+            background-position:center;
             height: 150px;
             width: 170px;
             position: absolute;
