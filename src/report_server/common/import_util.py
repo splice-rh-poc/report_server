@@ -243,8 +243,12 @@ def import_candlepin_data(mkt_product_usage=[],
 
             subscriptions.append(mydict)
 
-        product_info = utils.obj_to_json(subscriptions)
-        facts = utils.obj_to_json(pu.facts)
+        #product_info = utils.obj_to_json(subscriptions)
+        #facts = utils.obj_to_json(pu.facts)
+        
+        product_info = subscriptions
+        facts = pu.facts        
+        
         
         _LOG.info("TYPE PROVIDED PRODUCTS ")
         _LOG.info(type(product_info))
