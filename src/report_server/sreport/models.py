@@ -16,7 +16,7 @@ from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
 from splice.common.models import ProductUsage, SpliceServer, MarketingProductUsage
 from splice.common.models import Pool, Product, Rules
-from splice.common.utils import  sanitize_dict_for_mongo
+
 
 
 class MyQuerySet(QuerySet):
@@ -160,12 +160,6 @@ class MarketingReportData(Document):
     record_identifier = StringField(required=True, unique_with=['splice_server',
                                     'instance_identifier', 'hour'])
     
-    @classmethod
-    def pre_save(cls, sender, document, **kwargs):
-        if document.facts:
-            document.facts = sanitize_dict_for_mongo(document.facts)
-    
-
     def to_dict(self):
         return {'instance_identifier': self.instance_identifier,
                 'status': self.status,
