@@ -42,8 +42,10 @@ LOG = getLogger(__name__)
 #this_config = config.get_import_info()
 ss = SpliceServer
 
-import os
 import base64
+import os
+
+
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -215,6 +217,9 @@ class MongoApiTestCase(BaseMongoTestCase):
     password = 'shadowman@redhat.com'
 
     def login(self):
+        if os.path.isfile("/etc/rhn/rhn.conf"):
+            raise Exception("You are currently running unit tests designed for the METERING " + 
+                            "version of report-server.  Please remove the /etc/rhn/rhn.conf file")
         login = self.client.login(username=self.username, password=self.password)
         #if login fails, check if there is a /etc/rhn/rhn.conf and if the spacewalk auth backend is used
         self.assertTrue(login)
