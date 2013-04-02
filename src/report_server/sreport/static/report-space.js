@@ -394,10 +394,10 @@ function populateReport(rtn, pane) {
 
     dashboard_subscriptions.append('<hr width="350px">');
     var table = $('<table width=\"60%\"></table>');
-    table.append('<tr><td><span><div class="small_status_icon small_status_icon_red"/> Invalid Subscriptions</td><td></span>' + rtn.num_invalid + '</td></tr>'); // Red
-    table.append('<tr><td><span><div class="small_status_icon small_status_icon_yellow"/> Insufficient Subscriptions</td><td></span>' + rtn.num_partial + '</td></tr>'); // Yellow 
-    table.append('<tr><td><span><div class="small_status_icon small_status_icon_green" /> Current Subscriptions</td><td></span>' + rtn.num_valid + '</td></tr>'); // Green
-    table.append('<tr><td>Inactive Systems</td><td>' + 0 + '</td></tr>'); //Orange
+    table.append('<tr><td><span><div class="small_status_icon small_status_icon_red"/>&nbsp Invalid Subscriptions</td><td></span>' + rtn.num_invalid + '</td></tr>'); // Red
+    table.append('<tr><td><span><div class="small_status_icon small_status_icon_yellow"/>&nbsp Insufficient Subscriptions</td><td></span>' + rtn.num_partial + '</td></tr>'); // Yellow 
+    table.append('<tr><td><span><div class="small_status_icon small_status_icon_green" />&nbsp Current Subscriptions</td><td></span>' + rtn.num_valid + '</td></tr>'); // Green
+    table.append('<tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp Inactive Systems</td><td>' + 0 + '</td></tr>'); //Orange
 
     table.append('</table>');
     dashboard_subscriptions.append(table);
@@ -496,11 +496,6 @@ function populateInstanceDetailReport(rtn) {
         cell : "string",
         editable: false
     },{
-        name : "pool_uuid",
-        label : "Pool UUID:",
-        cell : "string",
-        editable: false
-    },{
         name : "product_account",
         label : "Account:",
         cell : "string",
@@ -508,6 +503,16 @@ function populateInstanceDetailReport(rtn) {
     },{
         name : "product_contract",
         label : "Contract:",
+        cell : "string",
+        editable: false
+    },{
+        name : "sla",
+        label : "SLA:",
+        cell : "string",
+        editable: false
+    },{
+        name : "support_type",
+        label : "Support:",
         cell : "string",
         editable: false
     },{
@@ -568,10 +573,10 @@ function populateInstanceDetailReport(rtn) {
     dashboard_subscriptions.append('<hr width="350px">');
     var table = $('<table width=\"60%\"></table>');
     table.append('<tr><td>System ID: </td><td>' + system_id + '</td></tr>');
-    table.append('<tr><td>Hostname: </td><td>' + 'this_hostname' + '</td></tr>');
+    table.append('<tr><td>Hostname: </td><td>' + 'sample_system.redhat.com' + '</td></tr>');
     var link_to_system = "<a href=https://" + spacewalk + "/rhn/systems/details/Overview.do?sid="+ system_id + ">Go to System Detail's Page </a>"
     table.append('<tr><td>Remediate: </td><td>' + link_to_system + '</td></tr>');
-    table.append('<tr><td>Status: </td><td>' + 'biz rules failure explanation' + '</td></tr>');
+    table.append('<tr><td>Status: </td><td>' + 'Subscription SYS0395 is expired' + '</td></tr>');
 
     table.append('</table>');
     dashboard_subscriptions.append(table);
