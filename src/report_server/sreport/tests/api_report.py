@@ -44,7 +44,7 @@ class ReportDataTest(MongoApiTestCase):
         q = {"user": "shadowman@redhat.com", "byMonth": "11,2012", "contract_number": "All", "rhic": "null", "env": "All"}
         myquery = json.dumps(q)
         
-        resp = self.post('/api/v1/report/', 
+        resp = self.post('/api/v1/reportmeter/', 
                         data=myquery,
                         code=200)
         #print(resp)
