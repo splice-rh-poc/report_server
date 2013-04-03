@@ -464,7 +464,7 @@ function populateInstanceDetailReport(rtn) {
     //setup_description(pane, rtn.get('date'));
 
     var facts = rtn.get('facts');
-    var product_info = JSON.parse(rtn.get('product_info'))
+    var product_info = rtn.get('product_info')
     var status = rtn.get('status')
     var splice_server = rtn.get('splice_server')
     var system_id = rtn.get('system_id')
@@ -630,8 +630,6 @@ function populateInstanceDetailReport(rtn) {
     var facts_view = $('<div id=instance_facts>');
     button_details(pane, "facts_button", "  show/hide");
     
-
-    var facts = JSON.parse( facts );
     $.each(facts, function( key, value ){
         facts_view.append("<li>&nbsp&nbsp" + key + ": " + value + "</li>")
     });
