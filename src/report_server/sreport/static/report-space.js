@@ -460,6 +460,7 @@ function createInstanceDetail(model) {
 function populateInstanceDetailReport(rtn) {
     console.log('in pop instc details');
     var pane = $('#instance_details');
+    var subscription_pane = $('<div id=subscription_pane>');
     pane.empty();
     //setup_description(pane, rtn.get('date'));
 
@@ -506,12 +507,12 @@ function populateInstanceDetailReport(rtn) {
         cell : "string",
         editable: false
     },{
-        name : "sla",
+        name : "pool_sla",
         label : "SLA:",
         cell : "string",
         editable: false
     },{
-        name : "support_type",
+        name : "pool_support",
         label : "Support:",
         cell : "string",
         editable: false
@@ -543,7 +544,8 @@ function populateInstanceDetailReport(rtn) {
 
     Backbone.on("subRowClicked", function(model) {
         console.log('in sub row click');
-        subscriptionDetail(model);
+        subscriptionDetail(model, subscription_pane);
+        subscription_pane.toggle("slow");
     });
 
 
@@ -607,6 +609,18 @@ function populateInstanceDetailReport(rtn) {
     pane.append(gridInstance.render().$el);
     pane.append('<br>');
 
+    //SUBSCRIPTION DETAIL
+    pane.append('<b>Subscription Detail</b>');
+    button_details(pane, "subscription_detail_button", "  show/hide");
+    subscription_pane.hide();
+    $("#subscription_detail_button").click(function (){
+            subscription_pane.toggle("slow");
+            
+    })
+
+    pane.append(subscription_pane);
+
+
     //SYSTEM DETAIL
     pane.append('<b>System Details:</b>');
     var sys_detail_view = $('<div id=sys_detail>');
@@ -615,6 +629,7 @@ function populateInstanceDetailReport(rtn) {
     sys_detail_view.append("<li>&nbsp&nbsp Satellite Server: " + spacewalk + "</li>");
     sys_detail_view.append("<li>&nbsp&nbsp Satellite Version: 5.6 </li>");
     sys_detail_view.append("<li>&nbsp&nbsp Organization Name: Marketing</li>");
+    sys_detail_view.append("<li>&nbsp&nbsp Organization ID: 04</li>");
     sys_detail_view.append('<br></div>');
     sys_detail_view.hide();
     pane.append(sys_detail_view);
@@ -685,9 +700,8 @@ function populateInstanceDetailReport(rtn) {
 
 
 
-function subscriptionDetail(model) {
-    $('#subscription_pane').empty();
-    var pane = $('#subscription_pane');
+function subscriptionDetail(model, pane) {
+    
     
     var product_id = model.get("product_id");
 
@@ -709,12 +723,9 @@ function subscriptionDetail(model) {
             //pane.append(JSON.stringify(response));
             //var pool_detail = JSON.parse(response);
             pane.empty();
-            pane.append("<h3>Subscription Detail: </h3><br>")
-            pane.append("&nbsp&nbsp<b>Product Name: </b>" + response.pool_detail.product_name + "<br><br>");
-            pane.append("&nbsp&nbsp<b>Product ID: </b>" + response.pool_detail.product_id + "<br><br>");
-            pane.append("&nbsp&nbsp<b>UUIDD: </b>" + response.pool_detail.uuid + "<br><br>");
-            pane.append("&nbsp&nbsp<b>Start Date: </b>" + response.pool_detail.start_date + "<br><br>");
-            pane.append("&nbsp&nbsp<b>End Date: </b>" + response.pool_detail.end_date + "<br><br>");
+            pane.append("&nbsp&nbsp<b>Subscription Name: </b>" + response.pool_detail.product_name + "<br><br>");
+            pane.append("&nbsp&nbsp<b>Subscription ID: </b>" + response.pool_detail.product_id + "<br><br>");
+
             pane.append("&nbsp&nbsp<b>Provided Products: </b><br><br>");
             var provided_products = JSON.parse(response.provided_products);
             $.each(provided_products, function( key, value ){
@@ -727,10 +738,12 @@ function subscriptionDetail(model) {
                 pane.append("<li>&nbsp&nbsp&nbsp&nbsp " + key + ": " + value +  "</li>");
             });
 
+            pane.append('<br></div>');            
+
         }
     })
 
-    openSubscription();
+    
    
 }
 

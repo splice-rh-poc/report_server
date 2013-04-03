@@ -157,13 +157,11 @@ function navButtonDocReady(){
     $('#detail_button').addClass('disabled');
     $('#max_button').addClass('disabled');
     $('#import_button').addClass('disabled');
-    $('#subscription_button').addClass('disabled');
 
     $('#report_button').off('click');
     $('#detail_button').off('click');
     $('#max_button').off("click");
     $('#imort_button').off("click");
-    $('#subscription_button').off("click");
     
 }
 
@@ -242,7 +240,6 @@ function openCreateLogin() {
         $('#report_pane').hide();
         $('#detail_pane').hide();
         $('#max_pane').hide();
-        $('#subscription_pane').hide();
         $('#import_pane').hide();
         
     }
@@ -282,7 +279,6 @@ function openReport() {
     $('#detail_pane').hide();
     $('#import_pane').hide();
     $('#max_pane').hide();
-    $('#subscription_pane').hide();
     $('#report_pane').show();
 }
 
@@ -305,7 +301,6 @@ function openDetail() {
     $('#detail_pane').hide();
     $('#import_pane').hide();
     $('#max_pane').hide();
-    $('#subscription_pane').hide();
     $('#detail_pane').show();
 }
 
@@ -314,27 +309,6 @@ function closeDetail() {
     removeActiveNav();
     $('#detail_button').off("click");
     $('#detail_pane').hide();
-
-}
-
-function openSubscription() {
-    $('#subscription_button').removeClass('disabled');
-    $('#subscription_button').on("click", openDetail);
-    form_filter_link_hide(true);
-    removeActiveNav();
-    $('#subscription_button').addClass('active');
-    $('#create_pane').hide();
-    $('#report_pane').hide();
-    $('#detail_pane').hide();
-    $('#import_pane').hide();
-    $('#subscription_pane').show();
-}
-
-function closeSubscription() {
-    $('#subscription_button').addClass('disabled');
-    removeActiveNav();
-    $('#subscription_button').off("click");
-    $('#subscription_pane').hide();
 
 }
 

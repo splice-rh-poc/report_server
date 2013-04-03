@@ -240,6 +240,8 @@ def import_candlepin_data(mkt_product_usage=[],
             mydict["pool_end"] = this_pool.end_date
             mydict["pool_active"] = this_pool.active
             mydict["pool_quantity"] = this_pool.quantity
+            mydict["pool_sla"] = p["sla"]
+            mydict["pool_support"] = p["support_level"]
 
             subscriptions.append(mydict)
 
