@@ -14,18 +14,27 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
 
 from tastypie.api import Api
+# Turning X509Authentication off when running from dev server
+import splice.common.api
+splice.common.api.USE_SSL=False
 
 from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource
 from report_server.sreport.api import ComplianceDataResource
 from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
-from report_server.sreport.api import MarketingProductUsageResource, PoolResourceMod, ProductResourceMod, RulesResourceMod
+#
+# Note:  Hack for temporary testing with "manage.py runserver"
+# Importing a "Development version of MarkertingProductUsageResource" where a X509 cert
+# is not required.  
+# 
+from report_server.sreport.api import MarketingProductUsageResourceDev
+from report_server.sreport.api import  PoolResourceMod, ProductResourceMod, RulesResourceMod
 
 
 v1_api = Api(api_name='v1')
 
 # Resources
 productusage_resource = ProductUsageResource()
-marketing_productusage_resource = MarketingProductUsageResource()
+marketing_productusage_resource = MarketingProductUsageResourceDev()
 quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
 report_meter_resource = ReportMeterResource()

@@ -110,6 +110,22 @@ class MarketingProductUsageResource(MarketingProductUsageResource):
 
         return not_imported
 
+#
+# Below is a 'hack' so we can test the API prior to running from RPM
+# 
+class MarketingProductUsageResourceDev(MarketingProductUsageResource):
+    class Meta:
+        from tastypie.authentication import Authentication
+        from splice.common.deserializer import JsonGzipSerializer
+        from splice.common.models import MarketingProductUsage
+        queryset = MarketingProductUsage.objects.all()
+        resource_name = "marketingproductusage"
+        authorization = Authorization()
+        authentication = Authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
+
 
 class PoolResourceMod(PoolResource):
     class Meta(PoolResource.Meta):
