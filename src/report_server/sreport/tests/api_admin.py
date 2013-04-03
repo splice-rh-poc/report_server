@@ -9,14 +9,14 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from report_server.sreport.models import ReportData, QuarantinedReportData
+from report_server.sreport.models import ReportData, MarketingReportData, QuarantinedReportData
 from report_server.sreport.tests.general import BaseMongoTestCase, MongoApiTestCase
 from rhic_serve.common.tests import BaseMongoTestCase#, MongoApiTestCase
 from setup import TestData
 from datetime import datetime, timedelta
-
 import json
 
+from splice.common import utils
 
 class ImportAPITest(MongoApiTestCase):
     def setUp(self):
@@ -78,8 +78,35 @@ class ImportAPITest(MongoApiTestCase):
         self.assertEqual(0, QuarantinedReportData.objects.all().count(),
                          'asserted 1 product usuage quarantined')
         
-        
-        
+
+class MarketingProductUsageAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(MarketingProductUsageAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        MarketingReportData.drop_collection()
+        QuarantinedReportData.drop_collection()
+
+    def test_with_no_authentication(self):
+        resp = self.api_client.post(
+            '/api/v1/marketingproductusage/', data="dummy data")
+        self.assertEqual(401, resp.status_code, 'unauthorized is expected')
+
+    def test_post_204(self):
+        self.assertEqual(0, MarketingReportData.objects.all().count())    
+        pool = TestData.create_candlepin_pool()
+        product = TestData.create_candlepin_product()    
+        mpu_entry_json = TestData.create_marketing_product_usage_json()
+        resp = self.api_client.post(
+            '/api/v1/marketingproductusage/', data=mpu_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+
+        self.assertEqual(2, MarketingReportData.objects.all().count(),
+                         'marketing product_usuage successfully imported')
+        self.assertEqual(0, QuarantinedReportData.objects.all().count(),
+                         'asserted no marketing product usuage quarantined')
 
 
 class QuarantinedDataTest(BaseMongoTestCase):

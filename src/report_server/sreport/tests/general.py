@@ -34,6 +34,7 @@ from report_server.sreport.tests.setup import TestData, Product
 from rhic_serve.rhic_rest.models import RHIC, Account
 
 from splice.common import config
+from splice.common.test_utils import RawTestApiClient
 
 from tastypie.test import ResourceTestCase
 from tastypie import authentication
@@ -45,7 +46,7 @@ ss = SpliceServer
 import base64
 import os
 
-
+TEST_DATA_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "test_data")
 
 '''
 Currently the unit tests required that the rhic_serve database has been populated w/ the sample-load.py script
@@ -163,12 +164,27 @@ class BaseMongoTestCase(ResourceTestCase):
         self.setup_database()
         self.drop_product_usage()
         self.drop_report_data()
+        self.drop_products()
+        self.drop_pools()
         #required to add authorization to the headers for tastypie.. :(
         username = 'shadowman@redhat.com:shadowman@redhat.com'
         credentials = base64.b64encode(username)
         self.client.defaults['HTTP_AUTHORIZATION'] = 'Basic ' + credentials
         
+    def drop_products(self):
+        #Note:  name conflict of 'Product' with 'report_server.sreport.tests.setup.Product'
+        from report_server.sreport.models import Product
+        Product.drop_collection()
         
+    def drop_pools(self):
+        from report_server.sreport.models import Pool
+        Pool.drop_collection()
+
+    def drop_rules(self):
+        #Note: name conflict with 'report_server.common.biz_rules.Rules'
+        from report_server.sreport.models import Rules
+        Rules.drop_collection()
+
     def drop_product_usage(self):
         ProductUsage.drop_collection()
     
@@ -215,6 +231,11 @@ class MongoApiTestCase(BaseMongoTestCase):
 
     username = 'shadowman@redhat.com'
     password = 'shadowman@redhat.com'
+
+    def setUp(self):
+        super(MongoApiTestCase, self).setUp()
+        self.valid_identity_cert_pem =  os.path.join(TEST_DATA_DIR, "valid_cert", "valid.cert")
+        self.valid_identity_cert_pem = open(self.valid_identity_cert_pem, "r").read()
 
     def login(self):
         if os.path.isfile("/etc/rhn/rhn.conf"):

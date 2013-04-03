@@ -34,11 +34,10 @@ from report_server.common.report import get_list_of_products, hours_per_consumer
 from report_server.common.import_util import import_data
 from report_server.common import config
 from report_server.sreport.models import ReportData, MyQuerySet
-from report_server.sreport.models import ProductUsage, SpliceServer
+from report_server.sreport.models import ProductUsage, SpliceServer, MarketingProductUsage
 from rhic_serve.rhic_rest.models import RHIC, Account
 from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
 #from splice.common.models import ProductUsage
-
 
 LOG = getLogger(__name__)
 # this_config = config.get_import_info()
@@ -297,4 +296,110 @@ class TestData():
                       "lscpu_dot_cpu_socket(s)": socket},
             "consumer": "fea363f5-af37-4a23-a2fd-bea8d1fff9e8"
         }
+        return entry
+
+    @staticmethod
+    def create_candlepin_pool(pool_uuid="unit_test_pool_id",
+        account_id="1",
+        product_id="unit_test_product_id",
+        product_name="unit_test_product_name",
+        ):
+        from datetime import datetime
+        from dateutil.tz import tzutc
+        from report_server.sreport.models import Pool
+        pool = Pool(uuid=pool_uuid, account=account_id, product_id=product_id,
+            product_name=product_name, 
+            created=datetime.now(tzutc()),
+            start_date=datetime.now(tzutc()),
+            end_date=datetime.now(tzutc()),
+            updated=datetime.now(tzutc()),
+            quantity=1)
+        pool.save()
+        return pool
+
+    @staticmethod
+    def create_candlepin_product(pool_uuid="unit_test_pool_id",
+        account_id="1",
+        product_id="unit_test_product_id",
+        product_name="unit_test_product_name",
+        ):
+        from datetime import datetime
+        from dateutil.tz import tzutc
+        # importing Product in method to avoid conflict with "create_products()" which is 
+        # written for 'metering'.
+        from report_server.sreport.models import Product
+        product = Product(product_id=product_id, name=product_name, 
+            created=datetime.now(tzutc()),
+            updated=datetime.now(tzutc()))
+        product.save()
+        return product
+
+
+    @staticmethod
+    def create_marketing_product_usage(splice_server, 
+        facts, 
+        cdate, 
+        consumer='consumer01',
+        instance='ident01',
+        account="1",
+        contract="1",
+        product_id="unit_test_product_id",  
+        status="", 
+        save=True):
+
+        product_info=[{"account":account, "contract":contract, "id":product_id}]
+
+        mpu = MarketingProductUsage(
+            splice_server=splice_server.uuid,
+            date=cdate,
+            instance_identifier=instance,
+            updated=updated,
+            created=updated,
+            entitlement_status=status,
+            product_info=product_info,
+            facts=facts
+        )
+        if save:
+            mpu.save(cascade=True)
+        return pu
+    
+    @staticmethod
+    def create_marketing_product_usage_json(
+                                account="1",
+                                contract=1,
+                                product_id="unit_test_product_id",
+                                cpu="1",
+                                socket="1",
+                                memory='604836',
+                                systemid="01"
+                                ):
+
+        facts = {"lscpu_dot_cpu(s)": cpu,
+                    "memory_dot_memtotal": memory,
+                    "lscpu_dot_cpu_socket(s)": socket,
+                    "systemid":systemid,
+                    "cpu_dot_cpu_socket(s)": socket}
+
+        entry = {"objects":[
+            {"splice_server": "foofoofoo",
+             "date": "2006-10-25 14:30:59",
+             "instance_identifier": "00:11",
+             "created": "",
+             "updated": "",
+             "entitlement_status": "",
+             "product_info": [{"account":account, "contract":contract, "product":product_id, "quantity":1, 
+                "sla":"dummyvalue", "support_level":"dummyvalue"}],
+             "facts": facts,
+            },
+            {"splice_server": "foofoofoo",
+             "date": "2006-10-25 14:30:59",
+             "instance_identifier": "00:12",
+             "created": "",
+             "updated": "",
+             "entitlement_status": "",
+             "product_info": [{"account":account, "contract":contract, "product":product_id, "quantity":1,
+                "sla":"dummyvalue", "support_level":"dummyvalue"}],
+             "facts": facts,
+            },
+        ]}
         return entry

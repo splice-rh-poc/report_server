@@ -18,8 +18,8 @@ from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
 from report_server.common import utils
 from report_server.common import import_util
-from report_server.report_import.api import productusage
-from splice.common.api import SpliceServerResource
+from splice.common.api import SpliceServerResource, ProductUsageResource, MarketingProductUsageResource, \
+    RulesResource, PoolResource, ProductResource
 from splice.common.auth import X509CertificateAuthentication
 from splice.common import certs
 from tastypie.authorization import Authorization
@@ -77,10 +77,10 @@ class SpliceServerResourceMod(SpliceServerResource):
         return SpliceServer.objects(uuid=uuid).first()
 
 
-class ProductUsageResource(productusage.ProductUsageResource):
+class ProductUsageResource(ProductUsageResource):
 
     def import_hook(self, product_usage):
-        _LOG.info("called import_hook")
+        _LOG.info("called create_hook")
         items_not_imported, start_stop_time = import_util.import_data(product_usage,
                                                                       force_import=True
                                                                       )
@@ -93,19 +93,37 @@ class ProductUsageResource(productusage.ProductUsageResource):
         return items_not_imported
     
 
-class MarketingProductUsageResource(productusage.ProductUsageResource):
+class MarketingProductUsageResource(MarketingProductUsageResource):
 
-    def import_hook(self, product_usage):
-        _LOG.info("called marketing import_hook")
-        not_imported = import_util.import_candlepin_data(product_usage,
-                                                        force_import=True
-                                                                    )
+    def create_hook(self, mkt_product_usage):
+        # we don't want to save these to our DB, so we just return the object
+        return mkt_product_usage
+
+    def complete_hook(self, items):
+        _LOG.info("called marketing import_hook with %s items" % (len(items)))
+        not_imported = import_util.import_candlepin_data(items,
+                                                        force_import=True)
         _LOG.info("items_not_imported length: " + str(len(not_imported)))
         for i in not_imported:
             thisDict = i.to_dict()
             thisItem.save()
 
         return not_imported
+
+
+class PoolResourceMod(PoolResource):
+    class Meta(PoolResource.Meta):
+        resource_name = "pool"
+
+
+class ProductResourceMod(ProductResource):
+    class Meta(ProductResource.Meta):
+        resource_name = "product"
+
+
+class RulesResourceMod(RulesResource):
+    class Meta(RulesResource.Meta):
+        resource_name = "rules"
 
 
 class QuarantinedDataResource(Resource):
