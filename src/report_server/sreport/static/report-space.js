@@ -39,6 +39,7 @@ $(document).ready(function() {
     setupCreateDatesForm();
     openCreateLogin();
     navButtonDocReady();
+    initialPopulateFilter();
     
     
      $("#byMonth").change(function() {
@@ -109,6 +110,7 @@ function drawCircle(element_selector, color_choice, width) {
 
 
 function setupCreateForm(){
+    var filter_name = $('#filter_name');
     var select_status = $('#status');
     var select_rhic = $('#rhic');
     var select_env = $('#env');
@@ -116,7 +118,7 @@ function setupCreateForm(){
     var select_sys_host = $('#sys_host');
     var select_sys_id = $('#sys_id');
 
-    
+    filter_name.empty();
     select_status.empty();
     select_rhic.empty();
     select_env.empty();
@@ -208,8 +210,143 @@ function setupCreateDatesForm(){
 }
 
 
-function updateListOfRHICS() {
+function saveReport(event){
+    event.preventDefault();
+    toggle_report_form();
+    var pane = $('#default_report_controls');
 
+    var CreateFilter = Backbone.Model.extend({
+            url: '/report-server/space/filter/'
+    });
+        
+    
+    var data = {
+            filter_name: $('#filter_name').val(),
+            status: $('#status').val(),
+            env:    $('#env').val(),
+            org:    $('#org').val()
+    };
+
+    if ($('#byMonth').val() == ""){
+            data.startDate =  $('#startDate').val();
+            data.endDate =  $('#endDate').val();
+    }
+    else{
+        data.byMonth = $('#byMonth').val();
+    }
+
+    var createFilter = new CreateFilter();
+    createFilter.save( data, {
+        success: function(model, response){
+            console.log('SUCCESS');
+            console.log(response);
+            populateFilters(response);
+      
+        }
+    });
+
+}
+
+function initialPopulateFilter(){
+
+    var pane = $('#default_report_controls');
+
+    var CreateFilter = Backbone.Model.extend({
+            url: '/report-server/space/filter/'
+    });
+
+    var createFilter = new CreateFilter();
+    createFilter.fetch({
+        success: function(model, response){
+            console.log('SUCCESS');
+            console.log(response);
+            populateFilters(response);
+      
+        }
+    });
+
+}
+
+function populateFilters(response){
+    var pane = $('#default_report_controls');
+    pane.empty();
+    var Filter = Backbone.Model.extend();
+    var Filters = Backbone.Collection.extend({
+        model : Filter
+    });
+
+    var filters = new Filters(response.filters)
+
+
+    var columns = [{
+        name : "filter_name",
+        label : "Filter Name:",
+        editable : false,
+        cell : "string"
+    }];
+
+    var ClickableRow = Backgrid.Row.extend({
+        events : {
+            "click" : "onClick"
+        },
+        onClick : function() {
+            Backbone.trigger("goToReport", this.model);
+        }
+    });
+
+    Backbone.on("goToReport", function(model) {
+        console.log('in row click');
+        var filter = model.attributes;
+        console.log(filter);
+        createReportFromSavedFilter(model.attributes);
+        
+    });
+
+    var grid = new Backgrid.Grid({
+        columns : columns,
+        collection : filters,
+        row: ClickableRow
+    })
+    
+    console.log(pane);
+    pane.append(grid.render().$el);
+}
+
+
+function createReportFromSavedFilter(filter) {
+    form_filter_link_hide(false);
+    if (logged_in){
+        var CreateReport = Backbone.Model.extend({
+            url: '/report-server/space/report/'
+        });
+        
+        var data = {
+            status:  filter.status,
+            env:    filter.environment,
+            org:    filter.environment,
+            startDate: filter.start_date,
+            endDate: filter.end_date
+        };
+        
+        console.log(data);
+        var createReport = new CreateReport();
+        console.log(createReport.toJSON());
+        
+        createReport.save( data, {
+            success: function(model, response){
+                console.log('SUCCESS');
+                console.log(response);
+                
+                $('#report_pane > div').empty();
+                var pane = '#report_pane > div';
+                populateReport(response, pane );
+                openReport();
+            }
+        });
+        
+        }
+        
+    
 }
 
 
@@ -287,9 +424,8 @@ function create_default_report(event){
                 console.log('SUCCESS');
                 console.log(response);
                 
-                $('#report_pane > div').empty();
-                var pane = '#report_pane > div';
-                var num = populateReport(response, pane );
+                $('#report_pane').empty();
+                var num = populateReport(response);
                 openReport();
                 
                 //$('#default_report_results').append("<br><br><br><br><br><br>");
@@ -307,8 +443,9 @@ function create_default_report(event){
 }
 
 
-function populateReport(rtn, pane) {
-    var pane = $(pane);
+function populateReport(rtn) {
+    var pane = $('#report_pane');
+    
     pane.empty();
     setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
     var this_div = $('<div this_rhic_table>');
@@ -423,6 +560,7 @@ function populateReport(rtn, pane) {
     drawCircle("div.status_icon", status_color, ".80"); 
 
     return rtn.list.length
+    
 
 }
 
@@ -724,7 +862,7 @@ function subscriptionDetail(model, pane) {
             //var pool_detail = JSON.parse(response);
             pane.empty();
             pane.append("&nbsp&nbsp<b>Subscription Name: </b>" + response.pool_detail.product_name + "<br><br>");
-            pane.append("&nbsp&nbsp<b>Subscription ID: </b>" + response.pool_detail.product_id + "<br><br>");
+            pane.append("&nbsp&nbsp<b>Subscriptio ID: </b>" + response.pool_detail.product_id + "<br><br>");
 
             pane.append("&nbsp&nbsp<b>Provided Products: </b><br><br>");
             var provided_products = JSON.parse(response.provided_products);

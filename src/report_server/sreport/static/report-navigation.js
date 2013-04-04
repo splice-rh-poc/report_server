@@ -178,7 +178,7 @@ function form_filter_link_hide(hide){
     if (!hide){
         document.getElementById("default_report_controls").style.display = "block";
         document.getElementById("filter_toggle").style.display = "block";
-        document.getElementById("default-report-submit").style.display = "block";
+        //document.getElementById("default-report-submit").style.display = "block";
         toggle_report_form()
     }
 }
@@ -198,14 +198,14 @@ function toggle_report_form() {
         ele.style.display = "none";
         report.style.display = "none";
         text.innerHTML = "show advanced filter";
-        default_report_button.style.display = "block";
+        //default_report_button.style.display = "block";
     }
     //show report filter options
     else {
         ele.style.display = "block";
         report.style.display = "block";
         text.innerHTML = "hide advanced filter";
-        default_report_button.style.display = "none";
+        //default_report_button.style.display = "none";
     }
 }
 

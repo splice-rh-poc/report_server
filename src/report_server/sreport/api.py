@@ -18,8 +18,9 @@ from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
 from report_server.common import utils
 from report_server.common import import_util
-from splice.common.api import SpliceServerResource, ProductUsageResource, MarketingProductUsageResource, \
+from splice.common.api import SpliceServerResource, MarketingProductUsageResource, \
     RulesResource, PoolResource, ProductResource
+from report_server.report_import.api.productusage import ProductUsageResource
 from splice.common.auth import X509CertificateAuthentication
 from splice.common import certs
 from tastypie.authorization import Authorization

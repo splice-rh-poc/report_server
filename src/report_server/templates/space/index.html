@@ -165,24 +165,39 @@
                         <div id='container' class='clearWrap'>
                         	<a id="filter_toggle" style="float: right"  href="javascript:toggle_report_form();">show advanced filter</a>
                         	<div id='default_report_controls'>
-                              <button id='default-report-submit' name='default-report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='create_default_report(event)'>
-                                <span class='ui-button-text'>Run Report</span>
+                             
+                                
                               </button>
                             </div>
                             <div id='default_report_results_ui'> </div>	
                             <div id='default_report_results'> </div>
                             <div id='create_pane' style='display: none'>
                                 <fieldset>
+                                
                                     <form id="report_form" style="display: none">
-                                     <h3>Filter by Date:</h3>
-                                      <br>
                                         <table>
                                             <tr>
                                                 <td width="10%">
                                                     <div style='display: inline-block'>
                                                         
+                                                        <b style='padding-top: 1em'> Filter Name:</b>
+                                                        <input type="text" name="filter_name" 
+                                                        id="filter_name"  
+                                                        style="width:100px;">
+                                                    </div>
+                                                </td>
+                                            </tr>
+        
+
+                                      <br>
+                                        <table>
+                                        <h3>Filter by Date:</h3>
+                                            <tr>
+                                                <td width="10%">
+                                                    <div style='display: inline-block'>
+                                                        
                                                         <b style='padding-top: 1em'> Month:</b>
-                                                        <select name=byMonth id="byMonth" class='chosen' style="width:100px;">
+                                                        <select name="byMonth" id="byMonth" class='chosen' style="width:100px;">
 
                                                         </select> 
                                                     </div>
@@ -262,17 +277,21 @@
                                                 </td>
                                             </tr>
                                             </table>
-                                            <table id=buttons width=50%>
+                                            <table id=buttons width=60%>
                                             <br><br><br>
                                             <tr>
-                                                <td width="2%">
+                                                <td width="1%">
                                                     <button id='report-submit' name='report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
                                                         <span class='ui-button-text'>Run Report</span>
                                                     </button>
                                                 </td>
-                                                <td width="2%">
+                                                <td width="1%">
                                                 <button id='export' name='export' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='exportReport(event)'>
                                                     <span class='ui-button-text'>Export Report</span>
+                                                </button>
+                                                <td width="2%">
+                                                <button id='save' name='save' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='saveReport(event)'>
+                                                    <span class='ui-button-text'>Save Report Criteria</span>
                                                 </button>
                                                 </td>
                                                 <td width="2%">
@@ -292,11 +311,7 @@
                             </div>
 
                             <div id='report_pane'>
-                                <div>
-                                    <h3>This date range contains no usage data.</h3>
-                                    <br></br>
-                                    <br></br>
-                                </div>
+
                             </div>
                             <div id='detail_pane'>
                                 <div id='details'>

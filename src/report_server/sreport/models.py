@@ -247,6 +247,20 @@ class SpliceAdminGroup(Document):
     members = ListField()
     permissions = ListField()
 
+class Filter(Document):
+    meta = {
+        'db_alias': 'results'
+    }
+
+    filter_name = StringField(unique=True, required=True)
+    owner = StringField(required=True)
+    status = StringField(required=True)
+    environment = StringField(required=True)
+    start_date = StringField(required=True)
+    end_date = StringField(required=True)
+
+
+
         
 
 
