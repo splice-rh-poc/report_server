@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.71
+Version:	0.72
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -255,6 +255,35 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Apr 04 2013 Wes Hayutin <whayutin@redhat.com> 0.72-1
+- added ability to save report filters and execute, just an ugly prototype
+  (whayutin@redhat.com)
+- Update playpen script and sample data for MarketingProductUsage
+  (jwmatthews@gmail.com)
+- Adding a temp workaround for MarketingProductUsageResource so it can run with
+  manage.py and not require a X509 cert (jwmatthews@gmail.com)
+- Updated to use MarketingProductUsage from splice.common.api and added unit
+  test. - Unit tests for 'sreport' may be run from 'run_tests.sh' - Logging of
+  unit tests will now go to /tmp/*.log - Hooked up APIs for Rules, Product,
+  Pool to dev instance of urls.py, will need more testing
+  (jwmatthews@gmail.com)
+- Update .gitignore for sphinx generated doc/_build (jwmatthews@gmail.com)
+- Removed sphinx generated _build dir (jwmatthews@gmail.com)
+- moved subscription detail to the system detail page and removed associated
+  methods (whayutin@redhat.com)
+- add sla (whayutin@redhat.com)
+- remove json parse from product_info and facts (whayutin@redhat.com)
+- removed santize from model (whayutin@redhat.com)
+- cleaned up import of facts and product_usage (whayutin@redhat.com)
+- adding mock data for screenshots (weshayutin@gmail.com)
+- fixed broken unit test, api url changed (whayutin@redhat.com)
+- added warning regarding rhn.conf file (whayutin@redhat.com)
+- System details webui update for green/red/yellow circle
+  (jwmatthews@gmail.com)
+- Update 'view report' dashboard to color circle green/red/yellow based on data
+  (jwmatthews@gmail.com)
+- fixed report api (whayutin@redhat.com)
+
 * Thu Mar 28 2013 Wes Hayutin <whayutin@redhat.com> 0.71-1
 - add inactive systems to panel, clean up sub detail (whayutin@redhat.com)
 
