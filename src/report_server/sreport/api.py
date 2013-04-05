@@ -9,10 +9,18 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+import logging
+import sys
 
 from django.http import HttpResponse
+from tastypie.authentication import Authentication, BasicAuthentication
+from tastypie.authorization import Authorization
+from tastypie_mongoengine.resources import MongoEngineResource
+from tastypie.resources import Resource
+from tastypie.serializers import Serializer
+
 from report_server.sreport.models import QuarantinedReportData
-from report_server.sreport.models import ReportData, SpliceServer, Filter
+from report_server.sreport.models import ReportData, SpliceServer, Filter, Pool, Product, Rules, MarketingProductUsage
 from report_server.sreport import views
 from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
@@ -23,16 +31,23 @@ from splice.common.api import SpliceServerResource, MarketingProductUsageResourc
 from report_server.report_import.api.productusage import ProductUsageResource
 from splice.common.auth import X509CertificateAuthentication
 from splice.common import certs
-from tastypie.authorization import Authorization
-from tastypie.authentication import BasicAuthentication
-from tastypie_mongoengine.resources import MongoEngineResource
-from tastypie.serializers import Serializer
-from tastypie.resources import Resource
-import logging
-import sys
+from splice.common.deserializer import JsonGzipSerializer
 
 
 _LOG = logging.getLogger(__name__)
+
+# NOTE:
+#  We have run into issues attempting to inherit a 'Meta' class from a base class
+#  such as
+#  class PoolResourceMod(PoolResource):
+#     class Meta(PoolResource.Meta):
+#
+#  We tried above approach and were unable to consistently override 'queryset'.
+#
+#  For that reason we are redefining Meta for each tastypie Resource class
+# 
+def get_authentication():
+    return X509CertificateAuthentication(verification_ca=certs.get_splice_server_identity_ca_pem())
 
 class RestSerializer(Serializer):
     """
@@ -64,7 +79,7 @@ class SpliceServerResourceMod(SpliceServerResource):
         resource_name = "spliceserver"
         queryset = SpliceServer.objects.all()
         authorization = Authorization()
-        authentication = X509CertificateAuthentication(verification_ca=certs.get_splice_server_identity_ca_pem())
+        authentication = get_authentication()
         list_allowed_methods = ['get', 'post']
         detail_allowed_methods = ['get']
 
@@ -94,7 +109,16 @@ class ProductUsageResource(ProductUsageResource):
         return items_not_imported
     
 
-class MarketingProductUsageResource(MarketingProductUsageResource):
+class MarketingProductUsageResourceMod(MarketingProductUsageResource):
+
+    class Meta:
+        resource_name = "marketingproductusage"
+        queryset = MarketingProductUsage.objects.all()
+        authorization = Authorization()
+        authentication = get_authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
 
     def create_hook(self, mkt_product_usage):
         # we don't want to save these to our DB, so we just return the object
@@ -111,16 +135,77 @@ class MarketingProductUsageResource(MarketingProductUsageResource):
 
         return not_imported
 
+
+class PoolResourceMod(PoolResource):
+    class Meta:
+        # We are redefining values set in BaseResource.Meta
+        # We are seeing some attributes in Meta are not being redefined as expected
+        # in particular we are having difficulties with 'queryset'
+        # When we inherit from PoolResource.Meta we are seeing
+        #  'queryset' still using splice.common.models.Pool
+        #  even when in PoolResourceMod.Meta we set 'queryset' to sreport.models.Pool
+        # Workaround is manually redefine entries for 'Meta' and not inherit
+        #
+        resource_name = "pool"
+        queryset = Pool.objects.all()
+        authorization = Authorization()
+        authentication = get_authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
+
+    def get_existing(self, obj):
+        return Pool.objects(uuid=obj.uuid).first()
+
+
+class ProductResourceMod(ProductResource):
+    class Meta:
+        resource_name = "product"
+        queryset = Product.objects.all()
+        authorization = Authorization()
+        authentication = get_authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
+
+    def get_existing(self, obj):
+        return Product.objects(product_id=obj.product_id).first()
+
+
+class RulesResourceMod(RulesResource):
+    class Meta:
+        resource_name = "rules"
+        queryset = Rules.objects.all()
+        authorization = Authorization()
+        authentication = get_authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
+
+    def get_existing(self, obj):
+        return Rules.objects(version=obj.version).first()
+
+
+
 #
 # Below is a 'hack' so we can test the API prior to running from RPM
-# 
-class MarketingProductUsageResourceDev(MarketingProductUsageResource):
+# We are defining 'authentication' as the default non X509 version 
+#
+class MarketingProductUsageResourceDev(MarketingProductUsageResourceMod):
     class Meta:
-        from tastypie.authentication import Authentication
-        from splice.common.deserializer import JsonGzipSerializer
-        from splice.common.models import MarketingProductUsage
-        queryset = MarketingProductUsage.objects.all()
         resource_name = "marketingproductusage"
+        queryset = MarketingProductUsage.objects.all()
+        authentication = Authentication()
+        authorization = Authorization()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
+
+
+class PoolResourceDev(PoolResourceMod):
+    class Meta:
+        resource_name = "pool"
+        queryset = Pool.objects.all()
         authorization = Authorization()
         authentication = Authentication()
         list_allowed_methods = ['get', 'post']
@@ -128,20 +213,28 @@ class MarketingProductUsageResourceDev(MarketingProductUsageResource):
         serializer = JsonGzipSerializer()
 
 
-class PoolResourceMod(PoolResource):
-    class Meta(PoolResource.Meta):
-        resource_name = "pool"
-
-
-class ProductResourceMod(ProductResource):
-    class Meta(ProductResource.Meta):
+class ProductResourceDev(ProductResourceMod):
+    class Meta:
         resource_name = "product"
+        queryset = Product.objects.all()
+        authorization = Authorization()
+        authentication = Authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
 
-
-class RulesResourceMod(RulesResource):
-    class Meta(RulesResource.Meta):
+class RulesResourceDev(RulesResourceMod):
+    class Meta:
         resource_name = "rules"
-
+        queryset = Rules.objects.all()
+        authorization = Authorization()
+        authentication = Authentication()
+        list_allowed_methods = ['get', 'post']
+        detail_allowed_methods = ['get']
+        serializer = JsonGzipSerializer()
+##
+## End of Hack for Dev
+##
 
 class QuarantinedDataResource(Resource):
 
