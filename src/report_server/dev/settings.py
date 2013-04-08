@@ -31,4 +31,4 @@ TEMPLATE_DEBUG = True
 TEST_RUNNER = 'rhic_serve.common.tests.MongoTestRunner'
 
 
-
+SECRET_KEY = 'UNUSED_BUT_QUIETS_WARNING_FROM_DJANO'

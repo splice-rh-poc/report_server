@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.72
+Version:	0.73
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,23 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Apr 08 2013 John Matthews <jwmatthews@gmail.com> 0.73-1
+- Hooked up splice.common.apis to urls.py used by RPM install
+  (jwmatthews@gmail.com)
+- Added unit tests for Product/Rules splice.common.apis (jwmatthews@gmail.com)
+- Adding unit test for PoolAPI (jwmatthews@gmail.com)
+- First phase of integrating splice.common.apis, working when run with 'python
+  manage.py runserver' - Updated 'Meta' class of each Resource API so that the
+  objects would be written to the 'db_alias' controlled in sreport.models -
+  Introduced 'Dev' versions of the Resources which use the default
+  Authentication instead of the X509Authentication, allowing to run from django
+  dev environment (jwmatthews@gmail.com)
+- Added an unusued 'SECRET_KEY' to quiet logging error from django
+  (jwmatthews@gmail.com)
+- Sample scripts to push Pools, Products, Rules to splice.common.api in
+  ReportServer (jwmatthews@gmail.com)
+- adding filter api (whayutin@redhat.com)
+
 * Thu Apr 04 2013 Wes Hayutin <whayutin@redhat.com> 0.72-1
 - added ability to save report filters and execute, just an ugly prototype
   (whayutin@redhat.com)

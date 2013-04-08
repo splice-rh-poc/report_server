@@ -9,7 +9,7 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from report_server.sreport.models import ReportData, MarketingReportData, QuarantinedReportData
+from report_server.sreport.models import ReportData, MarketingReportData, QuarantinedReportData, Pool, Product, Rules
 from report_server.sreport.tests.general import BaseMongoTestCase, MongoApiTestCase
 from rhic_serve.common.tests import BaseMongoTestCase#, MongoApiTestCase
 from setup import TestData
@@ -88,7 +88,8 @@ class MarketingProductUsageAPITest(MongoApiTestCase):
         MarketingReportData.drop_collection()
         QuarantinedReportData.drop_collection()
 
-    def test_with_no_authentication(self):
+    # Below is not running until we update the API to use the X509 cert for auth
+    def UPDATE_LATER_test_with_no_authentication(self):
         resp = self.api_client.post(
             '/api/v1/marketingproductusage/', data="dummy data")
         self.assertEqual(401, resp.status_code, 'unauthorized is expected')
@@ -107,6 +108,59 @@ class MarketingProductUsageAPITest(MongoApiTestCase):
                          'marketing product_usuage successfully imported')
         self.assertEqual(0, QuarantinedReportData.objects.all().count(),
                          'asserted no marketing product usuage quarantined')
+
+class PoolAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(PoolAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        Pool.drop_collection()
+
+    def test_post_204(self):
+        self.assertEqual(0, Pool.objects.all().count())    
+        pool_entry_json = TestData.create_candlepin_pool_json()
+        resp = self.api_client.post(
+            '/api/v1/pool/', data=pool_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, Pool.objects.all().count())
+
+
+class ProductAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(ProductAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        Product.drop_collection()
+
+    def test_post_204(self):
+        self.assertEqual(0, Product.objects.all().count())    
+        product_entry_json = TestData.create_candlepin_product_json()
+        resp = self.api_client.post(
+            '/api/v1/product/', data=product_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, Product.objects.all().count())
+
+
+class RulesAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(RulesAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        Rules.drop_collection()
+
+    def test_post_204(self):
+        self.assertEqual(0, Rules.objects.all().count())    
+        rules_entry_json = TestData.create_candlepin_rules_json()
+        resp = self.api_client.post(
+            '/api/v1/rules/', data=rules_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, Rules.objects.all().count())
 
 
 class QuarantinedDataTest(BaseMongoTestCase):

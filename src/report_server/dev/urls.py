@@ -27,7 +27,7 @@ from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
 # is not required.  
 # 
 from report_server.sreport.api import MarketingProductUsageResourceDev
-from report_server.sreport.api import  PoolResourceMod, ProductResourceMod, RulesResourceMod
+from report_server.sreport.api import  PoolResourceDev, ProductResourceDev, RulesResourceDev
 
 
 v1_api = Api(api_name='v1')
@@ -51,6 +51,7 @@ v1_api.register(filter_resource)
 v1_api.register(PoolResourceMod())
 v1_api.register(ProductResourceMod())
 v1_api.register(RulesResourceMod())
+
 
 urlpatterns = patterns('',
     # Examples:
