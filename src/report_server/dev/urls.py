@@ -19,7 +19,7 @@ import splice.common.api
 splice.common.api.USE_SSL=False
 
 from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource
-from report_server.sreport.api import ComplianceDataResource
+from report_server.sreport.api import ComplianceDataResource, FilterResource
 from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
 #
 # Note:  Hack for temporary testing with "manage.py runserver"
@@ -39,12 +39,15 @@ quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
 report_meter_resource = ReportMeterResource()
 report_space_resource = ReportSpaceResource()
+filter_resource = FilterResource()
+
 v1_api.register(productusage_resource)
 v1_api.register(marketing_productusage_resource)
 v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
 v1_api.register(report_meter_resource)
 v1_api.register(report_space_resource)
+v1_api.register(filter_resource)
 v1_api.register(PoolResourceMod())
 v1_api.register(ProductResourceMod())
 v1_api.register(RulesResourceMod())

@@ -225,17 +225,22 @@ class ReportSpaceResource(MongoEngineResource):
         return response
 
 
-class FilterResource(Resource):
+class FilterResource(MongoEngineResource):
 
     class Meta:
         queryset = Filter.objects.all()
         authorization = Authorization()
         allowed_methods = ['get', 'post', 'delete']
+        filtering = {
+            'id': ['exact'],
+        }
+        
 
-    def get(self, request):
+
+    def get(self, request, **kwargs):
 
         _LOG.info("FilterResource::get() ")
-        user_filters = Filter.objects.filter(owner=str(request.user))
+        user_filters = Filter.objects.filter(owner=str(request.user), **kwargs)
 
         response_data = {}
         response_data['filters'] = user_filters
@@ -266,3 +271,12 @@ class FilterResource(Resource):
             end_date = end
             )
         filter.save()
+        
+        
+    def delete(self, request, id):
+        _LOG.info("FilterResource::delete() ")
+        user_filters = Filter.objects.filter(id=id)
+        deleted = user_filters.delete()
+        
+        response_data = {}
+        return utils.create_response(response_data) 
