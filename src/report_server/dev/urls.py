@@ -48,9 +48,9 @@ v1_api.register(compliance_resource)
 v1_api.register(report_meter_resource)
 v1_api.register(report_space_resource)
 v1_api.register(filter_resource)
-v1_api.register(PoolResourceMod())
-v1_api.register(ProductResourceMod())
-v1_api.register(RulesResourceMod())
+v1_api.register(PoolResourceDev())
+v1_api.register(ProductResourceDev())
+v1_api.register(RulesResourceDev())
 
 
 urlpatterns = patterns('',

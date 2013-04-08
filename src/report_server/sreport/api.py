@@ -323,17 +323,18 @@ class FilterResource(MongoEngineResource):
     class Meta:
         queryset = Filter.objects.all()
         authorization = Authorization()
+        authentication = BasicAuthentication()
         allowed_methods = ['get', 'post', 'delete']
         filtering = {
             'id': ['exact'],
+            'owner': ['exact'],
         }
         
-
-
-    def get(self, request, **kwargs):
+        
+    def get_list(self, request, **kwargs):
 
         _LOG.info("FilterResource::get() ")
-        user_filters = Filter.objects.filter(owner=str(request.user), **kwargs)
+        user_filters = Filter.objects.filter(owner=str(request.user))
 
         response_data = {}
         response_data['filters'] = user_filters
@@ -364,12 +365,7 @@ class FilterResource(MongoEngineResource):
             end_date = end
             )
         filter.save()
+            
+
         
-        
-    def delete(self, request, id):
-        _LOG.info("FilterResource::delete() ")
-        user_filters = Filter.objects.filter(id=id)
-        deleted = user_filters.delete()
-        
-        response_data = {}
-        return utils.create_response(response_data) 
+

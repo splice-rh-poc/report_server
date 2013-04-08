@@ -12,16 +12,10 @@
 
 from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
-<<<<<<< HEAD
-from report_server.sreport.api import ProductUsageResource,  QuarantinedDataResource, FilterResource
-from report_server.sreport.api import ComplianceDataResource, ReportResource, SpliceServerResourceMod
-from report_server.sreport.api import  SpliceServerResourceMod, MarketingProductUsageResource
-=======
 from report_server.sreport.api import ProductUsageResource,  QuarantinedDataResource
 from report_server.sreport.api import ComplianceDataResource, ReportSpaceResource, SpliceServerResourceMod
 from report_server.sreport.api import  SpliceServerResourceMod, MarketingProductUsageResourceMod
 from report_server.sreport.api import PoolResourceMod, ProductResourceMod, RulesResourceMod
->>>>>>> 0b49b6eefaa14dfe75ad58ee7b19cd83751c845e
 from tastypie.api import Api
 
 v1_api = Api(api_name='v1')
