@@ -26,6 +26,7 @@ from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
 from report_server.common import utils
 from report_server.common import import_util
+from report_server.settings import AUTHENTICATION_BACKENDS
 from splice.common.api import SpliceServerResource, MarketingProductUsageResource, \
     RulesResource, PoolResource, ProductResource
 from report_server.report_import.api.productusage import ProductUsageResource

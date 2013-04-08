@@ -216,7 +216,7 @@ function saveReport(event){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-            url: '/report-server/space/filter/'
+            url: '/report-server/api/v1/filter/'
     });
         
     
@@ -252,7 +252,7 @@ function initialPopulateFilter(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        url: "/report-server/space/filter/",
+        url: "/report-server/api/v1/filter/",
 
         /*
         *TO-DO The _id is delivered to javascript w/ as null

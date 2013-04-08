@@ -86,13 +86,13 @@ urlpatterns = patterns('',
     (r'^report-server/space/instance_details/$', 'report_server.sreport.spacewalk.views.instance_detail'),
     (r'^report-server/space/export/$', 'report_server.sreport.spacewalk.views.export'),
     (r'^report-server/space/subscription/$', 'report_server.sreport.spacewalk.views.subscription_detail'),
-    (r'^report-server/space/filter/$', 'report_server.sreport.spacewalk.views.filter')
+    #(r'^report-server/space/filter/$', 'report_server.sreport.spacewalk.views.filter')
 
 )
 
 urlpatterns += (
     # API Resources
-    url(r'^api/', include(v1_api.urls)),
+    url(r'^report-server/api/', include(v1_api.urls)),
 )
 
 
