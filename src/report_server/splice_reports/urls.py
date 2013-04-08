@@ -14,14 +14,15 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
 from report_server.sreport.api import ProductUsageResource,  QuarantinedDataResource
 from report_server.sreport.api import ComplianceDataResource, ReportResource, SpliceServerResourceMod
-from report_server.sreport.api import  SpliceServerResourceMod, MarketingProductUsageResource
+from report_server.sreport.api import  SpliceServerResourceMod, MarketingProductUsageResourceMod
+from report_server.sreport.api import PoolResourceMod, ProductResourceMod, RulesResourceMod
 from tastypie.api import Api
 
 v1_api = Api(api_name='v1')
 
 # Resources
 productusage_resource = ProductUsageResource()
-marketing_productusage_resource = MarketingProductUsageResource()
+marketing_productusage_resource = MarketingProductUsageResourceMod()
 quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
 report_resource = ReportResource()
@@ -32,6 +33,9 @@ v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
 v1_api.register(report_resource)
 v1_api.register(SpliceServerResourceMod())
+v1_api.register(PoolResourceMod())
+v1_api.register(ProductResourceMod())
+v1_api.register(RulesResourceMod())
 
 urlpatterns = patterns('',
     # Examples:
