@@ -127,6 +127,42 @@ class PoolAPITest(MongoApiTestCase):
         self.assertEqual(1, Pool.objects.all().count())
 
 
+class ProductAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(ProductAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        Product.drop_collection()
+
+    def test_post_204(self):
+        self.assertEqual(0, Product.objects.all().count())    
+        product_entry_json = TestData.create_candlepin_product_json()
+        resp = self.api_client.post(
+            '/api/v1/product/', data=product_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, Product.objects.all().count())
+
+
+class RulesAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(RulesAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        Rules.drop_collection()
+
+    def test_post_204(self):
+        self.assertEqual(0, Rules.objects.all().count())    
+        rules_entry_json = TestData.create_candlepin_rules_json()
+        resp = self.api_client.post(
+            '/api/v1/rules/', data=rules_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, Rules.objects.all().count())
+
+
 class QuarantinedDataTest(BaseMongoTestCase):
     def setUp(self):
         super(QuarantinedDataTest, self).setUp()

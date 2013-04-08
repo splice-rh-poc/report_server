@@ -35,7 +35,7 @@ from report_server.common.report import get_list_of_products, hours_per_consumer
 from report_server.common.import_util import import_data
 from report_server.common import config
 from report_server.sreport.models import ReportData, MyQuerySet
-from report_server.sreport.models import ProductUsage, SpliceServer, MarketingProductUsage, Pool, Product
+from report_server.sreport.models import ProductUsage, SpliceServer, MarketingProductUsage, Pool
 from rhic_serve.rhic_rest.models import RHIC, Account
 from rhic_serve.common.tests import BaseMongoTestCase, MongoApiTestCase
 #from splice.common.models import ProductUsage
@@ -348,21 +348,41 @@ class TestData():
 
     @staticmethod
     def create_candlepin_product(pool_uuid="unit_test_pool_id",
-        account_id="1",
         product_id="unit_test_product_id",
         product_name="unit_test_product_name",
         ):
-        from datetime import datetime
-        from dateutil.tz import tzutc
-        # importing Product in method to avoid conflict with "create_products()" which is 
-        # written for 'metering'.
-        from report_server.sreport.models import Product
+        from sreport.models import Product
         product = Product(product_id=product_id, name=product_name, 
             created=datetime.now(tzutc()),
             updated=datetime.now(tzutc()))
         product.save()
         return product
 
+    @staticmethod
+    def create_candlepin_product_json(pool_uuid="unit_test_pool_id",
+        product_id="unit_test_product_id",
+        product_name="unit_test_product_name",
+        ):
+        entry = {"objects": [{
+            "product_id": product_id,
+            "name": product_name,
+            "created": datetime.now(tzutc()),
+            "updated": datetime.now(tzutc()),
+
+        }]}
+        return entry
+
+    @staticmethod
+    def create_candlepin_rules_json(version="1",
+        data="empty rules",
+        ):
+        entry = {"objects": [{
+            "version": version,
+            "data": data,
+        }]}
+        return entry
+
+    
 
     @staticmethod
     def create_marketing_product_usage(splice_server, 
