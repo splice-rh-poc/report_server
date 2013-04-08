@@ -195,7 +195,7 @@ def export(request):
     if status == "All":
         for obj in MarketingReportData.objects.filter(date__gt=start, date__lt=end):
             _LOG.info(obj.product_info)
-            products = json.loads(obj.product_info)
+            products = obj.product_info
             _LOG.info(products)
             for p in products:
                 row = [obj.instance_identifier, obj.hour, obj.splice_server, p["product_id"], 

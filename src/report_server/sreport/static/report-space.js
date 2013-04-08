@@ -252,7 +252,16 @@ function initialPopulateFilter(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-            url: '/report-server/space/filter/'
+        url: "/report-server/space/filter/",
+
+        /*
+        *TO-DO The _id is delivered to javascript w/ as null
+        parse: function(response){
+            response.id = response.null;
+            return response.attributes;
+        }
+        */
+
     });
 
     var createFilter = new CreateFilter();
@@ -270,7 +279,16 @@ function initialPopulateFilter(){
 function populateFilters(response){
     var pane = $('#default_report_controls');
     pane.empty();
-    var Filter = Backbone.Model.extend();
+    var Filter = Backbone.Model.extend({
+
+        /*
+        *TO-DO The _id is delivered to javascript w/ as null
+        parse: function(response){
+            response.id = response.null;
+            return response.attributes;
+        }
+        */
+    });
     var Filters = Backbone.Collection.extend({
         model : Filter
     });
@@ -281,6 +299,12 @@ function populateFilters(response){
     var columns = [{
         name : "filter_name",
         label : "Filter Name:",
+        editable : false,
+        cell : "string"
+    },
+    {  
+        name : "null",
+        label : "Filter ID:",
         editable : false,
         cell : "string"
     }];

@@ -11,7 +11,8 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from mongoengine import DateTimeField, Document, ListField, StringField, IntField, BooleanField, DictField
+from mongoengine import DateTimeField, Document, ListField, StringField, IntField
+from mongoengine import BooleanField, DictField
 from mongodbforms import DocumentForm
 from mongoengine.queryset import QuerySet
 from splice.common.models import ProductUsage, SpliceServer, MarketingProductUsage
@@ -251,7 +252,6 @@ class Filter(Document):
     meta = {
         'db_alias': 'results'
     }
-
     filter_name = StringField(unique=True, required=True)
     owner = StringField(required=True)
     status = StringField(required=True)

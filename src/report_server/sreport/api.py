@@ -12,7 +12,7 @@
 
 from django.http import HttpResponse
 from report_server.sreport.models import QuarantinedReportData
-from report_server.sreport.models import ReportData, SpliceServer
+from report_server.sreport.models import ReportData, SpliceServer, Filter
 from report_server.sreport import views
 from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
@@ -223,3 +223,46 @@ class ReportSpaceResource(MongoEngineResource):
 
         response = space_report(request)
         return response
+
+
+class FilterResource(Resource):
+
+    class Meta:
+        queryset = Filter.objects.all()
+        authorization = Authorization()
+        allowed_methods = ['get', 'post', 'delete']
+
+    def get(self, request):
+
+        _LOG.info("FilterResource::get() ")
+        user_filters = Filter.objects.filter(owner=str(request.user))
+
+        response_data = {}
+        response_data['filters'] = user_filters
+
+        return utils.create_response(response_data)
+
+    def post(self, request, **kwargs):
+        _LOG.info("FilterResource::get() ")
+        start, end = utils.get_dates_from_request(request)
+        data = utils.data_from_post(request)
+        
+        start = "%s/%s/%s" % (start.month, start.day, start.year)
+        end = "%s/%s/%s" % (end.month, end.day, end.year)
+        filter_name = data["filter_name"]
+        if 'org' in data:
+            environment = data["org"]
+        else:
+            environment = "All"
+    
+        status = data["status"]
+    
+        filter = Filter(
+            filter_name = filter_name,
+            owner = user,
+            status = status,
+            environment = environment, 
+            start_date = start,
+            end_date = end
+            )
+        filter.save()
