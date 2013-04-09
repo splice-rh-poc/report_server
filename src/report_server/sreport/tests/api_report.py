@@ -22,7 +22,7 @@ class ReportDataTest(MongoApiTestCase):
     def setUp(self):
         super(ReportDataTest, self).setUp()
         self.drop_collections()
-        self.detail_url = '/api/v1/report/'
+        self.detail_url = '/report-server/api/v1/report/'
 
     def drop_collections(self):
         ReportData.drop_collection()
@@ -35,7 +35,7 @@ class ReportDataTest(MongoApiTestCase):
         e = TestData.create_product_usage_json(instance_identifier="00:11")
         entry = json.dumps(e)
         #print('ENTRY: ' + entry)
-        resp = self.post('/api/v1/productusage/', 
+        resp = self.post('/report-server/api/v1/productusage/', 
                                      data=entry)
         #print('resp:' + str(resp.status_code))
         self.assertEqual(202, resp.status_code, 'http status code is expected')
@@ -44,7 +44,7 @@ class ReportDataTest(MongoApiTestCase):
         q = {"user": "shadowman@redhat.com", "byMonth": "11,2012", "contract_number": "All", "rhic": "null", "env": "All"}
         myquery = json.dumps(q)
         
-        resp = self.post('/api/v1/reportmeter/', 
+        resp = self.post('/report-server/api/v1/reportmeter/', 
                         data=myquery,
                         code=200)
         #print(resp)
