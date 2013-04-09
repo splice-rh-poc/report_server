@@ -29,6 +29,7 @@ from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
 from report_server.sreport.api import MarketingProductUsageResourceDev
 from report_server.sreport.api import  PoolResourceDev, ProductResourceDev, RulesResourceDev
 
+print("USING DEV URLS")
 
 v1_api = Api(api_name='v1')
 

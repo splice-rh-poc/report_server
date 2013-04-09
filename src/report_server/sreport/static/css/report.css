@@ -146,3 +146,44 @@ ul, li {list-style-type: none;}
 .show-detail-button {
     float: right;
 }
+
+
+        
+#outer-wrapper {
+    background: #E6E6E6;
+}
+#navPrimary {
+    clear: both;
+}
+
+input {
+    vertical-align: bottom;
+}
+#form_error {
+    color: red;
+}
+li.disabled {
+    opacity: 0.35;
+}
+div.datatables_sort_wrapper {
+    position: relative;
+    padding-right: 14px;
+    text-align: center;
+}
+div.datatables_sort_wrapper span {
+    margin-top: -8px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+}
+table.dataTable td {
+    text-align: center;
+}
+tr.highlighted {
+    background-color: #A1ACB2 !important;
+    color: #FFFFFF;
+}
+.dataTables_wrapper {
+    min-height: 0px !important; 
+}
+  

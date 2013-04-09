@@ -27,10 +27,6 @@
         <script src="{{ STATIC_URL }}lib/jquery.jqplot.js"></script>
         <script src="{{ STATIC_URL }}lib/jqplot.highlighter.js"></script>
         <script src="{{ STATIC_URL }}lib/jqplot.cursor.js"></script>
-        <script src="{{ STATIC_URL }}lib/jqplot.canvasTextRenderer.min.js"></script>
-        <script src="{{ STATIC_URL }}lib/jqplot.canvasAxisLabelRenderer.min.js"></script>
-        <script src="{{ STATIC_URL }}lib/jqplot.dateAxisRenderer.js"></script>
-        <script src="{{ STATIC_URL }}lib/jqplot.canvasAxisTickRenderer.js"></script>
         <script src="{{ STATIC_URL }}lib/chosen.jquery.js"></script>
         <script src="{{ STATIC_URL }}lib/date.js"></script>
         <script src="{{ STATIC_URL }}lib/underscore.js"></script>
@@ -46,46 +42,6 @@
         <script src="{{ STATIC_URL }}report-space-export.js"></script>
         
 
-
-        <style>
-            #outer-wrapper {
-                background: #E6E6E6;
-            }
-            #navPrimary {
-                clear: both;
-            }
-
-            input {
-                vertical-align: bottom;
-            }
-            #form_error {
-                color: red;
-            }
-			li.disabled {
-				opacity: 0.35;
-			}
-            div.datatables_sort_wrapper {
-                position: relative;
-                padding-right: 14px;
-                text-align: center;
-            }
-            div.datatables_sort_wrapper span {
-                margin-top: -8px;
-                position: absolute;
-                right: 0;
-                top: 50%;
-            }
-            table.dataTable td {
-                text-align: center;
-            }
-            tr.highlighted {
-                background-color: #A1ACB2 !important;
-                color: #FFFFFF;
-            }
-            .dataTables_wrapper {
-                min-height: 0px !important; 
-            }
-        </style>
     </head>
     <body>
 	    <div id="outer-wrapper" class="wrapo">

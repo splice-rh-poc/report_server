@@ -22,7 +22,7 @@ class ImportAPITest(MongoApiTestCase):
     def setUp(self):
         super(ImportAPITest, self).setUp()
         self.drop_collections()
-        self.detail_url = '/report-server/api/v1/productusage/'
+        self.detail_url = '/api/v1/productusage/'
 
     def drop_collections(self):
         ReportData.drop_collection()
@@ -33,7 +33,7 @@ class ImportAPITest(MongoApiTestCase):
                                  'product_usuage successfully imported')        
         entry = TestData.create_product_usage_json()
         resp = self.api_client.post(
-            '/report-server/api/v1/productusage/', format='json', data=entry)
+            '/api/v1/productusage/', format='json', data=entry)
         self.assertEqual(202, resp.status_code, 'http status code is expected')
 
         self.assertEqual(1, ReportData.objects.all().count(),
@@ -44,9 +44,9 @@ class ImportAPITest(MongoApiTestCase):
     def test_post_duplicate(self):
         entry = TestData.create_product_usage_json()
         resp0 = self.api_client.post(
-            '/report-server/api/v1/productusage/', format='json', data=entry)
+            '/api/v1/productusage/', format='json', data=entry)
         resp1 = self.api_client.post(
-            '/report-server/api/v1/productusage/', format='json', data=entry)
+            '/api/v1/productusage/', format='json', data=entry)
         self.assertEqual(
             202, resp0.status_code, 'http status code is expected')
         #duplicates are now only logged and not rejected w/ a 409
@@ -63,10 +63,10 @@ class ImportAPITest(MongoApiTestCase):
         entry1 = TestData.create_product_usage_json(instance_identifier='00:11')
         entry2 = TestData.create_product_usage_json(instance_identifier='00:22')
         
-        resp0 = self.api_client.post('/report-server/api/v1/productusage/', 
+        resp0 = self.api_client.post('/api/v1/productusage/', 
                                      format='json', 
                                      data=entry1)
-        resp1 = self.api_client.post('/report-server/api/v1/productusage/',
+        resp1 = self.api_client.post('/api/v1/productusage/',
                                      format='json', 
                                      data=entry2)
         
@@ -91,7 +91,7 @@ class MarketingProductUsageAPITest(MongoApiTestCase):
     # Below is not running until we update the API to use the X509 cert for auth
     def UPDATE_LATER_test_with_no_authentication(self):
         resp = self.api_client.post(
-            '/report-server/api/v1/marketingproductusage/', data="dummy data")
+            '/api/v1/marketingproductusage/', data="dummy data")
         self.assertEqual(401, resp.status_code, 'unauthorized is expected')
 
     def test_post_204(self):
@@ -100,7 +100,7 @@ class MarketingProductUsageAPITest(MongoApiTestCase):
         product = TestData.create_candlepin_product()    
         mpu_entry_json = TestData.create_marketing_product_usage_json()
         resp = self.api_client.post(
-            '/report-server/api/v1/marketingproductusage/', data=mpu_entry_json,
+            '/api/v1/marketingproductusage/', data=mpu_entry_json,
             SSL_CLIENT_CERT=self.valid_identity_cert_pem)
         self.assertEqual(204, resp.status_code, 'http status code is expected')
 
@@ -121,7 +121,7 @@ class PoolAPITest(MongoApiTestCase):
         self.assertEqual(0, Pool.objects.all().count())    
         pool_entry_json = TestData.create_candlepin_pool_json()
         resp = self.api_client.post(
-            '/report-server/api/v1/pool/', data=pool_entry_json,
+            '/api/v1/pool/', data=pool_entry_json,
             SSL_CLIENT_CERT=self.valid_identity_cert_pem)
         self.assertEqual(204, resp.status_code, 'http status code is expected')
         self.assertEqual(1, Pool.objects.all().count())
@@ -139,7 +139,7 @@ class ProductAPITest(MongoApiTestCase):
         self.assertEqual(0, Product.objects.all().count())    
         product_entry_json = TestData.create_candlepin_product_json()
         resp = self.api_client.post(
-            '/report-server/api/v1/product/', data=product_entry_json,
+            '/api/v1/product/', data=product_entry_json,
             SSL_CLIENT_CERT=self.valid_identity_cert_pem)
         self.assertEqual(204, resp.status_code, 'http status code is expected')
         self.assertEqual(1, Product.objects.all().count())
@@ -157,7 +157,7 @@ class RulesAPITest(MongoApiTestCase):
         self.assertEqual(0, Rules.objects.all().count())    
         rules_entry_json = TestData.create_candlepin_rules_json()
         resp = self.api_client.post(
-            '/report-server/api/v1/rules/', data=rules_entry_json,
+            '/api/v1/rules/', data=rules_entry_json,
             SSL_CLIENT_CERT=self.valid_identity_cert_pem)
         self.assertEqual(204, resp.status_code, 'http status code is expected')
         self.assertEqual(1, Rules.objects.all().count())
@@ -182,20 +182,20 @@ class QuarantinedDataTest(BaseMongoTestCase):
         Its unclear what would cause a pu object to be thrown into quarantine.
         Disabling this test for now
         
-        resp0 = self.api_client.post('/report-server/api/v1/productusage/', 
+        resp0 = self.api_client.post('/api/v1/productusage/', 
                                      format='json',
                                      data=entry)
         self.assertEqual(200, resp0.status_code, 'http status code is expected')
         self.assertEqual(QuarantinedReportData.objects.count(), 1)
         
-        resp1 = self.api_client.post('/report-server/api/v1/productusage/',
+        resp1 = self.api_client.post('/api/v1/productusage/',
                                      format='json',
                                      data=entry)
         self.assertEqual(409, resp1.status_code, 'http status code is expected')
         self.assertEqual(ReportData.objects.count(), 1)
         self.assertEqual(QuarantinedReportData.objects.count(), 1)
         
-        resp = self.api_client.get('/report-server/api/v1/quarantineddata/', format='json')
+        resp = self.api_client.get('/api/v1/quarantineddata/', format='json')
         self.assertContains(resp, '"instance_identifier": "00:11"',
                             count=1, status_code=200)
         """
@@ -214,13 +214,13 @@ class ComplianceDataTest(MongoApiTestCase):
         e = TestData.create_product_usage_json(memory='604836000000')
         entry = json.dumps(e)
         
-        resp = self.post('/report-server/api/v1/productusage/', 
+        resp = self.post('/api/v1/productusage/', 
                                      data=entry
                                      )
         self.assertEqual(202, resp.status_code, 'http status code is expected')
         self.assertEqual(ReportData.objects.count(), 1)
   
-        resp = self.get('/report-server/api/v1/compliancedata/')
+        resp = self.get('/api/v1/compliancedata/')
 
         self.assertEqual(200, resp.status_code, 'http status code is expected')
         self.assertContains(resp, '"rule": "0 > 8388608; 8388608 > 83886080"',

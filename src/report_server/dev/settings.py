@@ -13,7 +13,12 @@
 import os
 from report_server.settings import *
 
-ROOT_URLCONF = 'dev.urls'
+print("CONFIGURATION = DEV.SETTINGS")
+print("ROOT_URLCONF:" + ROOT_URLCONF)
+if ROOT_URLCONF == 'report_server.splice_reports.urls':
+    print("ROOT_URLCONF set by run_test.sh")
+else:
+    ROOT_URLCONF = 'dev.urls'
 
 curr_dir = os.path.dirname(__file__)
 source_dir = os.path.join(curr_dir, '..')
