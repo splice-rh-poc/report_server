@@ -14,6 +14,7 @@ import sys
 
 from django.http import HttpResponse
 from tastypie.authentication import Authentication, BasicAuthentication
+from tastypie.authentication import MultiAuthentication, SessionAuthentication
 from tastypie.authorization import Authorization
 from tastypie_mongoengine.resources import MongoEngineResource
 from tastypie.resources import Resource
@@ -324,7 +325,7 @@ class FilterResource(MongoEngineResource):
     class Meta:
         queryset = Filter.objects.all()
         authorization = Authorization()
-        authentication = BasicAuthentication()
+        authentication = MultiAuthentication(SessionAuthentication(), BasicAuthentication())
         allowed_methods = ['get', 'post', 'delete']
         filtering = {
             'id': ['exact'],
