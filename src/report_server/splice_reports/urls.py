@@ -12,7 +12,7 @@
 
 from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
-from report_server.sreport.api import ProductUsageResource,  QuarantinedDataResource
+from report_server.sreport.api import ProductUsageResource,  QuarantinedDataResource, FilterResource
 from report_server.sreport.api import ComplianceDataResource, ReportSpaceResource, SpliceServerResourceMod
 from report_server.sreport.api import  SpliceServerResourceMod, MarketingProductUsageResourceMod
 from report_server.sreport.api import PoolResourceMod, ProductResourceMod, RulesResourceMod
