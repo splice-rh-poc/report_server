@@ -44,9 +44,9 @@ class ImportAPITest(MongoApiTestCase):
     def test_post_duplicate(self):
         entry = TestData.create_product_usage_json()
         resp0 = self.api_client.post(
-            '/report-server/report-server/api/v1/productusage/', format='json', data=entry)
+            '/report-server/api/v1/productusage/', format='json', data=entry)
         resp1 = self.api_client.post(
-            '/report-server/report-server/api/v1/productusage/', format='json', data=entry)
+            '/report-server/api/v1/productusage/', format='json', data=entry)
         self.assertEqual(
             202, resp0.status_code, 'http status code is expected')
         #duplicates are now only logged and not rejected w/ a 409
