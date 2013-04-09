@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.74
+Version:	0.75
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Apr 09 2013 John Matthews <jwmatthews@gmail.com> 0.75-1
+- Import FilterResource (jwmatthews@gmail.com)
+
 * Tue Apr 09 2013 John Matthews <jwmatthews@gmail.com> 0.74-1
 - fix url in test_post_duplicate (whayutin@redhat.com)
 - fix api tests for new url (whayutin@redhat.com)
