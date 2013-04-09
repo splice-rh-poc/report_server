@@ -39,7 +39,7 @@ $(document).ready(function() {
     setupCreateDatesForm();
     openCreateLogin();
     navButtonDocReady();
-    initialPopulateFilter();
+    filterInitialPopulate();
     
     
      $("#byMonth").change(function() {
@@ -210,7 +210,7 @@ function setupCreateDatesForm(){
 }
 
 
-function saveReport(event){
+function filterSave(event){
     event.preventDefault();
     toggle_report_form();
     var pane = $('#default_report_controls');
@@ -240,14 +240,14 @@ function saveReport(event){
         success: function(model, response){
             console.log('SUCCESS');
             console.log(response);
-            populateFilters(response);
+            filterPopulate(response);
       
         }
     });
 
 }
 
-function initialPopulateFilter(){
+function filterInitialPopulate(){
 
     var pane = $('#default_report_controls');
 
@@ -269,14 +269,14 @@ function initialPopulateFilter(){
         success: function(model, response){
             console.log('SUCCESS');
             console.log(response);
-            populateFilters(response);
+            filterPopulate(response);
       
         }
     });
 
 }
 
-function populateFilters(response){
+function filterPopulate(response){
     var pane = $('#default_report_controls');
     pane.empty();
     var Filter = Backbone.Model.extend({

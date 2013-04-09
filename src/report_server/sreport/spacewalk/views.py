@@ -53,41 +53,6 @@ def report_form(request):
     return response
 
 
-@login_required
-def filter(request):
-    _LOG.info("filter called by method: %s" % (request.method))
-    user = str(request.user)
-    
-    if request.method == 'POST':
-        start, end = get_dates_from_request(request)
-        data = data_from_post(request)
-        
-        start = "%s/%s/%s" % (start.month, start.day, start.year)
-        end = "%s/%s/%s" % (end.month, end.day, end.year)
-        filter_name = data["filter_name"]
-        if 'org' in data:
-            environment = data["org"]
-        else:
-            environment = "All"
-    
-        status = data["status"]
-    
-        filter = Filter(
-            filter_name = filter_name,
-            owner = user,
-            status = status,
-            environment = environment, 
-            start_date = start,
-            end_date = end
-            )
-        filter.save()
-
-    user_filters = Filter.objects.filter(owner=user)
-    response_data = {}
-    response_data['filters'] = user_filters
-
-    return create_response(response_data)
-
 
 @login_required
 def report(request):
