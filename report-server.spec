@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.73
+Version:	0.74
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,20 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Apr 09 2013 John Matthews <jwmatthews@gmail.com> 0.74-1
+- fix url in test_post_duplicate (whayutin@redhat.com)
+- fix api tests for new url (whayutin@redhat.com)
+- filter clean up (whayutin@redhat.com)
+- added multiauth for filter api (session and basic) allows for website and api
+  to use the same tastypie resource (whayutin@redhat.com)
+- updated filter api (whayutin@redhat.com)
+- filter api seems to be working properly now (whayutin@redhat.com)
+- merge in urls.py and api.py (whayutin@redhat.com)
+- working on filter api (whayutin@redhat.com)
+- added rhic-serve deps back into the spec (whayutin@redhat.com)
+- Update to run from RPM (jwmatthews@gmail.com)
+- Playpen scripts to run against RPM (jwmatthews@gmail.com)
+
 * Mon Apr 08 2013 John Matthews <jwmatthews@gmail.com> 0.73-1
 - Hooked up splice.common.apis to urls.py used by RPM install
   (jwmatthews@gmail.com)
