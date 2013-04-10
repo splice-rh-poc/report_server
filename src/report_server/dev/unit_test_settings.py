@@ -13,8 +13,6 @@
 import os
 from report_server.settings import *
 
-ROOT_URLCONF = 'dev.urls'
-
 curr_dir = os.path.dirname(__file__)
 source_dir = os.path.join(curr_dir, '..')
 os.chdir(source_dir)

@@ -393,7 +393,7 @@ class TestData():
         account="1",
         contract="1",
         product_id="unit_test_product_id",  
-        status="", 
+        status="invalid", 
         save=True):
 
         product_info=[{"account":account, "contract":contract, "id":product_id}]
@@ -431,21 +431,21 @@ class TestData():
 
         entry = {"objects":[
             {"splice_server": "foofoofoo",
-             "date": "2006-10-25 14:30:59",
+             "date": datetime.now(tzutc()),
              "instance_identifier": "00:11",
              "created": "",
              "updated": "",
-             "entitlement_status": "",
+             "entitlement_status": "invalid",
              "product_info": [{"account":account, "contract":contract, "product":product_id, "quantity":1, 
                 "sla":"dummyvalue", "support_level":"dummyvalue"}],
              "facts": facts,
             },
             {"splice_server": "foofoofoo",
-             "date": "2006-10-25 14:30:59",
+             "date": datetime.now(tzutc()),
              "instance_identifier": "00:12",
              "created": "",
              "updated": "",
-             "entitlement_status": "",
+             "entitlement_status": "invalid",
              "product_info": [{"account":account, "contract":contract, "product":product_id, "quantity":1,
                 "sla":"dummyvalue", "support_level":"dummyvalue"}],
              "facts": facts,

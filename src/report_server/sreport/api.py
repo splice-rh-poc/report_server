@@ -128,8 +128,7 @@ class MarketingProductUsageResourceMod(MarketingProductUsageResource):
 
     def complete_hook(self, items):
         _LOG.info("called marketing import_hook with %s items" % (len(items)))
-        not_imported = import_util.import_candlepin_data(items,
-                                                        force_import=True)
+        not_imported = import_util.import_candlepin_data(items, force_import=True)
         _LOG.info("items_not_imported length: " + str(len(not_imported)))
         for i in not_imported:
             thisDict = i.to_dict()

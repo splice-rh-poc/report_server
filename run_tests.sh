@@ -9,9 +9,7 @@
 
 # Allows Splice configuration files to be override
 export SPLICE_CONFIG="`pwd`/src/report_server/sreport/tests/test_data/splice_unittests.conf"
-export DJANGO_SETTINGS_MODULE="dev.settings"
-export ROOT_URLCONF='splice_reports.urls'
-#ROOT_URLCONF = 'report_server.splice_reports.urls'
+export DJANGO_SETTINGS_MODULE="dev.unit_test_settings"
 
 
 
