@@ -208,7 +208,7 @@ class BaseMongoTestCase(ResourceTestCase):
                   '%s.json' % os.path.join(settings.DUMP_DIR, collection)],
                  stdout=PIPE, stderr=PIPE)
         
-        for collection in ['splice_server']:
+        for collection in ['splice_server', 'product']:
             #print 'importing %s collection' % collection
             call(['mongoimport', '--db', checkin_service,
                   '-c', collection, '--file', 
