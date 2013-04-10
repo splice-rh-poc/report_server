@@ -22,7 +22,7 @@ class ReportDataTest(MongoApiTestCase):
     def setUp(self):
         super(ReportDataTest, self).setUp()
         self.drop_collections()
-        self.detail_url = '/report-server/api/v1/report/'
+        self.detail_url = '/api/v1/reportmeter/'
 
     def drop_collections(self):
         ReportData.drop_collection()
