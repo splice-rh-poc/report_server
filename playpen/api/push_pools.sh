@@ -9,4 +9,4 @@ export SAMPLE_JSON=./pools.json
 
 #curl -s -S --cacert ${CA_CERT} --cert ${CLIENT_CERT} --key ${CLIENT_KEY} --dump-header - -H "Content-Type: application/json" -X POST --data @${SAMPLE_JSON} https://${SERVER_ADDR}:${PORT}/api/v1/marketingproductusage/  --trace-ascii curl_log
 
-curl --dump-header - -H "Content-Type: application/json" -X POST --data @${SAMPLE_JSON} http://${SERVER_ADDR}:${PORT}/api/v1/pool/  --trace-ascii curl_log
+curl --dump-header - -H "Content-Type: application/json" -X POST --data @${SAMPLE_JSON} http://${SERVER_ADDR}:${PORT}/report-server/api/v1/pool/  --trace-ascii curl_log

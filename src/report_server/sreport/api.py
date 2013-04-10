@@ -342,8 +342,9 @@ class FilterResource(MongoEngineResource):
 
         return utils.create_response(response_data)
 
-    def post(self, request, **kwargs):
-        _LOG.info("FilterResource::get() ")
+    def post_list(self, request, **kwargs):
+        _LOG.info("FilterResource::post() ")
+        user = str(request.user)
         start, end = utils.get_dates_from_request(request)
         data = utils.data_from_post(request)
         
@@ -366,6 +367,13 @@ class FilterResource(MongoEngineResource):
             end_date = end
             )
         filter.save()
+        
+        user_filters = Filter.objects.filter(owner=str(request.user))
+        response_data = {}
+        response_data['filters'] = user_filters
+
+        return utils.create_response(response_data)
+
             
 
         
