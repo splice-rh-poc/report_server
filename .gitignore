@@ -20,4 +20,4 @@ src/report_server/report_server.wpu
 playpen/api/curl_log
 src/report_server/default
 doc/_build
-
+deps/django*

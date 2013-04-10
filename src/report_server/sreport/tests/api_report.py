@@ -35,8 +35,7 @@ class ReportDataTest(MongoApiTestCase):
         e = TestData.create_product_usage_json(instance_identifier="00:11")
         entry = json.dumps(e)
         #print('ENTRY: ' + entry)
-        resp = self.post('/report-server/api/v1/productusage/', 
-                                     data=entry)
+        resp = self.post('/api/v1/productusage/', data=entry)
         #print('resp:' + str(resp.status_code))
         self.assertEqual(202, resp.status_code, 'http status code is expected')
         self.assertEqual(1, ReportData.objects.all().count())
@@ -44,7 +43,7 @@ class ReportDataTest(MongoApiTestCase):
         q = {"user": "shadowman@redhat.com", "byMonth": "11,2012", "contract_number": "All", "rhic": "null", "env": "All"}
         myquery = json.dumps(q)
         
-        resp = self.post('/report-server/api/v1/reportmeter/', 
+        resp = self.post('/api/v1/reportmeter/', 
                         data=myquery,
                         code=200)
         #print(resp)
