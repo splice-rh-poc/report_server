@@ -13,10 +13,11 @@
 {% endcomment %}
 <html>
     <head>
-        <link href="https://access.redhat.com/chrome_themes/umbra/s/global.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
-        <link href="https://access.redhat.com/chrome_themes/umbra/s/print.css?version=1.6.5.2" media="print" type="text/css" rel="stylesheet"/>
-        <link href="https://access.redhat.com/webassets/avalon/s/jquery-ui/cp/jquery-ui-1.8.7.custom.css?version=1.6.5.2" media="screen, print" type="text/css" rel="stylesheet"/>
+        
+        <link href="{{ STATIC_URL }}css/access_redhat_css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/access_redhat_global" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/jquery.jqplot.css" type="text/css" rel="stylesheet"/>
+    
         <link href="{{ STATIC_URL }}css/chosen.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/report.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/backgrid.css" type="text/css" rel="stylesheet"/>
@@ -49,7 +50,7 @@
             	<div id="header-wrap" class="wrapi">
                 	<div id="header">
                 	<div id="spinner" class="spinner" style="display:none;">
-                	    <img id="img-spinner" src="{{ STATIC_URL }}ajax-loader.gif" alt="Loading"/>
+                	    <img id="img-spinner" src="{{ STATIC_URL }}/img/ajax-loader.gif" alt="Loading"/>
                 	</div>
 
                     	<div id="brand">
