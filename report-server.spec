@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.75
+Version:	0.76
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,20 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Apr 11 2013 John Matthews <jwmatthews@gmail.com> 0.76-1
+- Updated curl scripts to not use cacert when uploading data to
+  splice.common.apis (jwmatthews@gmail.com)
+- Update SpliceServer API to handle duplicate uploads (jwmatthews@gmail.com)
+- clean up of dev and playpen (whayutin@redhat.com)
+- clean up of dev and playpen (whayutin@redhat.com)
+- have data load script ready for mpu (whayutin@redhat.com)
+- updated push scripts, added response to filter post (whayutin@redhat.com)
+- couple more changes for test resources and urls (whayutin@redhat.com)
+- fix api_report url (whayutin@redhat.com)
+- rolled back and fixed several broken items.. (whayutin@redhat.com)
+- tests now pass when using run_tests.sh, use production url, moved css in
+  index.html to report.css (whayutin@redhat.com)
+
 * Tue Apr 09 2013 John Matthews <jwmatthews@gmail.com> 0.75-1
 - Import FilterResource (jwmatthews@gmail.com)
 
