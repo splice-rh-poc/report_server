@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.76
+Version:	0.77
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Apr 11 2013 Wes Hayutin <whayutin@redhat.com> 0.77-1
+- update url in space_report (whayutin@redhat.com)
+- Update for SpliceServer API unit test (jwmatthews@gmail.com)
+
 * Thu Apr 11 2013 John Matthews <jwmatthews@gmail.com> 0.76-1
 - Updated curl scripts to not use cacert when uploading data to
   splice.common.apis (jwmatthews@gmail.com)
