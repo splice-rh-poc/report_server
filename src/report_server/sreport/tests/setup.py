@@ -256,10 +256,23 @@ class TestData():
             uuid=hostname,
             description=hostname,
             hostname=hostname,
-            environment=environment
+            environment=environment,
         )
         ss.save()
         return ss
+
+    @staticmethod
+    def create_splice_server_json(hostname='splice01.example.com',
+        environment="east"):
+        entry = { "objects": [{
+            "uuid": hostname,
+            "description": hostname,
+            "hostname": hostname,
+            "environment": environment, 
+            "created": str(datetime.now(tzutc())),
+            "updated": str(datetime.now(tzutc()))
+        }]}
+        return entry
 
     @staticmethod
     def create_product_usage(

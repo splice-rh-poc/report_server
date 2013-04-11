@@ -9,7 +9,7 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
-from report_server.sreport.models import ReportData, MarketingReportData, QuarantinedReportData, Pool, Product, Rules
+from report_server.sreport.models import ReportData, MarketingReportData, QuarantinedReportData, Pool, Product, Rules, SpliceServer
 from report_server.sreport.tests.general import BaseMongoTestCase, MongoApiTestCase
 from rhic_serve.common.tests import BaseMongoTestCase#, MongoApiTestCase
 from setup import TestData
@@ -172,9 +172,9 @@ class SpliceServerAPITest(MongoApiTestCase):
 
     def test_post_204(self):
         self.assertEqual(0, SpliceServer.objects.all().count())    
-        spliceserver_entry_json = TestData.create_splice_server()
+        spliceserver_entry_json = TestData.create_splice_server_json()
         resp = self.api_client.post(
-            '/report-server/api/v1/spliceserver/', data=spliceserver_entry_json,
+            '/api/v1/spliceserver/', data=spliceserver_entry_json,
             SSL_CLIENT_CERT=self.valid_identity_cert_pem)
         self.assertEqual(204, resp.status_code, 'http status code is expected')
         self.assertEqual(1, SpliceServer.objects.all().count())
