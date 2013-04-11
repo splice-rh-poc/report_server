@@ -17,7 +17,6 @@
         <link href="{{ STATIC_URL }}css/access_redhat_css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/access_redhat_global" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/jquery.jqplot.css" type="text/css" rel="stylesheet"/>
-    
         <link href="{{ STATIC_URL }}css/chosen.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/report.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/backgrid.css" type="text/css" rel="stylesheet"/>
@@ -41,6 +40,8 @@
         <script src="{{ STATIC_URL }}report-navigation.js"></script>
         <script src="{{ STATIC_URL }}report-space.js"></script>
         <script src="{{ STATIC_URL }}report-space-export.js"></script>
+
+
         
 
     </head>
@@ -318,4 +319,16 @@
             </div>
         </div>
     </body>
+
+        <script id='template-filter' type='text/template'>
+          <ul>
+            <% for (var i = 0; i < list.length; i++) { %>
+              <% var f = list[i]; %>
+              <li>
+                 Filter Name: <%= f.attributes.filter_name %> ID: <%= f.attributes.null %>
+              </li>
+            <% } %>
+          </ul>
+        </script>
+
 </html>

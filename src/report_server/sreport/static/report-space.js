@@ -295,30 +295,10 @@ function filterPopulate(response){
 
     var filters = new Filters(response.filters)
 
-
-    var columns = [{
-        name : "filter_name",
-        label : "Filter Name:",
-        editable : false,
-        cell : "string"
-    },
-    {  
-        name : "null",
-        label : "Filter ID:",
-        editable : false,
-        cell : "string"
-    }];
-
-    var ClickableRow = Backgrid.Row.extend({
-        events : {
-            "click" : "onClick"
-        },
-        onClick : function() {
-            Backbone.trigger("goToReport", this.model);
-        }
-    });
-
-    Backbone.on("goToReport", function(model) {
+    /*
+    //filter_name
+    //null
+     Backbone.on("goToReport", function(model) {
         console.log('in row click');
         var filter = model.attributes;
         console.log(filter);
@@ -326,15 +306,32 @@ function filterPopulate(response){
         
     });
 
-    var grid = new Backgrid.Grid({
-        columns : columns,
-        collection : filters,
-        row: ClickableRow
-    })
+    */
     
-    console.log(pane);
-    pane.append(grid.render().$el);
-}
+    var FilterView = Backbone.View.extend({
+        //mplate: JST['filter/list'],
+        template: _.template($("#template-filter").html()),
+        el: pane,
+
+        initialize: function(){
+            _.bindAll(this, 'render'); // fixes loss of context for 'this' within methods
+            
+            this.collection = new Filters(response.filters);
+            this.render(); // not all views are self-rendering. This one is.
+        },
+
+        render: function(){
+
+            $(this.el).append(this.template( { list: this.collection.models } ));
+
+            return this;
+
+            }
+        });
+
+    var filterView = new FilterView(filters);
+
+    }
 
 
 function createReportFromSavedFilter(filter) {
