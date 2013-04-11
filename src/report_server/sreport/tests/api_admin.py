@@ -162,6 +162,23 @@ class RulesAPITest(MongoApiTestCase):
         self.assertEqual(204, resp.status_code, 'http status code is expected')
         self.assertEqual(1, Rules.objects.all().count())
 
+class SpliceServerAPITest(MongoApiTestCase):
+    def setUp(self):
+        super(SpliceServerAPITest, self).setUp()
+        self.drop_collections()
+
+    def drop_collections(self):
+        SpliceServer.drop_collection()
+
+    def test_post_204(self):
+        self.assertEqual(0, SpliceServer.objects.all().count())    
+        spliceserver_entry_json = TestData.create_splice_server()
+        resp = self.api_client.post(
+            '/report-server/api/v1/spliceserver/', data=spliceserver_entry_json,
+            SSL_CLIENT_CERT=self.valid_identity_cert_pem)
+        self.assertEqual(204, resp.status_code, 'http status code is expected')
+        self.assertEqual(1, SpliceServer.objects.all().count())
+
 
 class QuarantinedDataTest(BaseMongoTestCase):
     def setUp(self):
