@@ -30,7 +30,7 @@
 .backgrid th,
 .backgrid td {
   height: 20px;
-  max-width: 200px;
+  max-width: 250px;
   padding: 4px 5px;
   overflow: hidden;
   line-height: 20px;
@@ -39,14 +39,6 @@
   white-space: nowrap;
   vertical-align: middle;
   border: 1px solid #DDD;
-}
-
-.backgrid tr:hover {
-    background-color: #DDD;
-}
-
-.backgrid td:hover {
-    cursor: pointer;
 }
 
 .backgrid th {

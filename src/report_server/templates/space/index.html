@@ -21,6 +21,8 @@
         <link href="{{ STATIC_URL }}css/report.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/backgrid.css" type="text/css" rel="stylesheet"/>
         <link href="{{ STATIC_URL }}css/backgrid-paginator.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/backgrid-filter.css" type="text/css" rel="stylesheet"/>
+        <link href="{{ STATIC_URL }}css/backgrid-select-all.css" type="text/css" rel="stylesheet"/>
         <script src="{{ STATIC_URL }}lib/jquery.min.js"></script>
         <script src="{{ STATIC_URL }}lib/jquery-ui.min.js"></script>
         <script src="{{ STATIC_URL }}lib/jquery-csrf.js"></script>
@@ -33,6 +35,8 @@
         <script src="{{ STATIC_URL }}lib/backbone.js"></script>
         <script src="{{ STATIC_URL }}lib/backbone-pageable.js"></script>
         <script src="{{ STATIC_URL }}lib/backgrid.js"></script>
+        <script src="{{ STATIC_URL }}lib/backgrid-filter.js"></script>
+        <script src="{{ STATIC_URL }}lib/backgrid-select-all.js"></script>
         <script src="{{ STATIC_URL }}lib/backgrid-paginator.js"></script>
         <script src="{{ STATIC_URL }}lib/jquery.flot.js"></script>
         <script src="{{ STATIC_URL }}lib/jquery.flot.pie.js"></script>
@@ -121,14 +125,12 @@
                     <div id='main-top'></div>
                     <div class='wrapi'>
                         <div id='container' class='clearWrap'>
-                        	<a id="filter_toggle" style="float: right"  href="javascript:toggle_report_form();">show advanced filter</a>
+                        	<a id="filter_toggle" style="float: right"  href="javascript:toggle_report_form();">Show Filter Options</a>
                         	<div id='default_report_controls'>
                              
                                 
                               </button>
                             </div>
-                            <div id='default_report_results_ui'> </div>	
-                            <div id='default_report_results'> </div>
                             <div id='create_pane' style='display: none'>
                                 <fieldset>
                                 
@@ -320,6 +322,9 @@
         </div>
     </body>
 
+        <!-- *** BACKBONE TEMPLATES *** -->
+
+        <!-- Filter Template -->
         <script id='template-filter' type='text/template'>
           <ul>
             <% for (var i = 0; i < list.length; i++) { %>

@@ -170,44 +170,40 @@ function navButtonDocReady(){
 
 // ********************   SHOW, HIDE REPORT FORM**************************
 function form_filter_link_hide(hide){
+    
+    //var report_controls = $('#default_report_controls');
     if (hide){
+        //document.getElementById("filter_toggle").style.display = "none";
     	document.getElementById("filter_toggle").style.display = "none";
     	document.getElementById("default_report_controls").style.display = "none";
-    	toggle_report_form()
+    	
     }
     if (!hide){
+        
         document.getElementById("default_report_controls").style.display = "block";
         document.getElementById("filter_toggle").style.display = "block";
         //document.getElementById("default-report-submit").style.display = "block";
-        toggle_report_form()
+
     }
 }
 
+
 function toggle_report_form() {
-    $('#default_report_results').empty();
-    $('#default_report_results_ui').empty();
-    
-    //var but = document.getElementById("default-report-submit")
-    var ele = document.getElementById("create_pane");
-    var report = document.getElementById("report_form");
     var text = document.getElementById("filter_toggle");
-    var default_report_button = document.getElementById("default-report-submit");
-    
-    //DEFAULT, just show create_report
-    if(ele.style.display == "block") {
-        ele.style.display = "none";
-        report.style.display = "none";
-        text.innerHTML = "show advanced filter";
-        //default_report_button.style.display = "block";
+    console.log(text.innerHTML);
+    $('#default_report_controls').empty();
+
+    if (text.innerHTML == "Show Filter Options"){
+        filterInitialPopulateOptions();
+        text.innerHTML = "Hide Filter Options";
     }
-    //show report filter options
-    else {
-        ele.style.display = "block";
-        report.style.display = "block";
-        text.innerHTML = "hide advanced filter";
-        //default_report_button.style.display = "none";
+    else{
+        text.innerHTML = "Show Filter Options";
+        filterInitialPopulate();
     }
 }
+
+
 
 // ********************   SHOW, HIDE REPORT FORM, END**************************
 
@@ -442,6 +438,12 @@ function button_details(pane, id,  btn_txt){
         pane.append(details);
         pane.append('<br><br>');
 }
+
+function filter_button(pane, id,  btn_txt){
+        var details = $('<button id=' + id + ' class="filter-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >' + btn_txt + '</button>');
+        pane.append(details);
+}
+
 
 
 

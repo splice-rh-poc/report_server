@@ -35,11 +35,12 @@ $(document).ready(function() {
 	hide_pages();
     setupLoginForm();
     setupLoginButtons();
-    setupCreateForm();
-    setupCreateDatesForm();
+    //setupCreateForm();
+    //setupCreateDatesForm();
     openCreateLogin();
     navButtonDocReady();
     filterInitialPopulate();
+    form_filter_link_hide(false);
     
     
      $("#byMonth").change(function() {
@@ -212,7 +213,7 @@ function setupCreateDatesForm(){
 
 function filterSave(event){
     event.preventDefault();
-    toggle_report_form();
+
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
@@ -252,16 +253,7 @@ function filterInitialPopulate(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        url: "/report-server/api/v1/filter/",
-
-        /*
-        *TO-DO The _id is delivered to javascript w/ as null
-        parse: function(response){
-            response.id = response.null;
-            return response.attributes;
-        }
-        */
-
+        url: "/report-server/api/v1/filter/"
     });
 
     var createFilter = new CreateFilter();
@@ -276,10 +268,92 @@ function filterInitialPopulate(){
 
 }
 
+function filterInitialPopulateOptions(){
+
+    var pane = $('#default_report_controls');
+
+    var CreateFilter = Backbone.Model.extend({
+        url: "/report-server/api/v1/filter/"
+    });
+
+    var createFilter = new CreateFilter();
+    createFilter.fetch({
+        success: function(model, response){
+            console.log('SUCCESS');
+            console.log(response);
+            filterPopulateOptions(response);
+      
+        }
+    });
+
+}
+
 function filterPopulate(response){
+
     var pane = $('#default_report_controls');
     pane.empty();
+
+    var Filter = Backbone.Model.extend({});
+
+    var Filters = Backbone.Collection.extend({
+        model : Filter
+    });
+
+    var filters = new Filters(response.filters);
+    console.log(filters);
+
+
+    var columns = [{
+        name : "filter_name",
+        label : "Filter Name:",
+        editable : false,
+        cell : "string"
+    },
+    {  
+        name : "null",
+        label : "Filter ID:",
+        editable : false,
+        cell : "string"
+    }];
+
+    var ClickableRow = Backgrid.Row.extend({
+        events : {
+            "click" : "onClick"
+        },
+        onClick : function() {
+            Backbone.trigger("goToReport", this.model);
+        }
+    });
+
+    Backbone.on("goToReport", function(model) {
+        console.log('in row click');
+        var filter = model.attributes;
+        console.log(filter);
+        createReportFromSavedFilter(model.attributes);
+        
+    });
+
+    var grid = new Backgrid.Grid({
+        columns : columns,
+        collection : filters,
+        row: ClickableRow
+    });
+
+    pane.append(grid.render().$el);
+   
+    
+}
+
+
+
+function filterPopulateOptions(response){
+
+    var pane = $('#default_report_controls');
+    var create_pane = $('#create_pane');
+    create_pane.empty();
+    pane.empty();
     var Filter = Backbone.Model.extend({
+        url: "/report-server/api/v1/filter/",
 
         /*
         *TO-DO The _id is delivered to javascript w/ as null
@@ -289,16 +363,41 @@ function filterPopulate(response){
         }
         */
     });
+
     var Filters = Backbone.Collection.extend({
-        model : Filter
+        model : Filter,
+        url: "/report-server/api/v1/filter/",
     });
 
-    var filters = new Filters(response.filters)
+    var filters = new Filters(response.filters);
+   
 
-    /*
-    //filter_name
-    //null
-     Backbone.on("goToReport", function(model) {
+    var columns = [{
+        name : "filter_name",
+        label : "Filter Name:",
+        editable : false,
+        cell : "string"
+    },
+    {  
+        name : "null",
+        label : "Filter ID:",
+        editable : false,
+        cell : "string"
+    }];
+
+    var ClickableRow = Backgrid.Row.extend({
+        events : {
+            "change :checkbox": "onChange"
+        },
+        onChange : function() {
+            var selected = grid.getSelectedModels(); // This is an array of models
+            console.log(selected);
+            //Backbone.trigger("goToReport", selected[0]);
+
+        }
+    });
+
+    Backbone.on("goToReport", function(model) {
         console.log('in row click');
         var filter = model.attributes;
         console.log(filter);
@@ -306,32 +405,55 @@ function filterPopulate(response){
         
     });
 
-    */
+    var grid = new Backgrid.Grid({
+        //columns: columns,
+        columns: [{
     
-    var FilterView = Backbone.View.extend({
-        //mplate: JST['filter/list'],
-        template: _.template($("#template-filter").html()),
-        el: pane,
-
-        initialize: function(){
-            _.bindAll(this, 'render'); // fixes loss of context for 'this' within methods
+            // name is a required parameter, but you don't really want one on a select all column
+            name: "Select All",
             
-            this.collection = new Filters(response.filters);
-            this.render(); // not all views are self-rendering. This one is.
-        },
+            // Backgrid.Extension.SelectRowCell lets you select individual rows
+            cell: "select-row",
+            
+            // Backgrid.Extension.SelectAllHeaderCell lets you select all the row on a page
+            headerCell: "select-all",
+            
+          }].concat(columns),
 
-        render: function(){
+        collection : filters,
+        row : ClickableRow,
+        
+    })
+    
+    pane.append(grid.render().$el);
+    filter_button(pane, "create_filter_button", " Create ");
+    filter_button(pane, "delete_filter_button", " Delete ");
+    filter_button(pane, "edit_filter_button", " Edit ");
+    filter_button(pane, "export_filter_button", " Export ");
 
-            $(this.el).append(this.template( { list: this.collection.models } ));
+    $("#delete_filter_button").click(function (){
+            var selected = grid.getSelectedModels(); // This is an array of models
+            console.log("delete" + selected);
+            
+    })
 
-            return this;
-
+    $("#edit_filter_button").click(function (){
+            var selected = grid.getSelectedModels(); // This is an array of models
+            if (selected.length > 1) {
+                alert("Please only select one filter to edit..");
             }
-        });
+            
+    })
 
-    var filterView = new FilterView(filters);
+    $("#export_filter_button").click(function (){
+            var selected = grid.getSelectedModels(); // This is an array of models
+            if (selected.length > 1) {
+                alert("Please only select one filter to export..");
+            }
+            
+    })
+}
 
-    }
 
 
 function createReportFromSavedFilter(filter) {
@@ -374,7 +496,7 @@ function createReportFromSavedFilter(filter) {
 
 function createReport(event) {
     event.preventDefault();
-    form_filter_link_hide(false);
+    //form_filter_link_hide(false);
     if (logged_in){
         var CreateReport = Backbone.Model.extend({
             url: '/report-server/space/report/'
