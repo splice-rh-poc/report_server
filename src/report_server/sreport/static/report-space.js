@@ -109,23 +109,18 @@ function drawCircle(element_selector, color_choice, width) {
     });
 }
 
+function createFilter(){
+    console.log("in create new filter");
+}
 
-function setupCreateForm(){
-    var filter_name = $('#filter_name');
-    var select_status = $('#status');
-    var select_rhic = $('#rhic');
-    var select_env = $('#env');
-    var select_org = $('#org');
-    var select_sys_host = $('#sys_host');
-    var select_sys_id = $('#sys_id');
 
-    filter_name.empty();
-    select_status.empty();
-    select_rhic.empty();
-    select_env.empty();
-    select_org.empty();
-    select_sys_host.empty();
-    select_sys_id.empty();
+
+//function setupCreateForm(){
+  function createFilter(){
+    var pane = $('#default_report_controls');
+    pane.empty();
+
+    
     
     var FormDatum = Backbone.Model.extend({});
 
@@ -135,57 +130,99 @@ function setupCreateForm(){
     });
     
     var AppView = Backbone.View.extend({
+      template: _.template($("#create-filter-form").html()),
+      el: pane,
       
       initialize: function() {
         _.bindAll(this, 'render');
         this.collection.bind('reset', this.render);
         this.collection.fetch();
+        //$(this.el).append(this.template( { list: this.collection.models } ));
+        
       },
       
       render: function(){
+        //init select boxes
+        /* using variables for the elements is not working atm
+        var filter_name = $('#filter_name');
+        var select_status = $('#status');
+        var select_rhic = $('#rhic');
+        var select_env = $('#env');
+        var select_org = $('#org');
+        var select_sys_host = $('#sys_host');
+        var select_sys_id = $('#sys_id');
+        */
 
+        $('#filter_name').empty();
+        $('#status').empty();
+        $('#rhic').empty();
+        $('#env').empty();
+        $('#org').empty();
+        $('#sys_host').empty();
+        $('#sys_id').empty();
+
+        console.log(this.collection);
+        $(this.el).append(this.template( { list: this.collection.models } ));
+
+        //SETUP DATES:
+        date_2 = Date.today();
+        date_1 = (1).months().ago();
+        date_0 = (2).months().ago();
+        
+        $('#byMonth').append($('<option  value></option>'));
+        
+        [date_0, date_1, date_2].forEach(function(item){
+            $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
+        });
+
+        
+        //SETUP Splice Report Filter Data
         this.collection.each(function(item) {
             var list = item.get('status')
             
-            select_status.append($('<option selected value=Failed>Failed</option>'));
-            select_status.append($('<option selected value=Inactive>Inactive</option>'));
-            select_status.append($('<option selected value=All>All</option>'));
+            $('#status').append($('<option selected value=Failed>Failed</option>'));
+            $('#status').append($('<option selected value=Inactive>Inactive</option>'));
+            $('#status').append($('<option selected value=All>All</option>'));
             for (i in list){
                 name = list[i].charAt(0).toUpperCase() + list[i].slice(1);
-                select_status.append($('<option value=' + list[i] + '>' + name + '</option>'));
+                $('#status').append($('<option value=' + list[i] + '>' + name + '</option>'));
             }
             
             var list = item.get('environments')
-            select_env.append($('<option selected value=All>All</option>'));
+            $('#env').append($('<option selected value=All>All</option>'));
             for (i in list){
-               select_env.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+               $('#env').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
 
             var list = item.get('organizations')
-            select_org.append($('<option selected value=All>All</option>'));
+            $('#org').append($('<option selected value=All>All</option>'));
             for (i in list){
-               select_org.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+               $('#org').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
 
             var list = item.get('sys_host')
-            select_sys_host.append($('<option selected value=All>All</option>'));
+            $('#sys_host').append($('<option selected value=All>All</option>'));
             for (i in list){
-               select_sys_host.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+               $('#sys_host').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
 
             var list = item.get('sys_id')
-            select_sys_id.append($('<option selected value=All>All</option>'));
+            $('#sys_id').append($('<option selected value=All>All</option>'));
             for (i in list){
-               select_sys_id.append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+               $('#sys_id').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
          
         });
         
-        select_status.chosen();
-        select_env.chosen();
-        select_org.chosen();
-        select_sys_host.chosen({ max_choices: 1 });
-        select_sys_id.chosen({ max_choices: 5 });
+
+        $('#startDate').datepicker();
+        $('#endDate').datepicker();
+        $('#byMonth').chosen();
+        $('#status').chosen();
+        $('#env').chosen();
+        $('#org').chosen();
+        $('#sys_host').chosen({ max_choices: 1 });
+        $('#sys_id').chosen({ max_choices: 5 });
       }
       
     });
@@ -223,6 +260,7 @@ function filterSave(event){
     
     var data = {
             filter_name: $('#filter_name').val(),
+            filter_description: $('#filter_description').val(),
             status: $('#status').val(),
             env:    $('#env').val(),
             org:    $('#org').val()
@@ -310,8 +348,8 @@ function filterPopulate(response){
         cell : "string"
     },
     {  
-        name : "null",
-        label : "Filter ID:",
+        name : "filter_description",
+        label : "Filter Description:",
         editable : false,
         cell : "string"
     }];
@@ -379,8 +417,8 @@ function filterPopulateOptions(response){
         cell : "string"
     },
     {  
-        name : "null",
-        label : "Filter ID:",
+        name : "filter_description",
+        label : "Filter Description:",
         editable : false,
         cell : "string"
     }];
@@ -430,6 +468,11 @@ function filterPopulateOptions(response){
     filter_button(pane, "delete_filter_button", " Delete ");
     filter_button(pane, "edit_filter_button", " Edit ");
     filter_button(pane, "export_filter_button", " Export ");
+
+    $("#create_filter_button").click(function (){
+        createFilter();
+            
+    })
 
     $("#delete_filter_button").click(function (){
             var selected = grid.getSelectedModels(); // This is an array of models
@@ -689,7 +732,6 @@ function populateReport(rtn) {
 
     pane.append(dash);
     pane.append(pageableGrid.render().$el);
-    button_run_another_report(pane);
      
     var status_color = null;
     if (rtn.num_invalid > 0) {

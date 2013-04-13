@@ -83,7 +83,7 @@
 
                                         <p>
                             		    {% if user.is_authenticated %}
-                                            {{ user.username }} account #{{ user.account }}
+                                            {{ user.username }}
                                             <script type='text/javascript'>
                                                 first_logged_in = true;
                                             </script>
@@ -131,144 +131,7 @@
                                 
                               </button>
                             </div>
-                            <div id='create_pane' style='display: none'>
-                                <fieldset>
-                                
-                                    <form id="report_form" style="display: none">
-                                        <table>
-                                            <tr>
-                                                <td width="10%">
-                                                    <div style='display: inline-block'>
-                                                        
-                                                        <b style='padding-top: 1em'> Filter Name:</b>
-                                                        <input type="text" name="filter_name" 
-                                                        id="filter_name"  
-                                                        style="width:100px;">
-                                                    </div>
-                                                </td>
-                                            </tr>
-        
-
-                                      <br>
-                                        <table>
-                                        <h3>Filter by Date:</h3>
-                                            <tr>
-                                                <td width="10%">
-                                                    <div style='display: inline-block'>
-                                                        
-                                                        <b style='padding-top: 1em'> Month:</b>
-                                                        <select name="byMonth" id="byMonth" class='chosen' style="width:100px;">
-
-                                                        </select> 
-                                                    </div>
-                                                </td>
-                                            </tr>
-        
-                                            <tr>
-                                                <td width="50%"> 
-                                                    <div style='display: inline-block'>
-                                                        
-                                                        <b>Custom Range:</b> 
-                                                            Start Date: <input type="text" id="startDate" name="startDate">
-                                                            End Date: <input type="text" id="endDate" name="endDate"> 
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-        
-                                        <h3>Filter by Subscription Status:</h3> 
-                                        <br>
-
-                                        <table>
-                                            <tr>
-                                                <td width="5%"> 
-                                                    
-                                                    <b> Status: </b> </td> 
-                                                    <td width="40%">
-                                                        <select id="status" name=status class='chosen'  style="width:150px;"> 
-                                                            
-                                                        </select> 
-                                                    </td>
-                                                </td>
-                                            </tr>
-                                            
-                                        </table>
-                                        <h3>Filter by Reporting Domain:</h3> 
-                                        <br>
-                                        <table width=70%>
-                                            <tr> 
-                                                <td width="20%"><b>Satellite Server: </b></td>
-                                                    <td width="71%">
-                                                        <select id='env' name="env" class='chosen'  style="width:350px;">
-                                                            
-                                                        </select>
-                                                    </td>
-                                                </td>
-                                             </tr>
-                                             <tr>
-                                                <td width="20%"><b>Satellite Organization: </b></td>
-                                                    <td width="71%">
-                                                        <select id='org' name="org" class='chosen'  style="width:350px;">
-                                                            
-                                                        </select>
-                                                    </td>
-                                                </td>
-                                            </tr>
-                                            </table>
-                                        <h3>Filter by System:</h3> 
-                                        <br>
-                                        <table width=70%>
-                                            <tr> 
-                                                <td width="20%"><b>System Hostname: </b></td>
-                                                    <td width="71%">
-                                                        <select id='sys_host' name="sys_host" class='chosen'  style="width:350px;">
-                                                            
-                                                        </select>
-                                                    </td>
-                                                </td>
-                                             </tr>
-                                             <tr>
-                                                <td width="20%"><b>System ID: </b></td>
-                                                    <td width="71%">
-                                                        <select id='sys_id' name="sys_id" class='chosen'  style="width:150px;">
-                                                            
-                                                        </select>
-                                                    </td>
-                                                </td>
-                                            </tr>
-                                            </table>
-                                            <table id=buttons width=60%>
-                                            <br><br><br>
-                                            <tr>
-                                                <td width="1%">
-                                                    <button id='report-submit' name='report-submit' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createReport(event)'>
-                                                        <span class='ui-button-text'>Run Report</span>
-                                                    </button>
-                                                </td>
-                                                <td width="1%">
-                                                <button id='export' name='export' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='exportReport(event)'>
-                                                    <span class='ui-button-text'>Export Report</span>
-                                                </button>
-                                                <td width="2%">
-                                                <button id='save' name='save' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='filterSave(event)'>
-                                                    <span class='ui-button-text'>Save Report Criteria</span>
-                                                </button>
-                                                </td>
-                                                <td width="2%">
-                                                    <button id='clear' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='resetReportForm()'>
-                                                        
-                                                            <span class='ui-button-text'>Reset Form</span>
-                                                        
-                                                    </button>
-                                                </td>
-                                                
-                                            </tr>
-                                        </table>
-                                        <div id='form_error'>
-                                        </div>
-                                    </form>
-                                </fieldset>
-                            </div>
+                            
 
                             <div id='report_pane'>
 
@@ -283,16 +146,7 @@
                             </div>
                             
                             <div id='import_pane'>
-                                 <button id='importData' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='importData()'>
-                                        <span class='ui-button-text'>Import Data</span>
-                                 </button>
-                                 <button id='QuarantineReport_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createQuarantineReport()'>
-                                        <span class='ui-button-text'>Refresh Quarantined Data</span>
-                                 </button>
-                                 <button id='factCompliance_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick='createFactComplianceReport()'>
-                                        <span class='ui-button-text'>Refresh Instance Compliance Data</span>
-                                 </button>
-
+                                 
                                  <div id='admin_report'> </div>
                            </div>
                         </div>
@@ -334,6 +188,28 @@
               </li>
             <% } %>
           </ul>
+        </script>
+
+        <!-- Create Filter Form -->
+        <script id='create-filter-form' type='text/template'>
+
+            <h2> Create A New Filter:</h2>
+              <form id='report_form'>
+                <b>Month:</b> <select name="byMonth" id="byMonth" class='chosen' style="width:100px;"/> <br />
+                <b>Start Date:</b> <input type="text" id="startDate" name="startDate"><br />
+                <b>End Date:</b> <input type="text" id="endDate" name="endDate"><br />
+                <b>Status:</b><select id="status" name=status class='chosen' /> <br /> 
+                <b>Satellite Server:</b><select id='env' name="env" class='chosen'  style="width:350px;"> <br /> 
+                <b>Satellite Organization:</b><select id='org' name="org" class='chosen'  style="width:350px;"> <br /> 
+                <b>System Hostname:</b><select id='sys_host' name="sys_host" class='chosen'  style="width:350px;"> <br />   
+                <b>System ID:</b><select id='sys_id' name="sys_id" class='chosen'  style="width:150px;"> <br />    
+                <b>Filter Name:</b><input type="text" name="filter_name" id="filter_name" /><br />
+                <b>Filter Description:</b><input type="text" name="filter_description" id="filter_description" /><br />
+
+                <input type='submit' value='Save Filter' class='button' onclick='filterSave(event)' />
+                
+              </form>
+            
         </script>
 
 </html>

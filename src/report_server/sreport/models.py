@@ -256,6 +256,7 @@ class Filter(Document):
     owner = StringField(required=True)
     status = StringField(required=True)
     environment = StringField(required=True)
+    filter_description = StringField(required=True)
     start_date = StringField(required=True)
     end_date = StringField(required=True)
 

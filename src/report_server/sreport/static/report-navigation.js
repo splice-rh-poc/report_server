@@ -422,10 +422,6 @@ function glossary_report(pane){
     pane.append('<tr><td width="20%"><b>NAU :</td><td><b>Net Aggregate Usage, is the number of concurrent entitlements actually being consumed</td></tr>');
 }
 
-function button_run_another_report(pane){
-    pane.append('<button id="createAnotherReport_button" name=class="ui-button " onclick="openCreate()"><span class="ui-button-text">Run another report</span></button>');
-
-}
 
 function button_show_details(pane){
         var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');

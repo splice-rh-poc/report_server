@@ -344,6 +344,7 @@ class FilterResource(MongoEngineResource):
         start = "%s/%s/%s" % (start.month, start.day, start.year)
         end = "%s/%s/%s" % (end.month, end.day, end.year)
         filter_name = data["filter_name"]
+        filter_description = data["filter_description"]
         if 'org' in data:
             environment = data["org"]
         else:
@@ -353,6 +354,7 @@ class FilterResource(MongoEngineResource):
     
         filter = Filter(
             filter_name = filter_name,
+            filter_description = filter_description,
             owner = user,
             status = status,
             environment = environment, 
