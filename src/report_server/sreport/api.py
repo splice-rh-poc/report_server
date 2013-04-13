@@ -25,6 +25,7 @@ from report_server.sreport.models import ReportData, SpliceServer, Filter, Pool,
 from report_server.sreport import views
 from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
+from report_server.common.utils import data_from_post
 from report_server.common import utils
 from report_server.common import import_util
 from report_server.settings import AUTHENTICATION_BACKENDS
@@ -321,20 +322,24 @@ class FilterResource(MongoEngineResource):
         allowed_methods = ['get', 'post', 'delete']
         filtering = {
             'id': ['exact'],
-            'owner': ['exact'],
+            'filter_name': ['exact'],
         }
-        
         
     def get_list(self, request, **kwargs):
 
         _LOG.info("FilterResource::get() ")
-        user_filters = Filter.objects.filter(owner=str(request.user))
+        
+        if "filter_name" in request.GET:
+            user_filters = Filter.objects.filter(owner=str(request.user), filter_name=request.GET["filter_name"])
+        else:
+            user_filters = Filter.objects.filter(owner=str(request.user))
 
         response_data = {}
         response_data['filters'] = user_filters
 
         return utils.create_response(response_data)
-
+    
+    
     def post_list(self, request, **kwargs):
         _LOG.info("FilterResource::post() ")
         user = str(request.user)
@@ -368,8 +373,3 @@ class FilterResource(MongoEngineResource):
         response_data['filters'] = user_filters
 
         return utils.create_response(response_data)
-
-            
-
-        
-

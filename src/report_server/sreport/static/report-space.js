@@ -109,11 +109,6 @@ function drawCircle(element_selector, color_choice, width) {
     });
 }
 
-function createFilter(){
-    console.log("in create new filter");
-}
-
-
 
 //function setupCreateForm(){
   function createFilter(){
@@ -126,7 +121,7 @@ function createFilter(){
 
     var FormData = Backbone.Collection.extend({
       model: FormDatum,
-      url: '/report-server/space/report_form/'
+      url: '/report-server/space/report_form/',
     });
     
     var AppView = Backbone.View.extend({
@@ -231,22 +226,6 @@ function createFilter(){
 
 }
 
-function setupCreateDatesForm(){
-    date_2 = Date.today();
-    date_1 = (1).months().ago();
-    date_0 = (2).months().ago();
-    
-    $('#byMonth').append($('<option  value></option>'));
-    
-    [date_0, date_1, date_2].forEach(function(item){
-        $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
-    });
-
-    $('#startDate').datepicker();
-    $('#endDate').datepicker();
-    $('#byMonth').chosen();
-}
-
 
 function filterSave(event){
     event.preventDefault();
@@ -254,7 +233,7 @@ function filterSave(event){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-            url: '/report-server/api/v1/filter/'
+            urlRoot: '/report-server/api/v1/filter/'
     });
         
     
@@ -291,14 +270,17 @@ function filterInitialPopulate(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        url: "/report-server/api/v1/filter/"
+        urlRoot: "/report-server/api/v1/filter/"
     });
 
     var createFilter = new CreateFilter();
     createFilter.fetch({
         success: function(model, response){
             console.log('SUCCESS');
+            console.log('reponse');
             console.log(response);
+            console.log('model');
+            console.log(model);
             filterPopulate(response);
       
         }
@@ -311,14 +293,15 @@ function filterInitialPopulateOptions(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        url: "/report-server/api/v1/filter/"
+        urlRoot: "/report-server/api/v1/filter/"
     });
 
     var createFilter = new CreateFilter();
     createFilter.fetch({
         success: function(model, response){
             console.log('SUCCESS');
-            console.log(response);
+            console.log('response:' + response);
+            console.log('model:' + model);
             filterPopulateOptions(response);
       
         }
@@ -331,14 +314,21 @@ function filterPopulate(response){
     var pane = $('#default_report_controls');
     pane.empty();
 
-    var Filter = Backbone.Model.extend({});
+    var Filter = Backbone.Model.extend({
+        
+    });
 
-    var Filters = Backbone.Collection.extend({
-        model : Filter
+    var Filters = Backbone.PageableCollection.extend({
+        
+        model : Filter,
+        urlRoot: "/report-server/api/v1/filter/",
+        state : {
+            pageSize : 10
+        },
     });
 
     var filters = new Filters(response.filters);
-    console.log(filters);
+    console.log("MY FILTERS " + filters);
 
 
     var columns = [{
@@ -350,6 +340,16 @@ function filterPopulate(response){
     {  
         name : "filter_description",
         label : "Filter Description:",
+        editable : false,
+        cell : "string"
+    },{
+        name : "start_date",
+        label : "Start Date:",
+        editable : false,
+        cell : "string"
+    },{
+        name : "end_date",
+        label : "End Date:",
         editable : false,
         cell : "string"
     }];
@@ -374,7 +374,8 @@ function filterPopulate(response){
     var grid = new Backgrid.Grid({
         columns : columns,
         collection : filters,
-        row: ClickableRow
+        row: ClickableRow,
+        footer : Backgrid.Extension.Paginator,
     });
 
     pane.append(grid.render().$el);
@@ -391,20 +392,22 @@ function filterPopulateOptions(response){
     create_pane.empty();
     pane.empty();
     var Filter = Backbone.Model.extend({
-        url: "/report-server/api/v1/filter/",
-
-        /*
-        *TO-DO The _id is delivered to javascript w/ as null
         parse: function(response){
+            console.log('model' + response);
             response.id = response.null;
-            return response.attributes;
-        }
-        */
+            delete response.null;
+            return response;
+        },
+        urlRoot: "/report-server/api/v1/filter/",
+
     });
 
-    var Filters = Backbone.Collection.extend({
+    var Filters = Backbone.PageableCollection.extend({
         model : Filter,
-        url: "/report-server/api/v1/filter/",
+        urlRoot: "/report-server/api/v1/filter/",
+        state : {
+            pageSize : 10
+        },
     });
 
     var filters = new Filters(response.filters);
@@ -419,6 +422,16 @@ function filterPopulateOptions(response){
     {  
         name : "filter_description",
         label : "Filter Description:",
+        editable : false,
+        cell : "string"
+    },{
+        name : "start_date",
+        label : "Start Date:",
+        editable : false,
+        cell : "string"
+    },{
+        name : "end_date",
+        label : "End Date:",
         editable : false,
         cell : "string"
     }];
@@ -444,6 +457,9 @@ function filterPopulateOptions(response){
     });
 
     var grid = new Backgrid.Grid({
+        initialize: function(){
+            this.collection.bind("destroy", this.removeModel);
+        },
         //columns: columns,
         columns: [{
     
@@ -460,6 +476,7 @@ function filterPopulateOptions(response){
 
         collection : filters,
         row : ClickableRow,
+        footer : Backgrid.Extension.Paginator,
         
     })
     
@@ -477,7 +494,15 @@ function filterPopulateOptions(response){
     $("#delete_filter_button").click(function (){
             var selected = grid.getSelectedModels(); // This is an array of models
             console.log("delete" + selected);
-            
+            for (i in selected){
+                    //filters.remove(selected[i]);
+                    selected[i].attributes.id = selected[i].attributes.null;
+                    grid.remove(selected[i]);
+                    filters.sync("delete", selected[i]);
+                }
+
+
+                       
     })
 
     $("#edit_filter_button").click(function (){
