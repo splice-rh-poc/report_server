@@ -258,7 +258,8 @@ function filterSave(event){
         success: function(model, response){
             console.log('SUCCESS');
             console.log(response);
-            filterPopulate(response);
+            filterInitialPopulate(response);
+            toggle_report_form();
       
         }
     });
@@ -270,15 +271,7 @@ function filterInitialPopulate(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        parse: function(response){
-            response = response.filters;
-            for (i=0; i< response.length; i++){
-                console.log(response[i]);
-                response[i].id = response[i].null;
-                delete response[i].null;
-            }
-            return response;
-        },
+
         urlRoot: "/report-server/api/v1/filter/",
     });
 
@@ -302,15 +295,6 @@ function filterInitialPopulateOptions(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        parse: function(response){
-            response = response.filters;
-            for (i=0; i< response.length; i++){
-                console.log(response[i]);
-                response[i].id = response[i].null;
-                delete response[i].null;
-            }
-            return response;
-        },
         urlRoot: "/report-server/api/v1/filter/"
     });
 
@@ -333,19 +317,20 @@ function filterPopulate(response){
     pane.empty();
 
     var Filter = Backbone.Model.extend({
-
+        url: "/report-server/api/v1/filter/",
     });
 
     var Filters = Backbone.PageableCollection.extend({
         
         model : Filter,
-        urlRoot: "/report-server/api/v1/filter/",
+        url: "/report-server/api/v1/filter/",
         state : {
-            pageSize : 10
+            pageSize : 2
         },
+        mode: "client"
     });
 
-    var filters = new Filters(response.filters);
+    var filters = new Filters(response.objects);
     console.log("MY FILTERS " + filters);
 
 
@@ -383,9 +368,7 @@ function filterPopulate(response){
 
     Backbone.on("goToReport", function(model) {
         console.log('in row click');
-        var filter = model.attributes;
-        console.log(filter);
-        createReportFromSavedFilter(model.attributes);
+        createReportFromSavedFilter(model);
         
     });
 
@@ -410,12 +393,7 @@ function filterPopulateOptions(response){
     create_pane.empty();
     pane.empty();
     var Filter = Backbone.Model.extend({
-        parse: function(response){
-            console.log('model' + response);
-            response.id = response.null;
-            delete response.null;
-            return response;
-        },
+
         urlRoot: "/report-server/api/v1/filter/",
 
     });
@@ -424,11 +402,12 @@ function filterPopulateOptions(response){
         model : Filter,
         urlRoot: "/report-server/api/v1/filter/",
         state : {
-            pageSize : 10
+            pageSize : 2
         },
+        mode: "client"
     });
 
-    var filters = new Filters(response.filters);
+    var filters = new Filters(response.objects);
    
 
     var columns = [{
@@ -468,9 +447,7 @@ function filterPopulateOptions(response){
 
     Backbone.on("goToReport", function(model) {
         console.log('in row click');
-        var filter = model.attributes;
-        console.log(filter);
-        createReportFromSavedFilter(model.attributes);
+        createReportFromSavedFilter(model);
         
     });
 
@@ -547,6 +524,8 @@ function createReportFromSavedFilter(filter) {
         var CreateReport = Backbone.Model.extend({
             url: '/report-server/space/report/'
         });
+        var filter = filter.attributes;
+        console.log(filter);
         
         var data = {
             status:  filter.status,

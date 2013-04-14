@@ -323,21 +323,10 @@ class FilterResource(MongoEngineResource):
         filtering = {
             'id': ['exact'],
             'filter_name': ['exact'],
+            'filter_description': ['exact'],
         }
         
-    def get_list(self, request, **kwargs):
 
-        _LOG.info("FilterResource::get() ")
-        
-        if "filter_name" in request.GET:
-            user_filters = Filter.objects.filter(owner=str(request.user), filter_name=request.GET["filter_name"])
-        else:
-            user_filters = Filter.objects.filter(owner=str(request.user))
-
-        response_data = {}
-        response_data['filters'] = user_filters
-
-        return utils.create_response(response_data)
     
     
     def post_list(self, request, **kwargs):
