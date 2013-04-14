@@ -270,13 +270,22 @@ function filterInitialPopulate(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
-        urlRoot: "/report-server/api/v1/filter/"
+        parse: function(response){
+            response = response.filters;
+            for (i=0; i< response.length; i++){
+                console.log(response[i]);
+                response[i].id = response[i].null;
+                delete response[i].null;
+            }
+            return response;
+        },
+        urlRoot: "/report-server/api/v1/filter/",
     });
 
     var createFilter = new CreateFilter();
     createFilter.fetch({
         success: function(model, response){
-            console.log('SUCCESS');
+            console.log('SUCCESS INITIAL POPULATE');
             console.log('reponse');
             console.log(response);
             console.log('model');
@@ -293,6 +302,15 @@ function filterInitialPopulateOptions(){
     var pane = $('#default_report_controls');
 
     var CreateFilter = Backbone.Model.extend({
+        parse: function(response){
+            response = response.filters;
+            for (i=0; i< response.length; i++){
+                console.log(response[i]);
+                response[i].id = response[i].null;
+                delete response[i].null;
+            }
+            return response;
+        },
         urlRoot: "/report-server/api/v1/filter/"
     });
 
@@ -315,7 +333,7 @@ function filterPopulate(response){
     pane.empty();
 
     var Filter = Backbone.Model.extend({
-        
+
     });
 
     var Filters = Backbone.PageableCollection.extend({
@@ -495,9 +513,8 @@ function filterPopulateOptions(response){
             var selected = grid.getSelectedModels(); // This is an array of models
             console.log("delete" + selected);
             for (i in selected){
-                    //filters.remove(selected[i]);
-                    selected[i].attributes.id = selected[i].attributes.null;
-                    grid.remove(selected[i]);
+                    filters.remove(selected[i]);
+                    //grid.remove(selected[i]);
                     filters.sync("delete", selected[i]);
                 }
 
