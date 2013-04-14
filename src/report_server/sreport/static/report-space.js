@@ -379,6 +379,19 @@ function filterPopulate(response){
         footer : Backgrid.Extension.Paginator,
     });
 
+    var clientSideFilter = new Backgrid.Extension.ClientSideFilter({
+        collection: filters,
+        placeholder: "Search for filters",
+        fields: {
+          filter_name: 10,
+          filter_description: 5
+        },
+        
+        ref: "id",
+        wait: 150
+    });
+
+    pane.append(clientSideFilter.render().$el);
     pane.append(grid.render().$el);
    
     
@@ -474,8 +487,25 @@ function filterPopulateOptions(response){
         footer : Backgrid.Extension.Paginator,
         
     })
-    
+
+    //CREATE FILTER
+    var clientSideFilter = new Backgrid.Extension.ClientSideFilter({
+        collection: filters,
+        placeholder: "Search for filters",
+        fields: {
+          filter_name: 10,
+          filter_description: 5
+        },
+        
+        ref: "id",
+        wait: 150
+    });
+
+    //RENDER THE FILTER AND TABLE
+    pane.append(clientSideFilter.render().$el);
     pane.append(grid.render().$el);
+
+
     filter_button(pane, "create_filter_button", " Create ");
     filter_button(pane, "delete_filter_button", " Delete ");
     filter_button(pane, "edit_filter_button", " Edit ");
@@ -490,12 +520,11 @@ function filterPopulateOptions(response){
             var selected = grid.getSelectedModels(); // This is an array of models
             console.log("delete" + selected);
             for (i in selected){
+                    filters.sync("delete", selected[i]);
                     filters.remove(selected[i]);
                     //grid.remove(selected[i]);
-                    filters.sync("delete", selected[i]);
+                    // THERE IS A BUG HERE W/ ENTRTIES NOT ALWAYS REMOVED..
                 }
-
-
                        
     })
 
@@ -749,7 +778,6 @@ function populateReport(rtn) {
     dashhead.append('<div class="status_icon" alt="fail">');
     dashhead.append(dashboard_subscriptions);
     dash.append(dashhead);
-
 
     pane.append(dash);
     pane.append(pageableGrid.render().$el);
