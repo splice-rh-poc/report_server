@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.77
+Version:	0.78
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,25 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Apr 15 2013 Wes Hayutin <whayutin@redhat.com> 0.78-1
+- filter api was getting hit before the user was logged in, prompting a
+  tastypie login.. fix (whayutin@redhat.com)
+- fixed css for dashboard, added filter for report (whayutin@redhat.com)
+- fix report margins (whayutin@redhat.com)
+- added css style to create filter and filter search (whayutin@redhat.com)
+- added client side search for filter list (whayutin@redhat.com)
+- sort and pagination working again (whayutin@redhat.com)
+- had to loop through models to change null key to id, now deleting one row
+  works (whayutin@redhat.com)
+- filter add, delete are working, however all filters are deleted
+  (whayutin@redhat.com)
+- filter templates are working and saved to the model, new interface for
+  filters (whayutin@redhat.com)
+- work on initial filter setup (whayutin@redhat.com)
+- remove img files in default static dir (whayutin@redhat.com)
+- added first template (whayutin@redhat.com)
+- css clean up (whayutin@redhat.com)
+
 * Thu Apr 11 2013 Wes Hayutin <whayutin@redhat.com> 0.77-1
 - update url in space_report (whayutin@redhat.com)
 - Update for SpliceServer API unit test (jwmatthews@gmail.com)
