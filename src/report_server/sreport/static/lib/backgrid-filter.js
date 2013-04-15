@@ -25,7 +25,7 @@
     className: "backgrid-filter form-search",
 
     /** @property {function(Object, ?Object=): string} template */
-    template: _.template('<div class="input-prepend input-append"><span class="add-on"><i class="icon-search"></i></span><input type="text" <% if (placeholder) { %> placeholder="<%- placeholder %>" <% } %> name="<%- name %>" <% if (value) { %> value="<%- value %>" <% } %> /><span class="add-on"><a class="close" href="#">&times;</a></span></div>'),
+    template: _.template('<div class="input-prepend input-append"><span class="add-on"><i class="ui-icon-search"></i></span><input type="text" <% if (placeholder) { %> placeholder="<%- placeholder %>" <% } %> name="<%- name %>" <% if (value) { %> value="<%- value %>" <% } %> /><span class="add-on"><a class="close" href="#">&times;</a></span></div>'),
 
     /** @property */
     events: {

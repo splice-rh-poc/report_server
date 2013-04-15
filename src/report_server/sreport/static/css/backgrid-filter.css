@@ -17,3 +17,17 @@
   text-align: center;
   vertical-align: text-top;
 }
+
+
+.ui-icon-search {
+  background: url("../img/search.png") no-repeat;
+  display: inline-block;
+  no-repeat scroll right 1px #fff;
+  width: 19px;
+  cursor: pointer;
+  height: 19px;
+  margin-right: 1px;
+  margin-top: 0;
+  margin-bottom: 0;
+  float: none;
+}

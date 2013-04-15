@@ -159,9 +159,6 @@ ul, li {list-style-type: none;}
     clear: both;
 }
 
-input {
-    vertical-align: bottom;
-}
 #form_error {
     color: red;
 }
@@ -190,3 +187,90 @@ tr.highlighted {
     min-height: 0px !important; 
 }
   
+
+/* ----------- My Form ----------- */
+.report_form{
+margin:0 auto;
+width:800px;
+padding:14px;
+}
+
+/* ----------- stylized ----------- */
+
+
+#stylized_form{
+border:solid 2px #b7ddf2;
+background:#ebf4fb;
+
+
+}
+#stylized_form h1 {
+font-size:14px;
+font-weight:bold;
+margin-bottom:8px;
+}
+#stylized_form p{
+font-size:20px;
+color:#666666;
+margin-bottom:20px;
+border-bottom:solid 1px #b7ddf2;
+padding-bottom:10px;
+}
+#stylized_form label{
+display:block;
+font-weight:bold;
+text-align:left;
+width:240px;
+float:left;
+margin-left:8px;
+}
+#stylized_form .small{
+color:#666666;
+display:block;
+font-size:11px;
+font-weight:normal;
+text-align:left;
+width:240px;
+}
+
+#stylized_form select{
+float:left;
+font-size:12px;
+padding:4px 2px;
+border:solid 1px #aacfe4;
+width:200px;
+margin:2px 0 20px 10px;
+}
+
+
+
+
+#stylized_form button{
+clear:both;
+margin-left:150px;
+width:125px;
+height:31px;
+text-align:center;
+line-height:31px;
+font-size:16px;
+
+}
+
+.startDate {
+float:none;
+font-size:12px;
+padding:4px 2px;
+border:solid 1px #aacfe4;
+width:200px;
+margin:2px 0 20px 10px;
+}
+
+.endDate {
+float:none;
+font-size:12px;
+padding:4px 2px;
+border:solid 1px #aacfe4;
+width:200px;
+margin:2px 0 20px 10px;
+}
+

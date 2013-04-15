@@ -520,8 +520,8 @@ function filterPopulateOptions(response){
             var selected = grid.getSelectedModels(); // This is an array of models
             console.log("delete" + selected);
             for (i in selected){
-                    filters.sync("delete", selected[i]);
                     filters.remove(selected[i]);
+                    filters.sync("delete", selected[i]);
                     //grid.remove(selected[i]);
                     // THERE IS A BUG HERE W/ ENTRTIES NOT ALWAYS REMOVED..
                 }

@@ -252,7 +252,7 @@ class Filter(Document):
     meta = {
         'db_alias': 'results'
     }
-    filter_name = StringField(unique=True, required=True)
+    filter_name = StringField(required=True)
     owner = StringField(required=True)
     status = StringField(required=True)
     environment = StringField(required=True)
