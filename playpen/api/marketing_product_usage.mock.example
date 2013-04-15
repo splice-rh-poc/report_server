@@ -1,9 +1,10 @@
 {
-    "_types": [
-        "MarketingProductUsage"
-    ],
+    "objects": [{
+    "organization_name": "Red Hat (Internal Use Only)",
+    "organization_id": "1",
     "updated": "2013-03-06T00:00:00Z",
     "splice_server": "ec2-23-20-217-133.compute-1.amazonaws.com",
+    "name": "TestThree",
     "facts": {
         "net_dot_interface_dot_lo_dot_mac_address": "00:00:00:00:00:00",
         "memory_dot_memtotal": "604160",
@@ -40,6 +41,13 @@
         "lscpu_dot_cpu_socket(s)": "0"
     },
     "created": "2013-03-06T00:00:00Z",
+    "service_level": "",
+    "organization":{
+	"href": "/owners/1",
+	"displayName": "Red Hat (Internal Use Only)",
+	"id": "8ae5a5853dfa8e9b013dfe5299160001",
+	"key": "1"
+    },
     "entitlement_status": "partial",
     "product_info": [
         {
@@ -52,6 +60,7 @@
         }
     ],
     "_cls": "MarketingProductUsage",
-    "instance_identifier": "608626c6-ee7b-4c21-92f7-f769ff230b46",
+    "instance_identifier": "1000015933",
     "date": "2013-03-06T16:32:52Z"
+ }]
 }
