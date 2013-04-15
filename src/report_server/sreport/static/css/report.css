@@ -188,19 +188,20 @@ tr.highlighted {
 }
   
 
-/* ----------- My Form ----------- */
+/* ----------- Filter Form ----------- */
 .report_form{
 margin:0 auto;
 width:800px;
-padding:14px;
+padding-bottom:20px;
 }
 
-/* ----------- stylized ----------- */
+/* ----------- stylized_form ----------- */
 
 
 #stylized_form{
 border:solid 2px #b7ddf2;
-background:#ebf4fb;
+background:#E6E6E6;
+padding:10px;
 
 
 }
