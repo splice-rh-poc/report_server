@@ -39,22 +39,10 @@ $(document).ready(function() {
     //setupCreateDatesForm();
     openCreateLogin();
     navButtonDocReady();
-    filterInitialPopulate();
     form_filter_link_hide(false);
-    
-    
-     $("#byMonth").change(function() {
-        $("#startDate").val('').trigger('liszt:updated');
-        $("#endDate").val('').trigger('liszt:updated');
-    });
-
-    $("#startDate").change(function() {
-        $("#byMonth").val('').trigger('liszt:updated');
-    });
-
-    $("#endDate").change(function() {
-        $("#byMonth").val('').trigger('liszt:updated');
-    });
+    if (logged_in){
+        filterInitialPopulate();
+    }    
 
 });
 

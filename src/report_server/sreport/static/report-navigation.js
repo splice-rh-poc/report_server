@@ -72,15 +72,14 @@ function setupLoginForm() {
                     	
 
                     // alter msg
-                    $('#account-links > span > p').text(rtn.username + " account #" + rtn.account);
+                    $('#account-links > span > p').text(rtn.username);
 
                     logged_in = true;
+                    filterInitialPopulate();
                     show_pages();
                     
                     //TESTING
                     //setupCreateFormOLD();
-                    setupCreateForm();
-                    setupCreateDatesForm();
 
 
                 }).fail(function(jqXHR) {
