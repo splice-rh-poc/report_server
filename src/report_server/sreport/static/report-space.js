@@ -16,9 +16,9 @@ var is_admin = true;
 var csrftoken = null;
 var pxt = null;
 var page_size = 10; // default value
-var color_green = "#9ccc50"
-var color_red = "#e13831"
-var color_yellow = "#f0e960"
+var color_green = "#99BF5E"
+var color_red = "#CA0010"
+var color_yellow = "#F1E95E"
 
 $(document).ready(function() {
     csrftoken = getCookie('csrftoken');
@@ -511,6 +511,7 @@ function filterPopulateOptions(response){
     filter_button(pane, "edit_filter_button", " Edit ");
     filter_button(pane, "export_filter_button", " Export ");
 
+
     $("#create_filter_button").click(function (){
         createFilter();
             
@@ -587,98 +588,6 @@ function createReportFromSavedFilter(filter) {
 
 
 
-function createReport(event) {
-    event.preventDefault();
-    //form_filter_link_hide(false);
-    if (logged_in){
-        var CreateReport = Backbone.Model.extend({
-            url: '/report-server/space/report/'
-        });
-        
-        var data = {
-            status:    $('#status').val(),
-            env:    $('#env').val(),
-            org:    $('#org').val()
-        };
-        
-        if ($('#byMonth').val() == ""){
-            data.startDate =  $('#startDate').val();
-            data.endDate =  $('#endDate').val();
-        }
-        else{
-            data.byMonth = $('#byMonth').val();
-        }
-        
-        console.log(data);
-        var createReport = new CreateReport();
-        console.log(createReport.toJSON());
-        
-        createReport.save( data, {
-            success: function(model, response){
-                console.log('SUCCESS');
-                console.log(response);
-                
-                $('#report_pane > div').empty();
-                var pane = '#report_pane > div';
-                populateReport(response, pane );
-                openReport();
-            }
-        });
-        
-        }
-        
-	
-}
-
-function create_default_report(event){
-    document.getElementById("report_form").style.display = "none"
-    $('#default_report_results_ui').empty();
-    $('#default_report_results').empty();
-    event.preventDefault();
-    
-    if (logged_in) {
-        var data = {};
-        var dtoday = Date.today();
-        console.log(dtoday);
-
-        data['startDate'] = (3).months().ago().toString("M/d/yyyy");
-        data['endDate'] = Date.today().toString("M/d/yyyy");
-        data['env'] = "All"
-        data['org'] = "All"
-        data['status'] = "All"
-        
-        console.log(data);
-        var DefaultReport = Backbone.Model.extend({
-            url : '/report-server/space/report/'
-        });
-    
-        var defaultReport = new DefaultReport();
-    
-        
-        defaultReport.save(data, {
-            success : function(model, response) {
-                console.log('SUCCESS');
-                console.log(response);
-                
-                $('#report_pane').empty();
-                var num = populateReport(response);
-                openReport();
-                
-                //$('#default_report_results').append("<br><br><br><br><br><br>");
-                //num = populateReport(response, "#default_report_results");
-                //fact = populateFactComplianceReport(response.biz_list, "#default_report_results");
-
-            }
-        });
-
-        
-    }
-    
-    
-   
-}
-
-
 function populateReport(rtn) {
     var pane = $('#report_pane');
     
@@ -687,14 +596,8 @@ function populateReport(rtn) {
     var this_div = $('<div this_rhic_table>');
 
     
-    var Report = {};
+    var Report = Backbone.Model.extend({});
 
-    var Report = Backbone.Model.extend();
-
-    var Reports = Backbone.Collection.extend({
-        model : Report
-
-    });
 
     var PageableReports = Backbone.PageableCollection.extend({
         model : Report,
@@ -705,8 +608,14 @@ function populateReport(rtn) {
 
     });
 
-    var reports = new Reports(rtn.list);
-    var pageable_reports = new PageableReports(rtn.list);
+    var systems = rtn.list;
+    systems.forEach(function(system){
+        console.log(system);
+        system.id = system.null;
+        delete system.null;
+    });
+
+    var pageable_reports = new PageableReports(systems);
 
     var columns = [{
         name : "systemid",
@@ -779,7 +688,23 @@ function populateReport(rtn) {
     dashhead.append(dashboard_subscriptions);
     dash.append(dashhead);
 
+    //RENDER DASHBOARD
     pane.append(dash);
+
+    //CREATE FILTER
+    var clientSideFilter = new Backgrid.Extension.ClientSideFilter({
+        collection: pageable_reports,
+        placeholder: "Search for systems",
+        fields: {
+          status: 5
+        },
+        
+        ref: "id",
+        wait: 150
+    });
+
+    //RENDER THE FILTER AND TABLE
+    pane.append(clientSideFilter.render().$el);
     pane.append(pageableGrid.render().$el);
      
     var status_color = null;

@@ -424,19 +424,19 @@ function glossary_report(pane){
 
 
 function button_show_details(pane){
-        var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >Show Details</button>');
+        var show_details = $('<button id=show_details class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text >Show Details</button>');
         pane.append(show_details);
         pane.append('<br><br>');
 }
 
 function button_details(pane, id,  btn_txt){
-        var details = $('<button id=' + id + ' class="show-detail-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >' + btn_txt + '</button>');
+        var details = $('<button id=' + id + ' class="show-detail-button ui-widget ui-state-default ui-corner-all ui-button-text"><span class=ui-button-text>' + btn_txt + '</span></button>');
         pane.append(details);
         pane.append('<br><br>');
 }
 
 function filter_button(pane, id,  btn_txt){
-        var details = $('<button id=' + id + ' class="filter-button ui-widget ui-state-default ui-corner-all ui-button-text-only" >' + btn_txt + '</button>');
+        var details = $('<button id=' + id + ' class="filter-button ui-widget ui-state-default ui-corner-all ui-button-text"><span class=ui-button-text>' + btn_txt + '</span></button>');
         pane.append(details);
 }
 

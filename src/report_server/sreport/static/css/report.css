@@ -111,6 +111,7 @@ table#factCompliance_data {
     border-radius: 3px 3px 3px 3px;
     margin-bottom: 10px;
     margin-right: 550px;
+    width: 600px;
     padding: 10px 10px 0 15px;
     position: relative;
     h1, h2, h3 {
