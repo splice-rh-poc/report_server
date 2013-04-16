@@ -396,7 +396,6 @@ function filterPopulateOptions(response){
     create_pane.empty();
     pane.empty();
     var Filter = Backbone.Model.extend({
-
         urlRoot: "/report-server/api/v1/filter/",
 
     });
@@ -436,17 +435,20 @@ function filterPopulateOptions(response){
         cell : "string"
     }];
 
+    /*
     var ClickableRow = Backgrid.Row.extend({
         events : {
             "change :checkbox": "onChange"
         },
         onChange : function() {
-            var selected = grid.getSelectedModels(); // This is an array of models
+            var selected = [];
+            selected = grid.getSelectedModels(); // This is an array of models
             console.log(selected);
             //Backbone.trigger("goToReport", selected[0]);
 
         }
     });
+    */
 
     Backbone.on("goToReport", function(model) {
         console.log('in row click');
@@ -473,7 +475,6 @@ function filterPopulateOptions(response){
           }].concat(columns),
 
         collection : filters,
-        row : ClickableRow,
         footer : Backgrid.Extension.Paginator,
         
     })
@@ -508,63 +509,73 @@ function filterPopulateOptions(response){
     })
 
     $("#delete_filter_button").click(function (){
-            var selected = grid.getSelectedModels(); // This is an array of models
-            console.log("delete" + selected);
-            for (i in selected){
-                    filters.remove(selected[i]);
+        var selected = [];
+        selected = grid.getSelectedModels(); // This is an array of models
+        console.log("delete" + selected);
+        for (i in selected){
+                var remove=confirm("Delete filter with name " + selected[i].attributes.filter_name);
+                if (remove == true){
                     filters.sync("delete", selected[i]);
-                    //grid.remove(selected[i]);
-                    // THERE IS A BUG HERE W/ ENTRTIES NOT ALWAYS REMOVED..
+                    grid.removeRow(selected[i], filters);
+                    filters.remove(selected[i]);
                 }
-            
-                       
+                else{
+                    console.log('delete filter canceled');
+                }
+
+                //grid.removeRow(selected[i], filters);
+                // THERE IS A BUG HERE W/ grid.getSelected   
+            }
+        setTimeout(filterInitialPopulate(),2000);
+        toggle_report_form();
+
     })
 
     $("#edit_filter_button").click(function (){
-            var selected = grid.getSelectedModels(); // This is an array of models
-            if (selected.length > 1) {
-                alert("Please only select one filter to edit..");
-            }
-            else{
-                var pane = $('#default_report_controls');
-                pane.empty();
-                var template = _.template($('#create-filter-form').html());
-                console.log(JSON.stringify(selected[0].attributes));
-                var attr = selected[0].attributes;
-                pane.html(template({}));
+        var selected = grid.getSelectedModels(); // This is an array of models
+        if (selected.length > 1) {
+            alert("Please only select one filter to edit..");
+        }
+        else{
+            var pane = $('#default_report_controls');
+            pane.empty();
+            var template = _.template($('#create-filter-form').html());
+            console.log(JSON.stringify(selected[0].attributes));
+            var attr = selected[0].attributes;
+            pane.html(template({}));
 
-                $('#status').append($('<option value=' + attr.status + '>' + attr.status + '</option>'));
-                $('#env').append($('<option value=' + attr.environment + '>' + attr.environment + '</option>'));
-                $('#org').append($('<option value=' + "All" + '>' + "All" + '</option>'));
-                $('#sys_host').append($('<option value=' + "All" + '>' + "All" + '</option>'));
-                $('#sys_id').append($('<option value=' + "All" + '>' + "All" + '</option>'));
-                $('#filter_name')[0].value = attr.filter_name;
-                $('#filter_description')[0].value = attr.filter_description;
+            $('#status').append($('<option value=' + attr.status + '>' + attr.status + '</option>'));
+            $('#env').append($('<option value=' + attr.environment + '>' + attr.environment + '</option>'));
+            $('#org').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+            $('#sys_host').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+            $('#sys_id').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+            $('#filter_name')[0].value = attr.filter_name;
+            $('#filter_description')[0].value = attr.filter_description;
 
-                //SETUP DATES:
-                date_2 = Date.today();
-                date_1 = (1).months().ago();
-                date_0 = (2).months().ago();
-                
-                $('#byMonth').append($('<option  value></option>'));
-                
-                [date_0, date_1, date_2].forEach(function(item){
-                    $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
-                });
+            //SETUP DATES:
+            date_2 = Date.today();
+            date_1 = (1).months().ago();
+            date_0 = (2).months().ago();
+            
+            $('#byMonth').append($('<option  value></option>'));
+            
+            [date_0, date_1, date_2].forEach(function(item){
+                $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
+            });
 
 
-                $('#startDate').datepicker();
-                $('#startDate').datepicker("setDate", attr.start_date);
-                $('#endDate').datepicker();
-                $('#endDate').datepicker("setDate", attr.end_date);
-                $('#byMonth').chosen();
-                $('#status').chosen();
-                $('#env').chosen();
-                $('#org').chosen();
-                $('#sys_host').chosen({ max_choices: 1 });
-                $('#sys_id').chosen({ max_choices: 5 });
+            $('#startDate').datepicker();
+            $('#startDate').datepicker("setDate", attr.start_date);
+            $('#endDate').datepicker();
+            $('#endDate').datepicker("setDate", attr.end_date);
+            $('#byMonth').chosen();
+            $('#status').chosen();
+            $('#env').chosen();
+            $('#org').chosen();
+            $('#sys_host').chosen({ max_choices: 1 });
+            $('#sys_id').chosen({ max_choices: 5 });
 
-            }
+        }
             
     })
 
@@ -575,6 +586,8 @@ function filterPopulateOptions(response){
             }
             
     })
+
+
 }
 
 
