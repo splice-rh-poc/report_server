@@ -580,7 +580,14 @@ function createReportFromSavedFilter(filter) {
 
 function populateReport(rtn) {
     var pane = $('#report_pane');
-    
+    if ($("div.status_icon").length) {
+        // Attempting to work around 'flot' issue of:
+        // Uncaught TypeError: Cannot call method 'shutdown' of undefined
+        // Issue is that flot will attempt to 'reuse' the existing DOM element if it exists
+        // We ran into an issue and flot wasn't handling this reuse correctly.
+        // 
+        $("div.status_icon").remove()
+    }
     pane.empty();
     setup_description(pane, rtn.start.substr(0, 10) + ' ----> ' + rtn.end.substr(0, 10));
     var this_div = $('<div this_rhic_table>');
@@ -750,6 +757,17 @@ function populateInstanceDetailReport(rtn) {
     var subscription_pane = $('<div id=subscription_pane>');
     pane.empty();
     //setup_description(pane, rtn.get('date'));
+    if ($("div.system_status_icon").length) {
+        // Attempting to work around 'flot' issue of:
+        // Uncaught TypeError: Cannot call method 'shutdown' of undefined
+        // Issue is that flot will attempt to 'reuse' the existing DOM element if it exists
+        // We ran into an issue and flot wasn't handling this reuse correctly.
+        //
+        // Note:    This issue appeared with div.status_icon
+        //          We are also applying work around for div.system_status_icon, just in case 
+        $("div.system_status_icon").remove()
+    }
+
 
     var facts = rtn.get('facts');
     var product_info = rtn.get('product_info')
