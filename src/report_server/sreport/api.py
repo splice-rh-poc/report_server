@@ -322,7 +322,6 @@ class FilterResource(MongoEngineResource):
         allowed_methods = ['get', 'post', 'delete']
         filtering = {
             'id': ['exact'],
-            'filter_name': ['exact'],
             'filter_description': ['exact'],
         }
         

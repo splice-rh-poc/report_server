@@ -516,6 +516,7 @@ function filterPopulateOptions(response){
                     //grid.remove(selected[i]);
                     // THERE IS A BUG HERE W/ ENTRTIES NOT ALWAYS REMOVED..
                 }
+            
                        
     })
 
@@ -523,6 +524,46 @@ function filterPopulateOptions(response){
             var selected = grid.getSelectedModels(); // This is an array of models
             if (selected.length > 1) {
                 alert("Please only select one filter to edit..");
+            }
+            else{
+                var pane = $('#default_report_controls');
+                pane.empty();
+                var template = _.template($('#create-filter-form').html());
+                console.log(JSON.stringify(selected[0].attributes));
+                var attr = selected[0].attributes;
+                pane.html(template({}));
+
+                $('#status').append($('<option value=' + attr.status + '>' + attr.status + '</option>'));
+                $('#env').append($('<option value=' + attr.environment + '>' + attr.environment + '</option>'));
+                $('#org').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+                $('#sys_host').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+                $('#sys_id').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+                $('#filter_name')[0].value = attr.filter_name;
+                $('#filter_description')[0].value = attr.filter_description;
+
+                //SETUP DATES:
+                date_2 = Date.today();
+                date_1 = (1).months().ago();
+                date_0 = (2).months().ago();
+                
+                $('#byMonth').append($('<option  value></option>'));
+                
+                [date_0, date_1, date_2].forEach(function(item){
+                    $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
+                });
+
+
+                $('#startDate').datepicker();
+                $('#startDate').datepicker("setDate", attr.start_date);
+                $('#endDate').datepicker();
+                $('#endDate').datepicker("setDate", attr.end_date);
+                $('#byMonth').chosen();
+                $('#status').chosen();
+                $('#env').chosen();
+                $('#org').chosen();
+                $('#sys_host').chosen({ max_choices: 1 });
+                $('#sys_id').chosen({ max_choices: 5 });
+
             }
             
     })
