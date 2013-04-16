@@ -1412,12 +1412,18 @@
     // And an `X-HTTP-Method-Override` header.
     if (options.emulateHTTP && (type === 'PUT' || type === 'DELETE' || type === 'PATCH')) {
       params.type = 'POST';
+      params.url += (params.url.charAt(params.url.length - 1) == '/' ? '' : '/');
       if (options.emulateJSON) params.data._method = type;
       var beforeSend = options.beforeSend;
       options.beforeSend = function(xhr) {
         xhr.setRequestHeader('X-HTTP-Method-Override', type);
         if (beforeSend) return beforeSend.apply(this, arguments);
       };
+    }
+
+    // whayutin to work properly w/ django tastypie the delete call must have a trailing slash
+    if ( type === 'DELETE' ) {
+        params.url += (params.url.charAt(params.url.length - 1) == '/' ? '' : '/');
     }
 
     // Don't process data on a non-GET request.

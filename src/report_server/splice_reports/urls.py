@@ -59,7 +59,6 @@ urlpatterns = patterns('',
     (r'^meter/login/$', 'report_server.sreport.views.login'),
     (r'^meter/logout/$', 'report_server.sreport.views.logout'),
     (r'^meter/report_form/$', 'report_server.sreport.meter.views.report_form'),
-    (r'^meter/space_form/$', 'report_server.sreport.views.space_form'),
     (r'^meter/report_form_rhics/$', 'report_server.sreport.views.report_form_rhics'),
     (r'^meter/report/$', 'report_server.sreport.meter.views.report'),
     (r'^meter/default_report/$', 'report_server.sreport.views.default_report'),
@@ -76,7 +75,6 @@ urlpatterns = patterns('',
     (r'^space/instance_details/$', 'report_server.sreport.spacewalk.views.instance_detail'),
     (r'^space/export/$', 'report_server.sreport.spacewalk.views.export'),
     (r'^space/subscription/$', 'report_server.sreport.spacewalk.views.subscription_detail'),
-    (r'^space/filter/$', 'report_server.sreport.spacewalk.views.filter')
 
 
 
