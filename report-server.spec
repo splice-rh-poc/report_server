@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.78
+Version:	0.79
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,25 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Tue Apr 16 2013 wes hayutin <whayutin@redhat.com> 0.79-1
+- filter edit now working w/ PUT call to tastypie (whayutin@redhat.com)
+- Merge branch 'filters' (whayutin@redhat.com)
+- added filter edit, and fixed delete (whayutin@redhat.com)
+- unused calls in urls.py (whayutin@redhat.com)
+- patch for backbone.js to add a trailing / on DELETE (whayutin@redhat.com)
+- Adding sample data from sst (jwmatthews@gmail.com)
+- initial filter edit is working (whayutin@redhat.com)
+- Work around for flot issue of: Uncaught TypeError: Cannot call method
+  'shutdown' of undefined Issue is that flot was attempting to perform some
+  'cleanup' code when it detected it's own canvas element was available and
+  being reused. Flot had an issue with the reuse code, so we are manually
+  removing the "placeholder" element that house the flot canvas
+  (jwmatthews@gmail.com)
+- Moved some api docs to splice-server sphix documentation
+  (jwmatthews@gmail.com)
+- added the logout button back in so John can take a look (whayutin@redhat.com)
+- updated example json (whayutin@redhat.com)
+
 * Mon Apr 15 2013 Wes Hayutin <whayutin@redhat.com> 0.78-1
 - filter api was getting hit before the user was logged in, prompting a
   tastypie login.. fix (whayutin@redhat.com)
