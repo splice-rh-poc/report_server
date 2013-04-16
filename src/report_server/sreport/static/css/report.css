@@ -1,53 +1,35 @@
-table#basic_report {
+#report_pane tr {
     border-collapse: collapse;   
 }
-#basic_report tr {
-    background-color: #eee;
+#report_pane tr {
+    background-color: #F9F8F8;
     border-top: 1px solid #eee;
 }
-#basic_report tr:hover {
-    background-color: #ccc;
+#report_pane tr:hover {
+    background-color: #bbb;
 }
-#basic_report th {
-    background-color: #eee;
-}
-#basic_report th, #basic_report td {
-    padding: 3px 5px;
-}
-#basic_report td:hover {
+
+#report_pane td:hover {
     cursor: pointer;
 }
 
-
-table#factCompliance_data {
+#default_report_controls tr {
     border-collapse: collapse;   
 }
-#factCompliance_data tr {
-    background-color: #eee;
+#default_report_controls tr {
+    background-color: #F9F8F8;
     border-top: 1px solid #eee;
 }
-#factCompliance_data tr:hover {
-    background-color: #ccc;
+#default_report_controls tr:hover {
+    background-color: #bbb;
 }
-#factCompliance_data th {
-    background-color: #eee;
-}
-#factCompliance_data th, #factCompliance_data td {
-    padding: 3px 5px;
-}
-#factCompliance_data td:hover {
+
+#default_report_controls td:hover {
     cursor: pointer;
 }
 
 
 
-#max_data tr:hover {
-    background-color: #ccc;
-}
-
-#basic_report td:hover {
-    cursor: pointer;
-}
 
 
 .spinner {
@@ -105,7 +87,6 @@ table#factCompliance_data {
 /* box for "errors" on the custom 500 error page */
 .dash {
     background-color: #F9F8F8;
-    background-image: linear-gradient(#F7F7F7, #EEEEEE);
     background-size: 50% auto;
     border: 1px solid #D7D7D7;
     border-radius: 3px 3px 3px 3px;
@@ -275,4 +256,3 @@ border:solid 1px #aacfe4;
 width:200px;
 margin:2px 0 20px 10px;
 }
-

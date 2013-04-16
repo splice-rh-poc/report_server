@@ -41,7 +41,9 @@ $(document).ready(function() {
     navButtonDocReady();
     form_filter_link_hide(false);
     if (logged_in){
+        $('#login-button').hide();
         filterInitialPopulate();
+        //document.getElementById("account-button-span").innerHTML = "Account: " + rtn.username;
     }    
 
 });

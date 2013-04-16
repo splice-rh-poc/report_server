@@ -14,11 +14,14 @@ http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 function hide_pages() {
 	document.getElementById("navWrap").style.display = "none";
     document.getElementById("main-wrap").style.display = "none";
+    //document.getElementById("account-button").style.display = "none";
 }
 
 function show_pages() {
 	document.getElementById("navWrap").style.display = "block";
     document.getElementById("main-wrap").style.display = "block";
+    //document.getElementById("account-button").style.display = "block"; 
+    //document.getElementById("account-button-span").style.display = "block"; 
     openCreate();
 }
 
@@ -69,15 +72,22 @@ function setupLoginForm() {
                     else{
                     	turnOnAdminFeatures(false);
                     }
-                    	
-
-                    // alter msg
-                    $('#account-links > span > p').text(rtn.username);
 
                     logged_in = true;
+
+                    // alter msg
+                    //('#account-links > span > p').text("SHITY");
+                    //var pane = $('#default_report_controls');
+                    //var account_links = $('#account-links');
+                   // account_links.text(rtn.username);
+                    //button_details(account_profile), "account_button", "Account");
+
+                    
+
                     filterInitialPopulate();
                     show_pages();
-                    
+                    //$('#login-button').hide();
+                    //document.getElementById("account-button-span").innerHTML = "Account: " + rtn.username;
                     //TESTING
                     //setupCreateFormOLD();
 
@@ -111,9 +121,9 @@ function logout() {
         }
     }).done(function(data) {
         enableButton($('#login-button'));
-        disableButton($('#logout-button'));
+        //disableButton($('#logout-button'));
         // alter msg
-        $('#account-links > span > p').text('You are not logged in.');
+        //$('#account-links > span > p').text('You are not logged in.');
 
         logged_in = false;
         hide_pages();
