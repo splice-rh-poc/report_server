@@ -1,0 +1,62 @@
+{
+    "objects": [
+        {
+            "organization_name": "Red Hat (Internal Use Only)", 
+            "updated": "", 
+            "splice_server": "ec2-23-20-116-193.compute-1.amazonaws.com", 
+            "name": "jwm1", 
+            "created": "", 
+            "product_info": [
+                {
+                    "account": "1212729", 
+                    "product": "SYS0395", 
+                    "contract": "2595500", 
+                    "quantity": 1
+                }
+            ], 
+            "entitlement_status": "valid", 
+            "organization_id": "1", 
+            "facts": {
+                "lscpu_dot_l2_cache": "", 
+                "net_dot_interface_dot_lo_dot_mac_address": "00:00:00:00:00:00", 
+                "memory_dot_memtotal": "604160", 
+                "lscpu_dot_on-line_cpu(s)_list": "", 
+                "lscpu_dot_l1d_cache": "", 
+                "systemid": "1000010015", 
+                "lscpu_dot_architecture": "x86_64", 
+                "lscpu_dot_cpu_op-mode(s)": "", 
+                "lscpu_dot_model": "", 
+                "net_dot_interface_dot_lo_dot_netmask": "255.0.0.0", 
+                "lscpu_dot_l3_cache": "", 
+                "lscpu_dot_cpu_family": "", 
+                "lscpu_dot_cpu(s)": "1", 
+                "net_dot_interface_dot_eth0_dot_netmask": "255.255.254.0", 
+                "lscpu_dot_l1i_cache": "", 
+                "lscpu_dot_virtualization_type": "", 
+                "net_dot_interface_dot_lo_dot_ipv4_address": "127.0.0.1", 
+                "cpu_dot_cpu_socket(s)": "1", 
+                "cpu_dot_cpu(s)": "1", 
+                "uname_dot_machine": "x86_64", 
+                "net_dot_ipv4_address": "10.245.227.240", 
+                "lscpu_dot_stepping": "", 
+                "lscpu_dot_cpu_socket(s)": "1", 
+                "net_dot_interface_dot_eth0_dot_ipv4_address": "10.245.227.240", 
+                "lscpu_dot_bogomips": "", 
+                "lscpu_dot_cpu_mhz": "", 
+                "net_dot_interface_dot_eth0_dot_mac_address": "12:31:3d:01:e0:02", 
+                "lscpu_dot_hypervisor_vendor": "", 
+                "lscpu_dot_vendor_id": "", 
+                "lscpu_dot_byte_order": ""
+            }, 
+            "service_level": "", 
+            "instance_identifier": "1000010015", 
+            "date": "2013-04-16T14:41:47.000+0000", 
+            "organization": {
+                "href": "/owners/1", 
+                "displayName": "Red Hat (Internal Use Only)", 
+                "id": "8ae47b583df9685a013df97145230001", 
+                "key": "1"
+            }
+        }
+    ]
+}

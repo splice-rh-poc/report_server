@@ -1,0 +1,12 @@
+{
+    "objects": [
+        {
+            "updated": "2013-04-16T17:05:24.764010+00:00", 
+            "description": "RCS data for satellite-splice-tool", 
+            "created": "2013-04-16T17:05:24.764010+00:00", 
+            "hostname": "sst-host", 
+            "environment": "sst_env_1", 
+            "uuid": "ec2-23-20-116-193.compute-1.amazonaws.com"
+        }
+    ]
+}
