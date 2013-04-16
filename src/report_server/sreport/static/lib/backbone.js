@@ -1422,7 +1422,7 @@
     }
 
     // whayutin to work properly w/ django tastypie the delete call must have a trailing slash
-    if ( type === 'DELETE' ) {
+    if ( type === 'DELETE' || type ===  'PUT') {
         params.url += (params.url.charAt(params.url.length - 1) == '/' ? '' : '/');
     }
 

@@ -141,8 +141,8 @@ function drawCircle(element_selector, color_choice, width) {
         $('#filter_name').empty();
         $('#status').empty();
         $('#rhic').empty();
-        $('#env').empty();
-        $('#org').empty();
+        $('#environment').empty();
+        $('#organization').empty();
         $('#sys_host').empty();
         $('#sys_id').empty();
 
@@ -154,10 +154,10 @@ function drawCircle(element_selector, color_choice, width) {
         date_1 = (1).months().ago();
         date_0 = (2).months().ago();
         
-        $('#byMonth').append($('<option  value></option>'));
+        $('#by_month').append($('<option  value></option>'));
         
         [date_0, date_1, date_2].forEach(function(item){
-            $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
+            $('#by_month').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
         });
 
         
@@ -174,15 +174,15 @@ function drawCircle(element_selector, color_choice, width) {
             }
             
             var list = item.get('environments')
-            $('#env').append($('<option selected value=All>All</option>'));
+            $('#environment').append($('<option selected value=All>All</option>'));
             for (i in list){
-               $('#env').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+               $('#environment').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
 
             var list = item.get('organizations')
-            $('#org').append($('<option selected value=All>All</option>'));
+            $('#organization').append($('<option selected value=All>All</option>'));
             for (i in list){
-               $('#org').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
+               $('#organization').append($('<option value=' + list[i] + '>' + list[i] + '</option>'));
             }
 
             var list = item.get('sys_host')
@@ -200,12 +200,12 @@ function drawCircle(element_selector, color_choice, width) {
         });
         
 
-        $('#startDate').datepicker();
-        $('#endDate').datepicker();
-        $('#byMonth').chosen();
+        $('#start_date').datepicker();
+        $('#end_date').datepicker();
+        $('#by_month').chosen();
         $('#status').chosen();
-        $('#env').chosen();
-        $('#org').chosen();
+        $('#environment').chosen();
+        $('#organization').chosen();
         $('#sys_host').chosen({ max_choices: 1 });
         $('#sys_id').chosen({ max_choices: 5 });
       }
@@ -231,18 +231,24 @@ function filterSave(event){
             filter_name: $('#filter_name').val(),
             filter_description: $('#filter_description').val(),
             status: $('#status').val(),
-            env:    $('#env').val(),
-            org:    $('#org').val()
+            environment:    $('#environment').val(),
+            organization:    $('#organization').val()
     };
 
-    if ($('#byMonth').val() == ""){
-            data.startDate =  $('#startDate').val();
-            data.endDate =  $('#endDate').val();
+    if ($('#by_month').val() == ""){
+            data.start_date =  $('#start_date').val();
+            data.end_date =  $('#end_date').val();
     }
     else{
-        data.byMonth = $('#byMonth').val();
+        data.byMonth = $('#by_month').val();
     }
 
+    if ( !!$('#id').val() ){
+        data.id = $('#id').val();
+        data.start_date =  $('#start_date').val();
+        data.end_date =  $('#end_date').val();
+    }
+    console.log(data);
     var createFilter = new CreateFilter();
     createFilter.save( data, {
         success: function(model, response){
@@ -251,6 +257,9 @@ function filterSave(event){
             filterInitialPopulate(response);
             toggle_report_form();
       
+        },
+        error: function(model, response){
+            console.log(response);
         }
     });
 
@@ -315,7 +324,7 @@ function filterPopulate(response){
         model : Filter,
         url: "/report-server/api/v1/filter/",
         state : {
-            pageSize : 2
+            pageSize : 5
         },
         mode: "client"
     });
@@ -404,7 +413,7 @@ function filterPopulateOptions(response){
         model : Filter,
         urlRoot: "/report-server/api/v1/filter/",
         state : {
-            pageSize : 2
+            pageSize : 5
         },
         mode: "client"
     });
@@ -526,8 +535,8 @@ function filterPopulateOptions(response){
                 //grid.removeRow(selected[i], filters);
                 // THERE IS A BUG HERE W/ grid.getSelected   
             }
-        setTimeout(filterInitialPopulate(),2000);
-        toggle_report_form();
+        setTimeout(filterInitialPopulateOptions(),4000);
+
 
     })
 
@@ -545,33 +554,34 @@ function filterPopulateOptions(response){
             pane.html(template({}));
 
             $('#status').append($('<option value=' + attr.status + '>' + attr.status + '</option>'));
-            $('#env').append($('<option value=' + attr.environment + '>' + attr.environment + '</option>'));
-            $('#org').append($('<option value=' + "All" + '>' + "All" + '</option>'));
+            $('#environment').append($('<option value=' + attr.environment + '>' + attr.environment + '</option>'));
+            $('#organization').append($('<option value=' + "All" + '>' + "All" + '</option>'));
             $('#sys_host').append($('<option value=' + "All" + '>' + "All" + '</option>'));
             $('#sys_id').append($('<option value=' + "All" + '>' + "All" + '</option>'));
             $('#filter_name')[0].value = attr.filter_name;
             $('#filter_description')[0].value = attr.filter_description;
+            $('#id')[0].value = attr.id;
 
             //SETUP DATES:
             date_2 = Date.today();
             date_1 = (1).months().ago();
             date_0 = (2).months().ago();
             
-            $('#byMonth').append($('<option  value></option>'));
+            $('#by_month').append($('<option  value></option>'));
             
             [date_0, date_1, date_2].forEach(function(item){
-                $('#byMonth').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
+                $('#by_month').append($('<option selected value=' + item.toString("M") + ',' + item.toString("yyyy") +  '>' + item.toString("MMM") + ' ' + item.toString("yyyy") + '</option>'));
             });
 
 
-            $('#startDate').datepicker();
-            $('#startDate').datepicker("setDate", attr.start_date);
-            $('#endDate').datepicker();
-            $('#endDate').datepicker("setDate", attr.end_date);
-            $('#byMonth').chosen();
+            $('#start_date').datepicker();
+            $('#start_date').datepicker("setDate", attr.start_date);
+            $('#end_date').datepicker();
+            $('#end_date').datepicker("setDate", attr.end_date);
+            $('#by_month').chosen();
             $('#status').chosen();
-            $('#env').chosen();
-            $('#org').chosen();
+            $('#environment').chosen();
+            $('#organization').chosen();
             $('#sys_host').chosen({ max_choices: 1 });
             $('#sys_id').chosen({ max_choices: 5 });
 

@@ -253,11 +253,15 @@ class Filter(Document):
         'db_alias': 'results'
     }
     filter_name = StringField(required=True)
-    owner = StringField(required=True)
+    owner = StringField()
     status = StringField(required=True)
-    environment = StringField(required=True)
+    environment = StringField() #satellite hostname
+    organization = StringField()
     filter_description = StringField(required=True)
-    start_date = StringField(required=True)
-    end_date = StringField(required=True)     
+    start_date = StringField()
+    end_date = StringField()
+    by_month = StringField()
+    sys_host = StringField()
+    sys_id = StringField()
 
 

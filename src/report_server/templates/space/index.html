@@ -210,17 +210,17 @@
                 <label>Month:
                 <span class="small">Pick a month</span>
                 </label>
-                <select name="byMonth" id="byMonth" class='chosen' /> <br><br>
+                <select name="by_month" id="by_month" class='chosen' /> <br><br>
 
                 <label>Start Date:
                 <span class="small">Pick a start date range</span>
                 </label> 
-                <input type="text" id="startDate" name="startDate" style="float:left" /><br><br><br><br>
+                <input type="text" id="start_date" name="start_date" style="float:left" /><br><br><br>
 
                 <label>End Date:
                 <span class="small">Pick an end date range</span>
                 </label>
-                <input type="text" id="endDate" name="endDate" style="float:left" /><br><br><br><br>
+                <input type="text" id="end_date" name="end_date" style="float:left" /><br><br><br><br>
 
                 <label>Status:
                 <span class="small">Choose a status</span>
@@ -230,12 +230,12 @@
                 <label>Satellite Server:
                 <span class="small">Choose a Satellite Server</span>
                 </label>
-                <select id='env' name="env" class='chosen' /> <br><br> 
+                <select id='environment' name="environment" class='chosen' /> <br><br> 
 
                 <label>Satellite Organization:
                 <span class="small">Choose a Satellite Organization</span>
                 </label>
-                <select id='org' name="org" class='chosen' /> <br><br> 
+                <select id='organization' name="organization" class='chosen' /> <br><br> 
 
                 <label>System Hostname:
                 <span class="small">Choose a Satellite system hostname</span>
@@ -256,6 +256,8 @@
                 <span class="small">Provide a description for the filter</span>
                 </label>
                 <input type="text" name="filter_description" id="filter_description" /><br><br>
+
+                <input type="hidden" id="id" name="id">
 
                 <br><br>
                 <button type='submit' value='Save Filter' class='ui-button-text' onclick='filterSave(event)'>

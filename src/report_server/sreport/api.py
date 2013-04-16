@@ -319,7 +319,7 @@ class FilterResource(MongoEngineResource):
         queryset = Filter.objects.all()
         authorization = Authorization()
         authentication = MultiAuthentication(SessionAuthentication(), BasicAuthentication())
-        allowed_methods = ['get', 'post', 'delete']
+        allowed_methods = ['get', 'post', 'delete', 'put']
         filtering = {
             'id': ['exact'],
             'filter_description': ['exact'],
@@ -361,3 +361,5 @@ class FilterResource(MongoEngineResource):
         response_data['filters'] = user_filters
 
         return utils.create_response(response_data)
+    
+    
