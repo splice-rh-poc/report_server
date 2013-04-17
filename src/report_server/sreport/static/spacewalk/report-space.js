@@ -38,15 +38,19 @@ $(document).ready(function() {
     //setupCreateForm();
     //setupCreateDatesForm();
     openCreateLogin();
+
     navButtonDocReady();
     form_filter_link_hide(false);
+    $("#login-active").attr("style", "margin-top:-193px;")
     if (logged_in){
-        $('#login-button').hide();
+        // $('#login-button').hide();
         filterInitialPopulate();
         //document.getElementById("account-button-span").innerHTML = "Account: " + rtn.username;
     }    
 
 });
+
+
 
 function getCookie(name) {
     var cookieValue = null;

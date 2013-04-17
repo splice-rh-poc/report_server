@@ -25,9 +25,94 @@ function show_pages() {
     openCreate();
 }
 
+function handleLoginLogout() {
+    var state = $('#loginhtml_a').text();
+    if (state == "LOG OUT") {
+        logout()
+    } else {
+        activateLogin()
+    }
+}
+
+function activateLogin() {
+    $("#login-active").animate( {
+        marginTop: '0px'
+    }, 'slow');
+}
+
+function deactivateLogin() {
+    $("#login-active").animate( {
+        marginTop: '-193px'
+    }, 'slow');
+}
+function loginSubmit() {
+    var data = {
+        "username": $('#login_username').val(),
+        "password": $('#login_password').val()
+    };
+    // Login button in form clicked 
+    $.ajax({
+        url: '/report-server/meter/login/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: data,
+        crossDomain: false,
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    }).done(function(data) {
+        var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
+
+        $('#login-error').hide();
+        $('#login-form').dialog('close');
+
+        // Gray out "Login" button
+        enableButton($('#logout-button'));
+        disableButton($('#login-button'));
+        $('#loginhtml_a').html("LOG OUT");
+        deactivateLogin()
+        
+        // Need to change text of button to 'Logout'
+
+        // Check for admin permission
+        if (rtn.is_admin == true) {
+            turnOnAdminFeatures(true);
+        }
+        else{
+            turnOnAdminFeatures(false);
+        }
+        logged_in = true;
+
+        // alter msg
+        //('#account-links > span > p').text("SHITY");
+        //var pane = $('#default_report_controls');
+        //var account_links = $('#account-links');
+       // account_links.text(rtn.username);
+        //button_details(account_profile), "account_button", "Account");
+
+        filterInitialPopulate();
+        show_pages();
+        //$('#login-button').hide();
+        //document.getElementById("account-button-span").innerHTML = "Account: " + rtn.username;
+        //TESTING
+        //setupCreateFormOLD();
+    }).fail(function(jqXHR) {
+        console.log("This request failed");
+        console.log(jqXHR);
+       $('#login-error').show();
+    });
+}
+
+/**
+    Older method of login/logout
+*/
 function login() {
     $('#login-form').dialog('open');
 }
+
+
 
 function setupLoginForm() {
     // Login form
@@ -138,7 +223,7 @@ function logout() {
         $('#detail_button').off('click');
         $('#max_button').off("click");
         $('#import_button').off("click");
-
+        $('#loginhtml_a').html("LOG IN");
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });
@@ -158,10 +243,16 @@ function setupLoginButtons() {
     $('#login-error').hide();
 }
 
+
 function navButtonDocReady(){
+    $('#loginhtml_a').click(handleLoginLogout);
+    $('#loginSubmitLink').click(loginSubmit);
+    $('#close-login').click(deactivateLogin);
+
 	$('#login-button').click(login);
     $('#logout-button').click(logout);
-	$('#instance_details').hide();
+	
+    $('#instance_details').hide();
     $('#report_button').addClass('disabled');
     $('#detail_button').addClass('disabled');
     $('#max_button').addClass('disabled');
