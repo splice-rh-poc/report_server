@@ -73,7 +73,6 @@
                                   		<div id="account" style="padding: 4 2;">
                                             <div id="login_panel">
                                                 <div id="login-pre">
-                                                    <!-- <a id="loginhtml_a" href="#"  title="login" onmousedown="activateLogin()">LOG IN</a> -->
                                                     <a id="loginhtml_a" href="#"  title="login">LOG IN</a>
                                                 </div>
                                                 <div id="login-active" style="margin-top: -42px;">
@@ -84,32 +83,23 @@
                                                         <p class="loginP">LOG IN</p>
                                                         
                                                         <div id="loginForm">
-                                                        <!-- <form id="loginForm_new" method="post" action="#"> -->
-                                                        
                                                             <div>
-                                                                <input type="text" class="search-field" id="login_username" value="User name">
-                                                                <input type="password" class="search-field" id="login_password" value="Password: ">
-                                                            </div>
-                                                            <!-- 
-                                                            <p class="first">     
-                                                                <a class="arrow" href="#" target="_blank" title="">Register</a>
-                                                            </p>
-                                                            -->
+                                                                <input type="text" class="search-field" id="login_username" placeholder="User name">
+                                                                <input type="password" class="search-field" id="login_password" placeholder="Password: ">
+                                                            </div> 
                                                             <div id="forgotOrSubmitParent">
-                                                                <!--
-                                                                <div id="forgotPasswdWrapper">                                          
-                                                                    <a class="arrow" href="#" target="_blank" title="">Forgot password?</a>
-                                                                </div>
-                                                                -->
                                                                 <div id="submitBtnWrapper">  
-                                                                    <!-- 
-                                                                    <input type="submit" name="login-submit" value="SUBMIT" onclick="submitLogin()">
-                                                                    -->
                                                                     <div id="loginSubmitLink">SUBMIT</div>
                                                                 </div>
-                                                            </div>                   
-                                                        <!-- </form> -->
+                                                            </div>       
                                                         </div>
+                                                        <div id="login-error" class="ui-state-error">
+                                                            <div class="ui-state-error-text">
+                                                                <p>Invalid Username or Password.</p>
+                                                                <p>Please try again.</p>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -210,6 +200,7 @@
                 </div>
             </div>
         </div>
+        {% comment %}
         <!-- Login Form -->
         <div id="login-form" title="Login">
             <form>{% csrf_token %}
@@ -230,6 +221,7 @@
                 <p>Your session has expired, you must relogin.</p>
             </div>
         </div>
+        {% endcomment %}
     </body>
 
         <!-- *** BACKBONE TEMPLATES *** -->

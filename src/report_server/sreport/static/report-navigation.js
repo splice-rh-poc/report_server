@@ -38,12 +38,14 @@ function activateLogin() {
     $("#login-active").animate( {
         marginTop: '0px'
     }, 'slow');
+    $('#login-error').hide();
 }
 
 function deactivateLogin() {
     $("#login-active").animate( {
         marginTop: '-193px'
     }, 'slow');
+    $('#login-error').hide();
 }
 function loginSubmit() {
     var data = {
@@ -66,14 +68,14 @@ function loginSubmit() {
         var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
 
         $('#login-error').hide();
-        $('#login-form').dialog('close');
+        /* $('#login-form').dialog('close'); */
 
         // Gray out "Login" button
         enableButton($('#logout-button'));
         disableButton($('#login-button'));
         $('#loginhtml_a').html("LOG OUT");
         deactivateLogin()
-        
+
         // Need to change text of button to 'Logout'
 
         // Check for admin permission
@@ -248,6 +250,18 @@ function navButtonDocReady(){
     $('#loginhtml_a').click(handleLoginLogout);
     $('#loginSubmitLink').click(loginSubmit);
     $('#close-login').click(deactivateLogin);
+    /*
+     If the user presses 'enter' on the password field
+     invoke 'submit'
+    */
+    $("#login_password").keyup(function (e) {
+        if (e.keyCode == 13) {
+            $(this).trigger("enter");
+        }
+    }).bind("enter", function () {
+        loginSubmit();
+    });
+
 
 	$('#login-button').click(login);
     $('#logout-button').click(logout);
