@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.80
+Version:	0.81
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Apr 17 2013 Wes Hayutin <whayutin@redhat.com> 0.81-1
+- have default red hat report added in javascript (whayutin@redhat.com)
+
 * Wed Apr 17 2013 Wes Hayutin <whayutin@redhat.com> 0.80-1
 - broke out filter javascript to its own file (whayutin@redhat.com)
 - organized spacewalk js files (whayutin@redhat.com)
