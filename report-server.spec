@@ -3,7 +3,7 @@
 
 # report-server package -------------------------------------------------------
 Name:		report-server
-Version:	0.79
+Version:	0.80
 Release:	1%{?dist}
 Summary:	Reporting server for Splice.
 
@@ -258,6 +258,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Apr 17 2013 Wes Hayutin <whayutin@redhat.com> 0.80-1
+- broke out filter javascript to its own file (whayutin@redhat.com)
+- organized spacewalk js files (whayutin@redhat.com)
+
 * Tue Apr 16 2013 wes hayutin <whayutin@redhat.com> 0.79-1
 - filter edit now working w/ PUT call to tastypie (whayutin@redhat.com)
 - Merge branch 'filters' (whayutin@redhat.com)
