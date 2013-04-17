@@ -31,7 +31,7 @@ _LOG = logging.getLogger(__name__)
 def report_form(request):
     _LOG.info("space_form called by method: %s" % (request.method))
     user = str(request.user)
-    environments = MarketingReportData.objects.distinct("splice_server")
+    environments = MarketingReportData.objects.distinct("environments")
     status = MarketingReportData.objects.distinct("status")
     sys_id = MarketingReportData.objects.distinct("systemid")
     response_data = {}
