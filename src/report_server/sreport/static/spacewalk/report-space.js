@@ -16,9 +16,9 @@ var is_admin = true;
 var csrftoken = null;
 var pxt = null;
 var page_size = 10; // default value
-var color_green = "#99BF5E"
-var color_red = "#CA0010"
-var color_yellow = "#F1E95E"
+var color_green = "#99BF5E";
+var color_red = "#CA0010";
+var color_yellow = "#F1E95E";
 
 $(document).ready(function() {
     csrftoken = getCookie('csrftoken');
@@ -33,16 +33,13 @@ $(document).ready(function() {
 	});
     
 	hide_pages();
-    setupLoginForm();
-    setupLoginButtons();
     //setupCreateForm();
     //setupCreateDatesForm();
-    openCreateLogin();
 
     navButtonDocReady();
     form_filter_link_hide(false);
     setLoginButtonState();
-    $("#login-active").attr("style", "margin-top:-193px;")
+    $("#login-active").attr("style", "margin-top:-193px;");
     if (logged_in){
         // $('#login-button').hide();
         filterInitialPopulate();

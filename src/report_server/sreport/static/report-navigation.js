@@ -32,7 +32,6 @@ function setLoginButtonState() {
         $('#loginhtml_a').html("LOG IN");
         $('#login_username').val(''); // Clear prev user/password
         $('#login_password').val('');
-        alert("Cleared"); 
     }
 }
 
@@ -46,6 +45,7 @@ function handleLoginLogout() {
 }
 
 function activateLogin() {
+    // Show the login form
     $("#login-active").animate( {
         marginTop: '0px'
     }, 'slow');
@@ -53,17 +53,19 @@ function activateLogin() {
 }
 
 function deactivateLogin() {
+    // Hide the login form
     $("#login-active").animate( {
         marginTop: '-193px'
     }, 'slow');
     $('#login-error').hide();
 }
-function loginSubmit() {
+
+function login() {
+    // Login button in form clicked 
     var data = {
         "username": $('#login_username').val(),
         "password": $('#login_password').val()
     };
-    // Login button in form clicked 
     $.ajax({
         url: '/report-server/meter/login/',
         type: 'POST',
@@ -79,16 +81,7 @@ function loginSubmit() {
         var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
 
         $('#login-error').hide();
-        /* $('#login-form').dialog('close'); */
-
-        // Gray out "Login" button
-        //enableButton($('#logout-button'));
-        //disableButton($('#login-button'));
-        //$('#loginhtml_a').html("LOG OUT");
-        //deactivateLogin()
-
-        // Need to change text of button to 'Logout'
-
+       
         // Check for admin permission
         if (rtn.is_admin == true) {
             turnOnAdminFeatures(true);
@@ -108,7 +101,6 @@ function loginSubmit() {
 
         filterInitialPopulate();
         show_pages();
-        //$('#login-button').hide();
         //document.getElementById("account-button-span").innerHTML = "Account: " + rtn.username;
         //TESTING
         //setupCreateFormOLD();
@@ -118,93 +110,6 @@ function loginSubmit() {
        $('#login-error').show();
     });
 }
-
-/**
-    Older method of login/logout
-*/
-function login() {
-    $('#login-form').dialog('open');
-}
-
-
-
-function setupLoginForm() {
-    // Login form
-    $('#login-form').dialog({
-        autoOpen: false,
-        height: 300,
-        width: 350,
-        modal: true,
-        buttons: {
-        "Login": function() {
-            var data = {
-                "username": $('#username').val(),
-                "password": $('#password').val()
-            };
-
-            // Login button in form clicked 
-            $.ajax({
-                url: '/report-server/meter/login/',
-                type: 'POST',
-                contentType: 'application/json',
-                data: data,
-                crossDomain: false,
-                beforeSend: function(xhr, settings) {
-                    if (!csrfSafeMethod(settings.type)) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                }
-                }).done(function(data) {
-                    var rtn = jQuery.parseJSON(data); // should be more defensive/less hardcode-ness
-
-                    $('#login-error').hide();
-                    $('#login-form').dialog('close');
-
-                    // Gray out "Login" button
-                    enableButton($('#logout-button'));
-                    disableButton($('#login-button'));
-
-                    // Check for admin permission
-                    if (rtn.is_admin == true) {
-                        turnOnAdminFeatures(true);
-                    }
-                    else{
-                    	turnOnAdminFeatures(false);
-                    }
-
-                    logged_in = true;
-
-                    // alter msg
-                    //('#account-links > span > p').text("SHITY");
-                    //var pane = $('#default_report_controls');
-                    //var account_links = $('#account-links');
-                   // account_links.text(rtn.username);
-                    //button_details(account_profile), "account_button", "Account");
-
-                    
-
-                    filterInitialPopulate();
-                    show_pages();
-                    //$('#login-button').hide();
-                    //document.getElementById("account-button-span").innerHTML = "Account: " + rtn.username;
-                    //TESTING
-                    //setupCreateFormOLD();
-
-
-                }).fail(function(jqXHR) {
-                	console.log("This request failed");
-                	console.log(jqXHR);
-                   $('#login-error').show();
-                });
-            },
-            "Cancel": function() {
-                $('#login-error').hide();
-                $('#login-form').dialog('close');
-            }
-        }
-    });
-}
-
 
 function logout() {
     $.ajax({
@@ -219,8 +124,6 @@ function logout() {
             }
         }
     }).done(function(data) {
-        enableButton($('#login-button'));
-        //disableButton($('#logout-button'));
         // alter msg
         //$('#account-links > span > p').text('You are not logged in.');
 
@@ -238,31 +141,16 @@ function logout() {
         $('#detail_button').off('click');
         $('#max_button').off("click");
         $('#import_button').off("click");
-        //$('#loginhtml_a').html("LOG IN");
 
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });
 }
 
-function setupLoginButtons() {
-    if (first_logged_in) {
-        disableButton($('#login-button'));
-        logged_in = true;
-        show_pages();
-    } else {
-        disableButton($('#logout-button'));
-        logged_in = false;
-        hide_pages();
-    }
-
-    $('#login-error').hide();
-}
-
 
 function navButtonDocReady(){
     $('#loginhtml_a').click(handleLoginLogout);
-    $('#loginSubmitLink').click(loginSubmit);
+    $('#loginSubmitLink').click(login);
     $('#close-login').click(deactivateLogin);
     /*
      If the user presses 'enter' on the password field
@@ -273,13 +161,9 @@ function navButtonDocReady(){
             $(this).trigger("enter");
         }
     }).bind("enter", function () {
-        loginSubmit();
+        login();
     });
 
-
-	$('#login-button').click(login);
-    $('#logout-button').click(logout);
-	
     $('#instance_details').hide();
     $('#report_button').addClass('disabled');
     $('#detail_button').addClass('disabled');
