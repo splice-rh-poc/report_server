@@ -25,6 +25,14 @@ function show_pages() {
     openCreate();
 }
 
+function setLoginButtonState() {
+    if (logged_in){
+        $('#loginhtml_a').html("LOG OUT");
+    } else {
+        $('#loginhtml_a').html("LOG IN");
+    }
+}
+
 function handleLoginLogout() {
     var state = $('#loginhtml_a').text();
     if (state == "LOG OUT") {
@@ -71,10 +79,10 @@ function loginSubmit() {
         /* $('#login-form').dialog('close'); */
 
         // Gray out "Login" button
-        enableButton($('#logout-button'));
-        disableButton($('#login-button'));
-        $('#loginhtml_a').html("LOG OUT");
-        deactivateLogin()
+        //enableButton($('#logout-button'));
+        //disableButton($('#login-button'));
+        //$('#loginhtml_a').html("LOG OUT");
+        //deactivateLogin()
 
         // Need to change text of button to 'Logout'
 
@@ -86,7 +94,8 @@ function loginSubmit() {
             turnOnAdminFeatures(false);
         }
         logged_in = true;
-
+        setLoginButtonState(); // Must be called after we set 'logged_in'
+        deactivateLogin()
         // alter msg
         //('#account-links > span > p').text("SHITY");
         //var pane = $('#default_report_controls');
@@ -213,6 +222,7 @@ function logout() {
         //$('#account-links > span > p').text('You are not logged in.');
 
         logged_in = false;
+        setLoginButtonState(); // Must be called after we set 'logged_in'
         hide_pages();
 
         // Disable appropriate nav tabs 
@@ -225,7 +235,8 @@ function logout() {
         $('#detail_button').off('click');
         $('#max_button').off("click");
         $('#import_button').off("click");
-        $('#loginhtml_a').html("LOG IN");
+        //$('#loginhtml_a').html("LOG IN");
+
     }).fail(function(jqXHR) {
         // TODO: Add error handling here
     });

@@ -41,6 +41,7 @@ $(document).ready(function() {
 
     navButtonDocReady();
     form_filter_link_hide(false);
+    setLoginButtonState();
     $("#login-active").attr("style", "margin-top:-193px;")
     if (logged_in){
         // $('#login-button').hide();
