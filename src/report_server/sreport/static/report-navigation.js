@@ -30,6 +30,9 @@ function setLoginButtonState() {
         $('#loginhtml_a').html("LOG OUT");
     } else {
         $('#loginhtml_a').html("LOG IN");
+        $('#login_username').val(''); // Clear prev user/password
+        $('#login_password').val('');
+        alert("Cleared"); 
     }
 }
 
