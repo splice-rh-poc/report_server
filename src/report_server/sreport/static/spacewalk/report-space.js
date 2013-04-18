@@ -31,11 +31,18 @@ $(document).ready(function() {
 	}).bind("ajaxError", function() {
 		$(this).hide();
 	});
-    
-	hide_pages();
     //setupCreateForm();
     //setupCreateDatesForm();
 
+    // Note: 'first_logged_in' is set server side 
+    //       used for SSO with spacewalk, where user is already signed in
+    if (first_logged_in) {
+        logged_in = true;
+        show_pages();
+    } else {
+        logged_in = false;
+        hide_pages();
+    }
     navButtonDocReady();
     form_filter_link_hide(false);
     setLoginButtonState();
