@@ -1,4 +1,15 @@
-//function setupCreateForm(){
+/* 
+Copyright  2012 Red Hat, Inc.
+This software is licensed to you under the GNU General Public
+License as published by the Free Software Foundation; either version
+2 of the License (GPLv2) or (at your option) any later version.
+There is NO WARRANTY for this software, express or implied,
+including the implied warranties of MERCHANTABILITY,
+NON-INFRINGEMENT, or FITNESS FOR A PARTICULAR PURPOSE. You should
+have received a copy of GPLv2 along with this software; if not, see
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+*/
+
   function createFilter(){
     var pane = $('#default_report_controls');
     pane.empty();
@@ -167,19 +178,20 @@ function filterInitialPopulate(){
 
     var pane = $('#default_report_controls');
 
-    var CreateFilter = Backbone.Model.extend({
-
-        urlRoot: "/report-server/api/v1/filter/",
+    var Filter = Backbone.Model.extend({
+        url: "/report-server/api/v1/filter/",
     });
 
-    var createFilter = new CreateFilter();
-    createFilter.fetch({
+    var Filters = Backbone.Collection.extend({
+       url: "/report-server/api/v1/filter/", 
+    })
+
+    var filters = new Filters();
+
+  
+
+    filters.fetch({
         success: function(model, response){
-            console.log('SUCCESS INITIAL POPULATE');
-            console.log('reponse');
-            console.log(response);
-            console.log('model');
-            console.log(model);
             filterPopulate(response);
       
         }
@@ -198,11 +210,7 @@ function filterInitialPopulateOptions(){
     var createFilter = new CreateFilter();
     createFilter.fetch({
         success: function(model, response){
-            console.log('SUCCESS');
-            console.log('response:' + response);
-            console.log('model:' + model);
             filterPopulateOptions(response);
-      
         }
     });
 
@@ -227,8 +235,37 @@ function filterPopulate(response){
         mode: "client"
     });
 
-    var filters = new Filters(response.objects);
-    console.log("MY FILTERS " + filters);
+    
+
+    var redhat_default = new Filter({
+      by_month: null,
+      end_date: "3/31/2013",
+      environment: "All",
+      filter_description: "This is report sent to Red Hat",
+      filter_name: "Red Hat Default Report",
+      organization: null,
+      owner: null,
+      start_date: "3/1/2013",
+      end_date: "3/31/2013",
+      status: "All",
+      sys_host: null,
+      id: 0,
+      
+    });
+
+    /*
+    Create the default Red Hat Report Here and only here..
+    So it can not be deleted or removed from the database
+    Adding the default report first ensures it is always the first in the list
+    */
+    var filters = new Filters([redhat_default]);
+    var load = response.objects;
+    load.forEach(function(item){
+        filters.push(item);
+    });
+
+    console.log('WES HERE 2');
+    console.log(response.objects);
 
 
     var columns = [{
@@ -342,20 +379,7 @@ function filterPopulateOptions(response){
         cell : "string"
     }];
 
-    /*
-    var ClickableRow = Backgrid.Row.extend({
-        events : {
-            "change :checkbox": "onChange"
-        },
-        onChange : function() {
-            var selected = [];
-            selected = grid.getSelectedModels(); // This is an array of models
-            console.log(selected);
-            //Backbone.trigger("goToReport", selected[0]);
 
-        }
-    });
-    */
 
     Backbone.on("goToReport", function(model) {
         console.log('in row click');
