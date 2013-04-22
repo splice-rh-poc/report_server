@@ -20,7 +20,8 @@ splice.common.api.USE_SSL=False
 
 from report_server.sreport.api import ProductUsageResource, QuarantinedDataResource
 from report_server.sreport.api import ComplianceDataResource, FilterResource
-from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
+from report_server.sreport.api import ReportMeterResource, ReportSpaceResource, ReportSpaceAPIResource
+
 #
 # Note:  Hack for temporary testing with "manage.py runserver"
 # Importing a "Development version of MarkertingProductUsageResource" where a X509 cert
@@ -40,6 +41,7 @@ quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
 report_meter_resource = ReportMeterResource()
 report_space_resource = ReportSpaceResource()
+report_space_api_resource = ReportSpaceAPIResource()
 filter_resource = FilterResource()
 
 v1_api.register(productusage_resource)
@@ -48,6 +50,7 @@ v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
 v1_api.register(report_meter_resource)
 v1_api.register(report_space_resource)
+v1_api.register(report_space_api_resource)
 v1_api.register(filter_resource)
 v1_api.register(PoolResourceDev())
 v1_api.register(ProductResourceDev())

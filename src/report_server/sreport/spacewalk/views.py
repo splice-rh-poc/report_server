@@ -14,6 +14,7 @@ from __future__ import division
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template.defaultfilters import slugify
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from report_server.common.utils import get_dates_from_request, data_from_post, create_response
 from report_server.common import constants, utils
 from report_server.sreport.models import MarketingReportData, Pool, Filter
@@ -31,7 +32,7 @@ _LOG = logging.getLogger(__name__)
 def report_form(request):
     _LOG.info("space_form called by method: %s" % (request.method))
     user = str(request.user)
-    environments = MarketingReportData.objects.distinct("environments")
+    environments = MarketingReportData.objects.distinct("environment")
     status = MarketingReportData.objects.distinct("status")
     sys_id = MarketingReportData.objects.distinct("systemid")
     response_data = {}
@@ -97,8 +98,16 @@ def report(request):
     
     format = constants.full_format
 
+
     response_data = {}
-    response_data['list'] = results
+    
+    if 'page' in request.GET:
+        page = request.GET.get('page')
+
+    else:
+        response_data['list'] = results
+
+    
     response_data['start'] = start.strftime(format)
     response_data['end'] = end.strftime(format)
     response_data['num_valid'] = str(num_valid)
@@ -146,7 +155,7 @@ def export(request):
     #if request.method == 'GET':
     start, end = get_dates_from_request(request)
     status = request.GET["status"]
-    environment = request.GET['env']
+    environment = request.GET['environment']
 
     _LOG.info(status)
     _LOG.info(environment)

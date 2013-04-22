@@ -14,7 +14,7 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import list_detail
 from report_server.sreport.api import ProductUsageResource,  QuarantinedDataResource, FilterResource
 from report_server.sreport.api import ComplianceDataResource, SpliceServerResourceMod
-from report_server.sreport.api import ReportMeterResource, ReportSpaceResource
+from report_server.sreport.api import ReportMeterResource, ReportSpaceResource, ReportSpaceAPIResource
 from report_server.sreport.api import  SpliceServerResourceMod, MarketingProductUsageResourceMod
 from report_server.sreport.api import PoolResourceMod, ProductResourceMod, RulesResourceMod
 from tastypie.api import Api
@@ -28,6 +28,7 @@ quarantine_resource = QuarantinedDataResource()
 compliance_resource = ComplianceDataResource()
 report_meter_resource = ReportMeterResource()
 report_space_resource = ReportSpaceResource()
+report_space_api = ReportSpaceAPIResource()
 filter_resource = FilterResource()
 
 v1_api.register(productusage_resource)
@@ -36,6 +37,7 @@ v1_api.register(quarantine_resource)
 v1_api.register(compliance_resource)
 v1_api.register(report_meter_resource)
 v1_api.register(report_space_resource)
+v1_api.register(report_space_api)
 v1_api.register(filter_resource)
 v1_api.register(SpliceServerResourceMod())
 v1_api.register(PoolResourceMod())

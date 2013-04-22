@@ -19,9 +19,11 @@ from tastypie.authorization import Authorization
 from tastypie_mongoengine.resources import MongoEngineResource
 from tastypie.resources import Resource
 from tastypie.serializers import Serializer
+from tastypie.paginator import Paginator
 
 from report_server.sreport.models import QuarantinedReportData
-from report_server.sreport.models import ReportData, SpliceServer, Filter, Pool, Product, Rules, MarketingProductUsage
+from report_server.sreport.models import SpliceServer, Filter, Pool, Product, Rules, MarketingProductUsage
+from report_server.sreport.models import ReportData, MarketingReportData
 from report_server.sreport import views
 from report_server.sreport.meter.views import report as meter_report
 from report_server.sreport.spacewalk.views import report as space_report
@@ -295,7 +297,7 @@ class ReportMeterResource(MongoEngineResource):
 class ReportSpaceResource(MongoEngineResource):
 
     class Meta:
-        queryset = ReportData.objects.all()
+        queryset = MarketingReportData.objects.all()
         allow_methods = ['post']
 
         # Make sure we always get back the representation of the resource back
@@ -362,4 +364,20 @@ class FilterResource(MongoEngineResource):
 
         return utils.create_response(response_data)
     
-    
+
+class ReportSpaceAPIResource(MongoEngineResource):
+
+    class Meta:
+        queryset = MarketingReportData.objects.all()
+        allow_methods = ['post', 'get']
+        filtering = {
+                    'id': ['exact'],
+                    'status': ['exact'],
+        }
+        paginator_class = Paginator
+        
+        '''
+        def dehydrate(self, bundle):
+                bundle.data['custom_field'] = "Whatever you want"
+                return bundle        
+        '''
